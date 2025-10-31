@@ -11,6 +11,19 @@ use Intervention\Image\Drivers\Gd\Driver;
 use Spatie\Permission\Models\Permission;
 
 class UserController extends Controller{
+    function updateUserPermissions(Request $request, $userId){
+        $user = User::findOrFail($userId);
+        $permissions = Permission::whereIn('id', $request->permissions)->get();
+        $user->syncPermissions($permissions);
+        return $user->permissions()->pluck('name');
+    }
+    function userPermissions(Request $request, $userId){
+        $user = User::findOrFail($userId);
+        return $user->permissions()->pluck('name');
+    }
+    function permissions(){
+        return  Permission::all();
+    }
     public function updateAvatar(Request $request, $userId)
     {
         $user = User::find($userId);

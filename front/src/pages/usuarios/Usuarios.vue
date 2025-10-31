@@ -144,6 +144,9 @@
                      :rules="[val => !!val || 'Campo requerido']" v-if="!user.id"/>
             <q-select v-model="user.role" label="Rol" dense outlined :options="roles"
                       :rules="[val => !!val || 'Campo requerido']"/>
+<!--            area-->
+            <q-select v-model="user.area" label="Area" dense outlined :options="areas"
+                      :rules="[val => !!val || 'Campo requerido']"/>
 <!--            <q-select v-model="user.docente_id" label="Docente" dense outlined :options="docentes"-->
 <!--                      option-label="nombre" option-value="id" emit-value map-options-->
 <!--                      :rules="[val => !!val || 'Campo requerido']"/>-->
@@ -261,8 +264,15 @@ export default {
       actionUser: '',
       gestiones: [],
       filter: '',
-      // USUARIO GERENTE PRODUCTOR PRODUCCION ADMINITRATIVO
-      roles: ['Usuario', 'Gerente', 'Productor', 'Produccion', 'Administrativo'],
+      roles: ['Medico', 'Admision', 'Preanalitica', 'Analitica', 'Administrador'],
+      areas : [
+        'Administracion',
+        'Hematologia',
+        'Quimica Sanguinea',
+        'Uruanalisis y Parasitologia',
+        'Bacterologia',
+        'Inmunologia',
+      ],
       columns: [
         {name: 'actions', label: 'Acciones', align: 'center'},
         {name: 'name', label: 'Nombre', align: 'left', field: 'name'},

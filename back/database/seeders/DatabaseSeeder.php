@@ -26,12 +26,20 @@ class DatabaseSeeder extends Seeder
             ]);
             $permisos = [
                 'Usuarios',
-                'Insumos',
-                'Productos',
-                'Clientes',
-                'Ventas',
-                'Compras',
-                'Reportes',
+                'Pacientes',
+                'Hematologia',
+                'Quimica Sanguinea',
+                'Uruanalisis y Parasitologia',
+                'Bacteriologia',
+                'Inmunologia',
+
+
+//                'Insumos',
+//                'Productos',
+//                'Clientes',
+//                'Ventas',
+//                'Compras',
+//                'Reportes',
             ];
             foreach ($permisos as $permiso) {
                 Permission::create(['name' => $permiso]);
