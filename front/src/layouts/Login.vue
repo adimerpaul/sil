@@ -108,7 +108,7 @@ function login () {
       proxy.$store.isLogged = true
       proxy.$store.user = user
       proxy.$store.permissions = (user.permissions || []).map(p => p.name)
-      localStorage.setItem('tokenSofiaFactu', token)
+      localStorage.setItem('tokenSil', token)
       localStorage.setItem('user', JSON.stringify(user))
       proxy.$alert.success('Bienvenido ', user.name)
       proxy.$router.push('/')

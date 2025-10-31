@@ -53,7 +53,7 @@ export default boot(({ app, router }) => {
       return 'red'
     }
   }
-  const token = localStorage.getItem('tokenChicken')
+  const token = localStorage.getItem('tokenSil')
   if (token) {
     app.config.globalProperties.$axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
     app.config.globalProperties.$axios.get('me').then(response => {
@@ -64,7 +64,7 @@ export default boot(({ app, router }) => {
       // useCounterStore().permissions = response.data.permissions
     }).catch(error => {
       console.log(error)
-      localStorage.removeItem('tokenChicken')
+      localStorage.removeItem('tokenSil')
       useCounterStore().isLogged = false
       // useCounterStore().permissions = []
       useCounterStore().user = {}
