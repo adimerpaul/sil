@@ -11,4 +11,11 @@ Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/me', [App\Http\Controllers\UserController::class, 'me']);
     Route::post('/logout', [App\Http\Controllers\UserController::class, 'logout']);
+
+    Route::get('/users', [App\Http\Controllers\UserController::class, 'index']);
+    Route::post('/users', [App\Http\Controllers\UserController::class, 'store']);
+    Route::put('/users/{user}', [App\Http\Controllers\UserController::class, 'update']);
+    Route::delete('/users/{user}', [App\Http\Controllers\UserController::class, 'destroy']);
+    Route::put('/updatePassword/{user}', [App\Http\Controllers\UserController::class, 'updatePassword']);
+    Route::post('/{user}/avatar', [App\Http\Controllers\UserController::class, 'updateAvatar']);
 });
