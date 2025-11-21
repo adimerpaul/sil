@@ -19,7 +19,7 @@ class PacienteController extends Controller
         $validated = $request->validate([
             'nombre_completo' => 'required|string|max:255',
         ]);
-//        validar por ci si ya existe el paciente
+
         $existe = Paciente::where('ci', $request->ci)->first();
         if ($existe) {
             return response()->json(['message' => 'El paciente con CI ' . $request->ci . ' ya existe'], 409);
@@ -38,5 +38,15 @@ class PacienteController extends Controller
         $paciente = Paciente::findOrFail($id);
         $paciente->delete();
         return response()->json(['message' => 'Paciente eliminado correctamente']);
+    }
+    public function buscarPorCi($ci)
+    {
+        $paciente = Paciente::where('ci', $ci)->first();
+
+        if (!$paciente) {
+            return response()->json(['message' => 'Paciente no encontrado'], 404);
+        }
+
+        return response()->json($paciente);
     }
 }
