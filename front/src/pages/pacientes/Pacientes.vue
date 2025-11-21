@@ -81,6 +81,7 @@ export default {
       paciente: {},
       columns: [
         { name: 'actions', label: 'Acciones', align: 'center' },
+        { name: 'id', label: 'Codigo paciente', field: 'id' },
         { name: 'nombre_completo', label: 'Nombre', field: 'nombre_completo' },
         { name: 'ci', label: 'CI', field: 'ci' },
         { name: 'telefono', label: 'Teléfono', field: 'telefono' },

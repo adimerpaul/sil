@@ -3,6 +3,7 @@
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\ConsentimientoController;
+use App\Http\Controllers\SolicitudeController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
@@ -29,5 +30,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // Consentimientos
     Route::apiResource('consentimientos', ConsentimientoController::class);
     Route::apiResource('doctores', DoctorController::class);
+
+    Route::apiResource('solicitudes', SolicitudeController::class);
+    Route::apiResource('doctores', DoctorController::class);
+    Route::apiResource('pacientes', PacienteController::class);
+
 });
 Route::get('consentimientos/{id}/print', [ConsentimientoController::class, 'print']);

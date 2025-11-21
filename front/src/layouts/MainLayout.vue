@@ -183,6 +183,15 @@
             <q-item-label class="text-white">Doctores</q-item-label>
           </q-item-section>
         </q-item>
+<!--        solicitudes-->
+        <q-item dense to="/solicitudes" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+          <q-item-section avatar>
+            <q-icon name="request_page" class="text-white"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-white">Solicitudes</q-item-label>
+          </q-item-section>
+        </q-item>
 
         <div class="q-pa-md">
           <div class="text-white-7 text-caption">
