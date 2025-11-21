@@ -19,6 +19,11 @@ class PacienteController extends Controller
         $validated = $request->validate([
             'nombre_completo' => 'required|string|max:255',
         ]);
+//        validar por ci si ya existe el paciente
+        $existe = Paciente::where('ci', $request->ci)->first();
+        if ($existe) {
+            return response()->json(['message' => 'El paciente con CI ' . $request->ci . ' ya existe'], 409);
+        }
         $paciente = Paciente::create($request->all());
         return response()->json($paciente, 201);
     }

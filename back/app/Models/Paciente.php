@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
-class Paciente extends Model {
-    use SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait;
+class Paciente extends Model implements Auditable
+{
+    use SoftDeletes, AuditableTrait;
 
     protected $fillable = [
         'fecha_recepcion', 'hora_recepcion',
