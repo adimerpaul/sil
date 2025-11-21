@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\ConsentimientoController;
 use Illuminate\Support\Facades\Route;
@@ -27,5 +28,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     // Consentimientos
     Route::apiResource('consentimientos', ConsentimientoController::class);
+    Route::apiResource('doctores', DoctorController::class);
 });
 Route::get('consentimientos/{id}/print', [ConsentimientoController::class, 'print']);
