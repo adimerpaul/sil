@@ -174,6 +174,15 @@
             <q-item-label class="text-white">Consentimientos</q-item-label>
           </q-item-section>
         </q-item>
+<!--        doctores-->
+        <q-item dense to="/doctores" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+          <q-item-section avatar>
+            <q-icon name="medical_services" class="text-white"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-white">Doctores</q-item-label>
+          </q-item-section>
+        </q-item>
 
         <div class="q-pa-md">
           <div class="text-white-7 text-caption">
