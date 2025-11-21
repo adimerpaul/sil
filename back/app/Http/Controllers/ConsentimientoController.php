@@ -44,25 +44,25 @@ class ConsentimientoController extends Controller
         ]);
 
         // Si viene paciente_id y no se enviaron los campos, los completamos con los datos del paciente
-        if ($request->filled('paciente_id')) {
-            $paciente = Paciente::find($request->paciente_id);
-            if ($paciente && !$request->filled('nombre_completo')) {
-                $request->merge([
-                    'nombre_completo' => $paciente->nombre_completo,
-                    'fecha_nac'       => $paciente->fecha_nac,
-                    'genero'          => $paciente->genero,
-                    'edad'            => $paciente->edad,
-                    'ci'              => $paciente->ci,
-                    'telefono'        => $paciente->telefono,
-                    'direccion'       => $paciente->direccion,
-                    'discapacidad'    => $paciente->discapacidad,
-                    'discapacidad_cual' => $paciente->discapacidad_cual,
-                    'embarazo'        => $paciente->embarazo,
-                    'fum'             => $paciente->fum,
-                    'sem_gest'        => $paciente->sem_gest,
-                ]);
-            }
-        }
+//        if ($request->filled('paciente_id')) {
+//            $paciente = Paciente::find($request->paciente_id);
+//            if ($paciente && !$request->filled('nombre_completo')) {
+//                $request->merge([
+//                    'nombre_completo' => $paciente->nombre_completo,
+//                    'fecha_nac'       => $paciente->fecha_nac,
+//                    'genero'          => $paciente->genero,
+//                    'edad'            => $paciente->edad,
+//                    'ci'              => $paciente->ci,
+//                    'telefono'        => $paciente->telefono,
+//                    'direccion'       => $paciente->direccion,
+//                    'discapacidad'    => $paciente->discapacidad,
+//                    'discapacidad_cual' => $paciente->discapacidad_cual,
+//                    'embarazo'        => $paciente->embarazo,
+//                    'fum'             => $paciente->fum,
+//                    'sem_gest'        => $paciente->sem_gest,
+//                ]);
+//            }
+//        }
 
         // usuario que registra
         if ($request->user()) {
@@ -79,7 +79,7 @@ class ConsentimientoController extends Controller
         $consentimiento = Consentimiento::findOrFail($id);
 
         $request->validate([
-            'tipo' => 'sometimes|in:ACEPTA,RECHAZA',
+            'tipo' => 'nullable',
             'paciente_id' => 'nullable|exists:pacientes,id',
         ]);
 
@@ -102,6 +102,7 @@ class ConsentimientoController extends Controller
     public function print($id)
     {
         $consentimiento = Consentimiento::with('paciente')->findOrFail($id);
+//        return $consentimiento->load('paciente');
 
         $pdf = Pdf::loadView('pdf.consentimiento', [
             'c' => $consentimiento,

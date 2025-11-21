@@ -1,4 +1,3 @@
-// resources/views/pdf/consentimiento.blade.php
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -22,14 +21,17 @@
 
 <table>
     <tr>
-        <td>Fecha recepción: {{ optional($c->fecha_recepcion)->format('d/m/Y') }}</td>
+        <td>Fecha recepción: {{ $c->fecha_recepcion}}</td>
         <td>Hora recepción: {{ $c->hora_recepcion }}</td>
     </tr>
     <tr>
         <td colspan="2">Nombre completo del paciente: {{ $c->nombre_completo }}</td>
     </tr>
     <tr>
-        <td>Fecha de nac.: {{ optional($c->fecha_nac)->format('d/m/Y') }}</td>
+        <td>
+{{--            {{$c}}--}}
+            Fecha de nac.: {{ $c->fecha_nac }}
+        </td>
         <td>Género: {{ $c->genero }}</td>
     </tr>
     <tr>
@@ -68,7 +70,15 @@
 <p>
     Yo: <span class="firma-linea">{{ $c->declarante_nombre }}</span>
     en mi condición de <span class="firma-linea">{{ $c->declarante_condicion }}</span>,
-    {{ $c->tipo === 'ACEPTA' ? 'ACEPTO' : 'RECHAZO' }} y DOY MI consentimiento para la toma de muestra
+    'ACEPTO' y DOY MI consentimiento para la toma de muestra
+    a requerimiento para el/los examen/nes a realizar, y acepto la responsabilidad de los
+    inconvenientes o consecuencias que surjan al no acatar dichas indicaciones y recomendaciones.
+</p>
+
+<p>
+    Yo: <span class="firma-linea">{{ $c->declarante_nombre }}</span>
+    en mi condición de <span class="firma-linea">{{ $c->declarante_condicion }}</span>,
+    'RECHAZO' y DOY MI consentimiento para la toma de muestra
     a requerimiento para el/los examen/nes a realizar, y acepto la responsabilidad de los
     inconvenientes o consecuencias que surjan al no acatar dichas indicaciones y recomendaciones.
 </p>
