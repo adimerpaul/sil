@@ -6,6 +6,8 @@ const routes = [
       { path: '', component: () => import('pages/IndexPage.vue') },
       { path: '/usuarios', component: () => import('pages/usuarios/Usuarios.vue'), meta: { requiresAuth: true, perm: 'Usuarios' } },
       { path: '/pacientes', component: () => import('pages/pacientes/Pacientes.vue'), meta: { requiresAuth: true, perm: 'Pacientes' } },
+      // consentimientos
+      { path: '/consentimientos', component: () => import('pages/consentimientos/Consentimientos.vue'), meta: { requiresAuth: true, perm: 'Consentimientos' } },
     ]
   },
   {

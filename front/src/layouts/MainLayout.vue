@@ -86,7 +86,7 @@
       v-model="leftDrawerOpen"
       bordered
       show-if-above
-      :width="240"
+      :width="200"
       :breakpoint="500"
       class="bg-primary text-white"
     >
@@ -99,7 +99,7 @@
           <div class="text-caption text-white">Hospital General San Juan de Dios</div>
         </q-item-label>
 
-        <q-separator color="green-8" />
+<!--        <q-separator color="green-8" />-->
 
         <q-item-label header class="q-px-md text-grey-3 q-mt-sm">
           Módulos del Sistema
@@ -163,6 +163,15 @@
           </q-item-section>
           <q-item-section>
             <q-item-label class="text-white">Pacientes</q-item-label>
+          </q-item-section>
+        </q-item>
+<!--        concentimientos-->
+        <q-item dense to="/consentimientos" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+          <q-item-section avatar>
+            <q-icon name="assignment_turned_in" class="text-white"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-white">Consentimientos</q-item-label>
           </q-item-section>
         </q-item>
 
