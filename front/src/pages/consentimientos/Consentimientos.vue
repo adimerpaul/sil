@@ -217,6 +217,8 @@
 </template>
 
 <script>
+import moment from "moment";
+
 export default {
   name: 'ConsentimientosPage',
   data () {
@@ -277,8 +279,8 @@ export default {
     nuevo () {
       this.consentimiento = {
         paciente_id: null,
-        fecha_recepcion: '',
-        hora_recepcion: '',
+        fecha_recepcion: moment().format('YYYY-MM-DD'),
+        hora_recepcion: moment().format('HH:mm'),
         fecha_solicitud: '',
         nombre_completo: '',
         fecha_nac: '',
@@ -296,10 +298,10 @@ export default {
         tratamiento: '',
         condicion: '',
         etapa_gestacion: '',
-        tipo: 'ACEPTA',
+        tipo: '',
         declarante_nombre: '',
         declarante_condicion: '',
-        fecha_consentimiento: this.today(),
+        fecha_consentimiento: moment().format('YYYY-MM-DD'),
       };
       this.searchCi = '';
       this.editando = false;
@@ -373,12 +375,12 @@ export default {
       const url = `${process.env.API_URL || this.$axios.defaults.baseURL}/consentimientos/${row.id}/print`;
       window.open(url, '_blank');
     },
-    today () {
-      const d = new Date();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${d.getFullYear()}-${m}-${day}`;
-    },
+    // today () {
+    //   const d = new Date();
+    //   const m = String(d.getMonth() + 1).padStart(2, '0');
+    //   const day = String(d.getDate()).padStart(2, '0');
+    //   return `${d.getFullYear()}-${m}-${day}`;
+    // },
   },
 };
 </script>
