@@ -1,0 +1,1 @@
+import{a5 as t}from"./index-0njArHGX.js";const r=t("counter",{state:()=>({counter:0,user:{},isLogged:!!localStorage.getItem("tokenSil"),permissions:[]}),getters:{doubleCount:e=>e.counter*2},actions:{increment(){this.counter++}}});export{r as u};

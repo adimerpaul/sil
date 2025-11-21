@@ -317,14 +317,16 @@
                     <div
                       v-for="servicio in area.servicios"
                       :key="servicio.codigo"
-                      class="col-12 col-sm-4 col-md-3"
+                      class="col-12"
                     >
                       <q-checkbox
-                        v-model="solicitud.servicios_seleccionados"
-                        :true-value="servicio.codigo"
+                        v-model="servicio.seleccionado"
+                        :true-value="1"
+                        :false-value="0"
                         :label="`${servicio.nombre} (Bs. ${servicio.precio})`"
                         dense
                       />
+<!--                      <pre>{{ servicio.seleccionado }}</pre>-->
                     </div>
                   </div>
                 </div>
@@ -649,6 +651,13 @@ export default {
       this.searchCi = '';
       this.editando = false;
       this.dialog = true;
+
+      // servicios_seleccionados en falde=se de areas
+      this.areas.forEach(area => {
+        area.servicios.forEach(servicio => {
+          servicio.seleccionado = 0;
+        });
+      });
     },
     editar (row) {
       this.solicitud = { ...row, paciente_id: row.paciente_id, doctor_id: row.doctor_id };
