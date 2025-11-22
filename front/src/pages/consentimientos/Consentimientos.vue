@@ -18,8 +18,23 @@
           />
         </div>
         <div class="col-12 col-sm-3 text-right">
-          <q-btn color="primary" icon="search" label="Filtrar" @click="getConsentimientos" no-caps :loading="loading" class="q-mr-sm" />
-          <q-btn color="positive" icon="add_circle_outline" label="Nuevo" @click="nuevo" no-caps :loading="loading" />
+          <q-btn
+            color="primary"
+            icon="search"
+            label="Filtrar"
+            @click="getConsentimientos"
+            no-caps
+            :loading="loading"
+            class="q-mr-sm"
+          />
+          <q-btn
+            color="positive"
+            icon="add_circle_outline"
+            label="Nuevo"
+            @click="nuevo"
+            no-caps
+            :loading="loading"
+          />
         </div>
       </q-card-section>
     </q-card>
@@ -44,14 +59,21 @@
         <q-td :props="props">
           <q-btn-dropdown label="Opciones" color="primary" dense size="10px" no-caps>
             <q-list>
+              <q-item clickable v-close-popup @click="ver(props.row)">
+                <q-item-section avatar><q-icon name="visibility" /></q-item-section>
+                <q-item-section>Ver</q-item-section>
+              </q-item>
+
               <q-item clickable v-close-popup @click="editar(props.row)">
                 <q-item-section avatar><q-icon name="edit" /></q-item-section>
                 <q-item-section>Editar</q-item-section>
               </q-item>
+
               <q-item clickable v-close-popup @click="imprimir(props.row)">
                 <q-item-section avatar><q-icon name="picture_as_pdf" /></q-item-section>
                 <q-item-section>Imprimir</q-item-section>
               </q-item>
+
               <q-item clickable v-close-popup @click="eliminar(props.row.id)">
                 <q-item-section avatar><q-icon name="delete" /></q-item-section>
                 <q-item-section>Eliminar</q-item-section>
@@ -67,7 +89,7 @@
       <q-card style="min-width: 600px; max-width: 900px;">
         <q-card-section class="row items-center">
           <div class="text-h6">
-            {{ editando ? 'Editar consentimiento' : 'Nuevo consentimiento' }}
+            {{ soloVer ? 'Ver consentimiento' : (editando ? 'Editar consentimiento' : 'Nuevo consentimiento') }}
           </div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
@@ -76,7 +98,7 @@
         <q-separator />
 
         <q-card-section>
-          <q-form @submit="guardar">
+          <q-form @submit.prevent="onSubmit">
             <!-- Búsqueda de paciente -->
             <div class="row q-col-gutter-sm">
               <div class="col-12 col-sm-4">
@@ -84,9 +106,14 @@
                   v-model="searchCi"
                   label="Buscar paciente por CI"
                   dense outlined
+                  :readonly="soloVer"
                 >
                   <template #append>
-                    <q-btn flat dense icon="search" @click="buscarPacientePorCi" />
+                    <q-btn
+                      flat dense icon="search"
+                      @click="buscarPacientePorCi"
+                      :disable="soloVer"
+                    />
                   </template>
                 </q-input>
               </div>
@@ -99,6 +126,7 @@
                   emit-value map-options
                   dense outlined
                   label="Seleccionar paciente"
+                  :disable="soloVer"
                   @update:model-value="onSelectPaciente"
                 />
               </div>
@@ -109,21 +137,47 @@
             <!-- Datos del paciente (se rellenan solos o manualmente) -->
             <div class="row q-col-gutter-sm">
               <div class="col-12 col-sm-6">
-                <q-input v-model="consentimiento.nombre_completo" label="Nombre completo" dense outlined />
+                <q-input
+                  v-model="consentimiento.nombre_completo"
+                  label="Nombre completo"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
               <div class="col-12 col-sm-3">
-                <q-input v-model="consentimiento.ci" label="CI" dense outlined />
+                <q-input
+                  v-model="consentimiento.ci"
+                  label="CI"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
               <div class="col-12 col-sm-3">
-                <q-input v-model="consentimiento.telefono" label="Teléfono" dense outlined />
+                <q-input
+                  v-model="consentimiento.telefono"
+                  label="Teléfono"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
 
               <div class="col-12">
-                <q-input v-model="consentimiento.direccion" label="Dirección" dense outlined />
+                <q-input
+                  v-model="consentimiento.direccion"
+                  label="Dirección"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
 
               <div class="col-12 col-sm-4">
-                <q-input v-model="consentimiento.fecha_nac" type="date" label="Fecha de nacimiento" dense outlined />
+                <q-input
+                  v-model="consentimiento.fecha_nac"
+                  type="date"
+                  label="Fecha de nacimiento"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
               <div class="col-12 col-sm-4">
                 <q-select
@@ -131,46 +185,91 @@
                   :options="['F', 'M', 'OTRO']"
                   label="Género"
                   dense outlined
+                  :disable="soloVer"
                 />
               </div>
               <div class="col-12 col-sm-4">
-                <q-input v-model.number="consentimiento.edad" type="number" label="Edad" dense outlined />
+                <q-input
+                  v-model.number="consentimiento.edad"
+                  type="number"
+                  label="Edad"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
 
               <div class="col-12 col-sm-4">
-                <q-toggle v-model="consentimiento.discapacidad" :true-value="1" :false-value="0" label="Discapacidad" />
+                <q-toggle
+                  v-model="consentimiento.discapacidad"
+                  :true-value="1"
+                  :false-value="0"
+                  label="Discapacidad"
+                  :disable="soloVer"
+                />
               </div>
               <div class="col-12 col-sm-8" v-if="consentimiento.discapacidad">
-                <q-input v-model="consentimiento.discapacidad_cual" label="¿Cuál?" dense outlined />
+                <q-input
+                  v-model="consentimiento.discapacidad_cual"
+                  label="¿Cuál?"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
 
               <div class="col-12 col-sm-4">
-                <q-toggle v-model="consentimiento.embarazo" :true-value="1" :false-value="0" label="Embarazo" />
+                <q-toggle
+                  v-model="consentimiento.embarazo"
+                  :true-value="1"
+                  :false-value="0"
+                  label="Embarazo"
+                  :disable="soloVer"
+                />
               </div>
               <div class="col-12 col-sm-4" v-if="consentimiento.embarazo">
-                <q-input v-model="consentimiento.fum" type="date" label="FUM" dense outlined />
+                <q-input
+                  v-model="consentimiento.fum"
+                  type="date"
+                  label="FUM"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
               <div class="col-12 col-sm-4" v-if="consentimiento.embarazo">
-                <q-input v-model.number="consentimiento.sem_gest" type="number" label="Semanas gestación" dense outlined />
+                <q-input
+                  v-model.number="consentimiento.sem_gest"
+                  type="number"
+                  label="Semanas gestación"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
 
               <div class="col-12 col-sm-4">
-                <q-toggle v-model="consentimiento.medicamento" :true-value="1" :false-value="0" label="Medicamento" />
+                <q-toggle
+                  v-model="consentimiento.medicamento"
+                  :true-value="1"
+                  :false-value="0"
+                  label="Medicamento"
+                  :disable="soloVer"
+                />
               </div>
               <div class="col-12 col-sm-8" v-if="consentimiento.medicamento">
-                <q-input v-model="consentimiento.tratamiento" label="Tratamiento" dense outlined />
+                <q-input
+                  v-model="consentimiento.tratamiento"
+                  label="Tratamiento"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
 
               <div class="col-12 col-sm-6">
                 <q-select
                   v-model="consentimiento.condicion"
-                  :options="['BASAL', 'AYUNO PROL', 'POST PRANDIAL', 'ETAPA GESTACIÓN']"
+                  :options="['BASAL', 'AYUNO PROL', 'POST PRANDIAL']"
                   label="Condición"
                   dense outlined
+                  :disable="soloVer"
                 />
-              </div>
-              <div class="col-12 col-sm-6" v-if="consentimiento.condicion === 'ETAPA GESTACIÓN'">
-                <q-input v-model="consentimiento.etapa_gestacion" label="Etapa gestación" dense outlined />
               </div>
             </div>
 
@@ -179,13 +278,31 @@
             <!-- Datos de consentimiento -->
             <div class="row q-col-gutter-sm">
               <div class="col-12 col-sm-4">
-                <q-input v-model="consentimiento.fecha_recepcion" type="date" label="Fecha recepción" dense outlined />
+                <q-input
+                  v-model="consentimiento.fecha_recepcion"
+                  type="date"
+                  label="Fecha recepción"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
               <div class="col-12 col-sm-4">
-                <q-input v-model="consentimiento.hora_recepcion" type="time" label="Hora recepción" dense outlined />
+                <q-input
+                  v-model="consentimiento.hora_recepcion"
+                  type="time"
+                  label="Hora recepción"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
               <div class="col-12 col-sm-4">
-                <q-input v-model="consentimiento.fecha_consentimiento" type="date" label="Fecha consentimiento" dense outlined />
+                <q-input
+                  v-model="consentimiento.fecha_consentimiento"
+                  type="date"
+                  label="Fecha consentimiento"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
 
               <div class="col-12 col-sm-4">
@@ -195,19 +312,50 @@
                   label="Tipo consentimiento"
                   clearable
                   dense outlined
+                  :disable="soloVer"
                 />
               </div>
               <div class="col-12 col-sm-4">
-                <q-input v-model="consentimiento.declarante_nombre" label="Yo (declarante)" dense outlined />
+                <q-input
+                  v-model="consentimiento.declarante_nombre"
+                  label="Yo (declarante)"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
               <div class="col-12 col-sm-4">
-                <q-input v-model="consentimiento.declarante_condicion" label="Condición del declarante" dense outlined />
+                <q-select
+                  v-model="consentimiento.declarante_condicion"
+                  :options="['Padre', 'Madre', 'Abuelo/a', 'Hijo/a', 'Propio', 'Otros']"
+                  label="Condición del declarante"
+                  dense outlined
+                  clearable
+                  :disable="soloVer"
+                />
+                <q-input
+                  v-if="consentimiento.declarante_condicion === 'Otros'"
+                  v-model="consentimiento.declarante_condicion_otro"
+                  label="Especifique condición del declarante"
+                  dense outlined
+                  :readonly="soloVer"
+                />
               </div>
             </div>
 
             <div class="text-right q-mt-md">
-              <q-btn flat label="Cancelar" v-close-popup :loading="loading" />
-              <q-btn color="primary" label="Guardar" type="submit" class="q-ml-sm" :loading="loading" />
+              <template v-if="soloVer">
+                <q-btn flat label="Cerrar" v-close-popup :loading="loading" />
+              </template>
+              <template v-else>
+                <q-btn flat label="Cancelar" v-close-popup :loading="loading" />
+                <q-btn
+                  color="primary"
+                  label="Guardar"
+                  type="submit"
+                  class="q-ml-sm"
+                  :loading="loading"
+                />
+              </template>
             </div>
           </q-form>
         </q-card-section>
@@ -244,6 +392,7 @@ export default {
       filter: '',
       dialog: false,
       editando: false,
+      soloVer: false,
       loading: false,
       consentimiento: {},
       filters: {
@@ -301,16 +450,31 @@ export default {
         tipo: '',
         declarante_nombre: '',
         declarante_condicion: '',
+        declarante_condicion_otro: '',
         fecha_consentimiento: moment().format('YYYY-MM-DD'),
       };
       this.searchCi = '';
       this.editando = false;
+      this.soloVer = false;
       this.dialog = true;
     },
     editar (row) {
       this.consentimiento = { ...row, paciente_id: row.paciente_id };
       this.editando = true;
+      this.soloVer = false;
       this.dialog = true;
+    },
+    ver (row) {
+      this.consentimiento = { ...row, paciente_id: row.paciente_id };
+      this.editando = false;
+      this.soloVer = true;
+      this.dialog = true;
+    },
+    onSubmit () {
+      if (this.soloVer) {
+        return;
+      }
+      this.guardar();
     },
     guardar () {
       this.loading = true;
@@ -339,7 +503,7 @@ export default {
       });
     },
     buscarPacientePorCi () {
-      if (!this.searchCi) return;
+      if (!this.searchCi || this.soloVer) return;
       this.loading = true;
       this.$axios
         .get(`pacientes/buscar-ci/${this.searchCi}`)
@@ -371,16 +535,9 @@ export default {
       this.consentimiento.sem_gest = p.sem_gest;
     },
     imprimir (row) {
-      // Ajusta esto según cómo tengas configurada la URL base de tu API
       const url = `${process.env.API_URL || this.$axios.defaults.baseURL}/consentimientos/${row.id}/print`;
       window.open(url, '_blank');
     },
-    // today () {
-    //   const d = new Date();
-    //   const m = String(d.getMonth() + 1).padStart(2, '0');
-    //   const day = String(d.getDate()).padStart(2, '0');
-    //   return `${d.getFullYear()}-${m}-${day}`;
-    // },
   },
 };
 </script>
