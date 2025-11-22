@@ -117,7 +117,7 @@
 
     <!-- Diálogo -->
     <q-dialog v-model="dialog">
-      <q-card style="min-width: 480px; max-width: 720px;">
+      <q-card style="min-width: 480px; max-width: 900px;">
         <q-card-section class="row items-center">
           <div class="text-h6">
             {{ editando ? 'Editar establecimiento' : 'Nuevo establecimiento' }}
@@ -240,6 +240,38 @@
                   clearable
                 />
               </div>
+
+              <!-- NUEVO: selección de servicios -->
+              <div class="col-12">
+                <q-select
+                  v-model="establecimiento.servicio_ids"
+                  :options="serviciosOptions"
+                  option-value="id"
+                  :option-label="servicioLabel"
+                  emit-value
+                  map-options
+                  multiple
+                  use-chips
+                  dense
+                  outlined
+                  label="Servicios que ofrece el establecimiento"
+                  popup-content-class="q-pa-none"
+                >
+                  <!-- opción personalizada con código y área -->
+                  <template #option="scope">
+                    <q-item v-bind="scope.itemProps">
+                      <q-item-section>
+                        <q-item-label>
+                          {{ servicioLabel(scope.opt) }}
+                        </q-item-label>
+                        <q-item-label caption v-if="scope.opt.area">
+                          Área: {{ scope.opt.area.name }}
+                        </q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
+              </div>
             </div>
 
             <div class="text-right q-mt-md">
@@ -295,13 +327,22 @@ export default {
       dialog: false,
       editando: false,
       loading: false,
-      establecimiento: {}
+      establecimiento: {},
+      // lista de servicios para el select
+      serviciosOptions: []
     };
   },
   mounted () {
     this.getEstablecimientos();
+    this.getServicios();
   },
   methods: {
+    servicioLabel (serv) {
+      if (!serv) return '';
+      const codigo = serv.codigo ? serv.codigo + ' - ' : '';
+      return codigo + serv.nombre;
+    },
+
     getEstablecimientos () {
       this.loading = true;
       this.$axios.get('establecimientos', {
@@ -318,6 +359,15 @@ export default {
           this.loading = false;
         });
     },
+
+    getServicios () {
+      // si quieres solo activos, puedes pasar estado=ACTIVO
+      this.$axios.get('servicios', { params: { estado: 'ACTIVO' } })
+        .then(res => {
+          this.serviciosOptions = res.data;
+        });
+    },
+
     nuevo () {
       this.establecimiento = {
         nombre: '',
@@ -327,16 +377,22 @@ export default {
         telefono_contacto: '',
         responsable_laboratorio: '',
         telefono_responsable: '',
-        estado: 'ACTIVO'
+        estado: 'ACTIVO',
+        servicio_ids: [] // 👈 importante
       };
       this.editando = false;
       this.dialog = true;
     },
+
     editar (row) {
-      this.establecimiento = { ...row };
+      this.establecimiento = {
+        ...row,
+        servicio_ids: (row.servicio_ids || []).slice()
+      };
       this.editando = true;
       this.dialog = true;
     },
+
     guardar () {
       this.loading = true;
       const req = this.editando
@@ -361,6 +417,7 @@ export default {
           this.loading = false;
         });
     },
+
     eliminar (id) {
       if (this.$alert && this.$alert.dialog) {
         this.$alert.dialog('¿Eliminar establecimiento?').onOk(() => {

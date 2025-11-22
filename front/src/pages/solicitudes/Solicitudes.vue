@@ -158,7 +158,14 @@
                   v-model="solicitud.doctor_id"
                   :options="doctoresOptions"
                   option-value="id"
-                  :option-label="doctor => doctor.nombre + ' (' + doctor.especialidad + ')' + (doctor.telefono ? ' - ' + doctor.telefono : '')"
+                  :option-label="
+                    doctor =>
+                      doctor.nombre +
+                      ' (' +
+                      doctor.especialidad +
+                      ')' +
+                      (doctor.telefono ? ' - ' + doctor.telefono : '')
+                  "
                   emit-value
                   map-options
                   dense
@@ -177,22 +184,24 @@
               <q-icon name="assignment" size="18px" class="q-mr-xs" />
               <div class="text-subtitle2">Datos de la solicitud</div>
             </div>
-            <div class="row q-col-gutter-xs">
-              <div class="col-6 col-sm-2">
+            <div class="row q-col-gutter-xs items-center">
+              <div class="col-6 col-sm-3">
                 <q-toggle
                   v-model="solicitud.tipo_atencion"
                   true-value="SI"
                   false-value="NO"
                   dense
+                  @update:model-value="onTipoAtencionChange"
                 >
-                  {{ solicitud.tipo_atencion === 'SI' ? 'SUS SI' : 'SUS NO' }}
+                  {{ solicitud.tipo_atencion === 'SI' ? 'SUS SÍ' : 'SUS NO / Especificar' }}
                 </q-toggle>
               </div>
-              <div class="col-6 col-sm-4">
+
+              <div class="col-6 col-sm-9">
                 <q-input
                   v-if="solicitud.tipo_atencion === 'NO'"
                   v-model="solicitud.tipo_otro"
-                  label="Especificar"
+                  label="Especificar tipo de atención"
                   dense outlined
                 />
                 <q-select
@@ -203,12 +212,25 @@
                   option-value="nombre"
                   emit-value
                   map-options
-                  label="Establecimiento de salud"
+                  label="Establecimiento de salud (SUS)"
                   dense outlined
-                />
+                  clearable
+                  @update:model-value="onEstablecimientoChange"
+                >
+                  <template #option="scope">
+                    <q-item v-bind="scope.itemProps">
+                      <q-item-section>
+                        <q-item-label>{{ scope.opt.nombre }}</q-item-label>
+                        <q-item-label caption>
+                          {{ scope.opt.tipo }} • {{ scope.opt.nivel }}
+                        </q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
               </div>
 
-              <div class="col-12 col-md-6">
+              <div class="col-12 col-md-12 q-mt-xs">
                 <q-input
                   v-model="solicitud.diagnostico_clinico"
                   type="textarea"
@@ -224,33 +246,57 @@
             <div class="row items-center q-mb-xs">
               <q-icon name="biotech" size="18px" class="q-mr-xs" />
               <div class="text-subtitle2">Servicios solicitados</div>
+              <q-space />
+              <q-badge color="primary" outline>
+                {{ totalServiciosSeleccionados }} seleccionados
+              </q-badge>
             </div>
 
             <!-- FILTROS DE SERVICIOS -->
-            <div class="row q-col-gutter-xs q-mb-xs">
-              <div class="col-12 col-sm-6">
-                <q-input
-                  v-model="serviciosFilter"
-                  dense outlined
-                  label="Buscar servicio (nombre / código / subárea)"
-                >
-                  <template #append>
-                    <q-icon name="search" />
-                  </template>
-                </q-input>
-              </div>
-              <div class="col-12 col-sm-6">
-                <q-select
-                  v-model="serviciosAreaId"
-                  :options="areas"
-                  option-label="name"
-                  option-value="id"
-                  dense outlined clearable
-                  label="Filtrar por área"
-                />
-              </div>
-            </div>
+            <q-card flat bordered class="q-mb-xs">
+              <q-card-section class="row q-col-gutter-xs">
+                <div class="col-12 col-sm-6">
+                  <q-input
+                    v-model="serviciosFilter"
+                    dense outlined
+                    label="Buscar servicio (nombre / código / subárea)"
+                  >
+                    <template #append>
+                      <q-icon name="search" />
+                    </template>
+                  </q-input>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <q-select
+                    v-model="serviciosAreaId"
+                    :options="areas"
+                    option-label="name"
+                    option-value="id"
+                    dense outlined clearable
+                    label="Filtrar por área"
+                  >
+                    <template #prepend>
+                      <q-icon name="science" />
+                    </template>
+                  </q-select>
+                </div>
+              </q-card-section>
 
+              <q-card-section class="text-caption text-grey-7">
+                <div v-if="solicitud.tipo_atencion === 'SI' && currentEstablecimiento">
+                  Mostrando solo servicios del establecimiento:
+                  <b>{{ currentEstablecimiento.nombre }}</b>
+                </div>
+                <div v-else-if="solicitud.tipo_atencion === 'SI'">
+                  Seleccione un establecimiento para filtrar los servicios.
+                </div>
+                <div v-else>
+                  Mostrando todos los servicios disponibles (atención particular / especificar).
+                </div>
+              </q-card-section>
+            </q-card>
+
+            <!-- LISTA DE SERVICIOS -->
             <div class="row q-col-gutter-xs">
               <div class="col-12">
                 <q-expansion-item
@@ -277,10 +323,14 @@
                             dense
                           >
                             <div>
-                              {{ textCapitalize(servicio.nombre) }} (Bs. {{ servicio.precio }})
+                              {{ textCapitalize(servicio.nombre) }}
+                              <span class="text-primary">
+                                (Bs. {{ servicio.precio }})
+                              </span>
                             </div>
                             <div>
                               <small class="text-grey">
+                                {{ servicio.codigo ? 'Código: ' + servicio.codigo + ' • ' : '' }}
                                 {{ servicio.subarea ? 'Subárea: ' + textCapitalize(servicio.subarea) : '' }}
                               </small>
                             </div>
@@ -290,6 +340,13 @@
                     </q-card-section>
                   </q-card>
                 </q-expansion-item>
+
+                <div
+                  v-if="areas.length === 0"
+                  class="text-center text-grey q-mt-md"
+                >
+                  No hay servicios configurados.
+                </div>
               </div>
             </div>
 
@@ -311,7 +368,7 @@
 </template>
 
 <script>
-import moment from 'moment';
+import moment from 'moment'
 
 export default {
   name: 'SolicitudesPage',
@@ -359,51 +416,91 @@ export default {
       areas: [],
       establecimientos: [],
 
-      // NUEVOS FILTROS DE SERVICIOS
+      // FILTROS DE SERVICIOS
       serviciosFilter: '',
       serviciosAreaId: null
     }
   },
+  computed: {
+    currentEstablecimiento () {
+      if (!this.solicitud.establecimiento_salud) return null
+      return (
+        this.establecimientos.find(
+          e => e.nombre === this.solicitud.establecimiento_salud
+        ) || null
+      )
+    },
+    totalServiciosSeleccionados () {
+      let total = 0
+      this.areas.forEach(area => {
+        ;(area.servicios || []).forEach(s => {
+          if (s.seleccionado) total++
+        })
+      })
+      return total
+    }
+  },
   mounted () {
-    this.getSolicitudes();
-    // this.loadPacientes();
-    this.loadDoctores();
+    this.getSolicitudes()
+    this.loadDoctores()
+
     this.$axios.get('establecimientos').then(res => {
-      this.establecimientos = res.data;
-    });
+      this.establecimientos = res.data
+    })
+
     this.$axios.get('areas').then(res => {
-      this.areas = res.data;
-    });
+      // aseguramos que todos los servicios tengan seleccionado = 0
+      this.areas = res.data
+      this.resetServiciosSelection()
+    })
   },
   methods: {
     textCapitalize (str) {
-      if (!str) return '';
-      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+      if (!str) return ''
+      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
     },
+
+    resetServiciosSelection () {
+      this.areas.forEach(area => {
+        ;(area.servicios || []).forEach(servicio => {
+          servicio.seleccionado = 0
+        })
+      })
+    },
+
+    aplicarServiciosSeleccionados (serviciosSeleccionados) {
+      const ids = new Set((serviciosSeleccionados || []).map(s => s.id))
+      this.resetServiciosSelection()
+      this.areas.forEach(area => {
+        ;(area.servicios || []).forEach(s => {
+          if (ids.has(s.id)) s.seleccionado = 1
+        })
+      })
+    },
+
     onChangeCi (val) {
-      this.searchCi = val;
-      this.buscarPacientePorCi();
+      this.searchCi = val
+      this.buscarPacientePorCi()
     },
+
     getSolicitudes () {
-      this.loading = true;
-      this.$axios.get('solicitudes', { params: this.filters })
+      this.loading = true
+      this.$axios
+        .get('solicitudes', { params: this.filters })
         .then(res => {
-          this.rows = res.data;
+          this.rows = res.data
         })
         .finally(() => {
-          this.loading = false;
-        });
+          this.loading = false
+        })
     },
-    loadPacientes () {
-      this.$axios.get('pacientes').then(res => {
-        this.pacientesOptions = res.data;
-      });
-    },
+
     loadDoctores () {
       this.$axios.get('doctores').then(res => {
-        this.doctoresOptions = res.data;
-      });
+        this.doctoresOptions = res.data
+      })
     },
+
     nuevo () {
       this.solicitud = {
         paciente_id: null,
@@ -433,143 +530,178 @@ export default {
         doctor_telefono: '',
         doctor_email: '',
         doctor_registro: ''
-      };
-      this.searchCi = '';
-      this.editando = false;
-      this.dialog = true;
+      }
+      this.searchCi = ''
+      this.editando = false
+      this.dialog = true
 
-      // reset selección de servicios
-      this.areas.forEach(area => {
-        area.servicios.forEach(servicio => {
-          servicio.seleccionado = 0;
-        });
-      });
-
-      // reset filtros de servicios
-      this.serviciosFilter = '';
-      this.serviciosAreaId = null;
+      // reset selección de servicios y filtros
+      this.resetServiciosSelection()
+      this.serviciosFilter = ''
+      this.serviciosAreaId = null
     },
+
     editar (row) {
-      this.solicitud = { ...row, paciente_id: row.paciente_id, doctor_id: row.doctor_id };
-      this.editando = true;
-      this.dialog = true;
+      // row ya viene con paciente, doctor y servicios (backend actualizado)
+      this.solicitud = { ...row }
+      this.editando = true
+      this.dialog = true
+
+      // marcar servicios seleccionados en el formulario
+      this.aplicarServiciosSeleccionados(row.servicios || [])
+
+      // reseteamos filtros visuales pero mantenemos selección
+      this.serviciosFilter = ''
+      this.serviciosAreaId = null
     },
+
     guardar () {
-      this.loading = true;
-      this.solicitud.servicios = [];
+      this.loading = true
+
+      // construir lista de servicios seleccionados para enviar al backend
+      this.solicitud.servicios = []
       this.areas.forEach(area => {
-        area.servicios.forEach(servicio => {
+        ;(area.servicios || []).forEach(servicio => {
           if (servicio.seleccionado) {
             this.solicitud.servicios.push({
               id: servicio.id,
               nombre: servicio.nombre,
               precio: servicio.precio
-            });
+            })
           }
-        });
-      });
+        })
+      })
 
       const req = this.editando
         ? this.$axios.put(`solicitudes/${this.solicitud.id}`, this.solicitud)
-        : this.$axios.post('solicitudes', this.solicitud);
+        : this.$axios.post('solicitudes', this.solicitud)
 
-      req.then(() => {
-        this.$alert && this.$alert.success
-          ? this.$alert.success('Guardado correctamente')
-          : console.log('Guardado correctamente');
-        this.dialog = false;
-        this.getSolicitudes();
-      })
+      req
+        .then(() => {
+          this.$alert && this.$alert.success
+            ? this.$alert.success('Guardado correctamente')
+            : console.log('Guardado correctamente')
+          this.dialog = false
+          this.getSolicitudes()
+        })
         .catch(e => {
-          const msg = e.response?.data?.message || e.message;
+          const msg = e.response?.data?.message || e.message
           this.$alert && this.$alert.error
             ? this.$alert.error('Error al guardar: ' + msg)
-            : console.error(msg);
+            : console.error(msg)
         })
         .finally(() => {
-          this.loading = false;
-        });
+          this.loading = false
+        })
     },
+
     eliminar (id) {
       if (this.$alert && this.$alert.dialog) {
         this.$alert.dialog('¿Eliminar solicitud?').onOk(() => {
           this.$axios.delete(`solicitudes/${id}`).then(() => {
-            this.$alert.success('Eliminado');
-            this.getSolicitudes();
-          });
-        });
+            this.$alert.success('Eliminado')
+            this.getSolicitudes()
+          })
+        })
       } else {
         if (confirm('¿Eliminar solicitud?')) {
           this.$axios.delete(`solicitudes/${id}`).then(() => {
-            this.getSolicitudes();
-          });
+            this.getSolicitudes()
+          })
         }
       }
     },
+
     buscarPacientePorCi () {
-      if (!this.searchCi) return;
-      this.loading = true;
-      this.$axios.get(`pacientes/buscar-ci/${this.searchCi}`)
+      if (!this.searchCi) return
+      this.loading = true
+      this.$axios
+        .get(`pacientes/buscar-ci/${this.searchCi}`)
         .then(res => {
-          this.onSelectPaciente(res.data.id);
+          this.onSelectPaciente(res.data)
         })
         .catch(() => {
           // Paciente no encontrado: silencio
         })
         .finally(() => {
-          this.loading = false;
-        });
+          this.loading = false
+        })
     },
-    onSelectPaciente (id) {
-      const p = this.pacientesOptions.find(x => x.id === id);
-      if (!p) return;
-      this.solicitud.paciente_id        = p.id;
-      this.solicitud.paciente_nombre    = p.nombre_completo;
-      this.solicitud.paciente_ci        = p.ci;
-      this.solicitud.paciente_telefono  = p.telefono;
-      this.solicitud.paciente_direccion = p.direccion;
-      this.solicitud.paciente_fecha_nac = p.fecha_nac;
-      this.solicitud.paciente_genero    = p.genero;
-      this.solicitud.paciente_edad      = p.edad;
+
+    onSelectPaciente (p) {
+      // const p = this.pacientesOptions.find(x => x.id === id)
+      if (!p) return
+      this.solicitud.paciente_id = p.id
+      this.solicitud.paciente_nombre = p.nombre_completo
+      this.solicitud.paciente_ci = p.ci
+      this.solicitud.paciente_telefono = p.telefono
+      this.solicitud.paciente_direccion = p.direccion
+      this.solicitud.paciente_fecha_nac = p.fecha_nac
+      this.solicitud.paciente_genero = p.genero
+      this.solicitud.paciente_edad = p.edad
     },
+
     onSelectDoctor (id) {
-      const d = this.doctoresOptions.find(x => x.id === id);
-      if (!d) return;
-      this.solicitud.doctor_id           = d.id;
-      this.solicitud.doctor_nombre       = d.nombre;
-      this.solicitud.doctor_especialidad = d.especialidad;
-      this.solicitud.doctor_ci           = d.ci;
-      this.solicitud.doctor_telefono     = d.telefono;
-      this.solicitud.doctor_email        = d.email;
-      this.solicitud.doctor_registro     = d.registro;
+      const d = this.doctoresOptions.find(x => x.id === id)
+      if (!d) return
+      this.solicitud.doctor_id = d.id
+      this.solicitud.doctor_nombre = d.nombre
+      this.solicitud.doctor_especialidad = d.especialidad
+      this.solicitud.doctor_ci = d.ci
+      this.solicitud.doctor_telefono = d.telefono
+      this.solicitud.doctor_email = d.email
+      this.solicitud.doctor_registro = d.registro
     },
 
-    // 🔎 Filtro de servicios por texto y área
-    filteredServicios (area) {
-      let servicios = area.servicios || [];
+    onTipoAtencionChange () {
+      // al cambiar SUS SI / NO limpiamos selección de servicios
+      this.resetServiciosSelection()
+      if (this.solicitud.tipo_atencion === 'NO') {
+        this.solicitud.establecimiento_salud = ''
+      } else {
+        this.solicitud.tipo_otro = ''
+      }
+    },
 
-      // filtrar por área seleccionada
+    onEstablecimientoChange () {
+      // al cambiar clínica, limpiamos selección
+      this.resetServiciosSelection()
+    },
+
+    // 🔎 Filtro de servicios por texto, área y establecimiento
+    filteredServicios (area) {
+      let servicios = area.servicios || []
+
+      // 1) Filtrar por área seleccionada
       if (this.serviciosAreaId && area.id !== this.serviciosAreaId) {
-        return [];
+        return []
       }
 
-      const text = (this.serviciosFilter || '').toLowerCase().trim();
+      // 2) Filtrar por establecimiento (solo SUS SÍ)
+      if (this.solicitud.tipo_atencion === 'SI') {
+        const est = this.currentEstablecimiento
+        if (est && Array.isArray(est.servicio_ids) && est.servicio_ids.length) {
+          const allowed = new Set(est.servicio_ids)
+          servicios = servicios.filter(s => allowed.has(s.id))
+        }
+        // si no hay establecimiento o no tiene servicios configurados,
+        // dejamos la lista completa para que no quede vacía totalmente
+      }
+
+      // 3) Filtro de texto
+      const text = (this.serviciosFilter || '').toLowerCase().trim()
       if (!text) {
-        return servicios;
+        return servicios
       }
 
       return servicios.filter(serv => {
-        const nombre = String(serv.nombre ?? '').toLowerCase();
-        const sub    = String(serv.subarea ?? '').toLowerCase();
-        const codigo = String(serv.codigo ?? '').toLowerCase(); // 👈 aquí el cambio clave
+        const nombre = String(serv.nombre ?? '').toLowerCase()
+        const sub = String(serv.subarea ?? '').toLowerCase()
+        const codigo = String(serv.codigo ?? '').toLowerCase()
 
-        return (
-          nombre.includes(text) ||
-          sub.includes(text) ||
-          codigo.includes(text)
-        );
-      });
+        return nombre.includes(text) || sub.includes(text) || codigo.includes(text)
+      })
     }
   }
-};
+}
 </script>
