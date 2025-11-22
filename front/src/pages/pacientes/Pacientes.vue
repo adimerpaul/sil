@@ -50,7 +50,13 @@
             <q-input v-model="paciente.direccion" label="Dirección" dense outlined/>
             <q-input v-model="paciente.fecha_nac" type="date" label="Fecha de nacimiento" dense outlined @update:model-value="calculateEdad" clearable/>
             <q-select v-model="paciente.genero" label="Género" :options="['F','M','OTRO']" dense outlined/>
-            <q-input v-model="paciente.edad" type="number" label="Edad" dense outlined/>
+<!--            <q-input v-model="paciente.edad" type="number" label="Edad" dense outlined/>-->
+            <div class="q-pa-xs" style="border: 1px solid #ccc;">
+              <span class="">Edad calculada: </span>
+              <span class="text-h6">
+                {{edadCaculado}}
+              </span>
+            </div>
             <div>
               <q-toggle v-model="paciente.discapacidad" label="Discapacidad" :true-value="1" :false-value="0"/>
             </div>
@@ -73,6 +79,7 @@
 </template>
 
 <script>
+import moment from 'moment';
 export default {
   name: 'PacientesPage',
   data() {
@@ -90,7 +97,21 @@ export default {
         { name: 'ci', label: 'CI', field: 'ci' },
         { name: 'telefono', label: 'Teléfono', field: 'telefono' },
         { name: 'genero', label: 'Género', field: 'genero' },
-        { name: 'edad', label: 'Edad', field: 'edad' },
+        // { name: 'edad', label: 'Edad', field: 'edad' }, calculate con l fecha de nacmiento en anios meses dias
+        { name: 'edad', label: 'Edad', field: (row) => {
+          if (row.fecha_nac) {
+            // formas 3a 2m 3d con moment
+            const birthDate = moment(row.fecha_nac);
+            const today = moment();
+            const years = today.diff(birthDate, 'years');
+            birthDate.add(years, 'years');
+            const months = today.diff(birthDate, 'months');
+            birthDate.add(months, 'months');
+            const days = today.diff(birthDate, 'days');
+            return `${years}a ${months}m ${days}d`;
+          }
+          return '';
+        } },
       ],
       discapacidades: [
         'Visual',
@@ -104,6 +125,21 @@ export default {
   },
   mounted() {
     this.getPacientes();
+  },
+  computed:{
+    edadCaculado (){
+      if (this.paciente.fecha_nac) {
+        const birthDate = moment(this.paciente.fecha_nac);
+        const today = moment();
+        const years = today.diff(birthDate, 'years');
+        birthDate.add(years, 'years');
+        const months = today.diff(birthDate, 'months');
+        birthDate.add(months, 'months');
+        const days = today.diff(birthDate, 'days');
+        return `${years} años ${months} meses ${days} dias`;
+      }
+      return '';
+    }
   },
   methods: {
     calculateFum() {
