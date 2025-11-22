@@ -97,7 +97,17 @@
             <template #body-cell-actions="props">
               <q-td :props="props">
                 <q-btn dense flat round icon="edit" @click="editarServicio(props.row)" />
-                <q-btn dense flat round icon="delete" color="negative" @click="eliminarServicio(props.row.id)" />
+<!--                <q-btn dense flat round icon="delete" color="negative" @click="eliminarServicio(props.row.id)" />-->
+              </q-td>
+            </template>
+            <template #body-cell-nombre="props">
+              <q-td :props="props">
+<!--                <div style=" maxiswth line-hem 0.9-->
+                <div style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  {{ props.row.nombre }}
+                </div>
+                <div class="text-caption text-grey" v-html="props.row.descripcion || ''">
+                </div>
               </q-td>
             </template>
           </q-table>
@@ -228,6 +238,7 @@ export default {
         { name: 'codigo', label: 'Código', field: 'codigo', align: 'left' },
         { name: 'nombre', label: 'Nombre', field: 'nombre', align: 'left' },
         { name: 'metodo', label: 'Método', field: 'metodo', align: 'left' },
+        { name: 'subarea', label: 'Subárea', field: 'subarea', align: 'left' },
         {
           name: 'precio',
           label: 'Precio',

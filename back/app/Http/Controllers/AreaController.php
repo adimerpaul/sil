@@ -10,7 +10,7 @@ class AreaController extends Controller
     public function index()
     {
         // si quieres incluir servicios: ->with('servicios')
-        return Area::orderBy('id', 'asc')->get();
+        return Area::orderBy('id', 'asc')->with('servicios')->get();
     }
 
     public function show($id)
