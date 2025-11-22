@@ -10,6 +10,7 @@ const routes = [
       { path: '/doctores', component: () => import('pages/doctors/Doctors.vue'), meta: { requiresAuth: true, perm: 'Doctores' } },
       { path: '/solicitudes', component: () => import('pages/solicitudes/Solicitudes.vue'), meta: { requiresAuth: true, perm: 'Solicitudes' }},
       { path: '/establecimientos', component: () => import('pages/establecimientos/Establecimientos.vue'), meta: { requiresAuth: true, perm: 'Establecimientos' } },
+      { path: '/servicios', component: () => import('pages/servicios/Servicios.vue'), meta: { requiresAuth: true, perm: 'Servicios' } },
     ]
   },
   {

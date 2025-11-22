@@ -1,22 +1,14 @@
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="q-pa-sm">
     <!-- FILTROS -->
     <q-card flat bordered>
-      <q-card-section class="row items-center q-col-gutter-sm">
+      <q-card-section class="row items-center q-col-gutter-xs">
         <div class="col-12 col-sm-3">
           <q-input v-model="filters.from" type="date" dense outlined label="Desde" />
         </div>
         <div class="col-12 col-sm-3">
           <q-input v-model="filters.to" type="date" dense outlined label="Hasta" />
         </div>
-<!--        <div class="col-12 col-sm-3">-->
-<!--          <q-select-->
-<!--            v-model="filters.tipo_atencion"-->
-<!--            :options="['', 'SI', 'NO', 'PRIVADO']"-->
-<!--            dense outlined-->
-<!--            label="SSU "-->
-<!--          />-->
-<!--        </div>-->
         <div class="col-12 col-sm-3">
           <q-select
             v-model="filters.estado"
@@ -27,7 +19,7 @@
         </div>
       </q-card-section>
 
-      <q-card-section class="row items-center q-col-gutter-sm">
+      <q-card-section class="row items-center q-col-gutter-xs">
         <div class="col-12 col-sm-6">
           <q-input dense outlined v-model="filter" label="Buscar">
             <template #append><q-icon name="search" /></template>
@@ -39,14 +31,14 @@
             icon="search"
             label="Filtrar"
             no-caps
-            class="q-mr-sm"
+            class="q-mr-xs"
             :loading="loading"
             @click="getSolicitudes"
           />
           <q-btn
             color="positive"
             icon="add_circle_outline"
-            label="Nueva solicitud"
+            label="Nueva"
             no-caps
             :loading="loading"
             @click="nuevo"
@@ -57,7 +49,7 @@
 
     <!-- TABLA -->
     <q-table
-      class="q-mt-md"
+      class="q-mt-sm"
       :rows="rows"
       :columns="columns"
       row-key="id"
@@ -86,9 +78,9 @@
 
     <!-- DIÁLOGO -->
     <q-dialog v-model="dialog">
-      <q-card style="max-width: 650px;">
-        <q-card-section class="row items-center">
-          <div class="text-h6">
+      <q-card style="max-width: 780px;">
+        <q-card-section class="row items-center q-pa-sm">
+          <div class="text-subtitle1">
             {{ editando ? 'Editar solicitud' : 'Nueva solicitud' }}
           </div>
           <q-space />
@@ -97,45 +89,47 @@
 
         <q-separator />
 
-        <q-card-section>
+        <q-card-section class="q-pa-sm">
           <q-form @submit="guardar">
             <!-- Paciente -->
-            <div class="text-subtitle2 q-mb-sm">Datos del paciente</div>
-            <div class="row q-col-gutter-sm">
-              <div class="col-12 col-sm-4">
-                <q-input
-                  v-model="searchCi"
-                  label="Buscar paciente por CI"
-                  dense outlined
-                >
-                  <template #append>
-                    <q-btn flat dense icon="search" @click="buscarPacientePorCi" />
-                  </template>
-                </q-input>
+            <div class="row items-center q-mb-xs">
+              <q-icon name="person" size="18px" class="q-mr-xs" />
+              <div class="text-subtitle2">Datos del paciente</div>
+            </div>
+            <div class="row q-col-gutter-xs">
+<!--              <div class="col-12 col-sm-4">-->
+<!--                <q-input-->
+<!--                  v-model="searchCi"-->
+<!--                  label="CI (buscar)"-->
+<!--                  dense outlined-->
+<!--                >-->
+<!--                  <template #append>-->
+<!--                    <q-btn flat dense icon="search" @click="buscarPacientePorCi" />-->
+<!--                  </template>-->
+<!--                </q-input>-->
+<!--              </div>-->
+<!--              <div class="col-12 col-sm-8">-->
+<!--                <q-select-->
+<!--                  v-model="solicitud.paciente_id"-->
+<!--                  :options="pacientesOptions"-->
+<!--                  option-value="id"-->
+<!--                  option-label="nombre_completo"-->
+<!--                  emit-value-->
+<!--                  map-options-->
+<!--                  dense-->
+<!--                  outlined-->
+<!--                  clearable-->
+<!--                  label="Paciente (opcional)"-->
+<!--                  @update:model-value="onSelectPaciente"-->
+<!--                />-->
+<!--              </div>-->
+              <div class="col-6 col-sm-3">
+                <q-input v-model="solicitud.paciente_ci" label="CI" dense outlined  @update:model-value="onChangeCi" debounce="300" />
               </div>
-              <div class="col-12 col-sm-8">
-                <q-select
-                  v-model="solicitud.paciente_id"
-                  :options="pacientesOptions"
-                  option-value="id"
-                  option-label="nombre_completo"
-                  emit-value
-                  map-options
-                  dense
-                  outlined
-                  clearable
-                  label="Seleccionar paciente (opcional)"
-                  @update:model-value="onSelectPaciente"
-                />
-              </div>
-
               <div class="col-12 col-sm-6">
-                <q-input v-model="solicitud.paciente_nombre" label="Nombre completo" dense outlined />
+                <q-input v-model="solicitud.paciente_nombre" label="Nombre" dense outlined />
               </div>
-              <div class="col-12 col-sm-3">
-                <q-input v-model="solicitud.paciente_ci" label="CI" dense outlined />
-              </div>
-              <div class="col-12 col-sm-3">
+              <div class="col-6 col-sm-3">
                 <q-input v-model="solicitud.paciente_telefono" label="Teléfono" dense outlined />
               </div>
 
@@ -143,15 +137,15 @@
                 <q-input v-model="solicitud.paciente_direccion" label="Dirección" dense outlined />
               </div>
 
-              <div class="col-12 col-sm-4">
+              <div class="col-6 col-sm-4">
                 <q-input
                   v-model="solicitud.paciente_fecha_nac"
                   type="date"
-                  label="Fecha nacimiento"
+                  label="F. nacimiento"
                   dense outlined
                 />
               </div>
-              <div class="col-12 col-sm-4">
+              <div class="col-6 col-sm-4">
                 <q-select
                   v-model="solicitud.paciente_genero"
                   :options="['F', 'M', 'OTRO']"
@@ -171,128 +165,138 @@
               </div>
             </div>
 
-            <q-separator class="q-my-md" />
+            <q-separator class="q-my-sm" />
 
             <!-- Doctor -->
-            <div class="text-subtitle2 q-mb-sm">Datos del médico solicitante</div>
-            <div class="row q-col-gutter-sm">
-              <div class="col-12 col-sm-6">
+            <div class="row items-center q-mb-xs">
+              <q-icon name="person" size="18px" class="q-mr-xs" />
+              <div class="text-subtitle2">Datos del médico solicitante</div>
+            </div>
+            <div class="row q-col-gutter-xs">
+              <div class="col-12 col-sm-12">
                 <q-select
                   v-model="solicitud.doctor_id"
                   :options="doctoresOptions"
                   option-value="id"
-                  option-label="nombre"
+                  :option-label="doctor => doctor.nombre + ' (' + doctor.especialidad + ')' + (doctor.telefono ? ' - ' + doctor.telefono : '')"
                   emit-value
                   map-options
                   dense
                   outlined
                   clearable
-                  label="Seleccionar doctor (opcional)"
+                  label="Doctor (opcional)"
                   @update:model-value="onSelectDoctor"
                 />
               </div>
-              <div class="col-12 col-sm-6">
-                <q-input
-                  v-model="solicitud.doctor_nombre"
-                  label="Nombre del doctor"
-                  dense outlined
-                />
-              </div>
+<!--              <div class="col-12 col-sm-6">-->
+<!--                <q-input-->
+<!--                  v-model="solicitud.doctor_nombre"-->
+<!--                  label="Nombre del doctor"-->
+<!--                  dense outlined-->
+<!--                />-->
+<!--              </div>-->
 
-              <div class="col-12 col-sm-4">
-                <q-input
-                  v-model="solicitud.doctor_especialidad"
-                  label="Especialidad"
-                  dense outlined
-                />
-              </div>
-              <div class="col-12 col-sm-4">
-                <q-input
-                  v-model="solicitud.doctor_ci"
-                  label="CI doctor"
-                  dense outlined
-                />
-              </div>
-              <div class="col-12 col-sm-4">
-                <q-input
-                  v-model="solicitud.doctor_registro"
-                  label="Registro profesional"
-                  dense outlined
-                />
-              </div>
+<!--              <div class="col-12 col-sm-4">-->
+<!--                <q-input-->
+<!--                  v-model="solicitud.doctor_especialidad"-->
+<!--                  label="Especialidad"-->
+<!--                  dense outlined-->
+<!--                />-->
+<!--              </div>-->
+<!--              <div class="col-6 col-sm-4">-->
+<!--                <q-input-->
+<!--                  v-model="solicitud.doctor_ci"-->
+<!--                  label="CI doctor"-->
+<!--                  dense outlined-->
+<!--                />-->
+<!--              </div>-->
+<!--              <div class="col-6 col-sm-4">-->
+<!--                <q-input-->
+<!--                  v-model="solicitud.doctor_registro"-->
+<!--                  label="Registro prof."-->
+<!--                  dense outlined-->
+<!--                />-->
+<!--              </div>-->
 
-              <div class="col-12 col-sm-6">
-                <q-input
-                  v-model="solicitud.doctor_telefono"
-                  label="Teléfono doctor"
-                  dense outlined
-                />
-              </div>
-              <div class="col-12 col-sm-6">
-                <q-input
-                  v-model="solicitud.doctor_email"
-                  label="Email doctor"
-                  dense outlined
-                />
-              </div>
+<!--              <div class="col-6 col-sm-6">-->
+<!--                <q-input-->
+<!--                  v-model="solicitud.doctor_telefono"-->
+<!--                  label="Teléfono doctor"-->
+<!--                  dense outlined-->
+<!--                />-->
+<!--              </div>-->
+<!--              <div class="col-6 col-sm-6">-->
+<!--                <q-input-->
+<!--                  v-model="solicitud.doctor_email"-->
+<!--                  label="Email doctor"-->
+<!--                  dense outlined-->
+<!--                />-->
+<!--              </div>-->
             </div>
 
-            <q-separator class="q-my-md" />
+            <q-separator class="q-my-sm" />
 
             <!-- Datos de la solicitud -->
-            <div class="text-subtitle2 q-mb-sm">Datos de la solicitud</div>
-            <div class="row q-col-gutter-sm">
-              <div class="col-12 col-sm-3">
-                <q-input
-                  v-model="solicitud.codigo_solicitud"
-                  label="Cod. solicitud"
-                  dense outlined
-                />
-              </div>
-              <div class="col-12 col-sm-3">
-                <q-toggle v-model="solicitud.tipo_atencion" true-value="SI" false-value="NO" dense >
+            <div class="row items-center q-mb-xs">
+              <q-icon name="assignment" size="18px" class="q-mr-xs" />
+              <div class="text-subtitle2">Datos de la solicitud</div>
+            </div>
+            <div class="row q-col-gutter-xs">
+<!--              <div class="col-6 col-sm-3">-->
+<!--                <q-input-->
+<!--                  v-model="solicitud.codigo_solicitud"-->
+<!--                  label="Código"-->
+<!--                  dense outlined-->
+<!--                />-->
+<!--              </div>-->
+              <div class="col-6 col-sm-2">
+                <q-toggle
+                  v-model="solicitud.tipo_atencion"
+                  true-value="SI"
+                  false-value="NO"
+                  dense
+                >
                   {{ solicitud.tipo_atencion === 'SI' ? 'SUS SI' : 'SUS NO' }}
                 </q-toggle>
+              </div>
+              <div class="col-6 col-sm-4">
                 <q-input
                   v-if="solicitud.tipo_atencion === 'NO'"
                   v-model="solicitud.tipo_otro"
-                  label="Privado"
+                  label="Especificar"
                   dense outlined
                 />
-              </div>
-<!--              <div class="col-12 col-sm-3">-->
-<!--                <q-input-->
-<!--                  v-model="solicitud.fecha_solicitud"-->
-<!--                  type="date"-->
-<!--                  label="Fecha solicitud"-->
-<!--                  dense outlined-->
-<!--                />-->
-<!--              </div>-->
-<!--              <div class="col-12 col-sm-3">-->
-<!--                <q-input-->
-<!--                  v-model="solicitud.hora_solicitud"-->
-<!--                  type="time"-->
-<!--                  label="Hora solicitud"-->
-<!--                  dense outlined-->
-<!--                />-->
-<!--              </div>-->
-
-              <div class="col-12 col-sm-6">
-                <q-input
+<!--                select establecmeintos-->
+                <q-select
+                  v-else
                   v-model="solicitud.establecimiento_salud"
+                  :options="establecimientos"
+                  option-label="nombre"
+                  option-value="nombre"
+                  emit-value
+                  map-options
                   label="Establecimiento de salud"
                   dense outlined
                 />
-              </div>
-              <div class="col-12 col-sm-6">
-                <q-input
-                  v-model="solicitud.zona_establecimiento"
-                  label="Zona establecimiento"
-                  dense outlined
-                />
+<!--                <pre>{{ solicitud.establecimiento_salud }}</pre>-->
               </div>
 
-              <div class="col-12">
+<!--              <div class="col-12 col-sm-6">-->
+<!--                <q-input-->
+<!--                  v-model="solicitud.establecimiento_salud"-->
+<!--                  label="Establecimiento de salud"-->
+<!--                  dense outlined-->
+<!--                />-->
+<!--              </div>-->
+<!--              <div class="col-12 col-sm-6">-->
+<!--                <q-input-->
+<!--                  v-model="solicitud.zona_establecimiento"-->
+<!--                  label="Zona establecimiento"-->
+<!--                  dense outlined-->
+<!--                />-->
+<!--              </div>-->
+
+              <div class="col-12 col-md-6">
                 <q-input
                   v-model="solicitud.diagnostico_clinico"
                   type="textarea"
@@ -301,29 +305,32 @@
                 />
               </div>
 
-              <div class="col-12 col-sm-4">
-                <q-select
-                  v-model="solicitud.estado"
-                  :options="['CREADO', 'ATENDIENDO', 'FINALIZADO']"
-                  label="Estado"
-                  dense outlined
-                />
-              </div>
+<!--              <div class="col-12 col-sm-4">-->
+<!--                <q-select-->
+<!--                  v-model="solicitud.estado"-->
+<!--                  :options="['CREADO', 'ATENDIENDO', 'FINALIZADO']"-->
+<!--                  label="Estado"-->
+<!--                  dense outlined-->
+<!--                />-->
+<!--              </div>-->
             </div>
 
+            <q-separator class="q-my-sm" />
 
-<!--            solicitud-->
-            <q-separator class="q-my-md" />
-            <div class="text-subtitle2 q-mb-sm">Servicios solicitados</div>
-            <div class="row q-col-gutter-sm">
+            <!-- Servicios -->
+            <div class="row items-center q-mb-xs">
+              <q-icon name="biotech" size="18px" class="q-mr-xs" />
+              <div class="text-subtitle2">Servicios solicitados</div>
+            </div>
+            <div class="row q-col-gutter-xs">
               <div class="col-12">
-                <div v-for="area in areas" :key="area.name" class="q-mb-md">
-                  <div class="text-h6 q-mb-sm">{{ area.name }}</div>
-                  <div class="row q-col-gutter-sm">
+                <div v-for="area in areas" :key="area.name" class="q-mb-sm">
+                  <div class="text-bold q-mb-xs">{{ area.name }}</div>
+                  <div class="row q-col-gutter-xs">
                     <div
                       v-for="servicio in area.servicios"
                       :key="servicio.codigo"
-                      class="col-12"
+                      class="col-12 col-sm-6"
                     >
                       <q-checkbox
                         v-model="servicio.seleccionado"
@@ -332,20 +339,19 @@
                         :label="`${servicio.nombre} (Bs. ${servicio.precio})`"
                         dense
                       />
-<!--                      <pre>{{ servicio.seleccionado }}</pre>-->
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="text-right q-mt-md">
+            <div class="text-right q-mt-sm">
               <q-btn flat label="Cancelar" v-close-popup :loading="loading" />
               <q-btn
                 color="primary"
                 label="Guardar"
                 type="submit"
-                class="q-ml-sm"
+                class="q-ml-xs"
                 :loading="loading"
               />
             </div>
@@ -393,8 +399,8 @@ export default {
 
       solicitud: {},
       filters: {
-        from: '',
-        to: '',
+        from: moment().format('YYYY-MM-DD'),
+        to: moment().format('YYYY-MM-DD'),
         tipo_atencion: '',
         estado: ''
       },
@@ -596,15 +602,24 @@ export default {
             { "codigo": 142, "nombre": "C3", "metodo": "NEFELOMETRÍA", "precio": 60 }
           ]
         }
-      ]
+      ],
+      establecimientos: []
     }
   },
   mounted () {
     this.getSolicitudes();
     this.loadPacientes();
     this.loadDoctores();
+    this.$axios.get('establecimientos').then(res => {
+      this.establecimientos = res.data;
+    });
   },
   methods: {
+    onChangeCi(val) {
+      this.searchCi = val;
+      // axios post
+      this.buscarPacientePorCi();
+    },
     getSolicitudes () {
       this.loading = true;
       this.$axios.get('solicitudes', { params: this.filters })
@@ -659,7 +674,6 @@ export default {
       this.editando = false;
       this.dialog = true;
 
-      // servicios_seleccionados en falde=se de areas
       this.areas.forEach(area => {
         area.servicios.forEach(servicio => {
           servicio.seleccionado = 0;
@@ -718,9 +732,9 @@ export default {
           this.onSelectPaciente(res.data.id);
         })
         .catch(() => {
-          this.$alert && this.$alert.error
-            ? this.$alert.error('Paciente no encontrado')
-            : alert('Paciente no encontrado');
+          // this.$alert && this.$alert.error
+          //   ? this.$alert.error('Paciente no encontrado')
+          //   : alert('Paciente no encontrado');
         })
         .finally(() => {
           this.loading = false;
@@ -741,13 +755,13 @@ export default {
     onSelectDoctor (id) {
       const d = this.doctoresOptions.find(x => x.id === id);
       if (!d) return;
-      this.solicitud.doctor_id          = d.id;
-      this.solicitud.doctor_nombre      = d.nombre;
-      this.solicitud.doctor_especialidad= d.especialidad;
-      this.solicitud.doctor_ci          = d.ci;
-      this.solicitud.doctor_telefono    = d.telefono;
-      this.solicitud.doctor_email       = d.email;
-      this.solicitud.doctor_registro    = d.registro;
+      this.solicitud.doctor_id           = d.id;
+      this.solicitud.doctor_nombre       = d.nombre;
+      this.solicitud.doctor_especialidad = d.especialidad;
+      this.solicitud.doctor_ci           = d.ci;
+      this.solicitud.doctor_telefono     = d.telefono;
+      this.solicitud.doctor_email        = d.email;
+      this.solicitud.doctor_registro     = d.registro;
     }
   }
 };
