@@ -10,6 +10,121 @@ use Illuminate\Http\Request;
 
 class SolicitudeController extends Controller
 {
+    public function generarCodigo(Request $request, $id)
+    {
+        $solicitud = Solicitude::findOrFail($id);
+
+        // 1) Actualizar tipo_atencion desde el front SI/NO (si viene)
+        if ($request->filled('tipo_atencion')) {
+            $solicitud->tipo_atencion = $request->input('tipo_atencion');
+        } elseif (empty($solicitud->tipo_atencion)) {
+            // si no tiene nada, por defecto SI
+            $solicitud->tipo_atencion = 'SI';
+        }
+
+        // 2) Asegurar que fecha_solicitud tenga algo (para el filtro por mes/año)
+        if (empty($solicitud->fecha_solicitud)) {
+            $solicitud->fecha_solicitud = now()->toDateString();
+        }
+
+        // 3) Paciente y nro_registro
+        $paciente = Paciente::find($solicitud->paciente_id);
+        $nombreCompleto = $paciente ? $paciente->nombre_completo : 'Desconocido';
+        $nro_registro   = $this->nroRegistro($nombreCompleto, $paciente->fecha_nac ?? null);
+
+        // 4) Generar correlativo por tipo_atencion + mes
+        $solicitud->codigo      = $this->generarCodigoPorTipoYMes($solicitud);
+        $solicitud->nro_registro = $nro_registro;
+        $solicitud->estado      = 'ATENDIENDO';
+
+        $solicitud->save();
+
+        return response()->json($solicitud->fresh(['paciente', 'doctor', 'servicios']));
+    }
+    protected function generarCodigoPorTipoYMes(Solicitude $solicitud): int
+    {
+        $tipo = $solicitud->tipo_atencion ?? 'SI';
+
+        $fechaBase = $solicitud->fecha_solicitud ?: now()->toDateString();
+        $timestamp = strtotime($fechaBase);
+
+        $anio = date('Y', $timestamp);
+        $mes  = date('m', $timestamp);
+
+        $ultimoCodigo = Solicitude::where('tipo_atencion', $tipo)
+            ->whereYear('fecha_solicitud', $anio)
+            ->whereMonth('fecha_solicitud', $mes)
+            ->whereNotNull('codigo')
+            ->max('codigo');
+
+        return $ultimoCodigo ? ((int)$ultimoCodigo + 1) : 1;
+    }
+
+    function solicitudesAreaPreanalitica(Request $request){
+
+        $filter = $request->input('filter', '');
+
+        $query = Solicitude::with(['paciente', 'doctor', 'servicios'])
+            ->whereIn('estado', ['CREADO', 'ATENDIENDO']);
+
+        if (!empty($filter)) {
+            $query->whereHas('paciente', function ($q) use ($filter) {
+                $q->where('nombre_completo', 'like', "%$filter%")
+                    ->orWhere('ci', 'like', "%$filter%");
+            });
+        }
+        $perPage = $request->input('per_page', 10);
+        $solicitudes = $query->orderBy('id', 'desc')->paginate($perPage);
+
+        return response()->json($solicitudes);
+    }
+    function nroRegistro($nombreCompleto, $fechaNac)
+    {
+        $nombreCompleto = trim((string) $nombreCompleto);
+
+        // Si falta nombre o fecha, devolvemos null (o lo que prefieras)
+        if ($nombreCompleto === '' || empty($fechaNac)) {
+            return null;
+        }
+
+        // Separar en partes (nombre y apellidos)
+        $partes = preg_split('/\s+/', mb_strtoupper($nombreCompleto, 'UTF-8'));
+
+        // Tomar nombre y apellidos según la cantidad de palabras
+        if (count($partes) >= 3) {
+            // Ej: ADIMER PAUL CHAMBI AJATA -> ADIMER | CHAMBI | AJATA
+            $nombre   = $partes[0];
+            $apPat    = $partes[count($partes) - 2];
+            $apMat    = $partes[count($partes) - 1];
+        } elseif (count($partes) === 2) {
+            // Ej: "MARIA PEREZ" -> MARIA | PEREZ | PEREZ
+            $nombre   = $partes[0];
+            $apPat    = $partes[1];
+            $apMat    = $partes[1]; // repetimos el mismo apellido
+        } else {
+            // Solo una palabra: "MARIA" -> MARIA | MARIA | MARIA
+            $nombre   = $partes[0];
+            $apPat    = $partes[0];
+            $apMat    = $partes[0];
+        }
+
+        // Iniciales (3 letras)
+        $iniciales =
+            mb_substr($nombre, 0, 1, 'UTF-8') .
+            mb_substr($apPat, 0, 1, 'UTF-8') .
+            mb_substr($apMat, 0, 1, 'UTF-8');
+
+        // Fecha en formato ddmmyy
+        $timestamp = strtotime($fechaNac);
+        if ($timestamp === false) {
+            // Si la fecha no es válida, devolvemos solo las iniciales
+            return $iniciales;
+        }
+
+        $fechaFormateada = date('dmy', $timestamp); // 02 04 89 -> "020489"
+
+        return $iniciales . $fechaFormateada;
+    }
     public function index(Request $request)
     {
         $query = Solicitude::with(['paciente', 'doctor', 'servicios']);
