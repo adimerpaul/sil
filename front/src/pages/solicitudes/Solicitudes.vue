@@ -456,6 +456,19 @@ export default {
     },
     guardar () {
       this.loading = true;
+      this.solicitud.servicios = [];
+      this.areas.forEach(area => {
+        area.servicios.forEach(servicio => {
+          if (servicio.seleccionado) {
+            this.solicitud.servicios.push({
+              id: servicio.id,
+              nombre: servicio.nombre,
+              precio: servicio.precio
+            });
+          }
+        });
+      });
+
       const req = this.editando
         ? this.$axios.put(`solicitudes/${this.solicitud.id}`, this.solicitud)
         : this.$axios.post('solicitudes', this.solicitud);

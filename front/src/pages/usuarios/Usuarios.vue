@@ -147,14 +147,10 @@
 <!--            area-->
             <q-select v-model="user.area" label="Area" dense outlined :options="areas"
                       :rules="[val => !!val || 'Campo requerido']"/>
-<!--            <q-select v-model="user.docente_id" label="Docente" dense outlined :options="docentes"-->
-<!--                      option-label="nombre" option-value="id" emit-value map-options-->
-<!--                      :rules="[val => !!val || 'Campo requerido']"/>-->
-            <!--            <q-input v-model="user.phone" label="Telefono" dense outlined hint="" />-->
-            <!--            <q-input v-model="user.codigo" label="Codigo" dense outlined hint="" />-->
-            <!--            <q-input v-model="user.gestion" label="Gestion" dense outlined hint="" />-->
-            <!--            <q-input v-model="user.bloque" label="Bloque" dense outlined hint="" />-->
-<!--            <pre>{{user}}</pre>-->
+            <q-select v-model="user.establecimiento_id" label="Establecimiento" dense outlined
+                      :options="establecimientos.map(e => ({ label: e.nombre, value: e.id }))"
+                      emit-value map-options
+                      :rules="[val => !!val || 'Campo requerido']"/>
             <div class="text-right">
               <q-btn color="negative" label="Cancelar" @click="userDialog = false" no-caps :loading="loading"/>
               <q-btn color="primary" label="Guardar" type="submit" no-caps :loading="loading" class="q-ml-sm"/>
@@ -282,18 +278,26 @@ export default {
         { name: 'permissions', label: 'Permisos', align: 'left',
           field: row => (row.permissions || []).map(p => p.name).join(', ')
         },
+        // establecimiento
+        {name: 'establecimiento', label: 'Establecimiento', align: 'left', field: row => row.establecimiento?.nombre || ''},
       ],
       permissions: [],
       dialogPermisos: false,
       permFilter: '',
       cambioAvatarDialogo: false,
       docentes: [],
+      establecimientos: [],
     }
   },
   async mounted() {
     // this.docentes = await this.$axios.get('docentes').then(res => res.data)
     this.usersGet()
     // this.permissionsGet()
+    this.$axios.get('establecimientos').then(res => {
+      this.establecimientos = res.data
+    }).catch(error => {
+      this.$alert.error(error.response.data.message)
+    })
   },
   methods: {
     onFileChange(event) {
