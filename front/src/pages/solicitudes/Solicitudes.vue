@@ -97,34 +97,14 @@
               <div class="text-subtitle2">Datos del paciente</div>
             </div>
             <div class="row q-col-gutter-xs">
-<!--              <div class="col-12 col-sm-4">-->
-<!--                <q-input-->
-<!--                  v-model="searchCi"-->
-<!--                  label="CI (buscar)"-->
-<!--                  dense outlined-->
-<!--                >-->
-<!--                  <template #append>-->
-<!--                    <q-btn flat dense icon="search" @click="buscarPacientePorCi" />-->
-<!--                  </template>-->
-<!--                </q-input>-->
-<!--              </div>-->
-<!--              <div class="col-12 col-sm-8">-->
-<!--                <q-select-->
-<!--                  v-model="solicitud.paciente_id"-->
-<!--                  :options="pacientesOptions"-->
-<!--                  option-value="id"-->
-<!--                  option-label="nombre_completo"-->
-<!--                  emit-value-->
-<!--                  map-options-->
-<!--                  dense-->
-<!--                  outlined-->
-<!--                  clearable-->
-<!--                  label="Paciente (opcional)"-->
-<!--                  @update:model-value="onSelectPaciente"-->
-<!--                />-->
-<!--              </div>-->
               <div class="col-6 col-sm-3">
-                <q-input v-model="solicitud.paciente_ci" label="CI" dense outlined  @update:model-value="onChangeCi" debounce="300" />
+                <q-input
+                  v-model="solicitud.paciente_ci"
+                  label="CI"
+                  dense outlined
+                  @update:model-value="onChangeCi"
+                  debounce="300"
+                />
               </div>
               <div class="col-12 col-sm-6">
                 <q-input v-model="solicitud.paciente_nombre" label="Nombre" dense outlined />
@@ -188,50 +168,6 @@
                   @update:model-value="onSelectDoctor"
                 />
               </div>
-<!--              <div class="col-12 col-sm-6">-->
-<!--                <q-input-->
-<!--                  v-model="solicitud.doctor_nombre"-->
-<!--                  label="Nombre del doctor"-->
-<!--                  dense outlined-->
-<!--                />-->
-<!--              </div>-->
-
-<!--              <div class="col-12 col-sm-4">-->
-<!--                <q-input-->
-<!--                  v-model="solicitud.doctor_especialidad"-->
-<!--                  label="Especialidad"-->
-<!--                  dense outlined-->
-<!--                />-->
-<!--              </div>-->
-<!--              <div class="col-6 col-sm-4">-->
-<!--                <q-input-->
-<!--                  v-model="solicitud.doctor_ci"-->
-<!--                  label="CI doctor"-->
-<!--                  dense outlined-->
-<!--                />-->
-<!--              </div>-->
-<!--              <div class="col-6 col-sm-4">-->
-<!--                <q-input-->
-<!--                  v-model="solicitud.doctor_registro"-->
-<!--                  label="Registro prof."-->
-<!--                  dense outlined-->
-<!--                />-->
-<!--              </div>-->
-
-<!--              <div class="col-6 col-sm-6">-->
-<!--                <q-input-->
-<!--                  v-model="solicitud.doctor_telefono"-->
-<!--                  label="Teléfono doctor"-->
-<!--                  dense outlined-->
-<!--                />-->
-<!--              </div>-->
-<!--              <div class="col-6 col-sm-6">-->
-<!--                <q-input-->
-<!--                  v-model="solicitud.doctor_email"-->
-<!--                  label="Email doctor"-->
-<!--                  dense outlined-->
-<!--                />-->
-<!--              </div>-->
             </div>
 
             <q-separator class="q-my-sm" />
@@ -242,13 +178,6 @@
               <div class="text-subtitle2">Datos de la solicitud</div>
             </div>
             <div class="row q-col-gutter-xs">
-<!--              <div class="col-6 col-sm-3">-->
-<!--                <q-input-->
-<!--                  v-model="solicitud.codigo_solicitud"-->
-<!--                  label="Código"-->
-<!--                  dense outlined-->
-<!--                />-->
-<!--              </div>-->
               <div class="col-6 col-sm-2">
                 <q-toggle
                   v-model="solicitud.tipo_atencion"
@@ -266,7 +195,6 @@
                   label="Especificar"
                   dense outlined
                 />
-<!--                select establecmeintos-->
                 <q-select
                   v-else
                   v-model="solicitud.establecimiento_salud"
@@ -278,23 +206,7 @@
                   label="Establecimiento de salud"
                   dense outlined
                 />
-<!--                <pre>{{ solicitud.establecimiento_salud }}</pre>-->
               </div>
-
-<!--              <div class="col-12 col-sm-6">-->
-<!--                <q-input-->
-<!--                  v-model="solicitud.establecimiento_salud"-->
-<!--                  label="Establecimiento de salud"-->
-<!--                  dense outlined-->
-<!--                />-->
-<!--              </div>-->
-<!--              <div class="col-12 col-sm-6">-->
-<!--                <q-input-->
-<!--                  v-model="solicitud.zona_establecimiento"-->
-<!--                  label="Zona establecimiento"-->
-<!--                  dense outlined-->
-<!--                />-->
-<!--              </div>-->
 
               <div class="col-12 col-md-6">
                 <q-input
@@ -304,15 +216,6 @@
                   dense outlined autogrow
                 />
               </div>
-
-<!--              <div class="col-12 col-sm-4">-->
-<!--                <q-select-->
-<!--                  v-model="solicitud.estado"-->
-<!--                  :options="['CREADO', 'ATENDIENDO', 'FINALIZADO']"-->
-<!--                  label="Estado"-->
-<!--                  dense outlined-->
-<!--                />-->
-<!--              </div>-->
             </div>
 
             <q-separator class="q-my-sm" />
@@ -322,26 +225,71 @@
               <q-icon name="biotech" size="18px" class="q-mr-xs" />
               <div class="text-subtitle2">Servicios solicitados</div>
             </div>
+
+            <!-- FILTROS DE SERVICIOS -->
+            <div class="row q-col-gutter-xs q-mb-xs">
+              <div class="col-12 col-sm-6">
+                <q-input
+                  v-model="serviciosFilter"
+                  dense outlined
+                  label="Buscar servicio (nombre / código / subárea)"
+                >
+                  <template #append>
+                    <q-icon name="search" />
+                  </template>
+                </q-input>
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-select
+                  v-model="serviciosAreaId"
+                  :options="areas"
+                  option-label="name"
+                  option-value="id"
+                  dense outlined clearable
+                  label="Filtrar por área"
+                />
+              </div>
+            </div>
+
             <div class="row q-col-gutter-xs">
               <div class="col-12">
-                <div v-for="area in areas" :key="area.name" class="q-mb-sm">
-                  <div class="text-bold q-mb-xs">{{ area.name }}</div>
-                  <div class="row q-col-gutter-xs">
-                    <div
-                      v-for="servicio in area.servicios"
-                      :key="servicio.codigo"
-                      class="col-12 col-sm-6"
-                    >
-                      <q-checkbox
-                        v-model="servicio.seleccionado"
-                        :true-value="1"
-                        :false-value="0"
-                        :label="`${servicio.nombre} (Bs. ${servicio.precio})`"
-                        dense
-                      />
-                    </div>
-                  </div>
-                </div>
+                <q-expansion-item
+                  v-for="area in areas"
+                  :key="area.id || area.name"
+                  :label="area.name"
+                  icon="science"
+                  expand-separator
+                  dense
+                  v-show="filteredServicios(area).length > 0"
+                >
+                  <q-card flat>
+                    <q-card-section class="q-pa-xs">
+                      <div class="row q-col-gutter-xs">
+                        <div
+                          v-for="servicio in filteredServicios(area)"
+                          :key="servicio.id || servicio.codigo"
+                          class="col-12 col-sm-6"
+                        >
+                          <q-checkbox
+                            v-model="servicio.seleccionado"
+                            :true-value="1"
+                            :false-value="0"
+                            dense
+                          >
+                            <div>
+                              {{ textCapitalize(servicio.nombre) }} (Bs. {{ servicio.precio }})
+                            </div>
+                            <div>
+                              <small class="text-grey">
+                                {{ servicio.subarea ? 'Subárea: ' + textCapitalize(servicio.subarea) : '' }}
+                              </small>
+                            </div>
+                          </q-checkbox>
+                        </div>
+                      </div>
+                    </q-card-section>
+                  </q-card>
+                </q-expansion-item>
               </div>
             </div>
 
@@ -371,8 +319,8 @@ export default {
     return {
       rows: [],
       columns: [
-        {name: 'actions', label: 'Acciones', align: 'center'},
-        {name: 'id', label: 'ID', field: 'id', align: 'left'},
+        { name: 'actions', label: 'Acciones', align: 'center' },
+        { name: 'id', label: 'ID', field: 'id', align: 'left' },
         {
           name: 'fecha_solicitud',
           label: 'Fecha',
@@ -389,8 +337,8 @@ export default {
           label: 'Doctor',
           field: row => row.doctor?.nombre || row.doctor_nombre || ''
         },
-        {name: 'tipo_atencion', label: 'Tipo atención', field: 'tipo_atencion'},
-        {name: 'estado', label: 'Estado', field: 'estado'}
+        { name: 'tipo_atencion', label: 'Tipo atención', field: 'tipo_atencion' },
+        { name: 'estado', label: 'Estado', field: 'estado' }
       ],
       filter: '',
       dialog: false,
@@ -409,7 +357,11 @@ export default {
       doctoresOptions: [],
       searchCi: '',
       areas: [],
-      establecimientos: []
+      establecimientos: [],
+
+      // NUEVOS FILTROS DE SERVICIOS
+      serviciosFilter: '',
+      serviciosAreaId: null
     }
   },
   mounted () {
@@ -424,9 +376,12 @@ export default {
     });
   },
   methods: {
-    onChangeCi(val) {
+    textCapitalize (str) {
+      if (!str) return '';
+      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    },
+    onChangeCi (val) {
       this.searchCi = val;
-      // axios post
       this.buscarPacientePorCi();
     },
     getSolicitudes () {
@@ -483,11 +438,16 @@ export default {
       this.editando = false;
       this.dialog = true;
 
+      // reset selección de servicios
       this.areas.forEach(area => {
         area.servicios.forEach(servicio => {
           servicio.seleccionado = 0;
         });
       });
+
+      // reset filtros de servicios
+      this.serviciosFilter = '';
+      this.serviciosAreaId = null;
     },
     editar (row) {
       this.solicitud = { ...row, paciente_id: row.paciente_id, doctor_id: row.doctor_id };
@@ -541,9 +501,7 @@ export default {
           this.onSelectPaciente(res.data.id);
         })
         .catch(() => {
-          // this.$alert && this.$alert.error
-          //   ? this.$alert.error('Paciente no encontrado')
-          //   : alert('Paciente no encontrado');
+          // Paciente no encontrado: silencio
         })
         .finally(() => {
           this.loading = false;
@@ -571,6 +529,33 @@ export default {
       this.solicitud.doctor_telefono     = d.telefono;
       this.solicitud.doctor_email        = d.email;
       this.solicitud.doctor_registro     = d.registro;
+    },
+
+    // 🔎 Filtro de servicios por texto y área
+    filteredServicios (area) {
+      let servicios = area.servicios || [];
+
+      // filtrar por área seleccionada
+      if (this.serviciosAreaId && area.id !== this.serviciosAreaId) {
+        return [];
+      }
+
+      const text = (this.serviciosFilter || '').toLowerCase().trim();
+      if (!text) {
+        return servicios;
+      }
+
+      return servicios.filter(serv => {
+        const nombre = String(serv.nombre ?? '').toLowerCase();
+        const sub    = String(serv.subarea ?? '').toLowerCase();
+        const codigo = String(serv.codigo ?? '').toLowerCase(); // 👈 aquí el cambio clave
+
+        return (
+          nombre.includes(text) ||
+          sub.includes(text) ||
+          codigo.includes(text)
+        );
+      });
     }
   }
 };

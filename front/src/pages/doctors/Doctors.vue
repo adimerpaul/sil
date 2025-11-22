@@ -113,6 +113,19 @@
               </div>
               <div class="col-12 col-sm-6">
                 <q-select
+                  v-model="doctor.establecimiento_id"
+                  :options="establecimientos"
+                  option-label="nombre"
+                  option-value="id"
+                  emit-value
+                  map-options
+                  label="Establecimiento de salud"
+                  dense outlined
+                />
+<!--                <pre>{{establecimientos}}</pre>-->
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-select
                   v-model="doctor.estado"
                   :options="['ACTIVO', 'INACTIVO']"
                   label="Estado"
@@ -154,18 +167,27 @@ export default {
         { name: 'telefono', label: 'Teléfono', field: 'telefono', align: 'left' },
         { name: 'email', label: 'Email', field: 'email', align: 'left' },
         { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
+        { name: 'establecimiento', label: 'Establecimiento', field: row => row.establecimiento ? row.establecimiento.nombre : '', align: 'left' },
       ],
       filter: '',
       dialog: false,
       editando: false,
       loading: false,
       doctor: {},
+      establecimientos: [],
     };
   },
   mounted () {
     this.getDoctores();
+    this.getEstablecimientos();
   },
   methods: {
+    getEstablecimientos () {
+      this.$axios.get('establecimientos')
+        .then(res => {
+          this.establecimientos = res.data;
+        });
+    },
     getDoctores () {
       this.loading = true;
       this.$axios.get('doctores')
@@ -184,6 +206,7 @@ export default {
         telefono: '',
         email: '',
         registro: '',
+        establecimiento_id:null,
         estado: 'ACTIVO',
       };
       this.editando = false;
