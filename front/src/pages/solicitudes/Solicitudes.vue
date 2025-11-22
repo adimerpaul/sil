@@ -253,23 +253,29 @@
                 <q-toggle v-model="solicitud.tipo_atencion" true-value="SI" false-value="NO" dense >
                   {{ solicitud.tipo_atencion === 'SI' ? 'SUS SI' : 'SUS NO' }}
                 </q-toggle>
-              </div>
-              <div class="col-12 col-sm-3">
                 <q-input
-                  v-model="solicitud.fecha_solicitud"
-                  type="date"
-                  label="Fecha solicitud"
+                  v-if="solicitud.tipo_atencion === 'NO'"
+                  v-model="solicitud.tipo_otro"
+                  label="Privado"
                   dense outlined
                 />
               </div>
-              <div class="col-12 col-sm-3">
-                <q-input
-                  v-model="solicitud.hora_solicitud"
-                  type="time"
-                  label="Hora solicitud"
-                  dense outlined
-                />
-              </div>
+<!--              <div class="col-12 col-sm-3">-->
+<!--                <q-input-->
+<!--                  v-model="solicitud.fecha_solicitud"-->
+<!--                  type="date"-->
+<!--                  label="Fecha solicitud"-->
+<!--                  dense outlined-->
+<!--                />-->
+<!--              </div>-->
+<!--              <div class="col-12 col-sm-3">-->
+<!--                <q-input-->
+<!--                  v-model="solicitud.hora_solicitud"-->
+<!--                  type="time"-->
+<!--                  label="Hora solicitud"-->
+<!--                  dense outlined-->
+<!--                />-->
+<!--              </div>-->
 
               <div class="col-12 col-sm-6">
                 <q-input
@@ -625,7 +631,8 @@ export default {
         doctor_id: null,
 
         codigo_solicitud: '',
-        tipo_atencion: '',
+        tipo_atencion: 'SI',
+        tipo_otro: '',
         fecha_solicitud: moment().format('YYYY-MM-DD'),
         hora_solicitud: moment().format('HH:mm'),
         establecimiento_salud: '',
