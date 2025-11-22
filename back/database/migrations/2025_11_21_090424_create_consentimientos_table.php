@@ -54,7 +54,8 @@ return new class extends Migration
 //            $table->enum('tipo', ['ACEPTA', 'RECHAZA']);  // ACEPTA o RECHAZA
             $table->string('tipo')->nullable();  // ACEPTA o RECHAZA
             $table->string('declarante_nombre')->nullable();     // "Yo: ..."
-            $table->string('declarante_condicion')->nullable();  // "en mi condición de ..."
+            $table->string('declarante_condicion')->nullable();
+            $table->string('declarante_condicion_otro')->nullable();
             $table->date('fecha_consentimiento')->nullable();    // para control por fecha
 
             // Usuario que registró el consentimiento

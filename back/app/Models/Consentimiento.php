@@ -44,6 +44,7 @@ class Consentimiento extends Model implements AuditableContract
         'tipo',
         'declarante_nombre',
         'declarante_condicion',
+        'declarante_condicion_otro',
         'fecha_consentimiento',
 
         'user_id',
