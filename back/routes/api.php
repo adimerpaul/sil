@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\EstablecimientoController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\ConsentimientoController;
 use App\Http\Controllers\SolicitudeController;
@@ -34,6 +35,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('solicitudes', SolicitudeController::class);
     Route::apiResource('doctores', DoctorController::class);
     Route::apiResource('pacientes', PacienteController::class);
+
+    Route::apiResource('establecimientos', EstablecimientoController::class);
+
 
 });
 Route::get('consentimientos/{id}/print', [ConsentimientoController::class, 'print']);

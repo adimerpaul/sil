@@ -21,7 +21,8 @@ class PacienteController extends Controller
         ]);
 
         $existe = Paciente::where('ci', $request->ci)->first();
-        if ($existe) {
+//        colo se permite null o vacio
+        if ($existe && !empty($request->ci)) {
             return response()->json(['message' => 'El paciente con CI ' . $request->ci . ' ya existe'], 409);
         }
         $paciente = Paciente::create($request->all());
