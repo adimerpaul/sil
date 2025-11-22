@@ -51,12 +51,16 @@
             <q-input v-model="paciente.fecha_nac" type="date" label="Fecha de nacimiento" dense outlined @update:model-value="calculateEdad" clearable/>
             <q-select v-model="paciente.genero" label="Género" :options="['F','M','OTRO']" dense outlined/>
             <q-input v-model="paciente.edad" type="number" label="Edad" dense outlined/>
-            <q-toggle v-model="paciente.discapacidad" label="Discapacidad" :true-value="1" :false-value="0"/>
-<!--            <pre>{{paciente.discapacidad}}</pre>-->
-            <q-input v-if="paciente.discapacidad" v-model="paciente.discapacidad_cual" label="¿Cuál?" dense outlined/>
-            <q-toggle v-model="paciente.embarazo" label="Embarazo" :true-value="1" :false-value="0"/>
-            <q-input v-if="paciente.embarazo" v-model="paciente.fum" type="date" label="FUM" dense outlined/>
-            <q-input v-if="paciente.embarazo" v-model="paciente.sem_gest" type="number" label="Semanas gestación" dense outlined @update:model-value="calculateFum"/>
+            <div>
+              <q-toggle v-model="paciente.discapacidad" label="Discapacidad" :true-value="1" :false-value="0"/>
+            </div>
+            <q-select v-if="paciente.discapacidad" v-model="paciente.discapacidad_cual" label="¿Cuál?" :options="discapacidades" dense outlined/>
+            <q-input v-if="paciente.discapacidad_cual === 'Otros'" v-model="paciente.discapacidad_otro" label="Especifique" dense outlined/>
+            <div>
+              <q-toggle v-model="paciente.embarazo" label="Embarazo" :true-value="1" :false-value="0"/>
+            </div>
+            <q-input v-if="paciente.embarazo" v-model="paciente.fum" type="date" label="FUM" dense outlined @update:model-value="calculateFum"/>
+            <q-input v-if="paciente.embarazo" v-model="paciente.sem_gest" type="number" label="Semanas gestación" dense outlined />
             <div class="text-right q-mt-md">
               <q-btn flat label="Cancelar" v-close-popup :loading="loading"/>
               <q-btn color="primary" label="Guardar" type="submit" class="q-ml-sm" :loading="loading"/>
@@ -88,6 +92,14 @@ export default {
         { name: 'genero', label: 'Género', field: 'genero' },
         { name: 'edad', label: 'Edad', field: 'edad' },
       ],
+      discapacidades: [
+        'Visual',
+        'Auditiva',
+        'Física-Motora',
+        'Intelectual',
+        'Psicosocial',
+        'Otros',
+      ],
     };
   },
   mounted() {
@@ -95,12 +107,14 @@ export default {
   },
   methods: {
     calculateFum() {
-      if (this.paciente.fum && this.paciente.sem_gest !== null) {
+      if (this.paciente.fum) {
         const fumDate = new Date(this.paciente.fum);
-        const gestWeeks = parseInt(this.paciente.sem_gest, 10);
-        const estimatedDueDate = new Date(fumDate);
-        estimatedDueDate.setDate(fumDate.getDate() + (gestWeeks * 7));
-        this.paciente.fecha_nac = estimatedDueDate.toISOString().substr(0, 10);
+        const today = new Date();
+        const diffTime = Math.abs(today - fumDate);
+        const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
+        this.paciente.sem_gest = diffWeeks;
+      } else {
+        this.paciente.sem_gest = null;
       }
     },
     calculateEdad() {
@@ -137,6 +151,7 @@ export default {
         embarazo: 0,
         fum: '',
         sem_gest: null,
+        discapacidad_otro: '',
       };
       this.editando = false;
       this.dialog = true;

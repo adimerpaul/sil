@@ -15,7 +15,7 @@ class Paciente extends Model implements Auditable
         'fecha_recepcion', 'hora_recepcion',
         'nombre_completo', 'fecha_nac', 'genero', 'edad',
         'ci', 'telefono', 'direccion',
-        'discapacidad', 'discapacidad_cual',
+        'discapacidad', 'discapacidad_cual', 'discapacidad_otro',
         'embarazo', 'fum', 'sem_gest'
     ];
 

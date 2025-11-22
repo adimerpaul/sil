@@ -27,6 +27,7 @@ return new class extends Migration
 
             $table->boolean('discapacidad')->default(false);
             $table->string('discapacidad_cual', 120)->nullable();
+            $table->string('discapacidad_otro', 120)->nullable();
 
             $table->boolean('embarazo')->default(false);
             $table->date('fum')->nullable();
