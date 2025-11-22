@@ -25,7 +25,8 @@ return new class extends Migration
 
             // Cabecera
             $table->string('codigo_solicitud')->nullable();
-            $table->string('tipo_atencion')->nullable();     // SUS_SI / SUS_NO / etc
+            $table->string('tipo_atencion')->nullable();
+            $table->string('tipo_otro')->nullable();
             $table->date('fecha_solicitud')->nullable();
             $table->time('hora_solicitud')->nullable();
             $table->string('establecimiento_salud')->nullable();

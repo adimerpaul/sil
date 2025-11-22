@@ -19,7 +19,8 @@ class Solicitude extends Model implements AuditableContract
 
         // cabecera solicitud
         'codigo_solicitud',
-        'tipo_atencion',           // SUS_SI, SUS_NO, PRIVADO, etc
+        'tipo_atencion',
+        'tipo_otro',
         'fecha_solicitud',
         'hora_solicitud',
         'establecimiento_salud',
