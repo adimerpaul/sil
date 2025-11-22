@@ -72,4 +72,14 @@ class Solicitude extends Model implements AuditableContract
     {
         return $this->belongsTo(User::class);
     }
+
+    public function servicios()
+    {
+        return $this->belongsToMany(
+            \App\Models\Servicio::class,
+            'servicio_solicitudes',   // nombre de la tabla pivote
+            'solicitude_id',
+            'servicio_id'
+        )->withPivot('precio')->withTimestamps();
+    }
 }

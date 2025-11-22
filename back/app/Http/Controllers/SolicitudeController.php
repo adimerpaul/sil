@@ -12,7 +12,7 @@ class SolicitudeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Solicitude::with(['paciente', 'doctor']);
+        $query = Solicitude::with(['paciente', 'doctor', 'servicios']);
 
         // filtros por fecha de solicitud
         if ($request->filled('from')) {
@@ -37,7 +37,7 @@ class SolicitudeController extends Controller
 
     public function show($id)
     {
-        return Solicitude::with(['paciente', 'doctor'])->findOrFail($id);
+        return Solicitude::with(['paciente', 'doctor', 'servicios'])->findOrFail($id);
     }
 
     public function store(Request $request)
@@ -49,25 +49,12 @@ class SolicitudeController extends Controller
             $data['user_id'] = $request->user()->id;
         }
 
-        // Copia de datos del paciente (si se seleccionó)
-//        if ($request->filled('paciente_id')) {
-//            $p = Paciente::find($request->paciente_id);
-//            if ($p) {
-//                $data['paciente_nombre']     = $data['paciente_nombre']     ?? $p->nombre_completo;
-//                $data['paciente_ci']         = $data['paciente_ci']         ?? $p->ci;
-//                $data['paciente_telefono']   = $data['paciente_telefono']   ?? $p->telefono;
-//                $data['paciente_direccion']  = $data['paciente_direccion']  ?? $p->direccion;
-//                $data['paciente_fecha_nac']  = $data['paciente_fecha_nac']  ?? $p->fecha_nac;
-//                $data['paciente_genero']     = $data['paciente_genero']     ?? $p->genero;
-//                $data['paciente_edad']       = $data['paciente_edad']       ?? $p->edad;
-//            }
-//        }
+        // upsert de paciente por CI
         $ci = $request->paciente_ci;
         $paciente = $this->pacienteUpsert($ci, $data);
-
-        $request->merge(['paciente_id' => $paciente->id]);
-
-
+        if ($paciente) {
+            $data['paciente_id'] = $paciente->id;
+        }
 
         // Copia de datos del doctor (si se seleccionó)
         if ($request->filled('doctor_id')) {
@@ -82,47 +69,45 @@ class SolicitudeController extends Controller
             }
         }
 
+        // Crear solicitud
         $solicitud = Solicitude::create($data);
 
-        $servicios = $request->servicios;
+        // Guardar servicios en tabla pivote
+        $this->syncServicios($solicitud, $request->input('servicios', []));
 
-        foreach ($servicios as $index => $servicio) {
-            $newServicioSolicitud = new Servicio();
-            $newServicioSolicitud->servicio_id = $servicio['id'];
-            $newServicioSolicitud->solicitude_id = $solicitud->id;
-        }
-
-        return response()->json($solicitud->load(['paciente', 'doctor']), 201);
+        return response()->json($solicitud->load(['paciente', 'doctor', 'servicios']), 201);
     }
-    function pacienteUpsert($ci, &$data){
+
+    protected function pacienteUpsert($ci, &$data)
+    {
         if (empty($ci)) {
-            return;
+            return null;
         }
+
         $p = Paciente::where('ci', $ci)->first();
         if ($p) {
             // actualizar paciente existente
             $p->nombre_completo = $data['paciente_nombre'] ?? $p->nombre_completo;
-            $p->telefono = $data['paciente_telefono'] ?? $p->telefono;
-            $p->direccion = $data['paciente_direccion'] ?? $p->direccion;
-            $p->fecha_nac = $data['paciente_fecha_nac'] ?? $p->fecha_nac;
-            $p->genero = $data['paciente_genero'] ?? $p->genero;
-            $p->edad = $data['paciente_edad'] ?? $p->edad;
+            $p->telefono        = $data['paciente_telefono'] ?? $p->telefono;
+            $p->direccion       = $data['paciente_direccion'] ?? $p->direccion;
+            $p->fecha_nac       = $data['paciente_fecha_nac'] ?? $p->fecha_nac;
+            $p->genero          = $data['paciente_genero'] ?? $p->genero;
+            $p->edad            = $data['paciente_edad'] ?? $p->edad;
             $p->save();
-            $data['paciente_id'] = $p->id;
         } else {
             // crear nuevo paciente
-            $newPaciente = Paciente::create([
+            $p = Paciente::create([
                 'nombre_completo' => $data['paciente_nombre'],
-                'ci' => $ci,
-                'telefono' => $data['paciente_telefono'] ?? null,
-                'direccion' => $data['paciente_direccion'] ?? null,
-                'fecha_nac' => $data['paciente_fecha_nac'] ?? null,
-                'genero' => $data['paciente_genero'] ?? null,
-                'edad' => $data['paciente_edad'] ?? null,
+                'ci'              => $ci,
+                'telefono'        => $data['paciente_telefono'] ?? null,
+                'direccion'       => $data['paciente_direccion'] ?? null,
+                'fecha_nac'       => $data['paciente_fecha_nac'] ?? null,
+                'genero'          => $data['paciente_genero'] ?? null,
+                'edad'            => $data['paciente_edad'] ?? null,
             ]);
-            $data['paciente_id'] = $newPaciente->id;
         }
-        $p = Paciente::find($data['paciente_id']);
+
+        $data['paciente_id'] = $p->id;
         return $p;
     }
 
@@ -131,20 +116,16 @@ class SolicitudeController extends Controller
         $solicitud = Solicitude::findOrFail($id);
         $data = $request->all();
 
-        // Si cambian paciente/doctor, volvemos a copiar
-        if ($request->filled('paciente_id')) {
-            $p = Paciente::find($request->paciente_id);
-            if ($p) {
-                $data['paciente_nombre']     = $data['paciente_nombre']     ?? $p->nombre_completo;
-                $data['paciente_ci']         = $data['paciente_ci']         ?? $p->ci;
-                $data['paciente_telefono']   = $data['paciente_telefono']   ?? $p->telefono;
-                $data['paciente_direccion']  = $data['paciente_direccion']  ?? $p->direccion;
-                $data['paciente_fecha_nac']  = $data['paciente_fecha_nac']  ?? $p->fecha_nac;
-                $data['paciente_genero']     = $data['paciente_genero']     ?? $p->genero;
-                $data['paciente_edad']       = $data['paciente_edad']       ?? $p->edad;
+        // si cambian datos de paciente por CI, actualizamos también
+        $ci = $request->paciente_ci;
+        if (!empty($ci)) {
+            $paciente = $this->pacienteUpsert($ci, $data);
+            if ($paciente) {
+                $data['paciente_id'] = $paciente->id;
             }
         }
 
+        // Copia de datos del doctor (si se seleccionó)
         if ($request->filled('doctor_id')) {
             $d = Doctor::find($request->doctor_id);
             if ($d) {
@@ -159,7 +140,27 @@ class SolicitudeController extends Controller
 
         $solicitud->update($data);
 
-        return response()->json($solicitud->load(['paciente', 'doctor']));
+        // actualizar servicios de la solicitud
+        $this->syncServicios($solicitud, $request->input('servicios', []));
+
+        return response()->json($solicitud->load(['paciente', 'doctor', 'servicios']));
+    }
+
+    protected function syncServicios(Solicitude $solicitud, array $servicios)
+    {
+        // $servicios viene del front: [{id, nombre, precio}, ...]
+        $pivotData = [];
+
+        foreach ($servicios as $serv) {
+            if (!isset($serv['id'])) {
+                continue;
+            }
+            $pivotData[$serv['id']] = [
+                'precio' => $serv['precio'] ?? null,
+            ];
+        }
+
+        $solicitud->servicios()->sync($pivotData);
     }
 
     public function destroy($id)

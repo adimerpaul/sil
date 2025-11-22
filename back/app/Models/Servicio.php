@@ -30,4 +30,22 @@ class Servicio extends Model implements AuditableContract
     {
         return $this->belongsTo(Area::class);
     }
+    public function establecimientos()
+    {
+        return $this->belongsToMany(
+            Establecimiento::class,
+            'establecimiento_servicios',
+            'servicio_id',
+            'establecimiento_id'
+        )->withTimestamps();
+    }
+    public function solicitudes()
+    {
+        return $this->belongsToMany(
+            \App\Models\Solicitude::class,
+            'servicio_solicitudes',
+            'servicio_id',
+            'solicitude_id'
+        )->withPivot('precio')->withTimestamps();
+    }
 }

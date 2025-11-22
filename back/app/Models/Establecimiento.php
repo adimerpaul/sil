@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
@@ -10,7 +9,7 @@ use OwenIt\Auditing\Auditable as AuditableTrait;
 
 class Establecimiento extends Model implements AuditableContract
 {
-    use SoftDeletes, AuditableTrait, HasFactory;
+    use SoftDeletes, AuditableTrait;
 
     protected $fillable = [
         'nombre',
@@ -24,8 +23,16 @@ class Establecimiento extends Model implements AuditableContract
     ];
 
     protected $hidden = [
-        'created_at',
-        'updated_at',
-        'deleted_at',
+        'created_at', 'updated_at', 'deleted_at',
     ];
+
+    public function servicios()
+    {
+        return $this->belongsToMany(
+            Servicio::class,
+            'establecimiento_servicios',
+            'establecimiento_id',
+            'servicio_id'
+        )->withTimestamps();
+    }
 }

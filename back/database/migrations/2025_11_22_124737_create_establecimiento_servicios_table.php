@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('servicio_solicitudes', function (Blueprint $table) {
+        Schema::create('establecimiento_servicios', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('solicitude_id');
+            $table->unsignedBigInteger('establecimiento_id');
             $table->unsignedBigInteger('servicio_id');
-//            precio
-            $table->decimal('precio', 10, 2)->default(0);
             $table->softDeletes();
             $table->timestamps();
         });
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('servicio_solicitudes');
+        Schema::dropIfExists('establecimiento_servicios');
     }
 };

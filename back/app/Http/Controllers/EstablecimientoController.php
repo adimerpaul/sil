@@ -12,11 +12,16 @@ class EstablecimientoController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Establecimiento::query();
+        $query = Establecimiento::with('servicios'); // 👈 cargamos servicios
 
         // Filtro por tipo: PUBLICO / PRIVADO
         if ($request->filled('tipo')) {
             $query->where('tipo', $request->tipo);
+        }
+
+        // Filtro por estado: ACTIVO / INACTIVO
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
         }
 
         // Búsqueda rápida por nombre / dirección / responsable
@@ -29,7 +34,14 @@ class EstablecimientoController extends Controller
             });
         }
 
-        return $query->orderBy('id', 'desc')->get();
+        $items = $query->orderBy('id', 'desc')->get();
+
+        // Añadimos un campo servicio_ids para el front
+        $items->each(function ($e) {
+            $e->servicio_ids = $e->servicios->pluck('id');
+        });
+
+        return $items;
     }
 
     /**
@@ -37,16 +49,28 @@ class EstablecimientoController extends Controller
      */
     public function show($id)
     {
-        return Establecimiento::findOrFail($id);
+        $establecimiento = Establecimiento::with('servicios')->findOrFail($id);
+        $establecimiento->servicio_ids = $establecimiento->servicios->pluck('id');
+
+        return $establecimiento;
     }
 
     /**
      * Crear un nuevo establecimiento.
-     * (sin validaciones, igual que tu ejemplo)
      */
     public function store(Request $request)
     {
-        $establecimiento = Establecimiento::create($request->all());
+        // si quieres validación, la agregas aquí
+        $establecimiento = Establecimiento::create(
+            $request->except('servicio_ids')
+        );
+
+        // sincronizar servicios
+        $servicios = $request->input('servicio_ids', []);
+        $establecimiento->servicios()->sync($servicios);
+
+        $establecimiento->load('servicios');
+        $establecimiento->servicio_ids = $establecimiento->servicios->pluck('id');
 
         return response()->json($establecimiento, 201);
     }
@@ -57,7 +81,13 @@ class EstablecimientoController extends Controller
     public function update(Request $request, $id)
     {
         $establecimiento = Establecimiento::findOrFail($id);
-        $establecimiento->update($request->all());
+        $establecimiento->update($request->except('servicio_ids'));
+
+        $servicios = $request->input('servicio_ids', []);
+        $establecimiento->servicios()->sync($servicios);
+
+        $establecimiento->load('servicios');
+        $establecimiento->servicio_ids = $establecimiento->servicios->pluck('id');
 
         return response()->json($establecimiento);
     }
