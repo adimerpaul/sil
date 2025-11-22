@@ -81,6 +81,7 @@ class UserController extends Controller{
     function index(){
         return User::where('id', '!=', 0)
             ->with('permissions:id,name')
+            ->with('establecimiento')
             ->orderBy('id', 'desc')
             ->get();
     }

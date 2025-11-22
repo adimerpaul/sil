@@ -28,6 +28,7 @@ class User extends Authenticatable implements Auditable
         'email',
         'password',
         'area',
+        'establecimiento_id',
     ];
 
     /**
@@ -54,5 +55,8 @@ class User extends Authenticatable implements Auditable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    function establecimiento(){
+        return $this->belongsTo(Establecimiento::class);
     }
 }

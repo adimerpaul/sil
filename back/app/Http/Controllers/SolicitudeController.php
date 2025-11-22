@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Servicio;
 use App\Models\Solicitude;
 use App\Models\Paciente;
 use App\Models\Doctor;
@@ -64,7 +65,9 @@ class SolicitudeController extends Controller
         $ci = $request->paciente_ci;
         $paciente = $this->pacienteUpsert($ci, $data);
 
-        $request->merge(['paciente_id' => $data['paciente_id']]);
+        $request->merge(['paciente_id' => $paciente->id]);
+
+
 
         // Copia de datos del doctor (si se seleccionó)
         if ($request->filled('doctor_id')) {
@@ -80,6 +83,14 @@ class SolicitudeController extends Controller
         }
 
         $solicitud = Solicitude::create($data);
+
+        $servicios = $request->servicios;
+
+        foreach ($servicios as $index => $servicio) {
+            $newServicioSolicitud = new Servicio();
+            $newServicioSolicitud->servicio_id = $servicio['id'];
+            $newServicioSolicitud->solicitude_id = $solicitud->id;
+        }
 
         return response()->json($solicitud->load(['paciente', 'doctor']), 201);
     }
