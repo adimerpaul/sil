@@ -13,7 +13,7 @@ class DoctorController extends Controller
     public function index()
     {
         // Si quieres, luego puedes agregar filtro por búsqueda
-        return Doctor::orderBy('id', 'desc')->get();
+        return Doctor::orderBy('id', 'desc')->with('establecimiento')->get();
     }
 
     /**

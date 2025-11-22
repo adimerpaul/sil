@@ -22,6 +22,11 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+            $table->unsignedBigInteger('establecimiento_id')->nullable();
+            $table->foreign('establecimiento_id')
+                ->references('id')
+                ->on('establecimientos')
+                ->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });

@@ -51,6 +51,12 @@ return new class extends Migration
             $table->string('doctor_email')->nullable();
             $table->string('doctor_registro')->nullable();
 
+            $table->unsignedBigInteger('establecimiento_id')->nullable();
+            $table->foreign('establecimiento_id')
+                ->references('id')
+                ->on('establecimientos')
+                ->onDelete('cascade');
+
             // Usuario que registró
             $table->foreignId('user_id')
                 ->nullable()
