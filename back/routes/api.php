@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\AreaController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\EstablecimientoController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\ConsentimientoController;
+use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\SolicitudeController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,5 +41,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('establecimientos', EstablecimientoController::class);
 
 
+    Route::apiResource('areas', AreaController::class);
+    Route::apiResource('servicios', ServicioController::class);
 });
 Route::get('consentimientos/{id}/print', [ConsentimientoController::class, 'print']);

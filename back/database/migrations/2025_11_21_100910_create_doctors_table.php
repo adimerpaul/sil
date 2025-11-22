@@ -21,7 +21,8 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('registro')->nullable(); // registro profesional
             $table->string('estado')->nullable();   // ACTIVO / INACTIVO
-
+            $table->unsignedBigInteger('establecimiento_id')->nullable();
+            $table->foreign('establecimiento_id')->references('id')->on('establecimientos');
             $table->softDeletes();
             $table->timestamps();
         });

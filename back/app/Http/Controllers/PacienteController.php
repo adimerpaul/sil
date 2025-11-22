@@ -45,7 +45,7 @@ class PacienteController extends Controller
         $paciente = Paciente::where('ci', $ci)->first();
 
         if (!$paciente) {
-            return response()->json(['message' => 'Paciente no encontrado'], 404);
+            return response()->json(['message' => 'Paciente no encontrado']);
         }
 
         return response()->json($paciente);

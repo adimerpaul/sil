@@ -19,6 +19,7 @@ class Doctor extends Model implements AuditableContract
         'email',
         'registro',
         'estado',
+        'establecimiento_id'
     ];
 
     protected $hidden = [
@@ -26,4 +27,7 @@ class Doctor extends Model implements AuditableContract
         'updated_at',
         'deleted_at',
     ];
+    function establecimiento(){
+        return $this->belongsTo(Establecimiento::class);
+    }
 }
