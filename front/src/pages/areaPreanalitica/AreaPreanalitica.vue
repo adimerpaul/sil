@@ -54,6 +54,7 @@
         :pagination.sync="pagination"
         :rows-per-page-options="[10, 20, 50]"
         @request="onRequest"
+        @rowClick="openDialogSolicitud"
       >
         <template #top>
           <div class="row items-center full-width q-pa-xs">
@@ -140,6 +141,7 @@
         <template #body-cell-actions="props">
           <q-td :props="props" class="text-right">
             <q-btn
+              v-if="props.row.estado === 'CREADO'"
               dense
               no-caps
               outline
@@ -199,6 +201,37 @@
         </template>
       </q-table>
     </q-card>
+<!--    dialogConsentimiento-->
+    <q-dialog v-model="dialogConsentimiento" persistent max-width="600px">
+      <q-card>
+        <q-card-section class="q-pa-md">
+          <div class="text-h6">Detalle de Solicitud</div>
+        </q-card-section>
+        <q-card-section class="q-pt-none">
+          <div>
+            <strong>Paciente:</strong> {{ consentimiento.paciente_nombre || consentimiento.paciente?.nombre_completo }}
+            <br>
+            <strong>Fecha de Solicitud Medico:</strong> {{ consentimiento.fecha_solicitud }} {{ consentimiento.hora_solicitud }} <br>
+            <strong>Fecha de Atencion Laboratorio:</strong> {{ consentimiento.fecha_atencion }}<br>
+<!--            timepo de atebcion-->
+            <strong>Tiempo de Atención:</strong>
+              <q-chip dense color="blue-6" text-color="white" icon="access_time">
+              {{ tiempoAtencion( consentimiento.fecha_solicitud +' '+consentimiento.hora_solicitud ,consentimiento.fecha_atencion) || 'No registrado' }}
+              </q-chip>
+            <br>
+            <strong>Establecimiento:</strong> {{ consentimiento.establecimiento_salud }} <br>
+            <strong>Tipo de Atención:</strong> {{ consentimiento.tipo_atencion }} <br>
+            <strong>Estado:</strong> {{ consentimiento.estado }} <br>
+            <strong>Código:</strong> {{ consentimiento.codigo || 'Sin código' }} <br>
+            <strong>Número de Servicios:</strong> {{ consentimiento.servicios?.length || 0 }} <br>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cerrar" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -209,6 +242,7 @@ export default {
   name: 'AreaPreanaliticaPage',
   data () {
     return {
+      dialogConsentimiento: false,
       rows: [],
       loading: false,
       filter: '',
@@ -286,6 +320,29 @@ export default {
     this.reloadTable()
   },
   methods: {
+    tiempoAtencion(fechaSolicitud, fechaAtencion) {
+      if (!fechaSolicitud || !fechaAtencion) return null;
+
+      const inicio = moment(fechaSolicitud);
+      const fin = moment(fechaAtencion);
+
+      const duracion = moment.duration(fin.diff(inicio));
+
+      const dias = duracion.days();
+      const horas = duracion.hours();
+      const minutos = duracion.minutes();
+
+      let resultado = '';
+      if (dias > 0) resultado += `${dias} d `;
+      if (horas > 0) resultado += `${horas} h `;
+      if (minutos > 0) resultado += `${minutos} m`;
+
+      return resultado.trim();
+    },
+    openDialogSolicitud(action, row, index) {
+      this.dialogConsentimiento = true
+      this.consentimiento = row
+    },
     // Utils info footer
     firstRowIndex (pag) {
       if (pag.rowsNumber === 0) return 0
