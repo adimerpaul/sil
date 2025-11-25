@@ -36,6 +36,7 @@ return new class extends Migration
             $table->string('codigo')->nullable();
             $table->string('nro_registro')->nullable();
             $table->dateTime('fecha_atencion')->nullable();
+            $table->dateTime('fecha_creacion')->nullable();
 
             // Copia de datos del paciente
             $table->string('paciente_nombre')->nullable();
@@ -62,6 +63,10 @@ return new class extends Migration
 
             // Usuario que registró
             $table->foreignId('user_id')
+                ->nullable()
+                ->constrained('users');
+//            usuario preanalitica
+            $table->foreignId('user_preanalitica_id')
                 ->nullable()
                 ->constrained('users');
 

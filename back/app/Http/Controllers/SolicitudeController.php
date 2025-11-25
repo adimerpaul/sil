@@ -37,6 +37,7 @@ class SolicitudeController extends Controller
         $solicitud->nro_registro = $nro_registro;
         $solicitud->estado      = 'ATENDIENDO';
         $solicitud->fecha_atencion      = now();
+        $solicitud->user_preanalitica_id = $request->user() ? $request->user()->id : null;
 
         $solicitud->save();
 
@@ -65,7 +66,7 @@ class SolicitudeController extends Controller
 
         $filter = $request->input('filter', '');
 
-        $query = Solicitude::with(['paciente', 'doctor', 'servicios'])
+        $query = Solicitude::with(['paciente', 'doctor', 'servicios','userPreanalitica','user'])
             ->whereIn('estado', ['CREADO', 'ATENDIENDO']);
 
         if (!empty($filter)) {
@@ -171,6 +172,8 @@ class SolicitudeController extends Controller
         if ($paciente) {
             $data['paciente_id'] = $paciente->id;
         }
+//        $fecha_creacion
+            $data['fecha_creacion'] = now();
 
         // Copia de datos del doctor (si se seleccionó)
         if ($request->filled('doctor_id')) {

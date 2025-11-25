@@ -123,16 +123,39 @@
                   type="date"
                   label="F. nacimiento"
                   dense outlined
+                  @update:model-value="onCalculateEdad"
                 />
               </div>
               <div class="col-6 col-sm-4">
-                <q-select
+                <div>
+                  <div class="text-caption text-black">Género</div>
+                </div>
+<!--                <q-select-->
+<!--                  v-model="solicitud.paciente_genero"-->
+<!--                  :options="['F', 'M', 'OTRO']"-->
+<!--                  label="Género"-->
+<!--                  dense-->
+<!--                  outlined-->
+<!--                  clearable-->
+<!--                />-->
+<!--                q-radio-->
+                <q-radio
                   v-model="solicitud.paciente_genero"
-                  :options="['F', 'M', 'OTRO']"
-                  label="Género"
+                  val="F"
+                  label="F"
                   dense
-                  outlined
-                  clearable
+                />
+                <q-radio
+                  v-model="solicitud.paciente_genero"
+                  val="M"
+                  label="M"
+                  dense
+                />
+                <q-radio
+                  v-model="solicitud.paciente_genero"
+                  val="OTRO"
+                  label="Otro"
+                  dense
                 />
               </div>
               <div class="col-12 col-sm-4">
@@ -198,6 +221,7 @@
               </div>
 
               <div class="col-6 col-sm-9">
+<!--                <pre>{{solicitud.establecimiento_salud}}</pre>-->
                 <q-input
                   v-if="solicitud.tipo_atencion === 'NO'"
                   v-model="solicitud.tipo_otro"
@@ -238,6 +262,23 @@
                   dense outlined autogrow
                 />
               </div>
+<!--              fecha_solicitud y hora_solicitud-->
+              <div class="col-6 col-sm-6">
+                <q-input
+                  v-model="solicitud.fecha_solicitud"
+                  type="date"
+                  label="Fecha de solicitud medico"
+                  dense outlined
+                />
+              </div>
+<!--              <div class="col-6 col-sm-6">-->
+<!--                <q-input-->
+<!--                  v-model="solicitud.hora_solicitud"-->
+<!--                  type="time"-->
+<!--                  label="Hora de solicitud medico"-->
+<!--                  dense outlined-->
+<!--                />-->
+<!--              </div>-->
             </div>
 
             <q-separator class="q-my-sm" />
@@ -455,6 +496,13 @@ export default {
     })
   },
   methods: {
+    onCalculateEdad() {
+      if (!this.solicitud.paciente_fecha_nac) return
+      const birthDate = moment(this.solicitud.paciente_fecha_nac, 'YYYY-MM-DD')
+      if (!birthDate.isValid()) return
+      const age = moment().diff(birthDate, 'years')
+      this.solicitud.paciente_edad = age
+    },
     textCapitalize (str) {
       if (!str) return ''
       return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
@@ -511,7 +559,7 @@ export default {
         tipo_otro: '',
         fecha_solicitud: moment().format('YYYY-MM-DD'),
         hora_solicitud: moment().format('HH:mm'),
-        establecimiento_salud: '',
+        establecimiento_salud: 'Hospital General',
         zona_establecimiento: '',
         diagnostico_clinico: '',
         estado: 'CREADO',

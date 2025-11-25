@@ -210,20 +210,27 @@
         <q-card-section class="q-pt-none">
           <div>
             <strong>Paciente:</strong> {{ consentimiento.paciente_nombre || consentimiento.paciente?.nombre_completo }}
+            <strong>Edad:</strong> {{ consentimiento.edad || consentimiento.paciente?.edad }} años<br>
             <br>
-            <strong>Fecha de Solicitud Medico:</strong> {{ consentimiento.fecha_solicitud }} {{ consentimiento.hora_solicitud }} <br>
-            <strong>Fecha de Atencion Laboratorio:</strong> {{ consentimiento.fecha_atencion }}<br>
-<!--            timepo de atebcion-->
+            <strong>Fecha de Solicitud :</strong> {{ consentimiento.fecha_creacion }} <br>
+            <strong>Fecha de Atencion Preanalitica:</strong> {{ consentimiento.fecha_atencion }}<br>
             <strong>Tiempo de Atención:</strong>
               <q-chip dense color="blue-6" text-color="white" icon="access_time">
-              {{ tiempoAtencion( consentimiento.fecha_solicitud +' '+consentimiento.hora_solicitud ,consentimiento.fecha_atencion) || 'No registrado' }}
+              {{ tiempoAtencion( consentimiento.fecha_creacion ,consentimiento.fecha_atencion) || 'No registrado' }}
               </q-chip>
             <br>
             <strong>Establecimiento:</strong> {{ consentimiento.establecimiento_salud }} <br>
-            <strong>Tipo de Atención:</strong> {{ consentimiento.tipo_atencion }} <br>
-            <strong>Estado:</strong> {{ consentimiento.estado }} <br>
-            <strong>Código:</strong> {{ consentimiento.codigo || 'Sin código' }} <br>
-            <strong>Número de Servicios:</strong> {{ consentimiento.servicios?.length || 0 }} <br>
+            <strong>Tipo de Atención:</strong>{{ consentimiento.tipo_atencion === 'SI' ? 'SUS SI' : consentimiento.tipo_otro || 'SUS NO' }} <br>
+
+<!--            <strong>Estado:</strong> {{ consentimiento.estado }} <br>-->
+            <strong>Código:</strong> {{ consentimiento.codigo || 'Sin código' }} {{consentimiento.nro_registro ? '- ' + consentimiento.nro_registro : ''}} <br>
+            <strong>Responsable:</strong>
+<!--            {{ // consentimiento.user_preanalitica?.name ? 'No asignado' }} <br>-->
+            {{ consentimiento.user_preanalitica?.name || 'No asignado' }} <br>
+<!--            <pre>-->
+<!--              {{ consentimiento.user_preanalitica.name }}-->
+<!--            </pre>-->
+            <br>
           </div>
         </q-card-section>
 
@@ -256,18 +263,27 @@ export default {
       },
       columns: [
         { name: 'actions', label: 'Acciones', align: 'right' },
+        // {
+        //   name: 'fecha_solicitud',
+        //   label: 'Fecha',
+        //   field: row => row.fecha_solicitud,
+        //   format: val => (val ? moment(val).format('DD/MM/YYYY') : ''),
+        //   sortable: true,
+        //   align: 'left'
+        // },
+        // {
+        //   name: 'hora_solicitud',
+        //   label: 'Hora',
+        //   field: row => row.hora_solicitud,
+        //   align: 'left'
+        // },
+        // fecha_creacion
         {
-          name: 'fecha_solicitud',
-          label: 'Fecha',
-          field: row => row.fecha_solicitud,
-          format: val => (val ? moment(val).format('DD/MM/YYYY') : ''),
+          name: 'fecha_creacion',
+          label: 'Fecha Solicitud',
+          field: row => row.fecha_creacion,
+          format: val => (val ? moment(val).format('DD/MM/YYYY HH:mm') : ''),
           sortable: true,
-          align: 'left'
-        },
-        {
-          name: 'hora_solicitud',
-          label: 'Hora',
-          field: row => row.hora_solicitud,
           align: 'left'
         },
         {

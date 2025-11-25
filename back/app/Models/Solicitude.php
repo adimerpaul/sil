@@ -47,9 +47,11 @@ class Solicitude extends Model implements AuditableContract
         'doctor_email',
         'doctor_registro',
         'fecha_atencion',
+        'fecha_creacion',
 
         // usuario que crea
         'user_id',
+        'user_preanalitica_id',
     ];
 
     protected $hidden = [
@@ -74,6 +76,10 @@ class Solicitude extends Model implements AuditableContract
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    public function userPreanalitica()
+    {
+        return $this->belongsTo(User::class, 'user_preanalitica_id');
     }
 
     public function servicios()
