@@ -36,6 +36,7 @@ class SolicitudeController extends Controller
         $solicitud->codigo      = $this->generarCodigoPorTipoYMes($solicitud);
         $solicitud->nro_registro = $nro_registro;
         $solicitud->estado      = 'ATENDIENDO';
+        $solicitud->fecha_atencion      = now();
 
         $solicitud->save();
 

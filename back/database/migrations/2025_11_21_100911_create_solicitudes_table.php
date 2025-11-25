@@ -35,6 +35,7 @@ return new class extends Migration
             $table->string('estado')->default('CREADO');
             $table->string('codigo')->nullable();
             $table->string('nro_registro')->nullable();
+            $table->dateTime('fecha_atencion')->nullable();
 
             // Copia de datos del paciente
             $table->string('paciente_nombre')->nullable();
