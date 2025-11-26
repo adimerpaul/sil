@@ -67,7 +67,7 @@ class SolicitudeController extends Controller
 
         $filter = $request->input('filter', '');
 
-        $query = Solicitude::with(['paciente', 'doctor', 'servicios.area','userPreanalitica','user'])
+        $query = Solicitude::with(['paciente', 'doctor', 'servicios.area.areaTipoMuestras','userPreanalitica','user'])
             ->whereIn('estado', ['CREADO', 'ATENDIENDO']);
 
         if (!empty($filter)) {

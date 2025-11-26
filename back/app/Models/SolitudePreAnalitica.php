@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use OwenIt\Auditing\Auditable as AuditableTrait;
+class SolitudePreAnalitica extends Model implements AuditableContract
+{
+    use AuditableTrait, SoftDeletes;
+
+    protected $fillable = [
+        'solicitude_id',
+        'pre_analitica_id',
+        'estado',
+    ];
+
+    protected $hidden = [
+        'created_at', 'updated_at',
+    ];
+}

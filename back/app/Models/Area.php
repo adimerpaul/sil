@@ -25,4 +25,8 @@ class Area extends Model implements AuditableContract
     {
         return $this->hasMany(Servicio::class);
     }
+    function areaTipoMuestras()
+    {
+        return $this->hasMany(AreaTipoMuestra::class);
+    }
 }

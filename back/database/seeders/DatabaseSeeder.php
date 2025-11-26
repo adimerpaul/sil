@@ -128,7 +128,8 @@ class DatabaseSeeder extends Seeder
             ]);
         }
         $this->call([
-            ServiciosSeeder::class
+            ServiciosSeeder::class,
+            AreaTipoMuestraSeeder::class,
         ]);
     }
 }
