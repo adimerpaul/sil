@@ -149,7 +149,7 @@
               icon="confirmation_number"
               :label="props.row.codigo ? 'Ver código' : 'Generar código'"
               :loading="loadingRowId === props.row.id"
-              @click="onGenerarCodigo(props.row)"
+              @click.stop="onGenerarCodigo(props.row)"
             />
           </q-td>
         </template>
@@ -202,48 +202,230 @@
       </q-table>
     </q-card>
 <!--    dialogConsentimiento-->
-    <q-dialog v-model="dialogConsentimiento" persistent max-width="600px">
-      <q-card>
-        <q-card-section class="q-pa-md">
-          <div class="text-h6">Detalle de Solicitud</div>
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <div>
-            <strong>Paciente:</strong> {{ consentimiento.paciente_nombre || consentimiento.paciente?.nombre_completo }}
-            <strong>Edad:</strong> {{ consentimiento.edad || consentimiento.paciente?.edad }} años<br>
-            <br>
-            <strong>Fecha de Solicitud :</strong> {{ consentimiento.fecha_creacion }} <br>
-            <strong>Fecha de Atencion Preanalitica:</strong> {{ consentimiento.fecha_atencion }}<br>
-            <strong>Tiempo de Atención:</strong>
-              <q-chip dense color="blue-6" text-color="white" icon="access_time">
-              {{ tiempoAtencion( consentimiento.fecha_creacion ,consentimiento.fecha_atencion) || 'No registrado' }}
-              </q-chip>
-            <br>
-            <strong>Establecimiento:</strong> {{ consentimiento.establecimiento_salud }} <br>
-            <strong>Tipo de Atención:</strong>{{ consentimiento.tipo_atencion === 'SI' ? 'SUS SI' : consentimiento.tipo_otro || 'SUS NO' }} <br>
+    <q-dialog
+      v-model="dialogConsentimiento"
+      persistent
+      transition-show="jump-down"
+      transition-hide="jump-up"
+    >
+      <q-card class="q-pa-none" style="max-width: 900px;">
+        <!-- HEADER -->
+        <q-card-section class="bg-indigo-8 text-white">
+          <div class="row items-center no-wrap">
+            <div class="col">
+              <div class="text-subtitle1 flex items-center q-gutter-sm">
+                <q-icon name="inventory_2" />
+                <span>Detalle de Solicitud</span>
+              </div>
+              <div class="text-caption q-mt-xs">
+                Código muestra:
+                <span class="text-bold">
+              {{ consentimiento.codigo || 'Sin código' }}
+              {{ consentimiento.nro_registro ? (' - ' + consentimiento.nro_registro) : '' }}
+            </span>
+              </div>
+            </div>
 
-<!--            <strong>Estado:</strong> {{ consentimiento.estado }} <br>-->
-            <strong>Código:</strong> {{ consentimiento.codigo || 'Sin código' }} {{consentimiento.nro_registro ? '- ' + consentimiento.nro_registro : ''}} <br>
-            <strong>Responsable:</strong>
-<!--            {{ // consentimiento.user_preanalitica?.name ? 'No asignado' }} <br>-->
-            {{ consentimiento.user_preanalitica?.name || 'No asignado' }} <br>
-<!--            <pre>-->
-<!--              {{ consentimiento.user_preanalitica.name }}-->
-<!--            </pre>-->
-            <br>
+            <div class="col-auto column items-end q-gutter-xs">
+              <!-- Estado -->
+              <q-chip
+                dense
+                square
+                :color="consentimiento.estado === 'CREADO' ? 'blue-5' : 'grey-6'"
+                text-color="white"
+                icon="pending"
+              >
+                {{ consentimiento.estado || 'SIN ESTADO' }}
+              </q-chip>
+
+              <!-- Tipo de atención -->
+              <q-chip
+                dense
+                square
+                :color="consentimiento.tipo_atencion === 'SI' ? 'green-5' : 'orange-5'"
+                text-color="white"
+                icon="health_and_safety"
+              >
+                {{ consentimiento.tipo_atencion === 'SI'
+                ? 'SUS SI'
+                : (consentimiento.tipo_otro || 'SUS NO') }}
+              </q-chip>
+            </div>
+
+            <div class="col-auto">
+              <q-btn
+                dense
+                flat
+                round
+                icon="close"
+                v-close-popup
+              />
+            </div>
           </div>
         </q-card-section>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cerrar" color="primary" v-close-popup />
+        <q-separator />
+
+        <!-- CONTENIDO SCROLLEABLE -->
+        <q-card-section class="q-pa-none">
+          <div>
+            <div class="q-pa-md q-gutter-md">
+              <div>
+                <div class="text-subtitle2 text-primary q-mb-xs">
+                  Datos de la solicitud
+                </div>
+                <q-separator spaced />
+
+                <div class="row q-col-gutter-md">
+                  <div class="col-12 col-sm-6">
+                    <div class="text-caption text-grey-7">Fecha de solicitud</div>
+                    <div class="text-body2">
+                      {{ consentimiento.fecha_creacion || '-' }}
+                    </div>
+
+                    <div class="text-caption text-grey-7 q-mt-sm">
+                      Fecha recepción preanalítica
+                    </div>
+                    <div class="text-body2">
+                      {{ consentimiento.fecha_pre_analitica || '-' }}
+                    </div>
+
+                    <div class="text-caption text-grey-7 q-mt-sm">
+                      Tiempo de atención
+                    </div>
+                    <div>
+                      <q-chip
+                        dense
+                        color="blue-6"
+                        text-color="white"
+                        icon="access_time"
+                      >
+                        {{
+                          tiempoAtencion(
+                            consentimiento.fecha_creacion,
+                            consentimiento.fecha_pre_analitica
+                          ) || 'No registrado'
+                        }}
+                      </q-chip>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-sm-6">
+                    <div class="text-caption text-grey-7">Responsable de entrega</div>
+                    <div class="text-body2">
+                      {{ consentimiento.user_preanalitica?.name || 'No asignado' }}
+                    </div>
+
+                    <div class="text-caption text-grey-7 q-mt-sm">Establecimiento</div>
+                    <div class="text-body2">
+                      {{ consentimiento.establecimiento_salud || '-' }}
+                    </div>
+
+                    <div class="text-caption text-grey-7 q-mt-sm">Diagnóstico clínico</div>
+                    <div class="text-body2">
+                      {{ consentimiento.diagnostico_clinico || '-' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BLOQUE: PACIENTE -->
+              <div>
+                <div class="text-subtitle2 text-primary q-mb-xs">
+                  Datos del paciente
+                </div>
+                <q-separator spaced />
+
+                <div class="row q-col-gutter-md">
+                  <div class="col-12 col-sm-6">
+                    <div class="text-caption text-grey-7">Paciente</div>
+                    <div class="text-body1 text-weight-medium">
+                      {{
+                        consentimiento.paciente_nombre
+                        || consentimiento.paciente?.nombre_completo
+                        || '-'
+                      }}
+                    </div>
+
+                    <div class="text-caption text-grey-7 q-mt-sm">Edad</div>
+                    <div class="text-body2">
+                      {{ consentimiento.edad || consentimiento.paciente?.edad || '-' }} años
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-sm-6">
+                    <div class="text-caption text-grey-7">Código paciente</div>
+                    <div class="text-body2">
+                      {{ consentimiento.codigo || 'Sin código' }}
+                    </div>
+
+                    <div class="text-caption text-grey-7 q-mt-sm">Nro. de registro</div>
+                    <div class="text-body2">
+                      {{ consentimiento.nro_registro || 'Sin registro' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BLOQUE: SERVICIOS -->
+              <div>
+                <div class="text-subtitle2 text-primary q-mb-xs">
+                  Servicios solicitados
+                </div>
+                <q-separator spaced />
+
+                <div v-if="consentimiento.servicios && consentimiento.servicios.length">
+                  <q-list bordered separator dense>
+                    <q-item
+                      v-for="servicio in consentimiento.servicios"
+                      :key="servicio.id"
+                      class="q-py-xs"
+                    >
+                      <q-item-section avatar>
+                        <q-icon name="biotech" />
+                      </q-item-section>
+
+                      <q-item-section>
+                        <div class="text-body2">
+                          {{ textCapitalize(servicio.nombre) }}
+                        </div>
+                        <div class="text-caption text-grey-7">
+                          {{ textCapitalize(servicio.area?.name) }}
+                          {{ servicio.area?.id }}
+                        </div>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </div>
+                <div v-else class="text-caption text-grey-7">
+                  No hay servicios registrados.
+                </div>
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+
+        <q-separator />
+
+        <!-- ACCIONES -->
+        <q-card-actions align="right" class="bg-grey-1">
+          <q-btn
+            flat
+            label="Cerrar"
+            color="primary"
+            icon="close"
+            v-close-popup
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
+
   </q-page>
 </template>
 
 <script>
 import moment from 'moment'
+import consentimientos from "pages/consentimientos/Consentimientos.vue";
 
 export default {
   name: 'AreaPreanaliticaPage',
@@ -326,6 +508,9 @@ export default {
     }
   },
   computed: {
+    consentimientos() {
+      return consentimientos
+    },
     pagesNumber () {
       const { rowsPerPage, rowsNumber } = this.pagination
       if (!rowsPerPage || rowsPerPage <= 0) return 1
@@ -336,6 +521,10 @@ export default {
     this.reloadTable()
   },
   methods: {
+    textCapitalize(text) {
+      if (!text) return ''
+      return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
+    },
     tiempoAtencion(fechaSolicitud, fechaAtencion) {
       if (!fechaSolicitud || !fechaAtencion) return null;
 
@@ -429,6 +618,18 @@ export default {
     },
 
     onGenerarCodigo (row) {
+      this.$q.dialog({
+        title: row.codigo ? 'Generar nuevo código' : 'Generar código',
+        message: row.codigo
+          ? '¿Está seguro de generar un nuevo código para esta solicitud? El código anterior dejará de ser válido.'
+          : '¿Está seguro de generar un código para esta solicitud?',
+        cancel: true,
+        persistent: true
+      }).onOk(() => {
+        this.generarCodigo(row)
+      })
+    },
+    generarCodigo(row) {
       this.loadingRowId = row.id
       this.$axios.post(`solicitudes/${row.id}/generar-codigo`)
         .then(res => {

@@ -100,54 +100,56 @@
         <q-card-section>
           <q-form @submit.prevent="onSubmit">
             <!-- Búsqueda de paciente -->
-            <div class="row q-col-gutter-sm">
-              <div class="col-12 col-sm-4">
-                <q-input
-                  v-model="searchCi"
-                  label="Buscar paciente por CI"
-                  dense outlined
-                  :readonly="soloVer"
-                >
-                  <template #append>
-                    <q-btn
-                      flat dense icon="search"
-                      @click="buscarPacientePorCi"
-                      :disable="soloVer"
-                    />
-                  </template>
-                </q-input>
-              </div>
-              <div class="col-12 col-sm-8">
-                <q-select
-                  v-model="consentimiento.paciente_id"
-                  :options="pacientesOptions"
-                  option-value="id"
-                  option-label="nombre_completo"
-                  emit-value map-options
-                  dense outlined
-                  label="Seleccionar paciente"
-                  :disable="soloVer"
-                  @update:model-value="onSelectPaciente"
-                />
-              </div>
-            </div>
+<!--            <div class="row q-col-gutter-sm">-->
+<!--              <div class="col-12 col-sm-4">-->
+<!--                <q-input-->
+<!--                  v-model="searchCi"-->
+<!--                  label="Buscar paciente por CI"-->
+<!--                  dense outlined-->
+<!--                  :readonly="soloVer"-->
+<!--                >-->
+<!--                  <template #append>-->
+<!--                    <q-btn-->
+<!--                      flat dense icon="search"-->
+<!--                      @click="buscarPacientePorCi"-->
+<!--                      :disable="soloVer"-->
+<!--                    />-->
+<!--                  </template>-->
+<!--                </q-input>-->
+<!--              </div>-->
+<!--              <div class="col-12 col-sm-8">-->
+<!--                <q-select-->
+<!--                  v-model="consentimiento.paciente_id"-->
+<!--                  :options="pacientesOptions"-->
+<!--                  option-value="id"-->
+<!--                  option-label="nombre_completo"-->
+<!--                  emit-value map-options-->
+<!--                  dense outlined-->
+<!--                  label="Seleccionar paciente"-->
+<!--                  :disable="soloVer"-->
+<!--                  @update:model-value="onSelectPaciente"-->
+<!--                />-->
+<!--              </div>-->
+<!--            </div>-->
 
-            <q-separator class="q-my-sm" />
+<!--            <q-separator class="q-my-sm" />-->
 
             <!-- Datos del paciente (se rellenan solos o manualmente) -->
             <div class="row q-col-gutter-sm">
-              <div class="col-12 col-sm-6">
-                <q-input
-                  v-model="consentimiento.nombre_completo"
-                  label="Nombre completo"
-                  dense outlined
-                  :readonly="soloVer"
-                />
-              </div>
               <div class="col-12 col-sm-3">
                 <q-input
                   v-model="consentimiento.ci"
                   label="CI"
+                  dense outlined
+                  :readonly="soloVer"
+                  :debounce="300"
+                  @update:model-value="buscarPacientePorCi"
+                />
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-input
+                  v-model="consentimiento.nombre_completo"
+                  label="Nombre completo"
                   dense outlined
                   :readonly="soloVer"
                 />
@@ -503,12 +505,14 @@ export default {
       });
     },
     buscarPacientePorCi () {
+      console.log('a')
       if (!this.searchCi || this.soloVer) return;
       this.loading = true;
       this.$axios
         .get(`pacientes/buscar-ci/${this.searchCi}`)
         .then(res => {
-          this.onSelectPaciente(res.data.id);
+          console.log(res.data);
+          // this.onSelectPaciente(res.data.id);
         })
         .catch(() => {
           this.$alert.error('Paciente no encontrado. Puede llenar los datos manualmente.');
