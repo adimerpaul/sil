@@ -46,7 +46,7 @@ class Solicitude extends Model implements AuditableContract
         'doctor_telefono',
         'doctor_email',
         'doctor_registro',
-        'fecha_atencion',
+        'fecha_pre_analitica',
         'fecha_creacion',
 
         // usuario que crea

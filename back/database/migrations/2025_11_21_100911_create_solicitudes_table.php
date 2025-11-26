@@ -33,9 +33,9 @@ return new class extends Migration
             $table->string('zona_establecimiento')->nullable();
             $table->text('diagnostico_clinico')->nullable();
             $table->string('estado')->default('CREADO');
-            $table->string('codigo')->nullable();
+            $table->integer('codigo')->nullable();
             $table->string('nro_registro')->nullable();
-            $table->dateTime('fecha_atencion')->nullable();
+            $table->dateTime('fecha_pre_analitica')->nullable();
             $table->dateTime('fecha_creacion')->nullable();
 
             // Copia de datos del paciente

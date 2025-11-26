@@ -36,7 +36,7 @@ class SolicitudeController extends Controller
         $solicitud->codigo      = $this->generarCodigoPorTipoYMes($solicitud);
         $solicitud->nro_registro = $nro_registro;
         $solicitud->estado      = 'ATENDIENDO';
-        $solicitud->fecha_atencion      = now();
+        $solicitud->fecha_pre_analitica      = now();
         $solicitud->user_preanalitica_id = $request->user() ? $request->user()->id : null;
 
         $solicitud->save();
@@ -58,6 +58,7 @@ class SolicitudeController extends Controller
             ->whereMonth('fecha_solicitud', $mes)
             ->whereNotNull('codigo')
             ->max('codigo');
+        error_log("Último código para tipo $tipo en $anio-$mes: " . var_export($ultimoCodigo, true));
 
         return $ultimoCodigo ? ((int)$ultimoCodigo + 1) : 1;
     }
@@ -66,7 +67,7 @@ class SolicitudeController extends Controller
 
         $filter = $request->input('filter', '');
 
-        $query = Solicitude::with(['paciente', 'doctor', 'servicios','userPreanalitica','user'])
+        $query = Solicitude::with(['paciente', 'doctor', 'servicios.area','userPreanalitica','user'])
             ->whereIn('estado', ['CREADO', 'ATENDIENDO']);
 
         if (!empty($filter)) {
