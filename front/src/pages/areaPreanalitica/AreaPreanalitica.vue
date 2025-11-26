@@ -391,7 +391,20 @@
                         </div>
                         <div class="text-caption text-grey-7">
                           {{ textCapitalize(servicio.area?.name) }}
-                          {{ servicio.area?.id }}
+<!--                          {{ servicio.area?.id }}-->
+<!--                          <pre>{{ (servicio.area?.area_tipo_muestras) }}</pre>-->
+                          <template v-for="(atm, index) in servicio.area?.area_tipo_muestras" :key="atm.id">
+                            <pre>{{atm}}</pre>
+                            <q-checkbox
+                              v-if="atm.area_tipo_muestras"
+                              :label="`- ${textCapitalize(atm.area_tipo_muestras)}`"
+                              :value="true"
+                              :checked="true"
+                              dense
+                              readonly
+                              class="text-caption text-grey-7 q-ml-md"
+                            />
+                          </template>
                         </div>
                       </q-item-section>
                     </q-item>
@@ -445,21 +458,6 @@ export default {
       },
       columns: [
         { name: 'actions', label: 'Acciones', align: 'right' },
-        // {
-        //   name: 'fecha_solicitud',
-        //   label: 'Fecha',
-        //   field: row => row.fecha_solicitud,
-        //   format: val => (val ? moment(val).format('DD/MM/YYYY') : ''),
-        //   sortable: true,
-        //   align: 'left'
-        // },
-        // {
-        //   name: 'hora_solicitud',
-        //   label: 'Hora',
-        //   field: row => row.hora_solicitud,
-        //   align: 'left'
-        // },
-        // fecha_creacion
         {
           name: 'fecha_creacion',
           label: 'Fecha Solicitud',
