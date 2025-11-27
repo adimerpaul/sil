@@ -142,7 +142,7 @@
                   label="CI"
                   dense outlined
                   :readonly="soloVer"
-                  :debounce="300"
+                  :debounce="600"
                   @update:model-value="buscarPacientePorCi"
                 />
               </div>
@@ -398,8 +398,8 @@ export default {
       loading: false,
       consentimiento: {},
       filters: {
-        from: '',
-        to: '',
+        from: moment().format('YYYY-MM-DD'),
+        to: moment().format('YYYY-MM-DD'),
         tipo: '',
       },
       pacientesOptions: [],
@@ -506,16 +506,47 @@ export default {
     },
     buscarPacientePorCi () {
       console.log('a')
-      if (!this.searchCi || this.soloVer) return;
+      // if (!this.searchCi || this.soloVer) return;
       this.loading = true;
       this.$axios
-        .get(`pacientes/buscar-ci/${this.searchCi}`)
+        .get(`pacientes/buscar-ci/${this.consentimiento.ci}`)
         .then(res => {
           console.log(res.data);
           // this.onSelectPaciente(res.data.id);
+          // {
+          //   "id": 106,
+          //   "fecha_recepcion": null,
+          //   "hora_recepcion": null,
+          //   "nombre_completo": "Adimer Paul Chambi Ajata",
+          //   "fecha_nac": "1989-04-02",
+          //   "genero": "M",
+          //   "edad": 36,
+          //   "ci": "7336199",
+          //   "telefono": "69603027",
+          //   "direccion": "calle x",
+          //   "discapacidad": 0,
+          //   "discapacidad_cual": null,
+          //   "discapacidad_otro": null,
+          //   "embarazo": 0,
+          //   "fum": null,
+          //   "sem_gest": null
+          // }
+          this.consentimiento.paciente_id = res.data.id;
+          this.consentimiento.nombre_completo = res.data.nombre_completo;
+          this.consentimiento.ci = res.data.ci;
+          this.consentimiento.telefono = res.data.telefono;
+          this.consentimiento.direccion = res.data.direccion;
+          this.consentimiento.fecha_nac = res.data.fecha_nac;
+          this.consentimiento.genero = res.data.genero;
+          this.consentimiento.edad = res.data.edad;
+          this.consentimiento.discapacidad = res.data.discapacidad;
+          this.consentimiento.discapacidad_cual = res.data.discapacidad_cual;
+          this.consentimiento.embarazo = res.data.embarazo;
+          this.consentimiento.fum = res.data.fum;
+          this.consentimiento.sem_gest = res.data.sem_gest;
         })
         .catch(() => {
-          this.$alert.error('Paciente no encontrado. Puede llenar los datos manualmente.');
+          // this.$alert.error('Paciente no encontrado. Puede llenar los datos manualmente.');
         })
         .finally(() => {
           this.loading = false;
