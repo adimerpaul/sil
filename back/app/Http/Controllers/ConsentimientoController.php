@@ -68,10 +68,29 @@ class ConsentimientoController extends Controller
         if ($request->user()) {
             $request->merge(['user_id' => $request->user()->id]);
         }
+        $paciente = $this->upsert($request);
+        error_log("Paciente ID: " . $paciente->id);
 
         $consentimiento = Consentimiento::create($request->all());
 
         return response()->json($consentimiento->load('paciente'), 201);
+    }
+    function upsert(Request $request)
+    {
+        if ($request->filled('paciente_id')) {
+            return Paciente::find($request->paciente_id);
+        } else {
+            // Crear nuevo paciente
+            $pacienteData = $request->only([
+                'nombre_completo', 'ci', 'fecha_nac', 'genero', 'edad',
+                'telefono', 'direccion', 'discapacidad', 'discapacidad_cual',
+                'embarazo', 'fum', 'sem_gest'
+            ]);
+            $paciente = Paciente::create($pacienteData);
+            // Actualizar el request con el nuevo paciente_id
+            $request->merge(['paciente_id' => $paciente->id]);
+            return $paciente;
+        }
     }
 
     public function update(Request $request, $id)
