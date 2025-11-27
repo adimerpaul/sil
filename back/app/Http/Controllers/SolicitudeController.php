@@ -65,25 +65,34 @@ class SolicitudeController extends Controller
     public function guardarPreAnalitica(Request $request, $id)
     {
         $solicitud = Solicitude::findOrFail($id);
-
-        $data = $request->validate([
-            'area_tipo_muestras'   => 'array',
-            'area_tipo_muestras.*' => 'integer|exists:area_tipo_muestras,id',
-        ]);
-
-        $ids = $data['area_tipo_muestras'] ?? [];
-
-        // sincronizar pivot (borra lo que ya no está y crea lo nuevo)
-        $solicitud->areaTipoMuestras()->sync($ids);
-
-        // opcional: actualizar fecha/hora de distribución aquí cuando lo agregues en migration
-        // $solicitud->fecha_distribucion = now();
-        // $solicitud->hora_distribucion  = now()->format('H:i:s');
-        // $solicitud->save();
+        $area_tipo_muestras = $request->input('area_tipo_muestras', []);
+        foreach ($area_tipo_muestras as $area) {
+            if (isset($area['area_tipo_muestras']) && is_array($area['area_tipo_muestras'])) {
+                foreach ($area['area_tipo_muestras'] as $tipoMuestra) {
+                    $id = $tipoMuestra['id'];
+                    $existing = \App\Models\SolitudePreAnalitica::where('solicitude_id', $solicitud->id)
+                        ->where('area_tipo_muestra_id', $id)
+                        ->first();
+                    if (!$existing) {
+                        $findArea = \App\Models\AreaTipoMuestra::find($id);
+                        $SolitudePreAnalitica = new \App\Models\SolitudePreAnalitica();
+                        $SolitudePreAnalitica->solicitude_id = $solicitud->id;
+                        $SolitudePreAnalitica->area_tipo_muestra_id = $id;
+                        $SolitudePreAnalitica->estado = 'Pendiente';
+                        $SolitudePreAnalitica->nombre = $findArea ? $findArea->tipo_muestra : '';
+                        $SolitudePreAnalitica->selected = !empty($tipoMuestra['selected']) ? true : false;
+                        $SolitudePreAnalitica->save();
+                    }
+                }
+            }
+        }
+        $solicitud->fecha_envio_analitica = now();
+        $solicitud->estado = 'ENVIADO_ANALITICA';
+        $solicitud->save();
 
         return response()->json([
             'message' => 'Muestras preanalíticas actualizadas',
-            'area_tipo_muestras' => $solicitud->areaTipoMuestras()->get(),
+            'area_tipo_muestras' => $solicitud,
         ]);
     }
 

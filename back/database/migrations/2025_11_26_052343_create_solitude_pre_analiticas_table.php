@@ -17,7 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('solicitude_id');
 
             $table->string('estado')->default('pendiente'); // nuevo
-            $table->string('nombre')->nullable();           // nuevo
+            $table->string('nombre')->nullable();
+            $table->boolean('selected')->nullable();
 
             $table->foreign('area_tipo_muestra_id')
                 ->references('id')->on('area_tipo_muestras')
