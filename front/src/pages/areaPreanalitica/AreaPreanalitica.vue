@@ -415,16 +415,6 @@
                         :label="tipo_muestra.tipo_muestra"
                         :true-value="true"
                         :false-value="false"
-                        @update:model-value="val => {
-                          if (val) {
-                            selectedMuestras.push(tipo_muestra.id)
-                          } else {
-                            const idx = selectedMuestras.indexOf(tipo_muestra.id)
-                            if (idx !== -1) {
-                              selectedMuestras.splice(idx, 1)
-                            }
-                          }
-                        }"
                       />
                     </div>
                   </template>
@@ -500,6 +490,7 @@
 <!--                  ]-->
 
                 </div>
+<!--                <pre>{{areas_tipo_muestras}}</pre>-->
               </div>
             </div>
           </div>
@@ -515,15 +506,19 @@
             color="primary"
             icon="close"
             v-close-popup
+            no-caps
           />
+<!--          label="Guardar y Enviar a Distribucción"-->
           <q-btn
             unelevated
             color="primary"
-            icon="save"
-            label="Guardar muestras"
+            icon="send"
             :loading="savingPre"
+            no-caps
             @click="guardarPreAnalitica"
-          />
+          >
+            Guardar y Enviar <br>a Distribución
+          </q-btn>
         </q-card-actions>
 
       </q-card>
@@ -638,15 +633,11 @@ export default {
 
       this.savingPre = true
       this.$axios.post(`solicitudes/${this.consentimiento.id}/pre-analitica`, {
-        area_tipo_muestras: this.selectedMuestras
+        area_tipo_muestras: this.areas_tipo_muestras
       })
         .then(res => {
-          this.consentimiento.area_tipo_muestras = res.data.area_tipo_muestras || []
-
-          if (this.$alert && this.$alert.success) {
-            this.$alert.success('Muestras preanalíticas guardadas correctamente')
-          }
-
+          this.$alert.success('Muestras guardadas y solicitud enviada a Distribución')
+          this.dialogConsentimiento = false
           this.reloadTable()
         })
         .catch(err => {
