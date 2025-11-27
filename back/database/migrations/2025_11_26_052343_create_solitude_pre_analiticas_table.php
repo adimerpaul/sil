@@ -15,8 +15,18 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('area_tipo_muestra_id');
             $table->unsignedBigInteger('solicitude_id');
-            $table->foreign('area_tipo_muestra_id')->references('id')->on('area_tipo_muestras')->onDelete('cascade');
-            $table->foreign('solicitude_id')->references('id')->on('solicitudes')->onDelete('cascade');
+
+            $table->string('estado')->default('pendiente'); // nuevo
+            $table->string('nombre')->nullable();           // nuevo
+
+            $table->foreign('area_tipo_muestra_id')
+                ->references('id')->on('area_tipo_muestras')
+                ->onDelete('cascade');
+
+            $table->foreign('solicitude_id')
+                ->references('id')->on('solicitudes')
+                ->onDelete('cascade');
+
             $table->softDeletes();
             $table->timestamps();
         });

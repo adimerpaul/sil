@@ -391,20 +391,6 @@
                         </div>
                         <div class="text-caption text-grey-7">
                           {{ textCapitalize(servicio.area?.name) }}
-<!--                          {{ servicio.area?.id }}-->
-<!--                          <pre>{{ (servicio.area?.area_tipo_muestras) }}</pre>-->
-                          <template v-for="(atm, index) in servicio.area?.area_tipo_muestras" :key="atm.id">
-                            <pre>{{atm}}</pre>
-                            <q-checkbox
-                              v-if="atm.area_tipo_muestras"
-                              :label="`- ${textCapitalize(atm.area_tipo_muestras)}`"
-                              :value="true"
-                              :checked="true"
-                              dense
-                              readonly
-                              class="text-caption text-grey-7 q-ml-md"
-                            />
-                          </template>
                         </div>
                       </q-item-section>
                     </q-item>
@@ -412,6 +398,107 @@
                 </div>
                 <div v-else class="text-caption text-grey-7">
                   No hay servicios registrados.
+                </div>
+              </div>
+              <div>
+                <div class="q-ml-md q-mt-xs">
+                  <template v-for="(atm, index) in areas_tipo_muestras" :key="atm.id">
+                    <div class="text-subtitle2 text-primary q-mb-xs">
+                      {{ atm.name }}
+                    </div>
+                    <q-separator spaced />
+                    <div class="q-mb-md">
+                      <q-checkbox
+                        v-for="tipo_muestra in atm.area_tipo_muestras"
+                        :key="tipo_muestra.id"
+                        v-model="tipo_muestra.selected"
+                        :label="tipo_muestra.tipo_muestra"
+                        :true-value="true"
+                        :false-value="false"
+                        @update:model-value="val => {
+                          if (val) {
+                            selectedMuestras.push(tipo_muestra.id)
+                          } else {
+                            const idx = selectedMuestras.indexOf(tipo_muestra.id)
+                            if (idx !== -1) {
+                              selectedMuestras.splice(idx, 1)
+                            }
+                          }
+                        }"
+                      />
+                    </div>
+                  </template>
+
+<!--                  <pre>{{areas_tipo_muestras}}</pre>-->
+<!--                  [-->
+<!--                  {-->
+<!--                  "id": 3,-->
+<!--                  "name": "UROANÁLISIS (Area 4)",-->
+<!--                  "area_tipo_muestras": [-->
+<!--                  {-->
+<!--                  "id": 5,-->
+<!--                  "area_id": 3,-->
+<!--                  "tipo_muestra": "Orinas",-->
+<!--                  "selected": false-->
+<!--                  },-->
+<!--                  {-->
+<!--                  "id": 6,-->
+<!--                  "area_id": 3,-->
+<!--                  "tipo_muestra": "Heces",-->
+<!--                  "selected": false-->
+<!--                  },-->
+<!--                  {-->
+<!--                  "id": 7,-->
+<!--                  "area_id": 3,-->
+<!--                  "tipo_muestra": "Sangre capilar",-->
+<!--                  "selected": false-->
+<!--                  },-->
+<!--                  {-->
+<!--                  "id": 8,-->
+<!--                  "area_id": 3,-->
+<!--                  "tipo_muestra": "Cutánea",-->
+<!--                  "selected": false-->
+<!--                  }-->
+<!--                  ]-->
+<!--                  },-->
+<!--                  {-->
+<!--                  "id": 4,-->
+<!--                  "name": "MICROBIOLOGÍA (Area 5)",-->
+<!--                  "area_tipo_muestras": [-->
+<!--                  {-->
+<!--                  "id": 9,-->
+<!--                  "area_id": 4,-->
+<!--                  "tipo_muestra": "Orina",-->
+<!--                  "selected": false-->
+<!--                  },-->
+<!--                  {-->
+<!--                  "id": 10,-->
+<!--                  "area_id": 4,-->
+<!--                  "tipo_muestra": "Heces",-->
+<!--                  "selected": false-->
+<!--                  },-->
+<!--                  {-->
+<!--                  "id": 11,-->
+<!--                  "area_id": 4,-->
+<!--                  "tipo_muestra": "Líquidos",-->
+<!--                  "selected": false-->
+<!--                  },-->
+<!--                  {-->
+<!--                  "id": 12,-->
+<!--                  "area_id": 4,-->
+<!--                  "tipo_muestra": "Secreciones",-->
+<!--                  "selected": false-->
+<!--                  },-->
+<!--                  {-->
+<!--                  "id": 13,-->
+<!--                  "area_id": 4,-->
+<!--                  "tipo_muestra": "Otros",-->
+<!--                  "selected": false-->
+<!--                  }-->
+<!--                  ]-->
+<!--                  }-->
+<!--                  ]-->
+
                 </div>
               </div>
             </div>
@@ -429,7 +516,16 @@
             icon="close"
             v-close-popup
           />
+          <q-btn
+            unelevated
+            color="primary"
+            icon="save"
+            label="Guardar muestras"
+            :loading="savingPre"
+            @click="guardarPreAnalitica"
+          />
         </q-card-actions>
+
       </q-card>
     </q-dialog>
 
@@ -449,6 +545,11 @@ export default {
       loading: false,
       filter: '',
       loadingRowId: null,
+      savingPre: false,          // 👈 nuevo
+      selectedMuestras: [],      // 👈 nuevo: ids de area_tipo_muestras
+      consentimiento: null,
+      areas_tipo_muestras: [],
+      areas_tipo_muestrasAll: [],
       pagination: {
         page: 1,
         rowsPerPage: 10,
@@ -517,8 +618,48 @@ export default {
   },
   mounted () {
     this.reloadTable()
+    this.areasTipoMuestrasGet()
   },
   methods: {
+    areasTipoMuestrasGet(){
+      this.$axios.get('areas-tipo-muestras')
+        .then(res => {
+          this.areas_tipo_muestrasAll = res.data || []
+        })
+        .catch(err => {
+          console.error(err)
+          this.$alert && this.$alert.error
+            ? this.$alert.error('Error al cargar tipos de muestras')
+            : null
+        })
+    },
+    guardarPreAnalitica () {
+      if (!this.consentimiento) return
+
+      this.savingPre = true
+      this.$axios.post(`solicitudes/${this.consentimiento.id}/pre-analitica`, {
+        area_tipo_muestras: this.selectedMuestras
+      })
+        .then(res => {
+          this.consentimiento.area_tipo_muestras = res.data.area_tipo_muestras || []
+
+          if (this.$alert && this.$alert.success) {
+            this.$alert.success('Muestras preanalíticas guardadas correctamente')
+          }
+
+          this.reloadTable()
+        })
+        .catch(err => {
+          console.error(err)
+          const msg = err.response?.data?.message || err.message
+          if (this.$alert && this.$alert.error) {
+            this.$alert.error('Error al guardar muestras: ' + msg)
+          }
+        })
+        .finally(() => {
+          this.savingPre = false
+        })
+    },
     textCapitalize(text) {
       if (!text) return ''
       return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
@@ -542,9 +683,38 @@ export default {
 
       return resultado.trim();
     },
-    openDialogSolicitud(action, row, index) {
-      this.dialogConsentimiento = true
+    openDialogSolicitud (action, row, index) {
       this.consentimiento = row
+      // cargar seleccionadas desde backend (relación area_tipo_muestras de la solicitud)
+      // this.selectedMuestras = (row.area_tipo_muestras || []).map(m => m.id)
+      // console.log(row)
+      this.dialogConsentimiento = true
+      const areas = []
+      row.servicios.forEach(servicio => {
+        // if (servicio.area && !areas.includes(servicio.area.id)) {
+        if (servicio.area && !areas.some(a => a.id === servicio.area.id)) {
+          areas.push(servicio.area)
+        }
+      })
+      // console.log(areas)
+      this.areas_tipo_muestras = [...areas].map(area => {
+        return {
+          id: area.id,
+          name: area.name,
+          area_tipo_muestras: this.areas_tipo_muestrasAll.filter(tm => tm.area_id === area.id).map(tm => {
+            return {
+              ...tm,
+              selected: (row.area_tipo_muestras || []).some(rtm => rtm.id === tm.id)
+            }
+          })
+        }
+      })
+      // area_tipo_muestras false
+      // this.areas_tipo_muestras.forEach(area => {
+      //   area.area_tipo_muestras.forEach(tm => {
+      //     tm.selected = false
+      //   })
+      // })
     },
     // Utils info footer
     firstRowIndex (pag) {

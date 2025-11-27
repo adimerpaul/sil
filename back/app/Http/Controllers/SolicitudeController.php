@@ -62,12 +62,42 @@ class SolicitudeController extends Controller
 
         return $ultimoCodigo ? ((int)$ultimoCodigo + 1) : 1;
     }
+    public function guardarPreAnalitica(Request $request, $id)
+    {
+        $solicitud = Solicitude::findOrFail($id);
+
+        $data = $request->validate([
+            'area_tipo_muestras'   => 'array',
+            'area_tipo_muestras.*' => 'integer|exists:area_tipo_muestras,id',
+        ]);
+
+        $ids = $data['area_tipo_muestras'] ?? [];
+
+        // sincronizar pivot (borra lo que ya no está y crea lo nuevo)
+        $solicitud->areaTipoMuestras()->sync($ids);
+
+        // opcional: actualizar fecha/hora de distribución aquí cuando lo agregues en migration
+        // $solicitud->fecha_distribucion = now();
+        // $solicitud->hora_distribucion  = now()->format('H:i:s');
+        // $solicitud->save();
+
+        return response()->json([
+            'message' => 'Muestras preanalíticas actualizadas',
+            'area_tipo_muestras' => $solicitud->areaTipoMuestras()->get(),
+        ]);
+    }
 
     function solicitudesAreaPreanalitica(Request $request){
 
         $filter = $request->input('filter', '');
 
-        $query = Solicitude::with(['paciente', 'doctor', 'servicios.area.areaTipoMuestras','userPreanalitica','user'])
+        $query = Solicitude::with([
+            'paciente',
+            'doctor',
+            'servicios.area.areaTipoMuestras',
+            'userPreanalitica',
+            'user'
+        ])
             ->whereIn('estado', ['CREADO', 'ATENDIENDO']);
 
         if (!empty($filter)) {

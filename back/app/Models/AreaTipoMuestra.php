@@ -29,4 +29,13 @@ class AreaTipoMuestra extends Model implements AuditableContract
     {
         return $this->belongsTo(Area::class);
     }
+    public function solicitudes()
+    {
+        return $this->belongsToMany(
+            Solicitude::class,
+            'solitude_pre_analiticas',
+            'area_tipo_muestra_id',
+            'solicitude_id'
+        )->withTimestamps();
+    }
 }

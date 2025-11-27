@@ -44,6 +44,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('areas', AreaController::class);
     Route::apiResource('servicios', ServicioController::class);
     Route::get('solicitudes-area-preanalitica', [SolicitudeController::class, 'solicitudesAreaPreanalitica']);
+    Route::post('solicitudes/{id}/pre-analitica', [SolicitudeController::class, 'guardarPreAnalitica']);
+    Route::get('areas-tipo-muestras', [AreaController::class, 'tipoMuestras']);
+
+
 //    Request URL
 //http://localhost:8000/api/solicitudes/3/generar-codigo
 //Request Method

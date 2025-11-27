@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Area;
+use App\Models\AreaTipoMuestra;
 use Illuminate\Http\Request;
 
 class AreaController extends Controller
@@ -38,5 +39,9 @@ class AreaController extends Controller
         $area->delete();
 
         return response()->json(['message' => 'Área eliminada correctamente']);
+    }
+    function tipoMuestras(){
+        $areaTipoMuestras = AreaTipoMuestra::all();
+        return response()->json($areaTipoMuestras);
     }
 }
