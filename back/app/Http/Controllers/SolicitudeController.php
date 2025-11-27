@@ -6,6 +6,7 @@ use App\Models\Servicio;
 use App\Models\Solicitude;
 use App\Models\Paciente;
 use App\Models\Doctor;
+use App\Models\SolitudePreAnalitica;
 use Illuminate\Http\Request;
 
 class SolicitudeController extends Controller
@@ -328,5 +329,87 @@ class SolicitudeController extends Controller
         $solicitud->delete();
 
         return response()->json(['message' => 'Solicitud eliminada correctamente']);
+    }
+    public function solicitudesAreaAnalitica(Request $request)
+    {
+        $filter = $request->input('filter', '');
+
+        $query = Solicitude::with([
+            'paciente',
+            'doctor',
+            'servicios.area',
+            'preAnaliticaMuestras.areaTipoMuestra',
+            'userPreanalitica',
+            'userAnalitica',
+            'user',
+        ])
+            ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO']);
+
+        if (!empty($filter)) {
+            $query->where(function ($q) use ($filter) {
+                $q->where('paciente_nombre', 'like', "%$filter%")
+                    ->orWhereHas('paciente', function ($q2) use ($filter) {
+                        $q2->where('nombre_completo', 'like', "%$filter%")
+                            ->orWhere('ci', 'like', "%$filter%");
+                    })
+                    ->orWhere('establecimiento_salud', 'like', "%$filter%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 10);
+        $solicitudes = $query->orderBy('id', 'desc')->paginate($perPage);
+
+        return response()->json($solicitudes);
+    }
+    public function guardarAnalitica(Request $request, $id)
+    {
+        $solicitud = Solicitude::with('preAnaliticaMuestras')->findOrFail($id);
+
+        $muestras = $request->input('muestras', []);
+
+        // Actualizar estados de las muestras
+        foreach ($muestras as $m) {
+            if (empty($m['id'])) {
+                continue;
+            }
+
+            $pre = SolitudePreAnalitica::where('solicitude_id', $solicitud->id)
+                ->where('id', $m['id'])
+                ->first();
+
+            if (!$pre) {
+                continue;
+            }
+
+            if (array_key_exists('estado', $m)) {
+                $pre->estado = $m['estado'];
+            }
+
+            if (array_key_exists('selected', $m)) {
+                $pre->selected = !empty($m['selected']);
+            }
+
+            $pre->save();
+        }
+
+        // Asignar responsable de analítica y marcar como finalizado
+        $solicitud->user_analitica_id = $request->user() ? $request->user()->id : null;
+        $solicitud->fecha_analitica   = now();
+        $solicitud->estado            = 'FINALIZADO';
+
+        $solicitud->save();
+
+        return response()->json([
+            'message'  => 'Analítica registrada y solicitud finalizada',
+            'solicitud'=> $solicitud->fresh([
+                'paciente',
+                'doctor',
+                'servicios.area',
+                'preAnaliticaMuestras.areaTipoMuestra',
+                'userPreanalitica',
+                'userAnalitica',
+                'user',
+            ]),
+        ]);
     }
 }

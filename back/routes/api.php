@@ -48,10 +48,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('areas-tipo-muestras', [AreaController::class, 'tipoMuestras']);
 
 
-//    Request URL
-//http://localhost:8000/api/solicitudes/3/generar-codigo
-//Request Method
-//POST
     Route::post('solicitudes/{id}/generar-codigo', [SolicitudeController::class, 'generarCodigo']);
+
+    Route::get('solicitudes-area-analitica', [SolicitudeController::class, 'solicitudesAreaAnalitica']);
+    Route::post('solicitudes/{id}/analitica', [SolicitudeController::class, 'guardarAnalitica']);
 });
 Route::get('consentimientos/{id}/print', [ConsentimientoController::class, 'print']);

@@ -92,11 +92,17 @@ class Solicitude extends Model implements AuditableContract
             'servicio_id'
         )->withPivot('precio')->withTimestamps();
     }
-    public function areaTipoMuestras()
-    {
-        $servicios = $this->servicios()->get();
-
-
-        return ['a'=>2];
+//    public function areaTipoMuestras()
+//    {
+//        $servicios = $this->servicios()->get();
+//
+//
+//        return ['a'=>2];
+//    }
+    function preAnaliticaMuestras(){
+        return $this->hasMany(SolitudePreAnalitica::class,'solicitude_id');
+    }
+    function userAnalitica(){
+        return $this->belongsTo(User::class,'user_analitica_id');
     }
 }

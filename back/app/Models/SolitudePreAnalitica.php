@@ -22,7 +22,14 @@ class SolitudePreAnalitica extends Model implements AuditableContract
     protected $hidden = [
         'created_at', 'updated_at', 'deleted_at',
     ];
-    function areaTipoMuestra(){
-        return $this->belongsTo(AreaTipoMuestra::class,'area_tipo_muestra_id');
+
+    public function areaTipoMuestra()
+    {
+        return $this->belongsTo(AreaTipoMuestra::class, 'area_tipo_muestra_id');
+    }
+
+    public function solicitude()
+    {
+        return $this->belongsTo(Solicitude::class, 'solicitude_id');
     }
 }

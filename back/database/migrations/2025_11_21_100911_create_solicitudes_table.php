@@ -35,9 +35,10 @@ return new class extends Migration
             $table->string('estado')->default('CREADO');
             $table->integer('codigo')->nullable();
             $table->string('nro_registro')->nullable();
-            $table->dateTime('fecha_pre_analitica')->nullable();
             $table->dateTime('fecha_creacion')->nullable();
+            $table->dateTime('fecha_pre_analitica')->nullable();
             $table->dateTime('fecha_envio_analitica')->nullable();
+            $table->dateTime('fecha_aceptacion_analitica')->nullable();
 
             // Copia de datos del paciente
             $table->string('paciente_nombre')->nullable();
