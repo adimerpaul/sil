@@ -594,9 +594,16 @@ export default {
         },
         {
           name: 'servicios_count',
-          label: '# Serv.',
+          label: '# Prestaciones',
           field: row => (row.servicios ? row.servicios.length : 0),
           align: 'center'
+        },
+      //   reponsable user_preanalitica_id
+        {
+          name: 'responsable',
+          label: 'Responsable Preanalítica',
+          field: row => row.user_preanalitica ? row.user_preanalitica.name : 'No asignado',
+          align: 'left'
         }
       ]
     }

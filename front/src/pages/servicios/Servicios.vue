@@ -59,14 +59,14 @@
         <q-card flat bordered>
           <q-card-section class="row items-center q-pa-sm">
             <div class="text-subtitle2">
-              Servicios
+              Prestaciones
               <span v-if="selectedArea">– {{ selectedArea.name }}</span>
             </div>
             <q-space />
             <q-input
               dense outlined
               v-model="searchServicio"
-              label="Buscar servicio"
+              label="Buscar prestaciones"
               class="q-mr-sm"
               style="max-width: 260px"
             >
