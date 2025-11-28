@@ -10,7 +10,7 @@ export class Alert{
       position: 'top',
       message,
       caption: subTitle,
-      timeout: 1500,
+      timeout: 3000,
       icon: 'warning',
       iconColor: 'warning',
       actions: [
@@ -28,7 +28,7 @@ export class Alert{
       position: 'top',
       message,
       caption: subTitle,
-      timeout: 1500,
+      timeout: 3000,
       icon: 'info',
       iconColor: 'info',
       actions: [
@@ -46,7 +46,7 @@ export class Alert{
       position: 'top',
       message,
       caption: subTitle,
-      timeout: 1500,
+      timeout: 3000,
       icon: 'check_circle',
       iconColor: 'positive',
       actions: [
@@ -64,7 +64,7 @@ export class Alert{
       position: 'top',
       message,
       caption: subTitle,
-      timeout: 1500,
+      timeout: 3000,
       icon: 'error',
       iconColor: 'negative',
       actions: [

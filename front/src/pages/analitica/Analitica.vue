@@ -59,7 +59,7 @@
         <template #top>
           <div class="row items-center full-width q-pa-xs">
             <div class="col">
-              <div class="text-subtitle1">Solicitudes</div>
+              <div class="text-subtitle1">Prestaciónes</div>
               <div class="text-caption text-grey-7">
                 Mostrando solicitudes con estado <b>ENVIADO_ANALITICA</b>
               </div>
@@ -133,6 +133,16 @@
             <q-badge color="primary" :label="props.row.servicios?.length || 0" />
           </q-td>
         </template>
+        <template #body-cell-servicios="props">
+          <q-td :props="props">
+            <!--            lista de servicio en ul margin 0-->
+            <ul class="q-pa-none q-ma-none">
+              <li v-for="servicio in props.row.servicios" :key="servicio.id">
+                {{ textCapitalize(servicio.nombre) }}
+              </li>
+            </ul>
+          </q-td>
+        </template>
 
         <!-- COLUMNA RESPONSABLES -->
         <template #body-cell-responsables="props">
@@ -155,7 +165,7 @@
               Mostrando
               <b>{{ firstRowIndex(scope.pagination) }} - {{ lastRowIndex(scope.pagination) }}</b>
               de
-              <b>{{ scope.pagination.rowsNumber }}</b> solicitudes
+              <b>{{ scope.pagination.rowsNumber }}</b> Prestación
             </div>
 
             <div class="col-12 col-sm-8">
@@ -201,14 +211,14 @@
       transition-show="jump-down"
       transition-hide="jump-up"
     >
-      <q-card class="q-pa-none" style="max-width: 900px;">
+      <q-card class="q-pa-none" style="max-width: 900px;width: 600px;">
         <!-- HEADER -->
         <q-card-section class="bg-purple-8 text-white">
           <div class="row items-center no-wrap">
             <div className="col">
               <div class="text-subtitle1 flex items-center q-gutter-sm">
                 <q-icon name="science" />
-                <span>Detalle de Solicitud - Área Analítica</span>
+                <span>Detalle de Prestación - Área Analítica</span>
               </div>
               <div class="text-caption q-mt-xs">
                 Código muestra:
@@ -257,7 +267,7 @@
             <!-- Datos solicitud -->
             <div>
               <div class="text-subtitle2 text-primary q-mb-xs">
-                Datos de la solicitud
+                Datos del Servicio
               </div>
               <q-separator spaced />
 
@@ -339,11 +349,42 @@
                 </div>
               </div>
             </div>
+            <!-- Médico Solicitante -->
+            <div>
+              <div class="text-subtitle2 text-primary q-mb-xs">
+                Médico solicitante ssss
+              </div>
+              <q-separator spaced />
+              <div class="row q-col-gutter-md">
+                <div class="col-12 col-sm-6">
+                  <div class="text-caption text-grey-7">Médico</div>
+                  <div class="text-body1 text-weight-medium">
+                    {{
+                      solicitud.doctor_nombre
+                      || solicitud.doctor?.name
+                      || '-'
+                    }}
+                  </div>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <div class="text-caption text-grey-7">Especialidad</div>
+                  <div class="text-body2">
+                    {{ solicitud.doctor?.especialidad || '-' }}
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="text-caption text-grey-7 q-mt-sm">Diagnóstico clínico</div>
+                  <div class="text-body2">
+                    {{ solicitud.diagnostico_clinico || '-' }}
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <!-- Servicios solicitados -->
             <div>
               <div class="text-subtitle2 text-primary q-mb-xs">
-                Servicios solicitados
+                Prestaciónes solicitados
               </div>
               <q-separator spaced />
 
@@ -380,38 +421,38 @@
               </div>
               <q-separator spaced />
 
-              <div
-                v-if="solicitud.pre_analitica_muestras && solicitud.pre_analitica_muestras.length"
-              >
-                <q-list bordered dense>
-                  <q-item
-                    v-for="m in solicitud.pre_analitica_muestras"
-                    :key="m.id"
-                    class="q-py-xs"
-                  >
-                    <q-item-section>
-                      <div class="text-body2">
-                        {{ m.area_tipo_muestra?.tipo_muestra || m.nombre || 'Muestra' }}
-                      </div>
-                      <div class="text-caption text-grey-7">
-                        Estado:
-                        <q-select
-                          v-model="m.estado"
-                          :options="['Pendiente', 'En proceso', 'Procesado']"
-                          dense
-                          outlined
-                          emit-value
-                          map-options
-                          style="max-width: 150px; display: inline-block;"
-                        />
-                      </div>
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </div>
-              <div v-else class="text-caption text-grey-7">
-                No se registraron muestras en preanalítica.
-              </div>
+<!--              <div-->
+<!--                v-if="solicitud.pre_analitica_muestras && solicitud.pre_analitica_muestras.length"-->
+<!--              >-->
+<!--                <q-list bordered dense>-->
+<!--                  <q-item-->
+<!--                    v-for="m in solicitud.pre_analitica_muestras"-->
+<!--                    :key="m.id"-->
+<!--                    class="q-py-xs"-->
+<!--                  >-->
+<!--                    <q-item-section>-->
+<!--                      <div class="text-body2">-->
+<!--                        {{ m.area_tipo_muestra?.tipo_muestra || m.nombre || 'Muestra' }}-->
+<!--                      </div>-->
+<!--                      <div class="text-caption text-grey-7">-->
+<!--                        Estado:-->
+<!--                        <q-select-->
+<!--                          v-model="m.estado"-->
+<!--                          :options="['Pendiente', 'En proceso', 'Procesado']"-->
+<!--                          dense-->
+<!--                          outlined-->
+<!--                          emit-value-->
+<!--                          map-options-->
+<!--                          style="max-width: 150px; display: inline-block;"-->
+<!--                        />-->
+<!--                      </div>-->
+<!--                    </q-item-section>-->
+<!--                  </q-item>-->
+<!--                </q-list>-->
+<!--              </div>-->
+<!--              <div v-else class="text-caption text-grey-7">-->
+<!--                No se registraron muestras en preanalítica.-->
+<!--              </div>-->
             </div>
           </div>
         </q-card-section>
@@ -471,6 +512,17 @@ export default {
           name: 'paciente',
           label: 'Paciente',
           field: row => row.paciente_nombre || (row.paciente && row.paciente.nombre_completo) || '',
+          align: 'left'
+        },
+        {          name: 'doctor',
+          label: 'Médico Solicitante',
+          field: row => row.doctor_nombre || (row.doctor && row.doctor.name) || '',
+          align: 'left'
+        },
+        {
+          name: 'servicios',
+          label: 'Prestaciones',
+          field: row => row.servicios ? row.servicios.map(s => s.nombre).join(', ') : '',
           align: 'left'
         },
         { name: 'establecimiento', label: 'Establecimiento', field: row => row.establecimiento_salud, align: 'left' },

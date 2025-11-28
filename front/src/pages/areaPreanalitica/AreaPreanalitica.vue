@@ -136,7 +136,17 @@
             <q-badge color="primary" :label="props.row.servicios?.length || 0" />
           </q-td>
         </template>
-
+<!--        servicios-->
+        <template #body-cell-servicios="props">
+          <q-td :props="props">
+<!--            lista de servicio en ul margin 0-->
+            <ul class="q-pa-none q-ma-none">
+              <li v-for="servicio in props.row.servicios" :key="servicio.id">
+                {{ textCapitalize(servicio.nombre) }}
+              </li>
+            </ul>
+          </q-td>
+        </template>
         <!-- ACCIONES -->
         <template #body-cell-actions="props">
           <q-td :props="props" class="text-right">
@@ -208,7 +218,7 @@
       transition-show="jump-down"
       transition-hide="jump-up"
     >
-      <q-card class="q-pa-none" style="max-width: 900px;">
+      <q-card class="q-pa-none" style="max-width: 900px;width: 600px">
         <!-- HEADER -->
         <q-card-section class="bg-indigo-8 text-white">
           <div class="row items-center no-wrap">
@@ -320,11 +330,6 @@
                     <div class="text-body2">
                       {{ consentimiento.establecimiento_salud || '-' }}
                     </div>
-
-                    <div class="text-caption text-grey-7 q-mt-sm">Diagnóstico clínico</div>
-                    <div class="text-body2">
-                      {{ consentimiento.diagnostico_clinico || '-' }}
-                    </div>
                   </div>
                 </div>
               </div>
@@ -362,6 +367,38 @@
                     <div class="text-caption text-grey-7 q-mt-sm">Nro. de registro</div>
                     <div class="text-body2">
                       {{ consentimiento.nro_registro || 'Sin registro' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BLOQUE: DOCTOR SOLICITANTE -->
+              <div>
+                <div class="text-subtitle2 text-primary q-mb-xs">
+                  Médico solicitante
+                </div>
+                <q-separator spaced />
+                <div class="row q-col-gutter-md">
+                  <div class="col-12 col-sm-6">
+                    <div class="text-caption text-grey-7">Médico</div>
+                    <div class="text-body1 text-weight-medium">
+                      {{
+                        consentimiento.doctor_nombre
+                        || consentimiento.doctor?.name
+                        || '-'
+                      }}
+                    </div>
+                  </div>
+                  <div class="col-12 col-sm-6">
+                    <div class="text-caption text-grey-7">Especialidad</div>
+                    <div class="text-body2">
+                      {{ consentimiento.doctor?.especialidad || '-' }}
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="text-caption text-grey-7 q-mt-sm">Diagnóstico clínico</div>
+                    <div class="text-body2">
+                      {{ consentimiento.diagnostico_clinico || '-' }}
                     </div>
                   </div>
                 </div>
@@ -568,6 +605,18 @@ export default {
           field: row => row.paciente_nombre || (row.paciente && row.paciente.nombre_completo) || '',
           align: 'left'
         },
+        // doctor
+        {          name: 'doctor',
+          label: 'Médico Solicitante',
+          field: row => row.doctor_nombre || (row.doctor && row.doctor.name) || '',
+          align: 'left'
+        },
+        {
+          name: 'servicios',
+          label: 'Prestaciones',
+          field: row => row.servicios ? row.servicios.map(s => s.nombre).join(', ') : '',
+          align: 'left'
+        },
         {
           name: 'establecimiento',
           label: 'Establecimiento',
@@ -637,6 +686,25 @@ export default {
     },
     guardarPreAnalitica () {
       if (!this.consentimiento) return
+
+      if (!this.consentimiento.codigo) {
+        this.$alert.error('La solicitud debe tener un código antes de enviarla a Distribución.')
+        return
+      }
+
+      // debe selecionar al menos un tipo de muestra
+      const muestrasSeleccionadas = []
+      this.areas_tipo_muestras.forEach(area => {
+        area.area_tipo_muestras.forEach(tm => {
+          if (tm.selected) {
+            muestrasSeleccionadas.push(tm.id)
+          }
+        })
+      })
+      if (muestrasSeleccionadas.length === 0) {
+        this.$alert.error('Debe seleccionar al menos un tipo de muestra para continuar.')
+        return
+      }
 
       this.savingPre = true
       this.$axios.post(`solicitudes/${this.consentimiento.id}/pre-analitica`, {

@@ -103,7 +103,7 @@
                   label="CI"
                   dense outlined
                   @update:model-value="onChangeCi"
-                  debounce="300"
+                  debounce="600"
                 />
               </div>
               <div class="col-12 col-sm-6">
@@ -619,6 +619,14 @@ export default {
           }
         })
       })
+      // debe selecionar porlo menos un servicio
+      if (this.solicitud.servicios.length === 0) {
+        this.$alert && this.$alert.error
+          ? this.$alert.error('Seleccione al menos un servicio')
+          : alert('Seleccione al menos un servicio')
+        this.loading = false
+        return
+      }
 
       const req = this.editando
         ? this.$axios.put(`solicitudes/${this.solicitud.id}`, this.solicitud)
