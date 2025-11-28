@@ -130,6 +130,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ServiciosSeeder::class,
             AreaTipoMuestraSeeder::class,
+            AreaRangoSeeder::class,
+            AreaRangoQuimicaSeeder::class,
         ]);
     }
 }

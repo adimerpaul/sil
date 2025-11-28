@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AreaController;
+use App\Http\Controllers\AreaRangoController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\EstablecimientoController;
 use App\Http\Controllers\PacienteController;
@@ -52,5 +53,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('solicitudes-area-analitica', [SolicitudeController::class, 'solicitudesAreaAnalitica']);
     Route::post('solicitudes/{id}/analitica', [SolicitudeController::class, 'guardarAnalitica']);
+    Route::apiResource('area-rangos', AreaRangoController::class);
+
 });
 Route::get('consentimientos/{id}/print', [ConsentimientoController::class, 'print']);
