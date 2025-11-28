@@ -200,6 +200,10 @@ class SolicitudeController extends Controller
 
     public function store(Request $request)
     {
+        $servicios = $request->input('servicios', []);
+        if (empty($servicios) || !is_array($servicios)) {
+            return response()->json(['message' => 'Debe seleccionar al menos un servicio'], 422);
+        }
         $data = $request->all();
 
         // usuario que crea
