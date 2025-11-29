@@ -143,6 +143,7 @@ class DatabaseSeeder extends Seeder
             AreaTipoMuestraSeeder::class,
             AreaRangoSeeder::class,
             AreaRangoQuimicaSeeder::class,
+            PerfilImpresionSeeder::class,
         ]);
 //        colcoar todo los servico al hapital 1
         $servicios = \App\Models\Servicio::all();

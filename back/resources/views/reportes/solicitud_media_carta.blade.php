@@ -15,7 +15,6 @@
         .page {
             width: 100%;
             min-height: 50%; /* ocupa aprox. media hoja */
-            /*padding: 6px 8px;*/
             border: 1px solid #000;
         }
 
@@ -78,9 +77,15 @@
             text-transform: uppercase;
         }
 
-        .text-right { text-align: right; }
+        .text-right  { text-align: right; }
         .text-center { text-align: center; }
-        .text-left { text-align: left; }
+        .text-left   { text-align: left; }
+
+        /* ====== VALORES FUERA DE RANGO ====== */
+        .out-of-range {
+            color: #c00000;        /* rojo fuerte */
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -100,11 +105,11 @@
                     <h3>HOSPITAL GENERAL &quot;JUAN DE DIOS&quot; ORURO</h3>
                     <div class="sub">LABORATORIO DE ANÁLISIS CLÍNICO - MICROBIOLÓGICO</div>
                     <div class="sub">San Felipe entre 6 de Octubre y Tarija</div>
-                    <div class="sub">REGISTRO CONALAB: 001 REGISTRO CONALAB: 00004</div>
+                    <div class="sub">REGISTRO CONALAB: 001 REGISTRO CODELAB: 00004</div>
                 </div>
             </td>
             <td style="width: 20%; text-align: right;" valign="top">
-                {{-- LOGO DERECHO (OPCIONAL) --}}
+                {{-- LOGO DERECHO --}}
                 <div style="text-align: center">
                     <img src="{{ public_path('img/logo-salud.png') }}" style="height:50px;" alt="Logo">
                 </div>
@@ -125,8 +130,6 @@
             <td><strong>Médico:</strong> {{ $solicitud->doctor_nombre ?? optional($solicitud->doctor)->nombre }}</td>
             <td><strong>Fecha de proceso:</strong> {{ ($solicitud->fecha_finalizacion) }}</td>
             <td>
-{{--                <strong>N° SUS / Registro:</strong> {{ $solicitud->codigo }} / {{ $solicitud->nro_registro }}--}}
-{{--                dividor en 2 y que vaya aca da costado N SUS  ala derecha y Registro a la izquierda--}}
                 <strong>CODIGO:</strong> {{ $solicitud->codigo }}  {{$solicitud->tipo_atencion=='SI' ?'SUS':'EXT'}}<br>
                 <strong>Registro:</strong> {{ $solicitud->codigo }}-{{ $solicitud->nro_registro }}
             </td>
@@ -156,7 +159,7 @@
                     <tbody>
                     @foreach($items as $item)
                         @php
-                            $r = $item->areaRango;
+                            $r   = $item->areaRango;
                             $res = $resultados->firstWhere('area_rango_id', $r->id);
                             $valor = $res?->valor_final;
 
@@ -166,18 +169,33 @@
                             }
 
                             $unidad = $res?->unidad ?: $r->unidad;
+
                             $rangoTexto = '';
                             if(!is_null($r->rango_minimo) && !is_null($r->rango_maximo)){
-                              $rangoTexto = $r->rango_minimo . ' - ' . $r->rango_maximo;
+                                $rangoTexto = $r->rango_minimo . ' - ' . $r->rango_maximo;
                             }elseif(!is_null($r->rango_minimo)){
-                              $rangoTexto = '≥ ' . $r->rango_minimo;
+                                $rangoTexto = '≥ ' . $r->rango_minimo;
                             }elseif(!is_null($r->rango_maximo)){
-                              $rangoTexto = '≤ ' . $r->rango_maximo;
+                                $rangoTexto = '≤ ' . $r->rango_maximo;
+                            }
+
+                            // ---- fuera de rango? ----
+                            $esFueraRango = false;
+                            if ($valor !== null && is_numeric($valor)) {
+                                $v = (float) $valor;
+                                if (!is_null($r->rango_minimo) && $v < $r->rango_minimo) {
+                                    $esFueraRango = true;
+                                }
+                                if (!is_null($r->rango_maximo) && $v > $r->rango_maximo) {
+                                    $esFueraRango = true;
+                                }
                             }
                         @endphp
                         <tr>
                             <td class="text-left">{{ $r->rango_nombre }}</td>
-                            <td class="text-center">{{ $valor !== null ? $valor : '' }}</td>
+                            <td class="text-center {{ $esFueraRango ? 'out-of-range' : '' }}">
+                                {{ $valor !== null ? $valor : '' }}
+                            </td>
                             <td class="text-center">{{ $unidad }}</td>
                             <td class="text-center">{{ $rangoTexto }}</td>
                         </tr>
@@ -209,22 +227,37 @@
                     <tbody>
                     @foreach($items as $item)
                         @php
-                            $r = $item->areaRango;
+                            $r   = $item->areaRango;
                             $res = $resultados->firstWhere('area_rango_id', $r->id);
                             $valor = $res?->valor_final;
                             $unidad = $res?->unidad ?: $r->unidad;
+
                             $rangoTexto = '';
                             if(!is_null($r->rango_minimo) && !is_null($r->rango_maximo)){
-                              $rangoTexto = $r->rango_minimo . ' - ' . $r->rango_maximo;
+                                $rangoTexto = $r->rango_minimo . ' - ' . $r->rango_maximo;
                             }elseif(!is_null($r->rango_minimo)){
-                              $rangoTexto = '≥ ' . $r->rango_minimo;
+                                $rangoTexto = '≥ ' . $r->rango_minimo;
                             }elseif(!is_null($r->rango_maximo)){
-                              $rangoTexto = '≤ ' . $r->rango_maximo;
+                                $rangoTexto = '≤ ' . $r->rango_maximo;
+                            }
+
+                            // ---- fuera de rango? ----
+                            $esFueraRango = false;
+                            if ($valor !== null && is_numeric($valor)) {
+                                $v = (float) $valor;
+                                if (!is_null($r->rango_minimo) && $v < $r->rango_minimo) {
+                                    $esFueraRango = true;
+                                }
+                                if (!is_null($r->rango_maximo) && $v > $r->rango_maximo) {
+                                    $esFueraRango = true;
+                                }
                             }
                         @endphp
                         <tr>
                             <td class="text-left">{{ $r->rango_nombre }}</td>
-                            <td class="text-center">{{ $valor !== null ? $valor : '' }}</td>
+                            <td class="text-center {{ $esFueraRango ? 'out-of-range' : '' }}">
+                                {{ $valor !== null ? $valor : '' }}
+                            </td>
                             <td class="text-center">{{ $unidad }}</td>
                             <td class="text-center">{{ $rangoTexto }}</td>
                         </tr>
@@ -237,6 +270,11 @@
 
     <div style="margin-top: 6px; font-size: 8px;">
         <strong>Observaciones:</strong> ____________________________________________
+        <div style="text-align: right; margin-top: 4px;">
+            Resposable: Dr/a. {{$solicitud->userAnalitica->name}}<br>
+            BIOQUIMICA/O <br>
+            Fecha de emisión: {{ now()->format('d/m/Y H:i') }}
+        </div>
     </div>
 </div>
 
@@ -280,22 +318,37 @@
                     <tbody>
                     @foreach($items as $item)
                         @php
-                            $r = $item->areaRango;
+                            $r   = $item->areaRango;
                             $res = $resultados->firstWhere('area_rango_id', $r->id);
-                            $valor = $res?->valor_final;
+                            $valor  = $res?->valor_final;
                             $unidad = $res?->unidad ?: $r->unidad;
+
                             $rangoTexto = '';
                             if(!is_null($r->rango_minimo) && !is_null($r->rango_maximo)){
-                              $rangoTexto = $r->rango_minimo . ' - ' . $r->rango_maximo;
+                                $rangoTexto = $r->rango_minimo . ' - ' . $r->rango_maximo;
                             }elseif(!is_null($r->rango_minimo)){
-                              $rangoTexto = '≥ ' . $r->rango_minimo;
+                                $rangoTexto = '≥ ' . $r->rango_minimo;
                             }elseif(!is_null($r->rango_maximo)){
-                              $rangoTexto = '≤ ' . $r->rango_maximo;
+                                $rangoTexto = '≤ ' . $r->rango_maximo;
+                            }
+
+                            // ---- fuera de rango? ----
+                            $esFueraRango = false;
+                            if ($valor !== null && is_numeric($valor)) {
+                                $v = (float) $valor;
+                                if (!is_null($r->rango_minimo) && $v < $r->rango_minimo) {
+                                    $esFueraRango = true;
+                                }
+                                if (!is_null($r->rango_maximo) && $v > $r->rango_maximo) {
+                                    $esFueraRango = true;
+                                }
                             }
                         @endphp
                         <tr>
                             <td class="text-left">{{ $r->rango_nombre }}</td>
-                            <td class="text-center">{{ $valor !== null ? $valor : '' }}</td>
+                            <td class="text-center {{ $esFueraRango ? 'out-of-range' : '' }}">
+                                {{ $valor !== null ? $valor : '' }}
+                            </td>
                             <td class="text-center">{{ $unidad }}</td>
                             <td class="text-center">{{ $rangoTexto }}</td>
                         </tr>
@@ -322,22 +375,37 @@
                     <tbody>
                     @foreach($items as $item)
                         @php
-                            $r = $item->areaRango;
+                            $r   = $item->areaRango;
                             $res = $resultados->firstWhere('area_rango_id', $r->id);
-                            $valor = $res?->valor_final;
+                            $valor  = $res?->valor_final;
                             $unidad = $res?->unidad ?: $r->unidad;
+
                             $rangoTexto = '';
                             if(!is_null($r->rango_minimo) && !is_null($r->rango_maximo)){
-                              $rangoTexto = $r->rango_minimo . ' - ' . $r->rango_maximo;
+                                $rangoTexto = $r->rango_minimo . ' - ' . $r->rango_maximo;
                             }elseif(!is_null($r->rango_minimo)){
-                              $rangoTexto = '≥ ' . $r->rango_minimo;
+                                $rangoTexto = '≥ ' . $r->rango_minimo;
                             }elseif(!is_null($r->rango_maximo)){
-                              $rangoTexto = '≤ ' . $r->rango_maximo;
+                                $rangoTexto = '≤ ' . $r->rango_maximo;
+                            }
+
+                            // ---- fuera de rango? ----
+                            $esFueraRango = false;
+                            if ($valor !== null && is_numeric($valor)) {
+                                $v = (float) $valor;
+                                if (!is_null($r->rango_minimo) && $v < $r->rango_minimo) {
+                                    $esFueraRango = true;
+                                }
+                                if (!is_null($r->rango_maximo) && $v > $r->rango_maximo) {
+                                    $esFueraRango = true;
+                                }
                             }
                         @endphp
                         <tr>
                             <td class="text-left">{{ $r->rango_nombre }}</td>
-                            <td class="text-center">{{ $valor !== null ? $valor : '' }}</td>
+                            <td class="text-center {{ $esFueraRango ? 'out-of-range' : '' }}">
+                                {{ $valor !== null ? $valor : '' }}
+                            </td>
                             <td class="text-center">{{ $unidad }}</td>
                             <td class="text-center">{{ $rangoTexto }}</td>
                         </tr>

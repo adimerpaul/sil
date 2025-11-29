@@ -123,7 +123,7 @@ class AreaRangoSeeder extends Seeder
             ],
             [
                 'area_id'        => $areaIdHemograma,
-                'rango_nombre'   => 'METAMIELOCITOS',
+                'rango_nombre'   => 'METAMIELOCITO',
                 'rango_minimo'   => null,
                 'rango_maximo'   => null,
                 'unidad'         => 'X10e9/L',
@@ -229,17 +229,25 @@ class AreaRangoSeeder extends Seeder
             // ==========================
             // RETICULOCITOS / IPR
             // ==========================
-            [
-                'area_id'        => $areaIdHemograma,
-                'rango_nombre'   => 'Reticulocitos',
-                'rango_minimo'   => 0.5,
-                'rango_maximo'   => 2.5,
-                'unidad'         => '%',
-                'interpretacion' => '0,5% - 2,5%',
-            ],
+//            [
+//                'area_id'        => $areaIdHemograma,
+//                'rango_nombre'   => 'Reticulocitos',
+//                'rango_minimo'   => 0.5,
+//                'rango_maximo'   => 2.5,
+//                'unidad'         => '%',
+//                'interpretacion' => '0,5% - 2,5%',
+//            ],
             [
                 'area_id'        => $areaIdHemograma,
                 'rango_nombre'   => 'IPR',
+                'rango_minimo'   => 0.5,
+                'rango_maximo'   => 2.5,
+                'unidad'         => '%',
+                'interpretacion' => '0,5% - 1,5%',
+            ],
+            [
+                'area_id'        => $areaIdHemograma,
+                'rango_nombre'   => 'IPR2',
                 'rango_minimo'   => 0.5,
                 'rango_maximo'   => 1.5,
                 'unidad'         => '%',

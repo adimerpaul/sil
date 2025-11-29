@@ -100,7 +100,7 @@ class PerfilImpresionSeeder extends Seeder
                 ['BLASTOS',          '%',        0.0,   0.0,   'RECUENTO DIFERENCIAL'],
                 ['METAMIELOCITO',    '%',        0.0,   0.0,   'RECUENTO DIFERENCIAL'],
                 ['ERITROBLASTOS',    '%',        0.0,   0.0,   'RECUENTO DIFERENCIAL'],
-                ['TOTAL',            '%',        null,  null,  'RECUENTO DIFERENCIAL'],
+//                ['TOTAL',            '%',        null,  null,  'RECUENTO DIFERENCIAL'],
             ];
 
             $orden = 1;
@@ -112,13 +112,13 @@ class PerfilImpresionSeeder extends Seeder
             // --- COLUMNA DERECHA: índices, grupo sanguíneo, coagulog., etc.
             $hemogramaDer = [
                 // ÍNDICES HEMATIMÉTRICOS
-                ['V.C.M.',        'fL',       73.0,  87.0,  'ÍNDICES HEMATIMÉTRICOS'],
-                ['H.C.M.',        'pg',       27.0,  31.0,  'ÍNDICES HEMATIMÉTRICOS'],
-                ['CHCM',          'g/L',      320.0, 360.0, 'ÍNDICES HEMATIMÉTRICOS'],
+                ['V.C.M.',        'fL',       73.0,  87.0,  'INDICES HEMATIMÉTRICOS'],
+                ['Hb.C.M.',        'pg',       27.0,  31.0,  'INDICES HEMATIMÉTRICOS'],
+                ['CHCM',          'g/L',      320.0, 360.0, 'INDICES HEMATIMÉTRICOS'],
 
                 // GRUPO SANGUÍNEO (valores texto; rangos vacíos)
                 ['Grupo sanguíneo', null,     null,  null,  'GRUPO SANGUÍNEO'],
-                ['Factor RH',        null,     null,  null,  'GRUPO SANGUÍNEO'],
+//                ['Factor RH',        null,     null,  null,  'GRUPO SANGUÍNEO'],
 
                 // COAGULOGRAMA
                 ['Tiempo de Protrombina',      'seg',  12.0,  12.0,  'COAGULOGRAMA'],
@@ -128,9 +128,10 @@ class PerfilImpresionSeeder extends Seeder
                 ['VES',                        'mm/h', 0.0,   20.0,  'COAGULOGRAMA'],
 
                 // Otros
-                ['Reticulocitos',   '%',       0.5,   2.5,   null],
-                ['IPR',             '',        0.5,   1.5,   null],
-                ['Fibrinógeno',     'g/L',     2.0,   4.0,   null],
+//                ['Reticulocitos',   '%',       0.5,   2.5,   'RETICULOCITOS'],
+                ['IPR',             '',        0.5,   2.5,   'RETICULOCITOS'],
+                ['IPR2',             '',        0.5,   1.5,   'RETICULOCITOS'],
+                ['Fibrinógeno',     'g/L',     2.0,   4.0,   'RETICULOCITOS'],
             ];
 
             $orden = 1;

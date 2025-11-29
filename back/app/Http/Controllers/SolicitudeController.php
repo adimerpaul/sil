@@ -37,9 +37,11 @@ class SolicitudeController extends Controller
             'doctor',
             'resultados',                 // ResultadoLaboratorio
             'servicios.area',
+            'userAnalitica'
         ])->findOrFail($id);
 
         $pdf = $this->buildPdfFromSolicitud($solicitud);
+//        return $pdf;
 
         return $pdf->stream('LAB_'.$solicitud->nro_registro.'.pdf');
     }
