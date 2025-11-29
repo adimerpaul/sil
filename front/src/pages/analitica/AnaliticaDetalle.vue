@@ -24,6 +24,56 @@
 
     <!-- ENCABEZADO TIPO PLANILLA -->
     <q-card flat bordered class="q-mb-sm">
+      <q-card flat bordered class="q-pa-sm bg-grey-1">
+        <q-card-actions align="right">
+<!--          btn imprimir-->
+<!--          btn mandar a dormat -->
+          <q-btn-dropdown
+            flat
+            color="primary"
+            icon="print"
+            label="Opciones de impresión"
+            no-caps
+          >
+            <q-list dense>
+              <q-item clickable @click="imprimir">
+                <q-item-section avatar>
+                  <q-icon name="print" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Imprimir Analítica</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable @click="mandarDoctor">
+                <q-item-section avatar>
+                  <q-icon name="send" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Mandar informe al doctor</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+          <q-btn
+            flat
+            color="primary"
+            icon="close"
+            label="Cancelar"
+            no-caps
+            @click="$router.back()"
+          />
+          <q-btn
+            unelevated
+            color="primary"
+            icon="done_all"
+            :loading="saving"
+            no-caps
+            @click="guardarAnalitica"
+          >
+            Guardar Analítica y Finalizar
+          </q-btn>
+        </q-card-actions>
+      </q-card>
       <q-card-section class="q-pa-sm">
         <div class="row q-col-gutter-sm">
           <div class="col-12 text-center">
@@ -383,28 +433,6 @@
     </q-card>
 
     <!-- ACCIONES -->
-    <q-card flat bordered class="q-pa-sm bg-grey-1">
-      <q-card-actions align="right">
-        <q-btn
-          flat
-          color="primary"
-          icon="close"
-          label="Cancelar"
-          no-caps
-          @click="$router.back()"
-        />
-        <q-btn
-          unelevated
-          color="primary"
-          icon="done_all"
-          :loading="saving"
-          no-caps
-          @click="guardarAnalitica"
-        >
-          Guardar Analítica y Finalizar
-        </q-btn>
-      </q-card-actions>
-    </q-card>
   </q-page>
 </template>
 
@@ -466,6 +494,50 @@ export default {
     this.cargarSolicitud()
   },
   methods: {
+    mandarDoctor () {
+      if (!this.solicitud) return
+
+      const apiBase = this.$axios.defaults.baseURL || ''
+      const backBase = apiBase.replace(/\/api\/?$/, '')
+
+      const codigo = this.solicitud.nro_registro
+      if (!codigo) {
+        this.$alert?.error?.('La solicitud no tiene nro_registro generado.')
+        return
+      }
+
+      // URL pública del reporte (PDF online)
+      const urlReporte = `${backBase}/public/reportes/${codigo}`
+
+      // Teléfono del médico
+      let phone = this.solicitud.doctor_telefono || ''
+      phone = phone.replace(/\D/g, '') // quitar guiones/espacios
+
+      if (!phone) {
+        this.$alert?.error?.('El médico no tiene teléfono registrado.')
+        return
+      }
+
+      const mensaje = `Dr(a). ${this.solicitud.doctor_nombre}, le envío los resultados de laboratorio del paciente ${this.solicitud.paciente_nombre}. Puede verlos aquí: ${urlReporte}`
+
+      const text = encodeURIComponent(mensaje)
+
+      // 591 = Bolivia, ajusta a tu país
+      const urlWhatsapp = `https://wa.me/591${phone}?text=${text}`
+
+      window.open(urlWhatsapp, '_blank')
+    },
+    imprimir () {
+      if (!this.solicitud || !this.solicitud.id) return
+
+      // si tu API base es algo tipo http://127.0.0.1:8000/api
+      // quita el /api para la URL "real" del backend
+      const apiBase = this.$axios.defaults.baseURL || ''
+      const backBase = apiBase.replace(/\/api\/?$/, '')
+
+      const url = `${backBase}/api/solicitudes/${this.solicitud.id}/analitica-pdf`
+      window.open(url, '_blank')
+    },
     esHematologia (area) {
       if (!area) return false
       if (area.id === 1) return true
@@ -592,7 +664,7 @@ export default {
           this.$alert?.success?.(
             'Analítica guardada y solicitud finalizada'
           )
-          this.$router.push('/analitica')
+          // this.$router.push('/analitica')
         })
         .catch(err => {
           console.error(err)
