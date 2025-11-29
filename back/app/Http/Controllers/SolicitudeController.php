@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ResultadoLaboratorio;
 use App\Models\Servicio;
 use App\Models\Solicitude;
 use App\Models\Paciente;
 use App\Models\Doctor;
 use App\Models\SolitudePreAnalitica;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SolicitudeController extends Controller
 {
@@ -353,7 +355,7 @@ class SolicitudeController extends Controller
             'userAnalitica',
             'user',
         ])
-            ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO']);
+            ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO','FINALIZADO']);
 
         if (!empty($filter)) {
             $query->where(function ($q) use ($filter) {
@@ -376,65 +378,154 @@ class SolicitudeController extends Controller
         $solicitud = Solicitude::with([
             'paciente',
             'doctor',
-            'servicios.area.rangos',                           // rangos por área
+            'servicios.area.rangos',
+            'resultados',
+            // tipos de muestra enviados desde pre-analítica
             'preAnaliticaMuestras.areaTipoMuestra.area',
-            'userPreanalitica',
-            'userAnalitica',
-            'user',
         ])->findOrFail($id);
 
         return response()->json($solicitud);
     }
+    /**
+     * Convierte un valor a float o devuelve null si está vacío / no numérico.
+     */
+    protected function parseValorNullable($value): ?float
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_string($value)) {
+            $value = str_replace(',', '.', trim($value));
+            if ($value === '') {
+                return null;
+            }
+        }
+
+        if (!is_numeric($value)) {
+            return null;
+        }
+
+        return (float) $value;
+    }
+
 
     public function guardarAnalitica(Request $request, $id)
     {
-        $solicitud = Solicitude::with('preAnaliticaMuestras')->findOrFail($id);
+        $solicitud  = Solicitude::findOrFail($id);
+        $resultados = $request->input('resultados', []);
+        $calidad    = $request->input('calidad_muestra', []);
+        $equipo     = $request->input('equipo');
 
-        $muestras = $request->input('muestras', []);
+        DB::transaction(function () use ($solicitud, $resultados, $calidad, $equipo) {
 
-        // Actualizar estados de las muestras
-        foreach ($muestras as $m) {
-            if (empty($m['id'])) {
-                continue;
+            // ---- GUARDAR CALIDAD DE MUESTRA + EQUIPO ----
+            if (is_array($calidad)) {
+                $solicitud->muestra_sangre_entera   = $calidad['aceptada']       ?? null;
+                $solicitud->muestra_coagulo         = $calidad['coagulo']        ?? null;
+                $solicitud->muestra_volumen         = $calidad['volumen']        ?? null;
+                $solicitud->muestra_identificacion  = $calidad['identificacion'] ?? null;
             }
 
-            $pre = SolitudePreAnalitica::where('solicitude_id', $solicitud->id)
-                ->where('id', $m['id'])
-                ->first();
-
-            if (!$pre) {
-                continue;
+            if ($equipo !== null) {
+                $solicitud->muestra_equipo = $equipo;
             }
 
-            if (array_key_exists('estado', $m)) {
-                $pre->estado = $m['estado'];
+            // ---- GUARDAR RESULTADOS POR RANGO ----
+            foreach ($resultados as $areaId => $rangos) {
+                if (!is_array($rangos)) {
+                    continue;
+                }
+
+                foreach ($rangos as $rangoId => $payload) {
+                    if (!is_array($payload)) {
+                        continue;
+                    }
+
+                    $areaId  = (int) $areaId;
+                    $rangoId = (int) $rangoId;
+
+                    // CASO ESPECIAL: HEMATOLOGÍA (Área 1)
+                    if ($areaId === 1) {
+                        $valorAuto   = $this->parseValorNullable($payload['valor_automatizado'] ?? null);
+                        $valorManual = $this->parseValorNullable($payload['valor_manual'] ?? null);
+
+                        if ($valorAuto === null && $valorManual === null) {
+                            ResultadoLaboratorio::where('solicitude_id', $solicitud->id)
+                                ->where('area_rango_id', $rangoId)
+                                ->delete();
+                            continue;
+                        }
+
+                        $valorFinal  = null;
+                        $preferido   = null;
+                        $metodoFinal = null;
+
+                        // Preferencia: manual > automatizado
+                        if ($valorManual !== null) {
+                            $valorFinal  = $valorManual;
+                            $preferido   = 'MAN';
+                            $metodoFinal = 'MANUAL';
+                        } elseif ($valorAuto !== null) {
+                            $valorFinal  = $valorAuto;
+                            $preferido   = 'AUTO';
+                            $metodoFinal = 'AUTOMATIZADO';
+                        }
+
+                        ResultadoLaboratorio::updateOrCreate(
+                            [
+                                'solicitude_id' => $solicitud->id,
+                                'area_rango_id' => $rangoId,
+                            ],
+                            [
+                                'area_id'            => $areaId,
+                                'valor_automatizado' => $valorAuto,
+                                'valor_manual'       => $valorManual,
+                                'valor_final'        => $valorFinal,
+                                'preferido'          => $preferido,
+                                'metodo_final'       => $metodoFinal,
+                            ]
+                        );
+                    }
+                    // RESTO DE ÁREAS
+                    else {
+                        $valor = $this->parseValorNullable($payload['valor'] ?? null);
+
+                        if ($valor === null) {
+                            ResultadoLaboratorio::where('solicitude_id', $solicitud->id)
+                                ->where('area_rango_id', $rangoId)
+                                ->delete();
+                            continue;
+                        }
+
+                        ResultadoLaboratorio::updateOrCreate(
+                            [
+                                'solicitude_id' => $solicitud->id,
+                                'area_rango_id' => $rangoId,
+                            ],
+                            [
+                                'area_id'            => $areaId,
+                                'valor_final'        => $valor,
+                                'metodo_final'       => null,
+                                'valor_automatizado' => null,
+                                'valor_manual'       => null,
+                                'preferido'          => null,
+                            ]
+                        );
+                    }
+                }
             }
 
-            if (array_key_exists('selected', $m)) {
-                $pre->selected = !empty($m['selected']);
-            }
-
-            $pre->save();
-        }
-
-        // Asignar responsable de analítica y marcar como finalizado
-        $solicitud->user_analitica_id = $request->user() ? $request->user()->id : null;
-        $solicitud->fecha_analitica   = now();
-        $solicitud->estado            = 'FINALIZADO';
-
-        $solicitud->save();
+            // Marcar solicitud finalizada en analítica
+            $solicitud->estado                = 'FINALIZADO';
+            $solicitud->user_analitica_id     = auth()->id();
+            $solicitud->fecha_envio_analitica = now();
+            $solicitud->save();
+        });
 
         return response()->json([
-            'message'  => 'Analítica registrada y solicitud finalizada',
-            'solicitud'=> $solicitud->fresh([
-                'paciente',
-                'doctor',
-                'servicios.area',
-                'preAnaliticaMuestras.areaTipoMuestra',
-                'userPreanalitica',
-                'userAnalitica',
-                'user',
-            ]),
+            'message' => 'Resultados de analítica guardados correctamente.',
         ]);
     }
+
 }

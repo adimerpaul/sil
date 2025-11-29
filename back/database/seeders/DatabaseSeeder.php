@@ -123,21 +123,21 @@ class DatabaseSeeder extends Seeder
         ]);
 
 //            paciente fake datos 10000 fake
-        for ($i = 0; $i < 100; $i++) {
-            \App\Models\Paciente::create([
-                'fecha_recepcion' => now()->subDays(rand(0, 365))->toDateString(),
-                'hora_recepcion' => now()->subMinutes(rand(0, 1440))->toTimeString(),
-                'nombre_completo' => 'Paciente ' . ($i + 1),
-                'fecha_nac' => now()->subYears(rand(1, 100))->toDateString(),
-                'genero' => ['F', 'M', 'OTRO'][array_rand(['F', 'M', 'OTRO'])],
-                'edad' => rand(1, 100),
-                'ci' => strval(rand(1000000, 99999999)),
-                'telefono' => '555-' . rand(1000, 9999),
-                'direccion' => 'Direccion ' . ($i + 1),
-                'discapacidad' => (bool)rand(0, 1),
-                'embarazo' => (bool)rand(0, 1),
-            ]);
-        }
+//        for ($i = 0; $i < 100; $i++) {
+//            \App\Models\Paciente::create([
+//                'fecha_recepcion' => now()->subDays(rand(0, 365))->toDateString(),
+//                'hora_recepcion' => now()->subMinutes(rand(0, 1440))->toTimeString(),
+//                'nombre_completo' => 'Paciente ' . ($i + 1),
+//                'fecha_nac' => now()->subYears(rand(1, 100))->toDateString(),
+//                'genero' => ['F', 'M', 'OTRO'][array_rand(['F', 'M', 'OTRO'])],
+//                'edad' => rand(1, 100),
+//                'ci' => strval(rand(1000000, 99999999)),
+//                'telefono' => '555-' . rand(1000, 9999),
+//                'direccion' => 'Direccion ' . ($i + 1),
+//                'discapacidad' => (bool)rand(0, 1),
+//                'embarazo' => (bool)rand(0, 1),
+//            ]);
+//        }
         $this->call([
             ServiciosSeeder::class,
             AreaTipoMuestraSeeder::class,

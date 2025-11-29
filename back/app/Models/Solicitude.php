@@ -10,7 +10,7 @@ use OwenIt\Auditing\Auditable as AuditableTrait;
 
 class Solicitude extends Model implements AuditableContract
 {
-    use  SoftDeletes, AuditableTrait;
+    use SoftDeletes, AuditableTrait;
 
     protected $fillable = [
         // relaciones
@@ -46,25 +46,30 @@ class Solicitude extends Model implements AuditableContract
         'doctor_telefono',
         'doctor_email',
         'doctor_registro',
+
+        // fechas de flujo
         'fecha_pre_analitica',
         'fecha_creacion',
         'fecha_envio_analitica',
 
-        // usuario que crea
+        // usuario que crea / atiende
         'user_id',
         'user_preanalitica_id',
+        'user_analitica_id',
         'sala',
         'cama',
+
+        // ---- NUEVOS CAMPOS: calidad de muestra + equipo ----
+        'muestra_sangre_entera',
+        'muestra_coagulo',
+        'muestra_volumen',
+        'muestra_identificacion',
+        'muestra_equipo',
     ];
 
     protected $hidden = [
         'created_at', 'updated_at', 'deleted_at',
     ];
-
-//    protected $casts = [
-//        'fecha_solicitud'   => 'date',
-//        'paciente_fecha_nac'=> 'date',
-//    ];
 
     public function paciente()
     {
@@ -80,6 +85,7 @@ class Solicitude extends Model implements AuditableContract
     {
         return $this->belongsTo(User::class);
     }
+
     public function userPreanalitica()
     {
         return $this->belongsTo(User::class, 'user_preanalitica_id');
@@ -89,22 +95,24 @@ class Solicitude extends Model implements AuditableContract
     {
         return $this->belongsToMany(
             \App\Models\Servicio::class,
-            'servicio_solicitudes',   // nombre de la tabla pivote
+            'servicio_solicitudes',
             'solicitude_id',
             'servicio_id'
         )->withPivot('precio')->withTimestamps();
     }
-//    public function areaTipoMuestras()
-//    {
-//        $servicios = $this->servicios()->get();
-//
-//
-//        return ['a'=>2];
-//    }
-    function preAnaliticaMuestras(){
-        return $this->hasMany(SolitudePreAnalitica::class,'solicitude_id');
+
+    public function preAnaliticaMuestras()
+    {
+        return $this->hasMany(SolitudePreAnalitica::class, 'solicitude_id');
     }
-    function userAnalitica(){
-        return $this->belongsTo(User::class,'user_analitica_id');
+
+    public function userAnalitica()
+    {
+        return $this->belongsTo(User::class, 'user_analitica_id');
+    }
+
+    public function resultados()
+    {
+        return $this->hasMany(ResultadoLaboratorio::class);
     }
 }

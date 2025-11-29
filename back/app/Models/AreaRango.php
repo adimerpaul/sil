@@ -25,4 +25,8 @@ class AreaRango extends Model implements AuditableContract
     {
         return $this->belongsTo(Area::class);
     }
+    public function resultados()
+    {
+        return $this->hasMany(ResultadoLaboratorio::class);
+    }
 }

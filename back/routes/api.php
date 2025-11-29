@@ -51,8 +51,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('solicitudes/{id}/generar-codigo', [SolicitudeController::class, 'generarCodigo']);
 
-    Route::get('solicitudes-area-analitica', [SolicitudeController::class, 'solicitudesAreaAnalitica']);
-    Route::post('solicitudes/{id}/analitica', [SolicitudeController::class, 'guardarAnalitica']);
+//    Route::get('solicitudes-area-analitica', [SolicitudeController::class, 'solicitudesAreaAnalitica']);
+//    Route::post('solicitudes/{id}/analitica', [SolicitudeController::class, 'guardarAnalitica']);
 
     Route::apiResource('area-rangos', AreaRangoController::class);
 
