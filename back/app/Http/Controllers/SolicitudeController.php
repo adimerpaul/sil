@@ -348,7 +348,7 @@ class SolicitudeController extends Controller
             'paciente',
             'doctor',
             'servicios.area',
-            'preAnaliticaMuestras.areaTipoMuestra',
+            'preAnaliticaMuestras.areaTipoMuestra.area',
             'userPreanalitica',
             'userAnalitica',
             'user',

@@ -8,6 +8,7 @@ use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\ConsentimientoController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\SolicitudeController;
+use App\Http\Controllers\AreaTipoMuestraController; // <-- NUEVO
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
@@ -41,19 +42,22 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::apiResource('establecimientos', EstablecimientoController::class);
 
-
     Route::apiResource('areas', AreaController::class);
     Route::apiResource('servicios', ServicioController::class);
+
     Route::get('solicitudes-area-preanalitica', [SolicitudeController::class, 'solicitudesAreaPreanalitica']);
     Route::post('solicitudes/{id}/pre-analitica', [SolicitudeController::class, 'guardarPreAnalitica']);
     Route::get('areas-tipo-muestras', [AreaController::class, 'tipoMuestras']);
-
 
     Route::post('solicitudes/{id}/generar-codigo', [SolicitudeController::class, 'generarCodigo']);
 
     Route::get('solicitudes-area-analitica', [SolicitudeController::class, 'solicitudesAreaAnalitica']);
     Route::post('solicitudes/{id}/analitica', [SolicitudeController::class, 'guardarAnalitica']);
+
     Route::apiResource('area-rangos', AreaRangoController::class);
 
+    // NUEVO: CRUD de tipos de muestra por área
+    Route::apiResource('area-tipo-muestras', AreaTipoMuestraController::class);
 });
+
 Route::get('consentimientos/{id}/print', [ConsentimientoController::class, 'print']);
