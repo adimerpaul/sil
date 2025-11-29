@@ -110,7 +110,7 @@
                 <q-input v-model="solicitud.paciente_nombre" label="Nombre" dense outlined />
               </div>
               <div class="col-6 col-sm-3">
-                <q-input v-model="solicitud.paciente_telefono" label="Teléfono" dense outlined />
+                <q-input v-model="solicitud.paciente_telefono" label="Celular" dense outlined />
               </div>
 
               <div class="col-12">
@@ -187,7 +187,9 @@
                       ' (' +
                       doctor.especialidad +
                       ')' +
-                      (doctor.telefono ? ' - ' + doctor.telefono : '')
+                      (doctor.telefono ? ' - ' + doctor.telefono : '') + ' ' +
+                  //     establecimiento
+                      (doctor.establecimiento?.nombre)
                   "
                   emit-value
                   map-options
@@ -216,7 +218,7 @@
                   dense
                   @update:model-value="onTipoAtencionChange"
                 >
-                  {{ solicitud.tipo_atencion === 'SI' ? 'SUS SÍ' : 'SUS NO / Especificar' }}
+                  {{ solicitud.tipo_atencion === 'SI' ? 'SUS' : 'EXT' }}
                 </q-toggle>
               </div>
 
@@ -271,7 +273,38 @@
                   dense outlined
                 />
               </div>
-<!--              <div class="col-6 col-sm-6">-->
+<!--              ALTER TABLE `solicitudes` ADD `sala` VARCHAR(255) NULL AFTER `fecha_envio_analitica`, ADD `cama` VARCHAR(255) NULL AFTER `sala`;-->
+              <div class="col-6 col-sm-6">
+<!--                <q-input-->
+<!--                  v-model="solicitud.sala"-->
+<!--                  label="Sala (opcional)"-->
+<!--                  dense outlined-->
+<!--                />-->
+                <q-select
+                  v-model="solicitud.sala"
+                  :options="['CM', 'CV', 'CG', 'CE', 'PED', 'UTI', 'NEO', 'OTRO']"
+                  label="Sala (opcional)"
+                  dense outlined
+                  clearable
+                />
+              </div>
+              <div class="col-6 col-sm-6">
+<!--                <q-input-->
+<!--                  v-model="solicitud.cama"-->
+<!--                  label="Cama (opcional)"-->
+<!--                  dense outlined-->
+<!--                />-->
+<!--&lt;!&ndash;                camas de la 1 a la 30-->
+                <q-select
+                  v-model="solicitud.cama"
+                  :options="['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30']"
+                  label="Cama (opcional)"
+                  dense outlined
+                  clearable
+                />
+              </div>
+
+              <!--              <div class="col-6 col-sm-6">-->
 <!--                <q-input-->
 <!--                  v-model="solicitud.hora_solicitud"-->
 <!--                  type="time"-->
@@ -604,7 +637,6 @@ export default {
     },
 
     guardar () {
-      this.loading = true
 
       // construir lista de servicios seleccionados para enviar al backend
       this.solicitud.servicios = []
@@ -624,9 +656,14 @@ export default {
         this.$alert && this.$alert.error
           ? this.$alert.error('Seleccione al menos un servicio')
           : alert('Seleccione al menos un servicio')
-        this.loading = false
         return
       }
+      // se debe colcoar el ci
+      if (!this.solicitud.paciente_ci) {
+        this.$alert.error('Coloque la CI del paciente')
+        return
+      }
+      this.loading = true
 
       const req = this.editando
         ? this.$axios.put(`solicitudes/${this.solicitud.id}`, this.solicitud)
@@ -707,6 +744,9 @@ export default {
       this.solicitud.doctor_telefono = d.telefono
       this.solicitud.doctor_email = d.email
       this.solicitud.doctor_registro = d.registro
+      if (d.establecimiento?.nombre) {
+        this.solicitud.establecimiento_salud = d.establecimiento.nombre
+      }
     },
 
     onTipoAtencionChange () {

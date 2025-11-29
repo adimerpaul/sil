@@ -421,19 +421,19 @@
               </div>
               <q-separator spaced />
 
-<!--              <div-->
-<!--                v-if="solicitud.pre_analitica_muestras && solicitud.pre_analitica_muestras.length"-->
-<!--              >-->
-<!--                <q-list bordered dense>-->
-<!--                  <q-item-->
-<!--                    v-for="m in solicitud.pre_analitica_muestras"-->
-<!--                    :key="m.id"-->
-<!--                    class="q-py-xs"-->
-<!--                  >-->
-<!--                    <q-item-section>-->
-<!--                      <div class="text-body2">-->
-<!--                        {{ m.area_tipo_muestra?.tipo_muestra || m.nombre || 'Muestra' }}-->
-<!--                      </div>-->
+              <div
+                v-if="solicitud.pre_analitica_muestras && solicitud.pre_analitica_muestras.length"
+              >
+                <q-list bordered dense>
+                  <q-item
+                    v-for="m in solicitud.pre_analitica_muestras"
+                    :key="m.id"
+                    class="q-py-xs"
+                  >
+                    <q-item-section>
+                      <div class="text-body2">
+                        {{ m.area_tipo_muestra?.tipo_muestra || m.nombre || 'Muestra' }}
+                      </div>
 <!--                      <div class="text-caption text-grey-7">-->
 <!--                        Estado:-->
 <!--                        <q-select-->
@@ -446,10 +446,10 @@
 <!--                          style="max-width: 150px; display: inline-block;"-->
 <!--                        />-->
 <!--                      </div>-->
-<!--                    </q-item-section>-->
-<!--                  </q-item>-->
-<!--                </q-list>-->
-<!--              </div>-->
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </div>
 <!--              <div v-else class="text-caption text-grey-7">-->
 <!--                No se registraron muestras en preanalítica.-->
 <!--              </div>-->

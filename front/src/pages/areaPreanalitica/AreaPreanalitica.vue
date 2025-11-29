@@ -94,7 +94,7 @@
               :color="props.row.tipo_atencion === 'SI' ? 'green-6' : 'orange-6'"
               text-color="white"
             >
-              {{ props.row.tipo_atencion === 'SI' ? 'SUS SI' : props.row.tipo_otro || 'SUS NO' }}
+              {{ props.row.tipo_atencion === 'SI' ? 'SUS' : props.row.tipo_otro || 'EXT' }}
             </q-chip>
           </q-td>
         </template>
@@ -330,6 +330,27 @@
                     <div class="text-body2">
                       {{ consentimiento.establecimiento_salud || '-' }}
                     </div>
+                    <!--                    sala y cama-->
+                    <div class="text-caption text-grey-7 q-mt-sm">Sala / Cama</div>
+                    <div class="text-body2">
+                      <q-chip
+                        v-if="consentimiento.sala || consentimiento.cama"
+                        dense
+                        color="grey-5"
+                        text-color="black"
+                        icon="hotel"
+                      >
+                        {{
+                          (consentimiento.sala ? consentimiento.sala + ' / ' : '') +
+                          (consentimiento.cama ? consentimiento.cama : '')
+                        }}
+                      </q-chip>
+                      <span v-else class="text-grey-7">-</span>
+                      <div class="text-caption text-grey-7 q-mt-sm">Tipo de paciente</div>
+                      <div class="text-body2">
+                        {{ consentimiento.cama === '' || consentimiento.cama === null ? 'Ambulatorio' : 'Internado' }}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -352,22 +373,33 @@
                       }}
                     </div>
 
-                    <div class="text-caption text-grey-7 q-mt-sm">Edad</div>
+                    <div class="text-caption text-grey-7">Edad</div>
                     <div class="text-body2">
                       {{ consentimiento.edad || consentimiento.paciente?.edad || '-' }} años
+                    </div>
+                    <div class="text-caption text-grey-7">Sexo</div>
+                    <div class="text-body2">
+                      {{ consentimiento.paciente?.genero || '-' }}
                     </div>
                   </div>
 
                   <div class="col-12 col-sm-6">
-                    <div class="text-caption text-grey-7">Código paciente</div>
+                    <div class="text-caption text-grey-7">Código</div>
                     <div class="text-body2">
                       {{ consentimiento.codigo || 'Sin código' }}
                     </div>
 
-                    <div class="text-caption text-grey-7 q-mt-sm">Nro. de registro</div>
+                    <div class="text-caption text-grey-7">Nro. de registro</div>
                     <div class="text-body2">
                       {{ consentimiento.nro_registro || 'Sin registro' }}
                     </div>
+                    <div class="text-caption text-grey-7">Codigo Muestra</div>
+                    <div class="text-body2">
+<!--                      los primero 3 de nro_registro-->
+                      {{ consentimiento.codigo + '-' + consentimiento.nro_registro.slice(0,3) || 'Sin código muestra' }}
+                    </div>
+                  </div>
+                  <div class="col-12">
                   </div>
                 </div>
               </div>
@@ -606,7 +638,14 @@ export default {
           align: 'left'
         },
         // doctor
-        {          name: 'doctor',
+        {
+          name: 'codigo',
+          label: 'Código',
+          field: 'codigo',
+          align: 'left'
+        },
+        {
+          name: 'doctor',
           label: 'Médico Solicitante',
           field: row => row.doctor_nombre || (row.doctor && row.doctor.name) || '',
           align: 'left'
@@ -633,12 +672,6 @@ export default {
           name: 'estado',
           label: 'Estado',
           field: 'estado',
-          align: 'left'
-        },
-        {
-          name: 'codigo',
-          label: 'Código',
-          field: 'codigo',
           align: 'left'
         },
         {
