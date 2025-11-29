@@ -218,13 +218,27 @@
                       {{ r.rango_nombre }}
                     </td>
                     <td class="text-center">
+
+<!--                      <pre>{{r}}</pre>-->
                       <q-input
                         v-model="resultados[area.id][r.id].valor"
                         dense
                         outlined
                         style="max-width: 120px; margin: 0 auto;"
-                      />
+                      >
+<!--                        templra prepemd-->
+                        <template v-slot:prepend>
+                          <q-icon
+                            v-if="getEstadoRango(area.id, r) !== null"
+                            :name="getEstadoRango(area.id, r) === 'ok' ? 'check_circle' : 'highlight_off'"
+                            :color="getEstadoRango(area.id, r) === 'ok' ? 'blue-6' : 'red'"
+                            size="16px"
+                            class="q-mr-xs"
+                          />
+                        </template>
+                      </q-input>
                     </td>
+
                     <td class="text-center text-caption">
                       {{ r.unidad || '' }}
                     </td>
@@ -324,6 +338,36 @@ export default {
     this.cargarSolicitud()
   },
   methods: {
+
+    // ---- NUEVO: helpers para el icono de rango ----
+    getValorResultado (areaId, rangoId) {
+      const area = this.resultados[areaId]
+      if (!area || !area[rangoId]) return ''
+      return area[rangoId].valor
+    },
+
+    parseValorNumerico (valor) {
+      if (valor === null || valor === undefined) return null
+      if (typeof valor === 'number') return isNaN(valor) ? null : valor
+
+      const texto = String(valor).replace(',', '.').trim()
+      if (!texto) return null
+
+      const num = Number(texto)
+      return isNaN(num) ? null : num
+    },
+    getEstadoRango (areaId, rango) {
+      const bruto = this.getValorResultado(areaId, rango.id)
+      const valor = this.parseValorNumerico(bruto)
+      if (valor === null) return null
+
+      const min = rango.rango_minimo
+      const max = rango.rango_maximo
+
+      if (min != null && valor < min) return 'out'
+      if (max != null && valor > max) return 'out'
+      return 'ok'
+    },
     formatRango (r) {
       const min = r.rango_minimo
       const max = r.rango_maximo
