@@ -58,6 +58,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     // NUEVO: CRUD de tipos de muestra por área
     Route::apiResource('area-tipo-muestras', AreaTipoMuestraController::class);
+
+    Route::get('solicitudes-area-analitica', [SolicitudeController::class, 'solicitudesAreaAnalitica']);
+    Route::get('solicitudes-area-analitica/{id}', [SolicitudeController::class, 'showAnalitica']); // NUEVA
+    Route::post('solicitudes/{id}/analitica', [SolicitudeController::class, 'guardarAnalitica']);
 });
 
 Route::get('consentimientos/{id}/print', [ConsentimientoController::class, 'print']);

@@ -347,7 +347,7 @@ class SolicitudeController extends Controller
         $query = Solicitude::with([
             'paciente',
             'doctor',
-            'servicios.area',
+            'servicios.area.rangos', // <- AÑADIMOS rangos
             'preAnaliticaMuestras.areaTipoMuestra.area',
             'userPreanalitica',
             'userAnalitica',
@@ -371,6 +371,21 @@ class SolicitudeController extends Controller
 
         return response()->json($solicitudes);
     }
+    public function showAnalitica($id)
+    {
+        $solicitud = Solicitude::with([
+            'paciente',
+            'doctor',
+            'servicios.area.rangos',                           // rangos por área
+            'preAnaliticaMuestras.areaTipoMuestra.area',
+            'userPreanalitica',
+            'userAnalitica',
+            'user',
+        ])->findOrFail($id);
+
+        return response()->json($solicitud);
+    }
+
     public function guardarAnalitica(Request $request, $id)
     {
         $solicitud = Solicitude::with('preAnaliticaMuestras')->findOrFail($id);
