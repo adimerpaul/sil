@@ -123,7 +123,7 @@
         </tr>
         <tr>
             <td><strong>Médico:</strong> {{ $solicitud->doctor_nombre ?? optional($solicitud->doctor)->nombre }}</td>
-            <td><strong>Fecha proceso:</strong> {{ optional($solicitud->fecha_envio_analitica)->format('d/m/Y') }}</td>
+            <td><strong>Fecha de proceso:</strong> {{ ($solicitud->fecha_finalizacion) }}</td>
             <td>
 {{--                <strong>N° SUS / Registro:</strong> {{ $solicitud->codigo }} / {{ $solicitud->nro_registro }}--}}
 {{--                dividor en 2 y que vaya aca da costado N SUS  ala derecha y Registro a la izquierda--}}

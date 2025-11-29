@@ -39,6 +39,7 @@ return new class extends Migration
             $table->dateTime('fecha_pre_analitica')->nullable();
             $table->dateTime('fecha_envio_analitica')->nullable();
             $table->dateTime('fecha_aceptacion_analitica')->nullable();
+            $table->dateTime('fecha_finalizacion')->nullable();
             $table->string('sala')->nullable();
             $table->string('cama')->nullable();
 

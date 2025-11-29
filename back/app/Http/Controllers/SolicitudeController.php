@@ -586,6 +586,9 @@ class SolicitudeController extends Controller
             $solicitud->estado                = 'FINALIZADO';
             $solicitud->user_analitica_id     = auth()->id();
             $solicitud->fecha_envio_analitica = now();
+            if (empty($solicitud->fecha_finalizacion)) {
+                $solicitud->fecha_finalizacion = now();
+            }
             $solicitud->save();
         });
 
