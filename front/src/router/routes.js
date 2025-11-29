@@ -13,6 +13,12 @@ const routes = [
       { path: '/servicios', component: () => import('pages/servicios/Servicios.vue'), meta: { requiresAuth: true, perm: 'Servicios' } },
       { path: '/area-preanalitica', component: () => import('pages/areaPreanalitica/AreaPreanalitica.vue'), meta: { requiresAuth: true, perm: 'Area Preanalitica' } },
       { path: '/analitica', component: () => import('pages/analitica/Analitica.vue'), meta: { requiresAuth: true, perm: 'Analitica' } },
+      {
+        path: '/analitica/:id',
+        name: 'analitica-detalle',
+        component: () => import('pages/analitica/AnaliticaDetalle.vue'),
+        meta: { requiresAuth: true, perm: 'Analitica' }
+      }
     ]
   },
   {

@@ -395,8 +395,13 @@
                     </div>
                     <div class="text-caption text-grey-7">Codigo Muestra</div>
                     <div class="text-body2">
-<!--                      los primero 3 de nro_registro-->
-                      {{ consentimiento.codigo + '-' + consentimiento.nro_registro.slice(0,3) || 'Sin código muestra' }}
+<!--                      {{ consentimiento.codigo + '-' + consentimiento.nro_registro?.slice(0,3) || 'Sin código muestra' }} mejora para que no haya nunn ni undefinifd-->
+                      {{ consentimiento.codigo
+                        ? (consentimiento.nro_registro
+                          ? consentimiento.codigo + '-' + consentimiento.nro_registro.slice(0,3)
+                          : consentimiento.codigo + '-000')
+                        : 'Sin código muestra'
+                      }}
                     </div>
                   </div>
                   <div class="col-12">
