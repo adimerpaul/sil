@@ -97,6 +97,17 @@ class DatabaseSeeder extends Seeder
             'estado' => 'ACTIVO',
             'establecimiento_id' => 1,
         ]);
+//        docto 2 establecimiento
+        $doctor2 = Doctor::create([
+            'nombre' => 'Dra. Ana Gomez',
+            'especialidad' => 'Pediatria',
+            'ci' => '87654321',
+            'telefono' => '555-5678',
+            'email' => 'ana@gmail.com',
+            'registro' => 'REG-002',
+            'estado' => 'ACTIVO',
+            'establecimiento_id' => 2,
+        ]);
         $paciente = \App\Models\Paciente::create([
             'fecha_recepcion' => '2024-01-15',
             'hora_recepcion' => '10:30:00',
@@ -133,5 +144,15 @@ class DatabaseSeeder extends Seeder
             AreaRangoSeeder::class,
             AreaRangoQuimicaSeeder::class,
         ]);
+//        colcoar todo los servico al hapital 1
+        $servicios = \App\Models\Servicio::all();
+        foreach ($servicios as $servicio) {
+            $servicio->establecimientos()->attach($establecimiento->id);
+        }
+//        coloca 10 servicos al hospital 2
+        $servicios2 = \App\Models\Servicio::inRandomOrder()->take(10)->get();
+        foreach ($servicios2 as $servicio) {
+            $servicio->establecimientos()->attach($establecimiento2->id);
+        }
     }
 }

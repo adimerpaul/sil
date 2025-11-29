@@ -53,6 +53,8 @@ class Solicitude extends Model implements AuditableContract
         // usuario que crea
         'user_id',
         'user_preanalitica_id',
+        'sala',
+        'cama',
     ];
 
     protected $hidden = [

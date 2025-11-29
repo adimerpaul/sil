@@ -39,6 +39,8 @@ return new class extends Migration
             $table->dateTime('fecha_pre_analitica')->nullable();
             $table->dateTime('fecha_envio_analitica')->nullable();
             $table->dateTime('fecha_aceptacion_analitica')->nullable();
+            $table->string('sala')->nullable();
+            $table->string('cama')->nullable();
 
             // Copia de datos del paciente
             $table->string('paciente_nombre')->nullable();

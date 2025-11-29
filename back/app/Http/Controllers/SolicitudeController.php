@@ -174,10 +174,10 @@ class SolicitudeController extends Controller
 
         // filtros por fecha de solicitud
         if ($request->filled('from')) {
-            $query->whereDate('fecha_solicitud', '>=', $request->from);
+            $query->whereDate('fecha_creacion', '>=', $request->from);
         }
         if ($request->filled('to')) {
-            $query->whereDate('fecha_solicitud', '<=', $request->to);
+            $query->whereDate('fecha_creacion', '<=', $request->to);
         }
 
         // filtro por estado
@@ -209,6 +209,12 @@ class SolicitudeController extends Controller
         // usuario que crea
         if ($request->user()) {
             $data['user_id'] = $request->user()->id;
+        }
+        error_log('establecimiento_salud: ' . $request->establecimiento_salud);
+        $EstablecimientoSalud = \App\Models\Establecimiento::where('nombre', $request->establecimiento_salud)->first();
+        error_log('EstablecimientoSalud: ' . json_encode($EstablecimientoSalud));
+        if ($EstablecimientoSalud) {
+            $data['establecimiento_id'] = $EstablecimientoSalud->id;
         }
 
         // upsert de paciente por CI
