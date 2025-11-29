@@ -63,5 +63,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('solicitudes-area-analitica/{id}', [SolicitudeController::class, 'showAnalitica']); // NUEVA
     Route::post('solicitudes/{id}/analitica', [SolicitudeController::class, 'guardarAnalitica']);
 });
+Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);
+Route::get('public/reportes/{codigo}', [SolicitudeController::class, 'imprimirAnaliticaPublica'])
+    ->name('solicitudes.analitica.publica');
 
 Route::get('consentimientos/{id}/print', [ConsentimientoController::class, 'print']);

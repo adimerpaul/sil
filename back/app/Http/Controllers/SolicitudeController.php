@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PerfilImpresion;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 use App\Models\ResultadoLaboratorio;
 use App\Models\Servicio;
 use App\Models\Solicitude;
@@ -13,6 +16,69 @@ use Illuminate\Support\Facades\DB;
 
 class SolicitudeController extends Controller
 {
+    public function imprimirAnaliticaPublica($codigo)
+    {
+        $solicitud = Solicitude::with([
+            'paciente',
+            'doctor',
+            'resultados',
+            'servicios.area',
+        ])->where('nro_registro', $codigo)->firstOrFail();
+
+        $pdf = $this->buildPdfFromSolicitud($solicitud);
+
+        return $pdf->stream('LAB_'.$solicitud->nro_registro.'.pdf');
+    }
+
+    public function imprimirAnalitica($id)
+    {
+        $solicitud = Solicitude::with([
+            'paciente',
+            'doctor',
+            'resultados',                 // ResultadoLaboratorio
+            'servicios.area',
+        ])->findOrFail($id);
+
+        $pdf = $this->buildPdfFromSolicitud($solicitud);
+
+        return $pdf->stream('LAB_'.$solicitud->nro_registro.'.pdf');
+    }
+    protected function buildPdfFromSolicitud(\App\Models\Solicitude $solicitud)
+    {
+        // Cargamos perfiles de impresión (ajusta códigos a los que creaste)
+        $perfilHemograma = PerfilImpresion::where('codigo', 'HEMOGRAMA')
+            ->with(['items.areaRango'])
+            ->first();
+
+        $perfilQuimica = PerfilImpresion::where('codigo', 'QUIMICA')
+            ->with(['items.areaRango'])
+            ->first();
+
+        // Ordenamos items por columna / sección / orden
+        $hemoItems = $perfilHemograma
+            ? $perfilHemograma->items->sortBy(['columna', 'seccion', 'orden'])
+            : collect();
+
+        $quimicaItems = $perfilQuimica
+            ? $perfilQuimica->items->sortBy(['columna', 'seccion', 'orden'])
+            : collect();
+
+        // resultados ya está cargado en las relaciones del controlador que llama
+        $resultados = $solicitud->resultados;
+
+        // tamaño media carta: 5.5 x 8.5 pulgadas => 396 x 612 puntos
+        $pdf = Pdf::loadView('reportes.solicitud_media_carta', [
+            'solicitud'      => $solicitud,
+            'hemoItems'      => $hemoItems,
+            'quimicaItems'   => $quimicaItems,
+            'perfilHemograma'=> $perfilHemograma,
+            'perfilQuimica'  => $perfilQuimica,
+            'resultados'     => $resultados,
+        ])->setPaper('letter', 'portrait');   // <--- aquí
+
+        return $pdf;
+    }
+
     public function generarCodigo(Request $request, $id)
     {
         $solicitud = Solicitude::findOrFail($id);
