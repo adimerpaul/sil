@@ -115,7 +115,7 @@ class AreaRangoSeeder extends Seeder
             ],
             [
                 'area_id'        => $areaIdHemograma,
-                'rango_nombre'   => 'Blastos',
+                'rango_nombre'   => 'BLASTOS',
                 'rango_minimo'   => null,
                 'rango_maximo'   => null,
                 'unidad'         => 'X10e9/L',
@@ -123,7 +123,7 @@ class AreaRangoSeeder extends Seeder
             ],
             [
                 'area_id'        => $areaIdHemograma,
-                'rango_nombre'   => 'Metamielocitos',
+                'rango_nombre'   => 'METAMIELOCITOS',
                 'rango_minimo'   => null,
                 'rango_maximo'   => null,
                 'unidad'         => 'X10e9/L',
@@ -131,7 +131,7 @@ class AreaRangoSeeder extends Seeder
             ],
             [
                 'area_id'        => $areaIdHemograma,
-                'rango_nombre'   => 'Eritroblastos',
+                'rango_nombre'   => 'ERITROBLASTOS',
                 'rango_minimo'   => null,
                 'rango_maximo'   => null,
                 'unidad'         => 'X10e9/L',
@@ -244,6 +244,14 @@ class AreaRangoSeeder extends Seeder
                 'rango_maximo'   => 1.5,
                 'unidad'         => '%',
                 'interpretacion' => '0,5% - 1,5%',
+            ],
+            [
+                'area_id'        => $areaIdHemograma,
+                'rango_nombre'   => 'FIBRINOGENO',
+                'rango_minimo'   => 2,
+                'rango_maximo'   => 4,
+                'unidad'         => 'g/L',
+                'interpretacion' => '2 a 4 g/L',
             ],
         ];
 
