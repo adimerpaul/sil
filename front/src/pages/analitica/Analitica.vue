@@ -334,6 +334,11 @@
                   <div class="text-body2">
                     {{ solicitud.paciente_edad || solicitud.paciente?.edad || '-' }} años
                   </div>
+<!--                  codigo-->
+                  <div class="text-caption text-grey-7 q-mt-sm">Código</div>
+                  <div class="text-body2">
+                    {{ solicitud.codigo || '-' }} {{ solicitud.nro_registro}}
+                  </div>
                 </div>
 
                 <div class="col-12 col-sm-6">
@@ -346,13 +351,18 @@
                   <div class="text-body2">
                     {{ solicitud.paciente_telefono || solicitud.paciente?.telefono || '-' }}
                   </div>
+<!--                  paciente genero-->
+                  <div class="text-caption text-grey-7 q-mt-sm">Género</div>
+                  <div class="text-body2">
+                    {{ solicitud.paciente_genero || solicitud.paciente?.genero || '-' }}
+                  </div>
                 </div>
               </div>
             </div>
             <!-- Médico Solicitante -->
             <div>
               <div class="text-subtitle2 text-primary q-mb-xs">
-                Médico solicitante ssss
+                Médico solicitante
               </div>
               <q-separator spaced />
               <div class="row q-col-gutter-md">
@@ -424,30 +434,23 @@
               <div
                 v-if="solicitud.pre_analitica_muestras && solicitud.pre_analitica_muestras.length"
               >
+<!--                <pre>{{solicitud.pre_analitica_muestras}}</pre>-->
                 <q-list bordered dense>
-                  <q-item
-                    v-for="m in solicitud.pre_analitica_muestras"
-                    :key="m.id"
-                    class="q-py-xs"
-                  >
-                    <q-item-section>
-                      <div class="text-body2">
-                        {{ m.area_tipo_muestra?.tipo_muestra || m.nombre || 'Muestra' }}
-                      </div>
-<!--                      <div class="text-caption text-grey-7">-->
-<!--                        Estado:-->
-<!--                        <q-select-->
-<!--                          v-model="m.estado"-->
-<!--                          :options="['Pendiente', 'En proceso', 'Procesado']"-->
-<!--                          dense-->
-<!--                          outlined-->
-<!--                          emit-value-->
-<!--                          map-options-->
-<!--                          style="max-width: 150px; display: inline-block;"-->
-<!--                        />-->
-<!--                      </div>-->
-                    </q-item-section>
-                  </q-item>
+                  <template v-for="m in solicitud.pre_analitica_muestras"
+                            :key="m.id">
+                    <q-item
+                      class="q-py-xs"
+                      v-if="m.selected"
+                    >
+<!--                      <pre>{{m}}</pre>-->
+                      <q-item-section >
+                        <div class="text-body2">
+                          {{ m.nombre || m.nombre || 'Muestra' }} | {{ m.area_tipo_muestra?.area?.name}}
+                          <!--                        <pre>{{m.selected}}</pre>-->
+                        </div>
+                      </q-item-section>
+                    </q-item>
+                  </template>
                 </q-list>
               </div>
 <!--              <div v-else class="text-caption text-grey-7">-->

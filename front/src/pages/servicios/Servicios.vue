@@ -1,11 +1,16 @@
 <template>
   <q-page class="q-pa-sm bg-grey-2">
     <div class="row q-col-gutter-sm">
-      <!-- ÁREAS -->
+      <!-- IZQUIERDA: ÁREAS -->
       <div class="col-12 col-md-3">
         <q-card flat bordered>
           <q-card-section class="row items-center q-pa-sm">
-            <div class="text-subtitle2">Áreas</div>
+            <div>
+              <div class="text-subtitle2">Áreas del laboratorio</div>
+              <div class="text-caption text-grey-7">
+                Seleccione un área para configurar
+              </div>
+            </div>
             <q-space />
             <q-btn
               color="primary"
@@ -41,6 +46,9 @@
               >
                 <q-item-section>
                   <q-item-label>{{ a.name }}</q-item-label>
+                  <q-item-label caption v-if="a.descripcion">
+                    {{ a.descripcion }}
+                  </q-item-label>
                 </q-item-section>
                 <q-item-section side>
                   <q-btn
@@ -52,156 +60,286 @@
                   />
                 </q-item-section>
               </q-item>
+
+              <q-item v-if="!areas.length" dense>
+                <q-item-section>
+                  <q-item-label caption>No hay áreas registradas</q-item-label>
+                </q-item-section>
+              </q-item>
             </q-list>
           </q-card-section>
         </q-card>
       </div>
 
-      <!-- DERECHA: SERVICIOS + RANGOS -->
+      <!-- DERECHA: CONFIGURACIÓN POR TABS -->
       <div class="col-12 col-md-9">
-        <!-- SERVICIOS -->
         <q-card flat bordered>
+          <!-- HEADER + TABS -->
           <q-card-section class="row items-center q-pa-sm">
-            <div class="text-subtitle2">
-              Prestaciones
-              <span v-if="selectedArea">– {{ selectedArea.name }}</span>
+            <div class="col-12 col-md-6">
+              <div class="row items-center">
+                <div class="text-subtitle2">
+                  Configuración de área
+                </div>
+              </div>
+              <div class="q-mt-xs">
+                <q-chip
+                  v-if="selectedArea"
+                  color="primary"
+                  text-color="white"
+                  icon="science"
+                  dense
+                >
+                  {{ selectedArea.name }}
+                </q-chip>
+                <span v-else class="text-caption text-grey-7">
+                  Seleccione un área para comenzar
+                </span>
+              </div>
+              <div class="text-caption text-grey-7 q-mt-xs">
+                Gestione las prestaciones, rangos de referencia y tipos de muestra
+                asociados a cada área.
+              </div>
             </div>
-            <q-space />
-            <q-input
-              dense
-              outlined
-              v-model="searchServicio"
-              label="Buscar prestaciones"
-              class="q-mr-sm"
-              style="max-width: 260px"
-            >
-              <template #append><q-icon name="search" /></template>
-            </q-input>
-            <q-btn
-              color="positive"
-              icon="add_circle_outline"
-              label="Nuevo servicio"
-              no-caps
-              dense
-              :disable="!selectedAreaId"
-              :loading="loading"
-              @click="nuevoServicio"
-            />
+
+            <div class="col-12 col-md-6">
+              <q-tabs
+                v-model="tab"
+                dense
+                align="right"
+                active-color="primary"
+                indicator-color="primary"
+                class="q-mt-sm q-mt-md-none"
+              >
+                <q-tab name="servicios" icon="list_alt" label="Prestaciones" />
+                <q-tab name="rangos" icon="bar_chart" label="Rangos" />
+                <q-tab name="muestras" icon="biotech" label="Tipos de muestra" />
+              </q-tabs>
+            </div>
           </q-card-section>
 
           <q-separator />
 
-          <q-table
-            dense
-            flat
-            bordered
-            class="q-pa-xs"
-            :rows="filteredServicios"
-            :columns="columnsServicios"
-            row-key="id"
-            :rows-per-page-options="[0]"
-          >
-            <template #body-cell-actions="props">
-              <q-td :props="props">
-                <q-btn
-                  dense
-                  flat
-                  round
-                  icon="edit"
-                  @click="editarServicio(props.row)"
-                />
-              </q-td>
-            </template>
-
-            <template #body-cell-nombre="props">
-              <q-td :props="props">
-                <div
-                  style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                >
-                  {{ props.row.nombre }}
+          <!-- PANELS -->
+          <q-tab-panels v-model="tab" animated keep-alive>
+            <!-- TAB: SERVICIOS -->
+            <q-tab-panel name="servicios" class="q-pa-none">
+              <q-card-section class="row items-center q-pa-sm">
+                <div class="text-subtitle2">
+                  Prestaciones
+                  <span v-if="selectedArea">– {{ selectedArea.name }}</span>
                 </div>
-                <div
-                  class="text-caption text-grey"
-                  v-html="props.row.descripcion || ''"
-                />
-              </q-td>
-            </template>
-          </q-table>
-        </q-card>
-
-        <!-- RANGOS DE REFERENCIA -->
-        <q-card flat bordered class="q-mt-sm">
-          <q-card-section class="row items-center q-pa-sm">
-            <div class="text-subtitle2">
-              Rangos de referencia
-              <span v-if="selectedArea">– {{ selectedArea.name }}</span>
-            </div>
-            <q-space />
-            <q-input
-              dense
-              outlined
-              v-model="searchRango"
-              label="Buscar rango"
-              class="q-mr-sm"
-              style="max-width: 260px"
-            >
-              <template #append><q-icon name="search" /></template>
-            </q-input>
-            <q-btn
-              color="primary"
-              icon="add"
-              label="Nuevo rango"
-              no-caps
-              dense
-              :disable="!selectedAreaId"
-              :loading="loading"
-              @click="nuevoRango"
-            />
-          </q-card-section>
-
-          <q-separator />
-
-          <q-table
-            dense
-            flat
-            bordered
-            class="q-pa-xs"
-            :rows="filteredRangos"
-            :columns="columnsRangos"
-            row-key="id"
-            :rows-per-page-options="[0]"
-          >
-            <template #body-cell-actions="props">
-              <q-td :props="props">
-                <q-btn
+                <q-space />
+                <q-input
                   dense
-                  flat
-                  round
-                  icon="edit"
-                  @click="editarRango(props.row)"
-                />
-                <q-btn
-                  dense
-                  flat
-                  round
-                  icon="delete"
-                  color="negative"
-                  @click="eliminarRango(props.row.id)"
-                />
-              </q-td>
-            </template>
-
-            <template #body-cell-interpretacion="props">
-              <q-td :props="props">
-                <div
-                  style="max-width: 350px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                  :title="props.row.interpretacion"
+                  outlined
+                  v-model="searchServicio"
+                  label="Buscar prestaciones"
+                  class="q-mr-sm"
+                  style="max-width: 260px"
                 >
-                  {{ props.row.interpretacion }}
+                  <template #append><q-icon name="search" /></template>
+                </q-input>
+                <q-btn
+                  color="positive"
+                  icon="add_circle_outline"
+                  label="Nuevo servicio"
+                  no-caps
+                  dense
+                  :disable="!selectedAreaId"
+                  :loading="loading"
+                  @click="nuevoServicio"
+                />
+              </q-card-section>
+
+              <q-separator />
+
+              <q-card-section class="q-pa-none">
+                <q-table
+                  dense
+                  flat
+                  bordered
+                  class="q-pa-xs"
+                  :rows="filteredServicios"
+                  :columns="columnsServicios"
+                  row-key="id"
+                  :rows-per-page-options="[0]"
+                  no-data-label="No hay servicios registrados para esta área"
+                >
+                  <template #body-cell-actions="props">
+                    <q-td :props="props">
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        icon="edit"
+                        @click="editarServicio(props.row)"
+                      />
+                    </q-td>
+                  </template>
+
+                  <template #body-cell-nombre="props">
+                    <q-td :props="props">
+                      <div
+                        style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                      >
+                        {{ props.row.nombre }}
+                      </div>
+                      <div
+                        class="text-caption text-grey"
+                        v-html="props.row.descripcion || ''"
+                      />
+                    </q-td>
+                  </template>
+                </q-table>
+              </q-card-section>
+            </q-tab-panel>
+
+            <!-- TAB: RANGOS -->
+            <q-tab-panel name="rangos" class="q-pa-none">
+              <q-card-section class="row items-center q-pa-sm">
+                <div class="text-subtitle2">
+                  Rangos de referencia
+                  <span v-if="selectedArea">– {{ selectedArea.name }}</span>
                 </div>
-              </q-td>
-            </template>
-          </q-table>
+                <q-space />
+                <q-input
+                  dense
+                  outlined
+                  v-model="searchRango"
+                  label="Buscar rango"
+                  class="q-mr-sm"
+                  style="max-width: 260px"
+                >
+                  <template #append><q-icon name="search" /></template>
+                </q-input>
+                <q-btn
+                  color="primary"
+                  icon="add"
+                  label="Nuevo rango"
+                  no-caps
+                  dense
+                  :disable="!selectedAreaId"
+                  :loading="loading"
+                  @click="nuevoRango"
+                />
+              </q-card-section>
+
+              <q-separator />
+
+              <q-card-section class="q-pa-none">
+                <q-table
+                  dense
+                  flat
+                  bordered
+                  class="q-pa-xs"
+                  :rows="filteredRangos"
+                  :columns="columnsRangos"
+                  row-key="id"
+                  :rows-per-page-options="[0]"
+                  no-data-label="No hay rangos registrados para esta área"
+                >
+                  <template #body-cell-actions="props">
+                    <q-td :props="props">
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        icon="edit"
+                        @click="editarRango(props.row)"
+                      />
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        icon="delete"
+                        color="negative"
+                        @click="eliminarRango(props.row.id)"
+                      />
+                    </q-td>
+                  </template>
+
+                  <template #body-cell-interpretacion="props">
+                    <q-td :props="props">
+                      <div
+                        style="max-width: 350px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                        :title="props.row.interpretacion"
+                      >
+                        {{ props.row.interpretacion }}
+                      </div>
+                    </q-td>
+                  </template>
+                </q-table>
+              </q-card-section>
+            </q-tab-panel>
+
+            <!-- TAB: TIPOS DE MUESTRA -->
+            <q-tab-panel name="muestras" class="q-pa-none">
+              <q-card-section class="row items-center q-pa-sm">
+                <div class="text-subtitle2">
+                  Tipos de muestra
+                  <span v-if="selectedArea">– {{ selectedArea.name }}</span>
+                </div>
+                <q-space />
+                <q-input
+                  dense
+                  outlined
+                  v-model="searchTipoMuestra"
+                  label="Buscar tipo de muestra"
+                  class="q-mr-sm"
+                  style="max-width: 260px"
+                >
+                  <template #append><q-icon name="search" /></template>
+                </q-input>
+                <q-btn
+                  color="primary"
+                  icon="add"
+                  label="Nuevo tipo de muestra"
+                  no-caps
+                  dense
+                  :disable="!selectedAreaId"
+                  :loading="loading"
+                  @click="nuevoTipoMuestra"
+                />
+              </q-card-section>
+
+              <q-separator />
+
+              <q-card-section class="q-pa-none">
+                <q-table
+                  dense
+                  flat
+                  bordered
+                  class="q-pa-xs"
+                  :rows="filteredAreaTipoMuestras"
+                  :columns="columnsTipoMuestra"
+                  row-key="id"
+                  :rows-per-page-options="[0]"
+                  no-data-label="No hay tipos de muestra registrados para esta área"
+                >
+                  <template #body-cell-actions="props">
+                    <q-td :props="props">
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        icon="edit"
+                        @click="editarTipoMuestra(props.row)"
+                      />
+                      <q-btn
+                        dense
+                        flat
+                        round
+                        icon="delete"
+                        color="negative"
+                        @click="eliminarTipoMuestra(props.row.id)"
+                      />
+                    </q-td>
+                  </template>
+                </q-table>
+              </q-card-section>
+            </q-tab-panel>
+          </q-tab-panels>
         </q-card>
       </div>
     </div>
@@ -413,6 +551,43 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <!-- DIALOG TIPO DE MUESTRA -->
+    <q-dialog v-model="dialogTipoMuestra">
+      <q-card style="min-width: 360px; max-width: 520px;">
+        <q-card-section class="row items-center q-pa-sm">
+          <div class="text-subtitle1">
+            {{ editandoTipoMuestra ? 'Editar tipo de muestra' : 'Nuevo tipo de muestra' }}
+          </div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-section class="q-pa-sm">
+          <q-form @submit="guardarTipoMuestra">
+            <q-input
+              v-model="tipoMuestraForm.tipo_muestra"
+              label="Descripción del tipo de muestra"
+              dense
+              outlined
+              autofocus
+            />
+
+            <div class="text-right q-mt-sm">
+              <q-btn flat label="Cancelar" v-close-popup :loading="loading" />
+              <q-btn
+                color="primary"
+                label="Guardar"
+                type="submit"
+                :loading="loading"
+              />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -422,6 +597,9 @@ export default {
   data () {
     return {
       loading: false,
+
+      // TAB actual
+      tab: 'servicios',
 
       // ÁREAS
       areas: [],
@@ -510,6 +688,27 @@ export default {
           field: 'interpretacion',
           align: 'left'
         }
+      ],
+
+      // TIPOS DE MUESTRA
+      areaTipoMuestras: [],
+      searchTipoMuestra: '',
+      dialogTipoMuestra: false,
+      editandoTipoMuestra: false,
+      tipoMuestraForm: {
+        id: null,
+        area_id: null,
+        tipo_muestra: ''
+      },
+
+      columnsTipoMuestra: [
+        { name: 'actions', label: 'Acciones', align: 'center' },
+        {
+          name: 'tipo_muestra',
+          label: 'Tipo de muestra',
+          field: 'tipo_muestra',
+          align: 'left'
+        }
       ]
     }
   },
@@ -544,6 +743,16 @@ export default {
         )
       }
       return list
+    },
+    filteredAreaTipoMuestras () {
+      const t = (this.searchTipoMuestra || '').toLowerCase()
+      let list = this.areaTipoMuestras
+      if (t) {
+        list = list.filter(m =>
+          (m.tipo_muestra || '').toLowerCase().includes(t)
+        )
+      }
+      return list
     }
   },
   mounted () {
@@ -567,6 +776,7 @@ export default {
       this.selectedArea = area
       this.loadServicios()
       this.loadRangos()
+      this.loadAreaTipoMuestras()
     },
     nuevaArea () {
       this.areaForm = {
@@ -718,6 +928,74 @@ export default {
         .then(() => {
           this.$alert?.success?.('Rango eliminado')
           this.loadRangos()
+        })
+    },
+
+    // --- TIPOS DE MUESTRA ---
+    loadAreaTipoMuestras () {
+      if (!this.selectedAreaId) {
+        this.areaTipoMuestras = []
+        return
+      }
+      this.loading = true
+      this.$axios.get('area-tipo-muestras', { params: { area_id: this.selectedAreaId } })
+        .then(res => {
+          this.areaTipoMuestras = res.data
+        })
+        .finally(() => { this.loading = false })
+    },
+    nuevoTipoMuestra () {
+      this.tipoMuestraForm = {
+        id: null,
+        area_id: this.selectedAreaId,
+        tipo_muestra: ''
+      }
+      this.editandoTipoMuestra = false
+      this.dialogTipoMuestra = true
+    },
+    editarTipoMuestra (row) {
+      this.tipoMuestraForm = { ...row }
+      this.editandoTipoMuestra = true
+      this.dialogTipoMuestra = true
+    },
+    guardarTipoMuestra () {
+      this.loading = true
+      const payload = {
+        ...this.tipoMuestraForm,
+        area_id: this.selectedAreaId
+      }
+
+      const req = this.editandoTipoMuestra
+        ? this.$axios.put(`area-tipo-muestras/${payload.id}`, payload)
+        : this.$axios.post('area-tipo-muestras', payload)
+
+      req.then(() => {
+        this.$alert?.success?.('Tipo de muestra guardado')
+        this.dialogTipoMuestra = false
+        this.loadAreaTipoMuestras()
+      })
+        .catch(e => {
+          const msg = e.response?.data?.message || e.message
+          this.$alert?.error?.('Error: ' + msg)
+        })
+        .finally(() => { this.loading = false })
+    },
+    eliminarTipoMuestra (id) {
+      const confirmar = this.$alert?.dialog
+        ? () => this.$alert.dialog('¿Eliminar tipo de muestra?').onOk(this._deleteTipoMuestra.bind(this, id))
+        : () => {
+          if (confirm('¿Eliminar tipo de muestra?')) {
+            this._deleteTipoMuestra(id)
+          }
+        }
+
+      confirmar()
+    },
+    _deleteTipoMuestra (id) {
+      this.$axios.delete(`area-tipo-muestras/${id}`)
+        .then(() => {
+          this.$alert?.success?.('Tipo de muestra eliminado')
+          this.loadAreaTipoMuestras()
         })
     }
   }
