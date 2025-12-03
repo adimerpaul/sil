@@ -16,6 +16,7 @@ class ResultadoLaboratorio extends Model implements Auditable
         'area_rango_id',
         'valor_final',
         'unidad',
+        //'name',
         'metodo_final',
         'valor_automatizado',
         'valor_manual',

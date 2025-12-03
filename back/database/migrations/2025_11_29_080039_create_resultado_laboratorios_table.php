@@ -15,13 +15,14 @@ return new class extends Migration
             $table->id();
 
             $table->unsignedBigInteger('solicitude_id');   // la orden
-            $table->unsignedBigInteger('area_rango_id');   // el parámetro (Glóbulos rojos, Urea, etc.)
+            $table->unsignedBigInteger('area_rango_id')->nullable();
             $table->unsignedBigInteger('area_id');         // redundante pero útil para filtrar rápido
             // (Hematología, Química, etc.)
 
             // --- Para TODAS las áreas ---
             $table->double('valor_final')->nullable();     // lo que se mostrará al paciente
-            $table->string('unidad')->nullable();          // si quieres sobreescribir la de area_rangos
+            $table->string('unidad')->nullable();
+            $table->string('name')->nullable();
             $table->string('metodo_final')->nullable();    // ej: 'AUTOMATIZADO', 'MANUAL'
 
             // --- Para el caso especial de HEMATOLOGÍA (Área 1) ---

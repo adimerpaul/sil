@@ -116,4 +116,8 @@ class Solicitude extends Model implements AuditableContract
     {
         return $this->hasMany(ResultadoLaboratorio::class);
     }
+    public function propiedades()
+    {
+        return $this->hasMany(SolicitudePropiedad::class);
+    }
 }

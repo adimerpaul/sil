@@ -9,6 +9,7 @@ use App\Http\Controllers\ConsentimientoController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\SolicitudeController;
 use App\Http\Controllers\AreaTipoMuestraController; // <-- NUEVO
+use App\Http\Controllers\SolicitudePropiedadController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
@@ -62,6 +63,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('solicitudes-area-analitica', [SolicitudeController::class, 'solicitudesAreaAnalitica']);
     Route::get('solicitudes-area-analitica/{id}', [SolicitudeController::class, 'showAnalitica']); // NUEVA
     Route::post('solicitudes/{id}/analitica', [SolicitudeController::class, 'guardarAnalitica']);
+
+    Route::apiResource('solicitude-propiedades', SolicitudePropiedadController::class);
 });
 Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);
 Route::get('public/reportes/{codigo}', [SolicitudeController::class, 'imprimirAnaliticaPublica'])
