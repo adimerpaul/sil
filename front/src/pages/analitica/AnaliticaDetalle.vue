@@ -3,7 +3,10 @@
     <!-- BREADCRUMB / VOLVER -->
     <div class="row items-center q-mb-sm">
       <div class="col">
-        <q-breadcrumbs separator="chevron_right">
+        <q-breadcrumbs>
+          <template v-slot:separator>
+            <q-icon size="1.2em" name="arrow_forward" />
+          </template>
           <q-breadcrumbs-el icon="science" label="Área Analítica" to="/analitica" />
           <q-breadcrumbs-el
             :label="solicitud ? ('Solicitud #' + solicitud.id) : 'Detalle'"
@@ -26,14 +29,13 @@
     <q-card flat bordered class="q-mb-sm">
       <q-card flat bordered class="q-pa-sm bg-grey-1">
         <q-card-actions align="right">
-<!--          btn imprimir-->
-<!--          btn mandar a dormat -->
           <q-btn-dropdown
             flat
             color="primary"
             icon="print"
             label="Opciones de impresión"
             no-caps
+            v-close-popup
           >
             <q-list dense>
               <q-item clickable @click="imprimir">
@@ -103,17 +105,29 @@
           <div class="col-12 col-sm-4">
             <div><b>Nombre paciente:</b></div>
             <div>
-              {{ solicitud?.paciente_nombre || solicitud?.paciente?.nombre_completo || '-' }}
+              {{
+                solicitud?.paciente_nombre ||
+                solicitud?.paciente?.nombre_completo ||
+                '-'
+              }}
             </div>
 
             <div class="q-mt-xs"><b>Edad:</b></div>
             <div>
-              {{ solicitud?.paciente_edad || solicitud?.paciente?.edad || '-' }} años
+              {{
+                solicitud?.paciente_edad ||
+                solicitud?.paciente?.edad ||
+                '-'
+              }} años
             </div>
 
             <div class="q-mt-xs"><b>Sexo:</b></div>
             <div>
-              {{ solicitud?.paciente_genero || solicitud?.paciente?.genero || '-' }}
+              {{
+                solicitud?.paciente_genero ||
+                solicitud?.paciente?.genero ||
+                '-'
+              }}
             </div>
           </div>
 
@@ -130,95 +144,17 @@
       </q-card-section>
     </q-card>
 
-    <!-- BLOQUE CALIDAD DE MUESTRA + EQUIPO + TIPOS MUESTRA -->
+    <!-- TIPOS DE MUESTRA DESDE PRE-ANALÍTICA -->
     <q-card flat bordered class="q-mb-sm">
       <q-card-section class="q-pa-sm">
-        <div class="text-subtitle2 q-mb-sm">Calidad de la muestra</div>
-
-        <div class="row q-col-gutter-sm text-caption">
-          <div class="col-12 col-sm-3">
-            <div class="text-weight-medium q-mb-xs">Sangre entera</div>
-            <q-option-group
-              v-model="calidadMuestra.aceptada"
-              type="radio"
-              :options="[
-                { label: 'Aceptada', value: 'ACEPTADA' },
-                { label: 'Rechazada', value: 'RECHAZADA' }
-              ]"
-              dense
-            />
-          </div>
-
-          <div class="col-12 col-sm-3">
-            <div class="text-weight-medium q-mb-xs">Presencia de coágulo</div>
-            <q-option-group
-              v-model="calidadMuestra.coagulo"
-              type="radio"
-              :options="[
-                { label: 'Sí', value: 'SI' },
-                { label: 'No', value: 'NO' }
-              ]"
-              dense
-            />
-          </div>
-
-          <div class="col-12 col-sm-3">
-            <div class="text-weight-medium q-mb-xs">Volumen adecuado</div>
-            <q-option-group
-              v-model="calidadMuestra.volumen"
-              type="radio"
-              :options="[
-                { label: 'Sí', value: 'SI' },
-                { label: 'No', value: 'NO' }
-              ]"
-              dense
-            />
-          </div>
-
-          <div class="col-12 col-sm-3">
-            <div class="text-weight-medium q-mb-xs">Identificación</div>
-            <q-option-group
-              v-model="calidadMuestra.identificacion"
-              type="radio"
-              :options="[
-                { label: 'Adecuada', value: 'ADECUADA' },
-                { label: 'Inadecuada', value: 'INADECUADA' }
-              ]"
-              dense
-            />
-          </div>
-        </div>
-
-        <!-- EQUIPO -->
-        <div class="row q-col-gutter-sm text-caption q-mt-sm">
-          <div class="col-12 col-sm-3">
-            <div class="text-weight-medium q-mb-xs">Equipo</div>
-            <q-select
-              v-model="equipo"
-              :options="equipoOptions"
-              dense
-              outlined
-              emit-value
-              map-options
-              placeholder="Seleccione equipo"
-            />
-          </div>
-        </div>
-
-        <!-- TIPOS DE MUESTRA ENVIADOS DESDE PRE-ANALÍTICA -->
         <div
           v-if="tiposMuestra.length"
-          class="q-mt-md"
+          class="q-mt-none"
         >
           <div class="text-subtitle2 q-mb-xs">
             Tipos de muestra enviados desde Pre-analítica
           </div>
-          <q-markup-table
-            dense
-            bordered
-            flat
-            class="full-width"
-          >
+          <q-markup-table dense bordered flat class="full-width">
             <thead>
             <tr>
               <th class="text-left">Área</th>
@@ -295,14 +231,13 @@
                     Área: {{ area.name }}
                   </div>
                   <div class="text-caption text-grey-7">
-                    Servicios vinculados:
+                    <b>Servicios vinculados:</b>
                     {{ area.servicios.map(s => s.nombre).join(', ') || '—' }}
                   </div>
                   <div
                     v-if="esHematologia(area)"
                     class="text-caption text-grey-8 q-mt-xs"
                   >
-                    Equipo: Mindray C3510 / Mindray 5000 · Manual sí/no
                   </div>
                 </div>
                 <div class="col-auto">
@@ -319,12 +254,186 @@
               <q-separator />
 
               <q-card-section class="q-pa-sm">
-                <q-markup-table
-                  dense
-                  bordered
-                  flat
-                  class="full-width"
-                >
+                <!-- ÁREA 1: HEMATOLOGÍA - Sangre entera -->
+                <q-form v-if="area.id === 1 && areaExtras[area.id]">
+                  <div class="row q-col-gutter-sm text-caption q-mb-md">
+                    <div class="col-12 col-sm-3">
+                      <div class="text-weight-medium q-mb-xs">Sangre entera</div>
+                      <q-option-group
+                        v-model="areaExtras[area.id].aceptada"
+                        type="radio"
+                        :options="[
+                          { label: 'Aceptada', value: 'ACEPTADA' },
+                          { label: 'Rechazada', value: 'RECHAZADA' }
+                        ]"
+                        dense
+                      />
+                    </div>
+                    <div class="col-12 col-sm-3">
+                      <div class="text-weight-medium q-mb-xs">Presencia de coágulo</div>
+                      <q-option-group
+                        v-model="areaExtras[area.id].coagulo"
+                        type="radio"
+                        :options="[
+                          { label: 'Sí', value: 'SI' },
+                          { label: 'No', value: 'NO' }
+                        ]"
+                        dense
+                      />
+                    </div>
+                    <div class="col-12 col-sm-3">
+                      <div class="text-weight-medium q-mb-xs">Volumen adecuado</div>
+                      <q-option-group
+                        v-model="areaExtras[area.id].volumen"
+                        type="radio"
+                        :options="[
+                          { label: 'Sí', value: 'SI' },
+                          { label: 'No', value: 'NO' }
+                        ]"
+                        dense
+                      />
+                    </div>
+                    <div class="col-12 col-sm-3 q-mt-sm">
+                      <div class="text-weight-medium q-mb-xs">Identificación</div>
+                      <q-option-group
+                        v-model="areaExtras[area.id].identificacion"
+                        type="radio"
+                        :options="[
+                          { label: 'Adecuada', value: 'ADECUADA' },
+                          { label: 'Inadecuada', value: 'INADECUADA' }
+                        ]"
+                        dense
+                      />
+                    </div>
+                    <div class="col-12 col-sm-3 q-mt-sm">
+                      <div class="text-weight-medium q-mb-xs">Equipo</div>
+                      <q-select
+                        v-model="areaExtras[area.id].equipo"
+                        :options="['Mindray C3510','Mindray 5000']"
+                        dense
+                        outlined
+                        emit-value
+                        map-options
+                        placeholder="Seleccione equipo"
+                      />
+                    </div>
+                  </div>
+                </q-form>
+
+                <!-- ÁREA 2: QUÍMICA SANGUÍNEA - Suero -->
+                <q-form v-if="area.id === 2 && areaExtras[area.id]">
+                  <div class="row q-col-gutter-sm text-caption q-mb-md">
+                    <div class="col-12 col-sm-3">
+                      <div class="text-weight-medium q-mb-xs">Suero</div>
+                      <q-option-group
+                        v-model="areaExtras[area.id].aceptada"
+                        type="radio"
+                        :options="[
+                          { label: 'Aceptada', value: 'ACEPTADA' },
+                          { label: 'Rechazada', value: 'RECHAZADA' }
+                        ]"
+                        dense
+                      />
+                    </div>
+                    <div class="col-12 col-sm-3">
+                      <div class="text-weight-medium q-mb-xs">Muestra hemolizada</div>
+                      <q-option-group
+                        v-model="areaExtras[area.id].hemolizada"
+                        type="radio"
+                        :options="[
+                          { label: 'Sí', value: 'SI' },
+                          { label: 'No', value: 'NO' }
+                        ]"
+                        dense
+                      />
+                    </div>
+                    <div class="col-12 col-sm-3">
+                      <div class="text-weight-medium q-mb-xs">Volumen insuficiente</div>
+                      <q-option-group
+                        v-model="areaExtras[area.id].volumen_insuficiente"
+                        type="radio"
+                        :options="[
+                          { label: 'Sí', value: 'SI' },
+                          { label: 'No', value: 'NO' }
+                        ]"
+                        dense
+                      />
+                    </div>
+                    <div class="col-12 col-sm-3 q-mt-sm">
+                      <div class="text-weight-medium q-mb-xs">Identificación inadecuada</div>
+                      <q-option-group
+                        v-model="areaExtras[area.id].identificacion"
+                        type="radio"
+                        :options="[
+                          { label: 'Adecuada', value: 'ADECUADA' },
+                          { label: 'Inadecuada', value: 'INADECUADA' }
+                        ]"
+                        dense
+                      />
+                    </div>
+                    <div class="col-12 col-sm-3 q-mt-sm">
+                      <div class="text-weight-medium q-mb-xs">Equipo</div>
+                      <q-select
+                        v-model="areaExtras[area.id].equipo"
+                        :options="['Mindray 240 –STAT FAX 4500-RADIOMETER','Mindray']"
+                        dense
+                        outlined
+                        emit-value
+                        map-options
+                        placeholder="Seleccione equipo"
+                      />
+                    </div>
+                  </div>
+                </q-form>
+
+                <!-- ÁREA 3: SALA / CAMA / TIPO DE PACIENTE -->
+                <q-form v-if="area.id === 3 && areaExtras[area.id]">
+                  <div class="row q-col-gutter-sm text-caption q-mb-md">
+                    <div class="col-12 col-sm-3">
+                      <div class="text-weight-medium q-mb-xs">Sala</div>
+                      <q-input
+                        v-model="areaExtras[area.id].sala"
+                        dense
+                        outlined
+                      />
+                    </div>
+                    <div class="col-12 col-sm-3">
+                      <div class="text-weight-medium q-mb-xs">Cama</div>
+                      <q-input
+                        v-model="areaExtras[area.id].cama"
+                        dense
+                        outlined
+                      />
+                    </div>
+                    <div class="col-12 col-sm-3 q-mt-sm">
+                      <div class="text-weight-medium q-mb-xs">Paciente ambulatorio</div>
+                      <q-option-group
+                        v-model="areaExtras[area.id].paciente_ambulatorio"
+                        type="radio"
+                        :options="[
+                          { label: 'Sí', value: 'SI' },
+                          { label: 'No', value: 'NO' }
+                        ]"
+                        dense
+                      />
+                    </div>
+                    <div class="col-12 col-sm-3 q-mt-sm">
+                      <div class="text-weight-medium q-mb-xs">Paciente interno</div>
+                      <q-option-group
+                        v-model="areaExtras[area.id].paciente_interno"
+                        type="radio"
+                        :options="[
+                          { label: 'Sí', value: 'SI' },
+                          { label: 'No', value: 'NO' }
+                        ]"
+                        dense
+                      />
+                    </div>
+                  </div>
+                </q-form>
+
+                <!-- TABLA DE PARÁMETROS -->
+                <q-markup-table dense bordered flat class="full-width">
                   <thead>
                   <tr>
                     <th class="text-left">Parámetro</th>
@@ -431,8 +540,6 @@
         </div>
       </q-card-section>
     </q-card>
-
-    <!-- ACCIONES -->
   </q-page>
 </template>
 
@@ -444,19 +551,8 @@ export default {
       loading: false,
       saving: false,
       solicitud: null,
-      equipoOptions: [
-        { label: 'Mindray C3510', value: 'MINDRAY_C3510' },
-        { label: 'Mindray 5000', value: 'MINDRAY_5000' }
-      ],
-      equipo: null,
-      calidadMuestra: {
-        aceptada: null,
-        coagulo: null,
-        volumen: null,
-        identificacion: null
-      },
-      // estructura: { [area_id]: { [rango_id]: { valor, valor_automatizado, valor_manual } } }
-      resultados: {}
+      resultados: {},      // { [area_id]: { [rango_id]: { valor, valor_automatizado, valor_manual } } }
+      areaExtras: {}       // { [area_id]: { campo: valor } } (sangre entera, suero, sala/cama, etc.)
     }
   },
   computed: {
@@ -484,7 +580,6 @@ export default {
       return Object.values(map)
     },
     tiposMuestra () {
-      // relación preAnaliticaMuestras -> JSON pre_analitica_muestras
       return (this.solicitud && this.solicitud.pre_analitica_muestras)
         ? this.solicitud.pre_analitica_muestras
         : []
@@ -506,12 +601,10 @@ export default {
         return
       }
 
-      // URL pública del reporte (PDF online)
       const urlReporte = `${backBase}/public/reportes/${codigo}`
 
-      // Teléfono del médico
       let phone = this.solicitud.doctor_telefono || ''
-      phone = phone.replace(/\D/g, '') // quitar guiones/espacios
+      phone = phone.replace(/\D/g, '')
 
       if (!phone) {
         this.$alert?.error?.('El médico no tiene teléfono registrado.')
@@ -522,22 +615,21 @@ export default {
 
       const text = encodeURIComponent(mensaje)
 
-      // 591 = Bolivia, ajusta a tu país
       const urlWhatsapp = `https://wa.me/591${phone}?text=${text}`
 
       window.open(urlWhatsapp, '_blank')
     },
+
     imprimir () {
       if (!this.solicitud || !this.solicitud.id) return
 
-      // si tu API base es algo tipo http://127.0.0.1:8000/api
-      // quita el /api para la URL "real" del backend
       const apiBase = this.$axios.defaults.baseURL || ''
       const backBase = apiBase.replace(/\/api\/?$/, '')
 
       const url = `${backBase}/api/solicitudes/${this.solicitud.id}/analitica-pdf`
       window.open(url, '_blank')
     },
+
     esHematologia (area) {
       if (!area) return false
       if (area.id === 1) return true
@@ -545,7 +637,6 @@ export default {
       return name.includes('HEMATO')
     },
 
-    // ---- helpers ícono rango ----
     getValorResultado (areaId, rangoId, field = 'valor') {
       const area = this.resultados[areaId]
       if (!area || !area[rangoId]) return ''
@@ -617,13 +708,54 @@ export default {
       })
     },
 
-    aplicarCalidadDesdeBackend () {
-      if (!this.solicitud) return
-      this.calidadMuestra.aceptada      = this.solicitud.muestra_sangre_entera   || null
-      this.calidadMuestra.coagulo       = this.solicitud.muestra_coagulo         || null
-      this.calidadMuestra.volumen       = this.solicitud.muestra_volumen         || null
-      this.calidadMuestra.identificacion = this.solicitud.muestra_identificacion || null
-      this.equipo                       = this.solicitud.muestra_equipo          || null
+    inicializarAreaExtras () {
+      const extras = { ...this.areaExtras }
+
+      this.areasConRangos.forEach(area => {
+        const id = area.id
+        if (!extras[id]) extras[id] = {}
+
+        if (id === 1) {
+          extras[id] = {
+            aceptada: extras[id].aceptada ?? null,
+            coagulo: extras[id].coagulo ?? null,
+            volumen: extras[id].volumen ?? null,
+            identificacion: extras[id].identificacion ?? null,
+            equipo: extras[id].equipo ?? null
+          }
+        } else if (id === 2) {
+          extras[id] = {
+            aceptada: extras[id].aceptada ?? null,
+            hemolizada: extras[id].hemolizada ?? null,
+            volumen_insuficiente: extras[id].volumen_insuficiente ?? null,
+            identificacion: extras[id].identificacion ?? null,
+            equipo: extras[id].equipo ?? null
+          }
+        } else if (id === 3) {
+          extras[id] = {
+            sala: extras[id].sala ?? '',
+            cama: extras[id].cama ?? '',
+            paciente_ambulatorio: extras[id].paciente_ambulatorio ?? null,
+            paciente_interno: extras[id].paciente_interno ?? null
+          }
+        }
+      })
+
+      this.areaExtras = extras
+    },
+
+    aplicarExtrasDesdeBackend () {
+      if (!this.solicitud || !this.solicitud.propiedades) return
+
+      const extras = { ...this.areaExtras }
+
+      this.solicitud.propiedades.forEach(p => {
+        const areaId = p.area_id
+        if (!extras[areaId]) extras[areaId] = {}
+        extras[areaId][p.campo] = p.valor
+      })
+
+      this.areaExtras = extras
     },
 
     cargarSolicitud () {
@@ -635,9 +767,10 @@ export default {
         .get(`solicitudes-area-analitica/${id}`)
         .then(res => {
           this.solicitud = res.data
-          this.aplicarCalidadDesdeBackend()
           this.inicializarResultados()
           this.aplicarResultadosDesdeBackend()
+          this.inicializarAreaExtras()
+          this.aplicarExtrasDesdeBackend()
         })
         .catch(err => {
           console.error(err)
@@ -655,16 +788,13 @@ export default {
       this.saving = true
       this.$axios
         .post(`solicitudes/${this.solicitud.id}/analitica`, {
-          muestras: this.solicitud.pre_analitica_muestras || [],
           resultados: this.resultados,
-          calidad_muestra: this.calidadMuestra,
-          equipo: this.equipo
+          propiedades_area: this.areaExtras
         })
         .then(() => {
           this.$alert?.success?.(
             'Analítica guardada y solicitud finalizada'
           )
-          // this.$router.push('/analitica')
         })
         .catch(err => {
           console.error(err)
