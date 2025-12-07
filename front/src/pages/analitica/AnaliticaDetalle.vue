@@ -80,7 +80,7 @@
         <div class="row q-col-gutter-sm">
           <div class="col-12 text-center">
             <div class="text-subtitle1 text-weight-bold">
-              ANALÍTICA HEMATOLÓGICA
+              ANALÍTICA
             </div>
             <div class="text-caption text-grey-7">
               (Diseño estilo planilla, similar al formato Word)
@@ -432,6 +432,639 @@
                   </div>
                 </q-form>
 
+                <!-- ÁREA 4: MICROBIOLOGÍA  - (ejemplo vacío) -->
+                <q-form v-if="area.id === 4 && areaExtras[area.id]">
+                  <div class="row q-col-gutter-sm text-caption q-mb-md">
+                    <div class="col-12">
+                      <!-- SISTEMA DE PROCESAMIENTO + ENRIQUECIMIENTO BACTERIANA -->
+                      <div class="row q-col-gutter-sm q-mb-md">
+                        <!-- SISTEMA DE PROCESAMIENTO -->
+                        <div class="col-12 col-sm-6">
+                          <q-markup-table dense bordered flat class="full-width">
+                            <thead>
+                            <tr>
+                              <th colspan="2" class="text-center">
+                                Sistema de Procesamiento
+                              </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                              <td class="text-left">Aerobio</td>
+                              <td class="text-center">
+                                <q-checkbox
+                                  v-model="areaExtras[area.id].baar_proc_aerobio"
+                                  dense
+                                  :false-value="null"
+                                  :true-value="true"
+                                />
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-left">Anaerobio</td>
+                              <td class="text-center">
+                                <q-checkbox
+                                  v-model="areaExtras[area.id].baar_proc_anaerobio"
+                                  dense
+                                  :false-value="null"
+                                  :true-value="true"
+                                />
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-left">Microaerofilia</td>
+                              <td class="text-center">
+                                <q-checkbox
+                                  v-model="areaExtras[area.id].baar_proc_microaerofilia"
+                                  dense
+                                  :false-value="null"
+                                  :true-value="true"
+                                />
+                              </td>
+                            </tr>
+                            </tbody>
+                          </q-markup-table>
+                        </div>
+
+                        <!-- ENRIQUECIMIENTO BACTERIANA -->
+                        <div class="col-12 col-sm-6">
+                          <q-markup-table dense bordered flat class="full-width">
+                            <thead>
+                            <tr>
+                              <th colspan="2" class="text-center">
+                                Enriquecimiento Bacteriana
+                              </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                              <td class="text-left">Caldo de Enriquecimiento</td>
+                              <td class="text-center">
+                                <q-checkbox
+                                  v-model="areaExtras[area.id].baar_enr_caldo_enriquecimiento"
+                                  dense
+                                  :false-value="null"
+                                  :true-value="true"
+                                />
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-left">Caldo Selenito</td>
+                              <td class="text-center">
+                                <q-checkbox
+                                  v-model="areaExtras[area.id].baar_enr_caldo_selenito"
+                                  dense
+                                  :false-value="null"
+                                  :true-value="true"
+                                />
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-left">Caldo Tetrationato</td>
+                              <td class="text-center">
+                                <q-checkbox
+                                  v-model="areaExtras[area.id].baar_enr_caldo_tetrationato"
+                                  dense
+                                  :false-value="null"
+                                  :true-value="true"
+                                />
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-left">Otros</td>
+                              <td class="text-center">
+                                <q-input
+                                  v-model="areaExtras[area.id].baar_enr_otros"
+                                  dense
+                                  outlined
+                                />
+                              </td>
+                            </tr>
+                            </tbody>
+                          </q-markup-table>
+                        </div>
+                      </div>
+
+                    </div>
+                    <div class="col-12">
+                      <q-markup-table dense bordered flat class="full-width q-mb-md">
+                        <thead>
+                        <tr>
+                          <th class="text-left">Medio</th>
+                          <th class="text-center">Ureocuento<br />UFC/ml</th>
+                          <th class="text-center">Hemólisis<br />Alfa</th>
+                          <th class="text-center">Hemólisis<br />Beta</th>
+                          <th class="text-center">Con IsoVitalex</th>
+                          <th class="text-center">Sin IsoVitalex</th>
+                          <th class="text-center">Lactosa (+)</th>
+                          <th class="text-center">Lactosa (-)</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <!-- FILA 1: Agar Nutritivo / Cled -->
+                        <tr>
+                          <td>Agar Nutritivo / Cled</td>
+                          <!-- Celda blanca (tiene input) -->
+                          <td class="text-center">
+                            <q-input
+                              v-model="areaExtras[area.id].baar_ureo_nutritivo"
+                              dense
+                              outlined
+                            />
+                          </td>
+                          <!-- Celdas negras (sin input) -->
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                        </tr>
+
+                        <!-- FILA 2: Agar Sangre -->
+                        <tr>
+                          <td>Agar Sangre</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <!-- Celdas blancas (tienen input) -->
+                          <td class="text-center">
+                            <q-input
+                              v-model="areaExtras[area.id].baar_hemo_alfa_sangre"
+                              dense
+                              outlined
+                            />
+                          </td>
+                          <td class="text-center">
+                            <q-input
+                              v-model="areaExtras[area.id].baar_hemo_beta_sangre"
+                              dense
+                              outlined
+                            />
+                          </td>
+                          <!-- Resto negras -->
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                        </tr>
+
+                        <!-- FILA 3: Agar Chocolate -->
+                        <tr>
+                          <td>Agar Chocolate</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <!-- Celdas blancas (tienen input) -->
+                          <td class="text-center">
+                            <q-input
+                              v-model="areaExtras[area.id].baar_iso_con_chocolate"
+                              dense
+                              outlined
+                            />
+                          </td>
+                          <td class="text-center">
+                            <q-input
+                              v-model="areaExtras[area.id].baar_iso_sin_chocolate"
+                              dense
+                              outlined
+                            />
+                          </td>
+                          <!-- Resto negras -->
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                        </tr>
+
+                        <!-- FILA 4: Agar Mc Conkey -->
+                        <tr>
+                          <td>Agar Mc Conkey</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <!-- Celda blanca Lactosa (+) -->
+                          <td class="text-center">
+                            <q-input
+                              v-model="areaExtras[area.id].baar_lactosa_pos_mcconkey"
+                              dense
+                              outlined
+                            />
+                          </td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                        </tr>
+
+                        <!-- FILA 5: Agar SS -->
+                        <tr>
+                          <td>Agar SS</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <!-- Celda blanca Lactosa (-) -->
+                          <td class="text-center">
+                            <q-input
+                              v-model="areaExtras[area.id].baar_lactosa_neg_ss"
+                              dense
+                              outlined
+                            />
+                          </td>
+                        </tr>
+
+                        <!-- FILA 6: Otros (sin inputs; ajusta si quieres campos aquí) -->
+                        <tr>
+                          <td>Otros</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                          <td class="bg-grey-10">&nbsp;</td>
+                        </tr>
+                        </tbody>
+                      </q-markup-table>
+
+                    </div>
+                    <div class="col-12 col-sm-3">
+                      <div class="text-weight-medium q-mb-xs">Gran positivo / Gran negativo</div>
+                      <q-option-group
+                        v-model="areaExtras[area.id].gran_positivo_negativo"
+                        type="radio"
+                        :options="[
+                          { label: 'Gran positivo', value: 'GRAN_POSITIVO' },
+                          { label: 'Gran negativo', value: 'GRAN_NEGATIVO' }
+                        ]"
+                        dense
+                      />
+<!--                      morologia coco bacilo cocobacilo-->
+                      <div class="text-weight-medium q-mb-xs q-mt-sm">Morfología: coco / bacilo / cocobacilo</div>
+                      <q-option-group
+                        v-model="areaExtras[area.id].morfologia"
+                        type="radio"
+                        :options="[
+                          { label: 'Coco', value: 'COCO' },
+                          { label: 'Bacilo', value: 'BACILO' },
+                          { label: 'Cocobacilo', value: 'COCOBACILO' }
+                        ]"
+                        dense
+                      />
+                    </div>
+                    <div class="col-12 col-sm-5">
+                      <b>Bioquimiopatia</b>
+                      <q-markup-table dense bordered flat class="full-width">
+                        <thead>
+                        <tr>
+                          <th colspan="2" class="text-left">Prueba</th>
+                          <th class="text-center">Resultado</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                          <td>Catalasa</td>
+                          <td>TSI</td>
+                          <td class="text-center">
+                            <q-input v-model="areaExtras[area.id]['catalasa_resultado']" dense outlined placeholder="P1/P2/P3/P4"/>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Coagulasa</td>
+                          <td>Citrato</td>
+                          <td class="text-center">
+                            <q-input v-model="areaExtras[area.id]['coagulasa_resultado']" dense outlined placeholder="P1"/>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Manitol</td>
+                          <td>Lia</td>
+                          <td class="text-center">
+                            <q-input v-model="areaExtras[area.id]['manitol_resultado']" dense outlined placeholder="P1"/>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>ODH</td>
+                          <td>MIO</td>
+                          <td class="text-center">
+                            <q-input v-model="areaExtras[area.id]['odh_resultado']" dense outlined placeholder="P1/P2/P3"/>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Urea</td>
+                          <td>Urea</td>
+                          <td class="text-center">
+                            <q-input v-model="areaExtras[area.id]['urea_resultado']" dense outlined placeholder="P1"/>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Novobiocina</td>
+                          <td>Oxidasa</td>
+                          <td class="text-center">
+                            <q-input v-model="areaExtras[area.id]['novobiocina_resultado']" dense outlined placeholder="P1"/>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td>Bilis Espulina</td>
+                          <td class="text-center">
+                            <q-input v-model="areaExtras[area.id]['bilis_resultado']" dense outlined placeholder="P1"/>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td>PYS</td>
+                          <td class="text-center">
+                            <q-input v-model="areaExtras[area.id]['pys_resultado']" dense outlined placeholder="P1"/>
+                          </td>
+                        </tr>
+                        </tbody>
+                      </q-markup-table>
+                      <div class="text-weight-medium q-mt-sm">Serotipia Si / No</div>
+                      <q-option-group
+                        inline
+                        v-model="areaExtras[area.id].serotipia"
+                        type="radio"
+                        :options="[
+                          { label: 'Sí', value: 'SI' },
+                          { label: 'No', value: 'NO' }
+                        ]"
+                        dense
+                      />
+                    </div>
+                    <div class="col-12 col-sm-4">
+                      <div class="text-weight-medium q-mb-xs">Hemocultivos</div>
+                      <q-markup-table dense bordered flat class="full-width">
+                        <thead>
+                        <tr>
+                          <th class="text-left">Lectura de hemocultivo</th>
+                          <th class="text-center">Resultado</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                          <td class="text-left">24 horas</td>
+                          <td class="text-center">
+                            <q-select
+                              clearable
+                              v-model="areaExtras[area.id]['hemocultivo_24h']"
+                              :options="[
+                                '+',
+                                '+ / +',
+                                '-',
+                                '- / -',
+                                '- / +',
+                                '+ / -'
+                              ]"
+                              dense
+                              outlined
+                              placeholder="Seleccione resultado"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-left">48 horas</td>
+<!--                          <td class="text-center"><q-input v-model="areaExtras[area.id]['hemocultivo_48h']" dense outlined placeholder="Resultado"/></td>-->
+                          <td class="text-center">
+                            <q-select
+                              clearable
+                              v-model="areaExtras[area.id]['hemocultivo_48h']"
+                              :options="[
+                                '+',
+                                '+ / +',
+                                '-',
+                                '- / -',
+                                '- / +',
+                                '+ / -'
+                              ]"
+                              dense
+                              outlined
+                              placeholder="Seleccione resultado"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-left">72 horas</td>
+                          <td class="text-center">
+<!--                            <q-input v-model="areaExtras[area.id]['hemocultivo_72h']" dense outlined placeholder="Resultado"/>-->
+                            <q-select
+                              clearable
+                              v-model="areaExtras[area.id]['hemocultivo_72h']"
+                              :options="[
+                                '+',
+                                '+ / +',
+                                '-',
+                                '- / -',
+                                '- / +',
+                                '+ / -'
+                              ]"
+                              dense
+                              outlined
+                              placeholder="Seleccione resultado"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-left">5 días</td>
+                          <td class="text-center">
+<!--                            <q-input v-model="areaExtras[area.id]['hemocultivo_5d']" dense outlined placeholder="Resultado"/>-->
+                            <q-select
+                              clearable
+                              v-model="areaExtras[area.id]['hemocultivo_5d']"
+                              :options="[
+                                '+',
+                                '+ / +',
+                                '-',
+                                '- / -',
+                                '- / +',
+                                '+ / -'
+                              ]"
+                              dense
+                              outlined
+                              placeholder="Seleccione resultado"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-left">7 días</td>
+                          <td class="text-center">
+<!--                            <q-input v-model="areaExtras[area.id]['hemocultivo_7d']" dense outlined placeholder="Resultado"/>-->
+                            <q-select
+                              clearable
+                              v-model="areaExtras[area.id]['hemocultivo_7d']"
+                              :options="[
+                                '+',
+                                '+ / +',
+                                '-',
+                                '- / -',
+                                '- / +',
+                                '+ / -'
+                              ]"
+                              dense
+                              outlined
+                              placeholder="Seleccione resultado"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-left">10 días</td>
+                          <td class="text-center">
+<!--                            <q-input v-model="areaExtras[area.id]['hemocultivo_10d']" dense outlined placeholder="Resultado"/>-->
+                            <q-select
+                              clearable
+                              v-model="areaExtras[area.id]['hemocultivo_10d']"
+                              :options="[
+                                '+',
+                                '+ / +',
+                                '-',
+                                '- / -',
+                                '- / +',
+                                '+ / -'
+                              ]"
+                              dense
+                              outlined
+                              placeholder="Seleccione resultado"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-left">15 días</td>
+                          <td class="text-center">
+<!--                            <q-input v-model="areaExtras[area.id]['hemocultivo_15d']" dense outlined placeholder="Resultado"/>-->
+                            <q-select
+                              clearable
+                              v-model="areaExtras[area.id]['hemocultivo_15d']"
+                              :options="[
+                                '+',
+                                '+ / +',
+                                '-',
+                                '- / -',
+                                '- / +',
+                                '+ / -'
+                              ]"
+                              dense
+                              outlined
+                              placeholder="Seleccione resultado"
+                            />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="text-left">21 días</td>
+                          <td class="text-center">
+<!--                            <q-input v-model="areaExtras[area.id]['hemocultivo_21d']" dense outlined placeholder="Resultado"/>-->
+                            <q-select
+                              clearable
+                              v-model="areaExtras[area.id]['hemocultivo_21d']"
+                              :options="[
+                                '+',
+                                '+ / +',
+                                '-',
+                                '- / -',
+                                '- / +',
+                                '+ / -'
+                              ]"
+                              dense
+                              outlined
+                              placeholder="Seleccione resultado"
+                            />
+                          </td>
+                        </tr>
+                        </tbody>
+                      </q-markup-table>
+                    </div>
+                    <div class="col-12">
+                      <q-editor
+                        v-model="qeditor"
+                        :dense="$q.screen.lt.md"
+                        :toolbar="[
+        [
+          {
+            label: $q.lang.editor.align,
+            icon: $q.iconSet.editor.align,
+            fixedLabel: true,
+            list: 'only-icons',
+            options: ['left', 'center', 'right', 'justify']
+          },
+          {
+            label: $q.lang.editor.align,
+            icon: $q.iconSet.editor.align,
+            fixedLabel: true,
+            options: ['left', 'center', 'right', 'justify']
+          }
+        ],
+        ['bold', 'italic', 'strike', 'underline', 'subscript', 'superscript'],
+        ['token', 'hr', 'link', 'custom_btn'],
+        ['print', 'fullscreen'],
+        [
+          {
+            label: $q.lang.editor.formatting,
+            icon: $q.iconSet.editor.formatting,
+            list: 'no-icons',
+            options: [
+              'p',
+              'h1',
+              'h2',
+              'h3',
+              'h4',
+              'h5',
+              'h6',
+              'code'
+            ]
+          },
+          {
+            label: $q.lang.editor.fontSize,
+            icon: $q.iconSet.editor.fontSize,
+            fixedLabel: true,
+            fixedIcon: true,
+            list: 'no-icons',
+            options: [
+              'size-1',
+              'size-2',
+              'size-3',
+              'size-4',
+              'size-5',
+              'size-6',
+              'size-7'
+            ]
+          },
+          {
+            label: $q.lang.editor.defaultFont,
+            icon: $q.iconSet.editor.font,
+            fixedIcon: true,
+            list: 'no-icons',
+            options: [
+              'default_font',
+              'arial',
+              'arial_black',
+              'comic_sans',
+              'courier_new',
+              'impact',
+              'lucida_grande',
+              'times_new_roman',
+              'verdana'
+            ]
+          },
+          'removeFormat'
+        ],
+        ['quote', 'unordered', 'ordered', 'outdent', 'indent'],
+
+        ['undo', 'redo'],
+        ['viewsource']
+      ]"
+                        :fonts="{
+        arial: 'Arial',
+        arial_black: 'Arial Black',
+        comic_sans: 'Comic Sans MS',
+        courier_new: 'Courier New',
+        impact: 'Impact',
+        lucida_grande: 'Lucida Grande',
+        times_new_roman: 'Times New Roman',
+        verdana: 'Verdana'
+      }"
+                      />
+                    </div>
+                  </div>
+                </q-form>
+
                 <!-- TABLA DE PARÁMETROS -->
                 <q-markup-table dense bordered flat class="full-width">
                   <thead>
@@ -548,6 +1181,7 @@ export default {
   name: 'AnaliticaDetallePage',
   data () {
     return {
+      qeditor: '',
       loading: false,
       saving: false,
       solicitud: null,
