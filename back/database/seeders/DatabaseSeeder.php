@@ -144,6 +144,7 @@ class DatabaseSeeder extends Seeder
             AreaRangoSeeder::class,
             AreaRangoQuimicaSeeder::class,
             PerfilImpresionSeeder::class,
+            AreaRangoMicrobiologiaSeeder::class,
         ]);
 //        colcoar todo los servico al hapital 1
         $servicios = \App\Models\Servicio::all();
