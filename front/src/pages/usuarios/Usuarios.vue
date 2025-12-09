@@ -145,8 +145,13 @@
             <q-select v-model="user.role" label="Rol" dense outlined :options="roles"
                       :rules="[val => !!val || 'Campo requerido']"/>
 <!--            area-->
-            <q-select v-model="user.area" label="Area" dense outlined :options="areas"
+            <q-select v-model="user.area_id" label="Area" dense outlined :options="areas"
+                      :option-label="'name'"
+                      :option-value="'id'"
+                      emit-value map-options
                       :rules="[val => !!val || 'Campo requerido']"/>
+<!--            <pre>{{areas}}</pre>-->
+<!--            <pre>{{user.area_id}}</pre>-->
             <q-select v-model="user.establecimiento_id" label="Establecimiento" dense outlined
                       :options="establecimientos.map(e => ({ label: e.nombre, value: e.id }))"
                       emit-value map-options
@@ -261,14 +266,14 @@ export default {
       gestiones: [],
       filter: '',
       roles: ['Medico', 'Admision', 'Preanalitica', 'Analitica', 'Administrador'],
-      areas : [
-        'Administracion',
-        'Hematologia',
-        'Quimica Sanguinea',
-        'Uruanalisis y Parasitologia',
-        'Bacterologia',
-        'Inmunologia',
-      ],
+      // areas : [
+      //   'Administracion',
+      //   'Hematologia',
+      //   'Quimica Sanguinea',
+      //   'Uruanalisis y Parasitologia',
+      //   'Bacterologia',
+      //   'Inmunologia',
+      // ],
       columns: [
         {name: 'actions', label: 'Acciones', align: 'center'},
         {name: 'name', label: 'Nombre', align: 'left', field: 'name'},
@@ -278,6 +283,8 @@ export default {
         { name: 'permissions', label: 'Permisos', align: 'left',
           field: row => (row.permissions || []).map(p => p.name).join(', ')
         },
+        // area
+        {name: 'area', label: 'Area', align: 'left', field: row => row.area?.name || ''},
         // establecimiento
         {name: 'establecimiento', label: 'Establecimiento', align: 'left', field: row => row.establecimiento?.nombre || ''},
       ],
@@ -287,11 +294,13 @@ export default {
       cambioAvatarDialogo: false,
       docentes: [],
       establecimientos: [],
+      areas: [],
     }
   },
   async mounted() {
     // this.docentes = await this.$axios.get('docentes').then(res => res.data)
     this.usersGet()
+    this.areasGet()
     // this.permissionsGet()
     this.$axios.get('establecimientos').then(res => {
       this.establecimientos = res.data
@@ -300,6 +309,13 @@ export default {
     })
   },
   methods: {
+    areasGet() {
+      this.$axios.get('areas').then(res => {
+        this.areas = res.data
+      }).catch(error => {
+        this.$alert.error(error.response.data.message)
+      })
+    },
     onFileChange(event) {
       const file = event.target.files[0]
       const formData = new FormData()
