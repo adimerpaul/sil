@@ -18,16 +18,25 @@ use Illuminate\Support\Facades\DB;
 
 class SolicitudeController extends Controller
 {
-    function solicitudesAnalitica(Request $request){
-
+    function solicitudesAnalitica(Request $request)
+    {
         $filter = $request->input('filter', '');
-        $fecha = $request->input('fecha', '');
+        $fecha  = $request->input('fecha', '');
+
         $query = Solicitude::with(['paciente', 'doctor', 'servicios.area.rangos', 'resultados'])
             ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO']);
+
         $user = $request->user();
-//        if ($user->role !== 'Administrador') {
-//            $query->where('area_analitica_id', $user->area_analitica_id);
-//        }
+
+        // Si NO es administrador, filtrar por el área del usuario
+        if ($user && $user->role !== 'Administrador' && $user->area_id) {
+            $areaId = $user->area_id;
+
+            $query->whereHas('servicios', function ($q) use ($areaId) {
+                $q->where('servicio_solicitudes.area_id', $areaId);
+            });
+        }
+
         if (!empty($filter)) {
             $query->where(function ($q) use ($filter) {
                 $q->where('paciente_nombre', 'like', "%$filter%")
@@ -38,9 +47,11 @@ class SolicitudeController extends Controller
                     ->orWhere('establecimiento_salud', 'like', "%$filter%");
             });
         }
+
         if (!empty($fecha)) {
             $query->whereDate('fecha_creacion', $fecha);
         }
+
         return $query->orderBy('id', 'desc')->get();
     }
     public function imprimirAnaliticaPublica($codigo)

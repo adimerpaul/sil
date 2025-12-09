@@ -97,9 +97,11 @@ class Solicitude extends Model implements AuditableContract
         return $this->belongsToMany(
             \App\Models\Servicio::class,
             'servicio_solicitudes',
-            'solicitude_id',
+            'solicitude_id',   // cuidado con el nombre en tu BD
             'servicio_id'
-        )->withPivot('precio')->withTimestamps();
+        )
+            ->withPivot('precio', 'area_id', 'nombre')
+            ->withTimestamps();
     }
 
     public function preAnaliticaMuestras()

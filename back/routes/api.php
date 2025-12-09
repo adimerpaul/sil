@@ -4,6 +4,7 @@ use App\Http\Controllers\AreaController;
 use App\Http\Controllers\AreaRangoController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\EstablecimientoController;
+use App\Http\Controllers\FormulariosController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\ConsentimientoController;
 use App\Http\Controllers\ServicioController;
@@ -68,6 +69,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 //    analitica/solicitudes
     Route::get('solicitudesAnalitica', [SolicitudeController::class, 'solicitudesAnalitica']);
+
+    Route::get   ('formularios',        [FormulariosController::class, 'index']);
+    Route::post  ('formularios',        [FormulariosController::class, 'store']);
+    Route::get   ('formularios/{id}',   [FormulariosController::class, 'show']);
+    Route::put   ('formularios/{id}',   [FormulariosController::class, 'update']);
+    Route::delete('formularios/{id}',   [FormulariosController::class, 'destroy']);
 });
 Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);
 Route::get('public/reportes/{codigo}', [SolicitudeController::class, 'imprimirAnaliticaPublica'])
