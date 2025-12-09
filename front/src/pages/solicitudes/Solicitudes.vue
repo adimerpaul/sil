@@ -646,7 +646,8 @@ export default {
             this.solicitud.servicios.push({
               id: servicio.id,
               nombre: servicio.nombre,
-              precio: servicio.precio
+              precio: servicio.precio,
+              area_id: area.id
             })
           }
         })

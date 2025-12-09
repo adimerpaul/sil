@@ -224,9 +224,17 @@
             <q-icon name="biotech" class="text-white"/>
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-white">Analítica</q-item-label>
+            <q-item-label class="text-white">
+              {{$store.user.area?.name}}
+            </q-item-label>
           </q-item-section>
         </q-item>
+<!--        HEMATOLOGÍA (Area 2)-->
+<!--        QUÍMICA SANGUÍNEA Y SEROLOGÍA (Area 3)-->
+<!--        UROANÁLISIS (Area 4)-->
+<!--        MICROBIOLOGÍA (Area 5)-->
+<!--        INMUNOLOGÍA / INFECCIOSOS (Area 6)-->
+<!--        BIOLOGÍA MOLECULAR (Area 7)-->
 
         <div class="q-pa-md">
           <div class="text-white-7 text-caption">
