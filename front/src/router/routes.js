@@ -18,6 +18,12 @@ const routes = [
         name: 'analitica-detalle',
         component: () => import('pages/analitica/AnaliticaDetalle.vue'),
         meta: { requiresAuth: true, perm: 'Analitica' }
+      },
+    //   formularios
+      {
+        path: '/formularios',
+        component: () => import('pages/formularios/Formularios.vue'),
+        meta: { requiresAuth: true, perm: 'Formularios' }
       }
     ]
   },

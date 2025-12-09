@@ -58,180 +58,136 @@
             @click="analiticaGet()"
           />
         </div>
+        <div class="col-12">
+          <q-markup-table dense wrap-cells flat bordered>
+            <thead>
+            <tr class="bg-primary text-white">
+              <th>Id</th>
+              <th>Paciente</th>
+              <th>CI</th>
+              <th>Establecimiento</th>
+              <th>Fecha Solicitud</th>
+              <th>Estado</th>
+              <th>Servicios</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="solicitud in solicitudes" :key="solicitud.id">
+              <td>{{ solicitud.id }}</td>
+              <td>{{ solicitud.paciente_nombre }}</td>
+              <td>{{ solicitud.paciente_ci }}</td>
+              <td>{{ solicitud.establecimiento_salud }}</td>
+              <td>{{ solicitud.fecha_envio_analitica }}</td>
+              <td>{{ solicitud.estado }}</td>
+              <td>
+                <ul style="padding-left: 1em; margin: 0;">
+                  <li v-for="servicio in solicitud.servicios" :key="servicio.id">
+                    {{ servicio.nombre }} - {{ servicio.precio }}
+                  </li>
+                </ul>
+              </td>
+            </tr>
+            </tbody>
+          </q-markup-table>
+        </div>
       </q-card-section>
-    </q-card>
-
-    <!-- TABLA -->
-    <q-card flat bordered>
-<!--      <q-table-->
-<!--        ref="tableAnalitica"-->
-<!--        :rows="rows"-->
-<!--        :columns="columns"-->
-<!--        row-key="id"-->
-<!--        dense-->
-<!--        flat-->
-<!--        bordered-->
-<!--        :loading="loading"-->
-<!--        :pagination.sync="pagination"-->
-<!--        :rows-per-page-options="[10, 20, 50]"-->
-<!--        @request="onRequest"-->
-<!--        @rowClick="goToDetalle"-->
-<!--      >-->
-<!--        <template #top>-->
-<!--          <div class="row items-center full-width q-pa-xs">-->
-<!--            <div class="col">-->
-<!--              <div class="text-subtitle1">Prestaciones</div>-->
-<!--              <div class="text-caption text-grey-7">-->
-<!--                Mostrando solicitudes con estado <b>ENVIADO_ANALITICA</b>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </template>-->
-
-<!--        &lt;!&ndash; PACIENTE &ndash;&gt;-->
-<!--        <template #body-cell-paciente="props">-->
-<!--          <q-td :props="props">-->
-<!--            <div class="text-weight-medium">-->
-<!--              {{ props.row.paciente_nombre || props.row.paciente?.nombre_completo }}-->
-<!--            </div>-->
-<!--            <div class="text-caption text-grey-7">-->
-<!--              CI: {{ props.row.paciente_ci || props.row.paciente?.ci || '-' }}-->
-<!--            </div>-->
-<!--          </q-td>-->
-<!--        </template>-->
-
-<!--        &lt;!&ndash; ESTABLECIMIENTO &ndash;&gt;-->
-<!--        <template #body-cell-establecimiento="props">-->
-<!--          <q-td :props="props">-->
-<!--            <div>{{ props.row.establecimiento_salud || '-' }}</div>-->
-<!--          </q-td>-->
-<!--        </template>-->
-
-<!--        &lt;!&ndash; TIPO ATENCIÓN &ndash;&gt;-->
-<!--        <template #body-cell-tipo_atencion="props">-->
-<!--          <q-td :props="props">-->
-<!--            <q-chip-->
-<!--              dense-->
-<!--              :color="props.row.tipo_atencion === 'SI' ? 'green-6' : 'orange-6'"-->
-<!--              text-color="white"-->
-<!--            >-->
-<!--              {{-->
-<!--                props.row.tipo_atencion === 'SI'-->
-<!--                  ? 'SUS SI'-->
-<!--                  : props.row.tipo_otro || 'SUS NO'-->
-<!--              }}-->
-<!--            </q-chip>-->
-<!--          </q-td>-->
-<!--        </template>-->
-
-<!--        &lt;!&ndash; ESTADO &ndash;&gt;-->
-<!--        <template #body-cell-estado="props">-->
-<!--          <q-td :props="props">-->
-<!--            <q-chip-->
-<!--              dense-->
-<!--              :color="props.row.estado === 'ENVIADO_ANALITICA' ? 'purple-6' : 'grey-6'"-->
-<!--              text-color="white"-->
-<!--              icon="local_shipping"-->
-<!--            >-->
-<!--              {{ props.row.estado }}-->
-<!--            </q-chip>-->
-<!--          </q-td>-->
-<!--        </template>-->
-
-<!--        &lt;!&ndash; CÓDIGO &ndash;&gt;-->
-<!--        <template #body-cell-codigo="props">-->
-<!--          <q-td :props="props">-->
-<!--            <div v-if="props.row.codigo">-->
-<!--              <span class="text-bold">-->
-<!--                {{ props.row.codigo }} - {{ props.row.nro_registro }}-->
-<!--              </span>-->
-<!--            </div>-->
-<!--            <div v-else class="text-negative text-caption">-->
-<!--              Sin código-->
-<!--            </div>-->
-<!--          </q-td>-->
-<!--        </template>-->
-
-<!--        &lt;!&ndash; # SERVICIOS &ndash;&gt;-->
-<!--        <template #body-cell-servicios_count="props">-->
-<!--          <q-td :props="props" class="text-center">-->
-<!--            <q-badge color="primary" :label="props.row.servicios?.length || 0" />-->
-<!--          </q-td>-->
-<!--        </template>-->
-
-<!--        &lt;!&ndash; LISTA SERVICIOS &ndash;&gt;-->
-<!--        <template #body-cell-servicios="props">-->
-<!--          <q-td :props="props">-->
-<!--            <ul class="q-pa-none q-ma-none">-->
-<!--              <li v-for="servicio in props.row.servicios" :key="servicio.id">-->
-<!--                {{ textCapitalize(servicio.nombre) }}-->
-<!--              </li>-->
-<!--            </ul>-->
-<!--          </q-td>-->
-<!--        </template>-->
-
-<!--        &lt;!&ndash; RESPONSABLES &ndash;&gt;-->
-<!--        <template #body-cell-responsables="props">-->
-<!--          <q-td :props="props">-->
-<!--            <div class="text-caption">-->
-<!--              <span class="text-grey-7">Preanalítica:</span>-->
-<!--              <b>{{ props.row.user_preanalitica?.name || 'No asignado' }}</b>-->
-<!--            </div>-->
-<!--            <div class="text-caption q-mt-xs">-->
-<!--              <span class="text-grey-7">Analítica:</span>-->
-<!--              <b>{{ props.row.user_analitica?.name || 'No asignado' }}</b>-->
-<!--            </div>-->
-<!--          </q-td>-->
-<!--        </template>-->
-
-<!--        &lt;!&ndash; FOOTER &ndash;&gt;-->
-<!--        <template #bottom="scope">-->
-<!--          <div-->
-<!--            class="row items-center justify-between full-width q-px-sm q-py-xs"-->
-<!--          >-->
-<!--            <div class="col-12 col-sm-4 text-caption q-mb-xs q-mb-sm-none">-->
-<!--              Mostrando-->
-<!--              <b>{{ firstRowIndex(scope.pagination) }} - {{ lastRowIndex(scope.pagination) }}</b>-->
-<!--              de-->
-<!--              <b>{{ scope.pagination.rowsNumber }}</b>-->
-<!--              Prestaciones-->
-<!--            </div>-->
-
-<!--            <div class="col-12 col-sm-8">-->
-<!--              <div class="row items-center justify-end q-gutter-sm">-->
-<!--                <div class="col-auto">-->
-<!--                  <q-select-->
-<!--                    v-model="pagination.rowsPerPage"-->
-<!--                    :options="[10, 20, 50]"-->
-<!--                    dense-->
-<!--                    outlined-->
-<!--                    options-dense-->
-<!--                    style="width: 90px"-->
-<!--                    label="Filas"-->
-<!--                    @update:model-value="onChangeRowsPerPage"-->
-<!--                  />-->
-<!--                </div>-->
-<!--                <div class="col-auto">-->
-<!--                  <q-pagination-->
-<!--                    v-model="pagination.page"-->
-<!--                    :max="pagesNumber"-->
-<!--                    max-pages="7"-->
-<!--                    boundary-links-->
-<!--                    direction-links-->
-<!--                    icon-first="first_page"-->
-<!--                    icon-last="last_page"-->
-<!--                    icon-prev="chevron_left"-->
-<!--                    icon-next="chevron_right"-->
-<!--                    size="sm"-->
-<!--                    @update:model-value="onChangePage"-->
-<!--                  />-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </template>-->
-<!--      </q-table>-->
-      <pre>{{}}</pre>
+<!--      <pre>{{solicitudes}}</pre>-->
+<!--      [-->
+<!--      {-->
+<!--      "id": 5,-->
+<!--      "paciente_id": 3,-->
+<!--      "doctor_id": null,-->
+<!--      "codigo_solicitud": null,-->
+<!--      "tipo_atencion": "SI",-->
+<!--      "tipo_otro": null,-->
+<!--      "fecha_solicitud": "2025-12-09",-->
+<!--      "hora_solicitud": "02:47:00",-->
+<!--      "establecimiento_salud": "Hospital General",-->
+<!--      "zona_establecimiento": null,-->
+<!--      "diagnostico_clinico": null,-->
+<!--      "estado": "ENVIADO_ANALITICA",-->
+<!--      "codigo": 5,-->
+<!--      "nro_registro": "GER100789",-->
+<!--      "fecha_creacion": "2025-12-09 02:48:08",-->
+<!--      "fecha_pre_analitica": "2025-12-09 02:48:23",-->
+<!--      "fecha_envio_analitica": "2025-12-09 02:48:27",-->
+<!--      "fecha_aceptacion_analitica": null,-->
+<!--      "fecha_finalizacion": null,-->
+<!--      "sala": null,-->
+<!--      "cama": null,-->
+<!--      "paciente_nombre": "Giovana Evelyn Ramirez",-->
+<!--      "paciente_ci": "67890",-->
+<!--      "paciente_telefono": "567890",-->
+<!--      "paciente_direccion": "calle x",-->
+<!--      "paciente_fecha_nac": "1989-07-10",-->
+<!--      "paciente_genero": "F",-->
+<!--      "paciente_edad": 36,-->
+<!--      "doctor_nombre": null,-->
+<!--      "doctor_especialidad": null,-->
+<!--      "doctor_ci": null,-->
+<!--      "doctor_telefono": null,-->
+<!--      "doctor_email": null,-->
+<!--      "doctor_registro": null,-->
+<!--      "establecimiento_id": null,-->
+<!--      "user_id": 2,-->
+<!--      "user_preanalitica_id": 2,-->
+<!--      "user_analitica_id": null,-->
+<!--      "muestra_sangre_entera": null,-->
+<!--      "muestra_coagulo": null,-->
+<!--      "muestra_volumen": null,-->
+<!--      "muestra_identificacion": null,-->
+<!--      "muestra_equipo": null,-->
+<!--      "paciente": {-->
+<!--      "id": 3,-->
+<!--      "fecha_recepcion": null,-->
+<!--      "hora_recepcion": null,-->
+<!--      "nombre_completo": "Giovana Evelyn Ramirez",-->
+<!--      "fecha_nac": "1989-07-10",-->
+<!--      "genero": "F",-->
+<!--      "edad": 36,-->
+<!--      "ci": "67890",-->
+<!--      "telefono": "567890",-->
+<!--      "direccion": "calle x",-->
+<!--      "discapacidad": 0,-->
+<!--      "discapacidad_cual": null,-->
+<!--      "discapacidad_otro": null,-->
+<!--      "embarazo": 0,-->
+<!--      "fum": null,-->
+<!--      "sem_gest": null-->
+<!--      },-->
+<!--      "doctor": null,-->
+<!--      "servicios": [-->
+<!--      {-->
+<!--      "id": 84,-->
+<!--      "area_id": 5,-->
+<!--      "codigo": 86,-->
+<!--      "nombre": "CHAGAS IgG (EN SUERO)",-->
+<!--      "descripcion": null,-->
+<!--      "metodo": "ELISA",-->
+<!--      "subarea": "Infecciosos",-->
+<!--      "precio": "70.00",-->
+<!--      "estado": "ACTIVO",-->
+<!--      "pivot": {-->
+<!--      "solicitude_id": 5,-->
+<!--      "servicio_id": 84,-->
+<!--      "precio": "70.00",-->
+<!--      "area_id": 5,-->
+<!--      "nombre": "CHAGAS IgG (EN SUERO)",-->
+<!--      "created_at": "2025-12-09T06:48:08.000000Z",-->
+<!--      "updated_at": "2025-12-09T06:48:08.000000Z"-->
+<!--      },-->
+<!--      "area": {-->
+<!--      "id": 5,-->
+<!--      "name": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
+<!--      "descripcion": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
+<!--      "estado": "ACTIVO",-->
+<!--      "rangos": []-->
+<!--      }-->
+<!--      }-->
+<!--      ],-->
+<!--      "resultados": []-->
+<!--      }-->
+<!--      ]-->
     </q-card>
   </q-page>
 </template>
@@ -244,7 +200,7 @@ export default {
   data () {
     return {
       fecha: moment().format('YYYY-MM-DD'),
-      rows: [],
+      solicitudes: [],
       loading: false,
       filter: '',
     }
@@ -267,7 +223,7 @@ export default {
           fecha: this.fecha,
         }
         const response = await this.$axios.get('/solicitudesAnalitica', { params })
-        this.rows = response.data
+        this.solicitudes = response.data
       } catch (error) {
         this.$alert.error('Error al cargar las solicitudes de analítica.')
       } finally {

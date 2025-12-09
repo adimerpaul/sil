@@ -229,6 +229,19 @@
             </q-item-label>
           </q-item-section>
         </q-item>
+<!--        {-->
+<!--        path: '/formularios',-->
+<!--        component: () => import('pages/formularios/Formularios.vue'),-->
+<!--        meta: { requiresAuth: true, perm: 'Formularios' }-->
+<!--        }-->
+        <q-item dense to="/formularios" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+          <q-item-section avatar>
+            <q-icon name="description" class="text-white"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-white">Formularios</q-item-label>
+          </q-item-section>
+        </q-item>
 <!--        HEMATOLOGÍA (Area 2)-->
 <!--        QUÍMICA SANGUÍNEA Y SEROLOGÍA (Area 3)-->
 <!--        UROANÁLISIS (Area 4)-->
