@@ -16,7 +16,13 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('username')->nullable();
             $table->string('role')->default('Usuario')->nullable();
-            $table->string('area')->default('Hematologia')->nullable();
+//            $table->string('area')->default('Hematologia')->nullable();
+//            $area_id
+            $table->unsignedBigInteger('area_id')->nullable();
+            $table->foreign('area_id')
+                ->references('id')
+                ->on('areas')
+                ->onDelete('set null');
             $table->string('avatar')->default('default.png');
             $table->string('email')->nullable();
             $table->timestamp('email_verified_at')->nullable();

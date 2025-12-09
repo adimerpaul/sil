@@ -17,14 +17,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-//        'nombre',
-//        'tipo',
-//        'nivel',
-//        'direccion',
-//        'telefono_contacto',
-//        'responsable_laboratorio',
-//        'telefono_responsable',
-//        'estado',
+
         $establecimiento = \App\Models\Establecimiento::create([
             'nombre' => 'Hospital General',
             'direccion' => 'San Felipe Y 6 De Octubre Oruro, Bolivia',
@@ -46,47 +39,8 @@ class DatabaseSeeder extends Seeder
             'estado' => 'ACTIVO',
         ]);
 
-        $userAdmin = User::create([
-            'name' => 'Admin User',
-            'username' => 'admin',
-            'role' => 'Administrador',
-            'avatar' => 'default.png',
-            'email' => '',
-            'password' => 'admin123Admin',
-            'establecimiento_id' => 1,
-        ]);
-        $permisos = [
-            'Usuarios',
-            'Pacientes',
-            'Hematologia',
-            'Quimica Sanguinea',
-            'Uruanalisis y Parasitologia',
-            'Bacteriologia',
-            'Inmunologia',
 
 
-//                'Insumos',
-//                'Productos',
-//                'Clientes',
-//                'Ventas',
-//                'Compras',
-//                'Reportes',
-        ];
-        foreach ($permisos as $permiso) {
-            Permission::create(['name' => $permiso]);
-        }
-        $userAdmin->givePermissionTo(Permission::all());
-
-//        protected $fillable = [
-//        'nombre',
-//        'especialidad',
-//        'ci',
-//        'telefono',
-//        'email',
-//        'registro',
-//        'estado',
-//        'establecimiento_id'
-//    ];
         $doctor = Doctor::create([
             'nombre' => 'Dr. Juan Perez',
             'especialidad' => 'Cardiologia',
@@ -146,6 +100,32 @@ class DatabaseSeeder extends Seeder
             PerfilImpresionSeeder::class,
             AreaRangoMicrobiologiaSeeder::class,
         ]);
+
+        $userAdmin = User::create([
+            'name' => 'Admin User',
+            'username' => 'admin',
+            'role' => 'Administrador',
+            'avatar' => 'default.png',
+            'email' => '',
+            'password' => 'admin123Admin',
+            'establecimiento_id' => 1,
+            'area_id' => 1,
+        ]);
+        $permisos = [
+            'Usuarios',
+            'Pacientes',
+            'Hematologia',
+            'Quimica Sanguinea',
+            'Uruanalisis y Parasitologia',
+            'Bacteriologia',
+            'Inmunologia',
+
+        ];
+        foreach ($permisos as $permiso) {
+            Permission::create(['name' => $permiso]);
+        }
+        $userAdmin->givePermissionTo(Permission::all());
+
 //        colcoar todo los servico al hapital 1
         $servicios = \App\Models\Servicio::all();
         foreach ($servicios as $servicio) {

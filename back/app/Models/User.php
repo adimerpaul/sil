@@ -27,7 +27,7 @@ class User extends Authenticatable implements Auditable
         'avatar',
         'email',
         'password',
-        'area',
+        'area_id',
         'establecimiento_id',
     ];
 
@@ -58,5 +58,9 @@ class User extends Authenticatable implements Auditable
     }
     function establecimiento(){
         return $this->belongsTo(Establecimiento::class);
+    }
+//    area
+    function area(){
+        return $this->belongsTo(Area::class);
     }
 }

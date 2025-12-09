@@ -55,7 +55,11 @@ class UserController extends Controller{
     }
     function login(Request $request){
         $credentials = $request->only('username', 'password');
-        $user = User::where('username', $credentials['username'])->with('permissions:id,name')->first();
+        $user = User::where('username', $credentials['username'])
+            ->with('permissions:id,name')
+            ->with('establecimiento')
+            ->with('area')
+            ->first();
         if (!$user || !password_verify($credentials['password'], $user->password)) {
             return response()->json([
                 'message' => 'Usuario o contraseña incorrectos',
@@ -82,6 +86,7 @@ class UserController extends Controller{
         return User::where('id', '!=', 0)
             ->with('permissions:id,name')
             ->with('establecimiento')
+            ->with('area')
             ->orderBy('id', 'desc')
             ->get();
     }
