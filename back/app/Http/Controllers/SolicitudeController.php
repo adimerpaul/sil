@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PerfilImpresion;
+use App\Models\ServicioSolicitude;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Models\ResultadoLaboratorio;
@@ -17,6 +18,31 @@ use Illuminate\Support\Facades\DB;
 
 class SolicitudeController extends Controller
 {
+    function solicitudesAnalitica(Request $request){
+
+        $filter = $request->input('filter', '');
+        $fecha = $request->input('fecha', '');
+        $query = Solicitude::with(['paciente', 'doctor', 'servicios.area.rangos', 'resultados'])
+            ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO']);
+        $user = $request->user();
+//        if ($user->role !== 'Administrador') {
+//            $query->where('area_analitica_id', $user->area_analitica_id);
+//        }
+        if (!empty($filter)) {
+            $query->where(function ($q) use ($filter) {
+                $q->where('paciente_nombre', 'like', "%$filter%")
+                    ->orWhereHas('paciente', function ($q2) use ($filter) {
+                        $q2->where('nombre_completo', 'like', "%$filter%")
+                            ->orWhere('ci', 'like', "%$filter%");
+                    })
+                    ->orWhere('establecimiento_salud', 'like', "%$filter%");
+            });
+        }
+        if (!empty($fecha)) {
+            $query->whereDate('fecha_creacion', $fecha);
+        }
+        return $query->orderBy('id', 'desc')->get();
+    }
     public function imprimirAnaliticaPublica($codigo)
     {
         $solicitud = Solicitude::with([
@@ -270,9 +296,9 @@ class SolicitudeController extends Controller
             $data['user_id'] = $request->user()->id;
         }
 
-        error_log('establecimiento_salud: ' . $request->establecimiento_salud);
+//        error_log('establecimiento_salud: ' . $request->establecimiento_salud);
         $EstablecimientoSalud = \App\Models\Establecimiento::where('nombre', $request->establecimiento_salud)->first();
-        error_log('EstablecimientoSalud: ' . json_encode($EstablecimientoSalud));
+//        error_log('EstablecimientoSalud: ' . json_encode($EstablecimientoSalud));
         if ($EstablecimientoSalud) {
             $data['establecimiento_id'] = $EstablecimientoSalud->id;
         }
@@ -299,7 +325,18 @@ class SolicitudeController extends Controller
 
         $solicitud = Solicitude::create($data);
 
-        $this->syncServicios($solicitud, $request->input('servicios', []));
+//        $this->syncServicios($solicitud, $request->input('servicios', []));
+        $servicios = $request->input('servicios', []);
+        foreach ($servicios as $servicio) {
+//            $servicioSolicitud = Servicio::find($servicio['id']);
+            $newServicioSolicitud = new ServicioSolicitude();
+            $newServicioSolicitud->solicitude_id = $solicitud->id;
+            $newServicioSolicitud->servicio_id = $servicio['id'];
+            $newServicioSolicitud->area_id = $servicio['area_id'];
+            $newServicioSolicitud->precio = $servicio['precio'] ?? null;
+            $newServicioSolicitud->nombre = $servicio['nombre'] ?? '';
+            $newServicioSolicitud->save();
+        }
 
         return response()->json($solicitud->load(['paciente', 'doctor', 'servicios']), 201);
     }

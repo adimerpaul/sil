@@ -78,8 +78,13 @@ class UserController extends Controller{
         ]);
     }
     function me(Request $request){
-        $user = $request->user();
-        $user->load('permissions:id,name');
+//        $user = $request->user();
+//        $user->load('permissions,establecimiento,area');
+        $user = User::where('id', $request->user()->id)
+            ->with('permissions:id,name')
+            ->with('establecimiento')
+            ->with('area')
+            ->first();
         return response()->json($user);
     }
     function index(){

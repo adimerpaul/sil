@@ -15,8 +15,12 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('solicitude_id');
             $table->unsignedBigInteger('servicio_id');
-//            precio
+            $table->unsignedBigInteger('area_id');
             $table->decimal('precio', 10, 2)->default(0);
+            $table->string('nombre')->nullable();
+            $table->foreign('solicitude_id')->references('id')->on('solicitudes')->onDelete('cascade');
+            $table->foreign('servicio_id')->references('id')->on('servicios')->onDelete('cascade');
+            $table->foreign('area_id')->references('id')->on('areas')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
         });

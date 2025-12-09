@@ -111,6 +111,38 @@ class DatabaseSeeder extends Seeder
             'establecimiento_id' => 1,
             'area_id' => 1,
         ]);
+        $iveth = User::create([
+            'name'  => 'Iveth Carrasco Calzaya',
+            'username' => 'iveth',
+            'role'  => 'Paciente',
+            'avatar' => 'default.png',
+            'email' => '',
+            'password' => '3517836', // o Hash::make('3517836')
+            'establecimiento_id' => 1,
+            'area_id' => 5,
+        ]);
+
+        $nely = User::create([
+            'name'  => 'Nely Mena Rodríguez',
+            'username' => 'nely',
+            'role'  => 'Paciente',
+            'avatar' => 'default.png',
+            'email' => '',
+            'password' => '7286118', // o Hash::make('7286118')
+            'establecimiento_id' => 1,
+            'area_id' => 5,
+        ]);
+
+        $juan = User::create([
+            'name'  => 'Juan Carlos Soto',
+            'username' => 'juan',
+            'role'  => 'Paciente',
+            'avatar' => 'default.png',
+            'email' => '',
+            'password' => '7296413', // o Hash::make('7296413')
+            'establecimiento_id' => 1,
+            'area_id' => 5,
+        ]);
         $permisos = [
             'Usuarios',
             'Pacientes',

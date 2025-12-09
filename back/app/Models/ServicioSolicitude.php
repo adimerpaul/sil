@@ -12,6 +12,9 @@ class ServicioSolicitude extends Model implements AuditableContract
     protected $fillable = [
         'solicitud_id',
         'servicio_id',
+        'area_id',
+        'precio',
+        'nombre',
     ];
 
     protected $hidden = [
