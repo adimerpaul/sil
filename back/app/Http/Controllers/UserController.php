@@ -19,7 +19,7 @@ class UserController extends Controller{
     }
     function userPermissions(Request $request, $userId){
         $user = User::findOrFail($userId);
-        return $user->permissions()->pluck('name');
+        return $user->permissions()->pluck('id');
     }
     function permissions(){
         return  Permission::all();

@@ -104,7 +104,20 @@
         <q-item-label header class="q-px-md text-grey-3 q-mt-sm">
           Módulos del Sistema
         </q-item-label>
-        <q-item dense to="/" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+<!--        $permisos = [-->
+<!--        'Dashboard',-->
+<!--        'Usuarios',-->
+<!--        'Pacientes',-->
+<!--        'Doctores',-->
+<!--        'Establecimientos',-->
+<!--        'Servicios',-->
+<!--        'Concentimientos',-->
+<!--        'Solicitudes',-->
+<!--        'Area preanalitica',-->
+<!--        'Analitica',-->
+<!--        'Formularios',-->
+<!--        ];-->
+        <q-item dense to="/" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Dashboard')">
           <q-item-section avatar>
             <q-icon name="dashboard" class="text-white"/>
           </q-item-section>
@@ -112,43 +125,7 @@
             <q-item-label class="text-white">Dashboard</q-item-label>
           </q-item-section>
         </q-item>
-<!--        <q-expansion-item dense expand-separator icon="gavel" label="Modulo Producción Primaria" active-class="menu-active" >-->
-<!--          <q-list>-->
-<!--            <q-item :inset-level="0.3" dense to="/productores/crear" clickable class="menu-item" active-class="menu-active" v-close-popup >-->
-<!--              <q-item-section avatar>-->
-<!--                <q-icon name="person_add" class="text-white"/>-->
-<!--              </q-item-section>-->
-<!--              <q-item-section>-->
-<!--                <q-item-label class="text-white">Crear Productor</q-item-label>-->
-<!--              </q-item-section>-->
-<!--            </q-item>-->
-<!--            <q-item :inset-level="0.3" dense to="/productores" clickable class="menu-item" active-class="menu-active" v-close-popup >-->
-<!--              <q-item-section avatar>-->
-<!--                <q-icon name="agriculture" class="text-white"/>-->
-<!--              </q-item-section>-->
-<!--              <q-item-section>-->
-<!--                <q-item-label class="text-white">Gestion de Productores</q-item-label>-->
-<!--              </q-item-section>-->
-<!--            </q-item>-->
-<!--            <q-item :inset-level="0.3" dense to="/geocrud" clickable class="menu-item" active-class="menu-active" v-close-popup >-->
-<!--              <q-item-section avatar>-->
-<!--                <q-icon name="location_city" class="text-white"/>-->
-<!--              </q-item-section>-->
-<!--              <q-item-section>-->
-<!--                <q-item-label class="text-white">Departamento / Provincia </q-item-label>-->
-<!--              </q-item-section>-->
-<!--            </q-item>-->
-<!--            <q-item :inset-level="0.3" dense to="/organizaciones" clickable class="menu-item" active-class="menu-active" v-close-popup >-->
-<!--              <q-item-section avatar>-->
-<!--                <q-icon name="apartment" class="text-white"/>-->
-<!--              </q-item-section>-->
-<!--              <q-item-section>-->
-<!--                <q-item-label class="text-white">Módulo de convenios</q-item-label>-->
-<!--              </q-item-section>-->
-<!--            </q-item>-->
-<!--          </q-list>-->
-<!--        </q-expansion-item>-->
-        <q-item dense to="/usuarios" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+        <q-item dense to="/usuarios" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Usuarios')">
           <q-item-section avatar>
             <q-icon name="people" class="text-white"/>
           </q-item-section>
@@ -156,8 +133,7 @@
             <q-item-label class="text-white">Usuarios</q-item-label>
           </q-item-section>
         </q-item>
-<!--        pacientes-->
-        <q-item dense to="/pacientes" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+        <q-item dense to="/pacientes" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Pacientes')">
           <q-item-section avatar>
             <q-icon name="folder_shared" class="text-white"/>
           </q-item-section>
@@ -165,8 +141,7 @@
             <q-item-label class="text-white">Pacientes</q-item-label>
           </q-item-section>
         </q-item>
-<!--        concentimientos-->
-        <q-item dense to="/consentimientos" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+        <q-item dense to="/consentimientos" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Consentimientos')">
           <q-item-section avatar>
             <q-icon name="assignment_turned_in" class="text-white"/>
           </q-item-section>
@@ -174,8 +149,7 @@
             <q-item-label class="text-white">Consentimientos</q-item-label>
           </q-item-section>
         </q-item>
-<!--        doctores-->
-        <q-item dense to="/doctores" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+        <q-item dense to="/doctores" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Doctores')">
           <q-item-section avatar>
             <q-icon name="medical_services" class="text-white"/>
           </q-item-section>
@@ -183,8 +157,7 @@
             <q-item-label class="text-white">Doctores</q-item-label>
           </q-item-section>
         </q-item>
-<!--        solicitudes-->
-        <q-item dense to="/solicitudes" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+        <q-item dense to="/solicitudes" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Solicitudes')">
           <q-item-section avatar>
             <q-icon name="request_page" class="text-white"/>
           </q-item-section>
@@ -192,8 +165,7 @@
             <q-item-label class="text-white">Solicitudes</q-item-label>
           </q-item-section>
         </q-item>
-<!--        establecimientos-->
-        <q-item dense to="/establecimientos" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+        <q-item dense to="/establecimientos" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Establecimientos')">
           <q-item-section avatar>
             <q-icon name="local_hospital" class="text-white"/>
           </q-item-section>
@@ -201,7 +173,7 @@
             <q-item-label class="text-white">Establecimientos</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item dense to="/servicios" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+        <q-item dense to="/servicios" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Servicios')">
           <q-item-section avatar>
             <q-icon name="room_service" class="text-white"/>
           </q-item-section>
@@ -209,8 +181,7 @@
             <q-item-label class="text-white">Servicios</q-item-label>
           </q-item-section>
         </q-item>
-<!--        AREA PREANALITICA-->
-        <q-item dense to="/area-preanalitica" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+        <q-item dense to="/area-preanalitica" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Area preanalitica')">
           <q-item-section avatar>
             <q-icon name="science" class="text-white"/>
           </q-item-section>
@@ -218,8 +189,7 @@
             <q-item-label class="text-white">Área Preanalítica</q-item-label>
           </q-item-section>
         </q-item>
-<!--        analitica-->
-        <q-item dense to="/analitica" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+        <q-item dense to="/analitica" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Analitica')">
           <q-item-section avatar>
             <q-icon name="biotech" class="text-white"/>
           </q-item-section>
@@ -234,7 +204,7 @@
 <!--        component: () => import('pages/formularios/Formularios.vue'),-->
 <!--        meta: { requiresAuth: true, perm: 'Formularios' }-->
 <!--        }-->
-        <q-item dense to="/formularios" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+        <q-item dense to="/formularios" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Formularios')">
           <q-item-section avatar>
             <q-icon name="description" class="text-white"/>
           </q-item-section>
@@ -289,7 +259,9 @@ const leftDrawerOpen = ref(false)
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
-
+function hasPermission(perm) {
+  return proxy.$store.permissions.includes(perm)
+}
 function logout () {
   proxy.$alert.dialog('¿Desea salir del sistema?')
     .onOk(() => {

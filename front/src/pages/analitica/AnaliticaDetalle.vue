@@ -80,11 +80,11 @@
         <div class="row q-col-gutter-sm">
           <div class="col-12 text-center">
             <div class="text-subtitle1 text-weight-bold">
-              ANALÍTICA
+              {{$store.user.area?.name}}
             </div>
-            <div class="text-caption text-grey-7">
-              (Diseño estilo planilla, similar al formato Word)
-            </div>
+<!--            <div class="text-caption text-grey-7">-->
+<!--              (Diseño estilo planilla, similar al formato Word)-->
+<!--            </div>-->
           </div>
         </div>
 
@@ -139,76 +139,85 @@
 
             <div class="q-mt-xs"><b>Diagnóstico clínico:</b></div>
             <div>{{ solicitud?.diagnostico_clinico || '-' }}</div>
+            <div>
+              <span class="text-bold">Muestras: </span><br>
+<!--              tiposMuestra-->
+              <ul v-for="muestra in tiposMuestra" :key="muestra.id" style="padding-left: 1em; margin: 0;">
+                <li v-if="muestra.selected">
+                  {{ muestra.area_tipo_muestra?.tipo_muestra || muestra.nombre || '-' }}
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </q-card-section>
     </q-card>
 
     <!-- TIPOS DE MUESTRA DESDE PRE-ANALÍTICA -->
-    <q-card flat bordered class="q-mb-sm">
-      <q-card-section class="q-pa-sm">
-        <div
-          v-if="tiposMuestra.length"
-          class="q-mt-none"
-        >
-          <div class="text-subtitle2 q-mb-xs">
-            Tipos de muestra enviados desde Pre-analítica
-          </div>
-          <q-markup-table dense bordered flat class="full-width">
-            <thead>
-            <tr>
-              <th class="text-left">Área</th>
-              <th class="text-left">Tipo de muestra</th>
-              <th class="text-center">Estado</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr
-              v-for="m in tiposMuestra"
-              :key="m.id"
-            >
-              <td class="text-left text-caption">
-                {{ m.area_tipo_muestra?.area?.name || '-' }}
-              </td>
-              <td class="text-left text-caption">
-                {{ m.area_tipo_muestra?.tipo_muestra || m.nombre || '-' }}
-              </td>
-              <td class="text-center text-caption">
-                <q-badge
-                  v-if="m.selected"
-                  color="green"
-                  label="Seleccionada"
-                  outline
-                  dense
-                />
-                <q-badge
-                  v-else
-                  color="grey"
-                  label="Pendiente"
-                  outline
-                  dense
-                />
-              </td>
-            </tr>
-            </tbody>
-          </q-markup-table>
-        </div>
-      </q-card-section>
-    </q-card>
+<!--    <q-card flat bordered class="q-mb-sm">-->
+<!--      <q-card-section class="q-pa-sm">-->
+<!--        <div-->
+<!--          v-if="tiposMuestra.length"-->
+<!--          class="q-mt-none"-->
+<!--        >-->
+<!--          <div class="text-subtitle2 q-mb-xs">-->
+<!--            Tipos de muestra enviados desde Pre-analítica-->
+<!--          </div>-->
+<!--          <q-markup-table dense bordered flat class="full-width">-->
+<!--            <thead>-->
+<!--            <tr>-->
+<!--              <th class="text-left">Área</th>-->
+<!--              <th class="text-left">Tipo de muestra</th>-->
+<!--              <th class="text-center">Estado</th>-->
+<!--            </tr>-->
+<!--            </thead>-->
+<!--            <tbody>-->
+<!--            <tr-->
+<!--              v-for="m in tiposMuestra"-->
+<!--              :key="m.id"-->
+<!--            >-->
+<!--              <td class="text-left text-caption">-->
+<!--                {{ m.area_tipo_muestra?.area?.name || '-' }}-->
+<!--              </td>-->
+<!--              <td class="text-left text-caption">-->
+<!--                {{ m.area_tipo_muestra?.tipo_muestra || m.nombre || '-' }}-->
+<!--              </td>-->
+<!--              <td class="text-center text-caption">-->
+<!--                <q-badge-->
+<!--                  v-if="m.selected"-->
+<!--                  color="green"-->
+<!--                  label="Seleccionada"-->
+<!--                  outline-->
+<!--                  dense-->
+<!--                />-->
+<!--                <q-badge-->
+<!--                  v-else-->
+<!--                  color="grey"-->
+<!--                  label="Pendiente"-->
+<!--                  outline-->
+<!--                  dense-->
+<!--                />-->
+<!--              </td>-->
+<!--            </tr>-->
+<!--            </tbody>-->
+<!--          </q-markup-table>-->
+<!--        </div>-->
+<!--      </q-card-section>-->
+<!--    </q-card>-->
 
     <!-- LISTA DE ÁREAS, SERVICIOS Y RANGOS -->
     <q-card flat bordered class="q-mb-md">
-      <q-card-section class="q-pa-sm">
-        <div class="text-subtitle2 q-mb-xs">
-          Resultados por área y rango
-        </div>
-        <div class="text-caption text-grey-7">
-          Cada área muestra sus parámetros (rangos de referencia). Escribe el
-          valor obtenido para el paciente.
-        </div>
-      </q-card-section>
+<!--      <q-card-section class="q-pa-sm">-->
+<!--        <div class="text-subtitle2 q-mb-xs">-->
+<!--          Resultados por área y rango-->
+<!--        </div>-->
+<!--        <div class="text-caption text-grey-7">-->
+<!--          Cada área muestra sus parámetros (rangos de referencia). Escribe el-->
+<!--          valor obtenido para el paciente.-->
+<!--        </div>-->
+<!--      </q-card-section>-->
 
-      <q-separator />
+<!--      <q-separator />-->
 
       <q-card-section class="q-pa-sm">
         <q-skeleton
@@ -1066,7 +1075,7 @@
                 </q-form>
 
                 <!-- TABLA DE PARÁMETROS -->
-                <q-markup-table dense bordered flat class="full-width">
+                <q-markup-table dense bordered flat class="full-width" v-if="area.rangos.length > 0">
                   <thead>
                   <tr>
                     <th class="text-left">Parámetro</th>
@@ -1160,6 +1169,71 @@
                   </tr>
                   </tbody>
                 </q-markup-table>
+                <div v-else>
+                  <div class="row">
+                    <div class="col-12 col-md-9"></div>
+                    <div class="col-12 col-md-3">
+                      <div class="text-caption text-grey-7 text-center">
+<!--                        Seleccióne un area para insertar -->
+                        Seleccióne un formulario para insertar <br>
+                        <template  v-for="formulario in formularios" :key="formulario.id">
+                          <q-btn class="q-ma-xs" size="sm" color="primary" :label="formulario.nombre" no-caps cl/>
+                          <br>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+                  <pre>{{formularios}}</pre>
+<!--                  [-->
+<!--                  {-->
+<!--                  "id": 27,-->
+<!--                  "nombre": "Marcadores Cardiacos – Troponina I (cTnI)",-->
+<!--                  "area_id": 5,-->
+<!--                  "html": "<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" width=\"100%\">\n    <thead>\n        <tr>\n            <th>ANALITO</th>\n            <th colspan=\"2\">RESULTADOS</th>\n            <th>VALORES DE REFERENCIA</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>TROPONINA-I (cTnI)</td>\n            <td></td>\n            <td>ng/ml</td>\n            <td>Menor a 1,3 ng/ml</td>\n        </tr>\n    </tbody>\n</table>",-->
+<!--                  "area": {-->
+<!--                  "id": 5,-->
+<!--                  "name": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
+<!--                  "descripcion": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
+<!--                  "estado": "ACTIVO"-->
+<!--                  }-->
+<!--                  },-->
+<!--                  {-->
+<!--                  "id": 26,-->
+<!--                  "nombre": "Paratohormona (PTH) – CLIA",-->
+<!--                  "area_id": 5,-->
+<!--                  "html": "<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" width=\"100%\">\n    <thead>\n        <tr>\n            <th>ANALITO</th>\n            <th colspan=\"2\">RESULTADOS</th>\n            <th>VALORES DE REFERENCIA</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>PARATOHORMONA (PTH)</td>\n            <td></td>\n            <td>pg/ml</td>\n            <td>9,0 a 94,0 pg/ml</td>\n        </tr>\n    </tbody>\n</table>",-->
+<!--                  "area": {-->
+<!--                  "id": 5,-->
+<!--                  "name": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
+<!--                  "descripcion": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
+<!--                  "estado": "ACTIVO"-->
+<!--                  }-->
+<!--                  },-->
+<!--                  {-->
+<!--                  "id": 25,-->
+<!--                  "nombre": "Marcadores Tumorales – Elisa / CLIA",-->
+<!--                  "area_id": 5,-->
+<!--                  "html": "<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" width=\"100%\">\n    <thead>\n        <tr>\n            <th>ANALITO</th>\n            <th colspan=\"2\">RESULTADOS</th>\n            <th>VALOR DE REFERENCIA</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr><td>CA-19-9</td><td></td><td>U/ml</td><td>Hasta 40,0 U/ml</td></tr>\n        <tr><td>CA-125</td><td></td><td>U/ml</td><td>Hasta 35,0 U/ml</td></tr>\n        <tr><td>CEA</td><td></td><td>ng/ml</td><td>Hasta 10,0 ng/ml</td></tr>\n        <tr><td>AFP</td><td></td><td>ng/ml</td><td>Hasta 8,5 ng/ml</td></tr>\n        <tr><td>CA-15-3</td><td></td><td>U/ml</td><td>Hasta 32,0 U/ml</td></tr>\n    </tbody>\n</table>",-->
+<!--                  "area": {-->
+<!--                  "id": 5,-->
+<!--                  "name": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
+<!--                  "descripcion": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
+<!--                  "estado": "ACTIVO"-->
+<!--                  }-->
+<!--                  },-->
+<!--                  {-->
+<!--                  "id": 24,-->
+<!--                  "nombre": "Marcadores de Diabetes – Péptido C e Insulina",-->
+<!--                  "area_id": 5,-->
+<!--                  "html": "<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" width=\"100%\">\n    <thead>\n        <tr>\n            <th>ANALITO</th>\n            <th colspan=\"2\">RESULTADOS</th>\n            <th>VALOR DE REFERENCIA</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>PÉPTIDO C</td>\n            <td></td>\n            <td>ng/ml</td>\n            <td>0,7 a 1,9 ng/ml</td>\n        </tr>\n        <tr>\n            <td>INSULINA</td>\n            <td></td>\n            <td>uUI/ml</td>\n            <td>\n                Niños: &lt; a 10 uUI/ml<br>\n                Adultos: 0,7 a 9,0 uUI/ml<br>\n                Diabéticos: 0,7 a 25,0 uUI/ml\n            </td>\n        </tr>\n    </tbody>\n</table>",-->
+<!--                  "area": {-->
+<!--                  "id": 5,-->
+<!--                  "name": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
+<!--                  "descripcion": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
+<!--                  "estado": "ACTIVO"-->
+<!--                  }-->
+<!--                  },-->
+                </div>
               </q-card-section>
             </q-card>
           </div>
@@ -1182,6 +1256,7 @@ export default {
   data () {
     return {
       qeditor: '',
+      formularios: [],
       loading: false,
       saving: false,
       solicitud: null,
@@ -1221,8 +1296,21 @@ export default {
   },
   mounted () {
     this.cargarSolicitud()
+    this.formulariosGet()
   },
   methods: {
+    formulariosGet () {
+      this.$axios
+        .get('formularios')
+        .then(res => {
+          this.formularios = res.data.data || []
+        })
+        .catch(err => {
+          console.error(err)
+          const msg = err.response?.data?.message || err.message
+          this.$alert?.error?.('Error al cargar formularios: ' + msg)
+        })
+    },
     mandarDoctor () {
       if (!this.solicitud) return
 

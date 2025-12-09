@@ -61,7 +61,7 @@
         <div class="col-12">
           <q-markup-table dense wrap-cells flat bordered>
             <thead>
-            <tr class="bg-primary text-white">
+            <tr class="bg-primary text-white" >
               <th>Id</th>
               <th>Paciente</th>
               <th>CI</th>
@@ -72,7 +72,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="solicitud in solicitudes" :key="solicitud.id">
+            <tr v-for="solicitud in solicitudes" :key="solicitud.id" @click="selectRow(solicitud)" style="cursor: pointer;">
               <td>{{ solicitud.id }}</td>
               <td>{{ solicitud.paciente_nombre }}</td>
               <td>{{ solicitud.paciente_ci }}</td>
@@ -211,6 +211,9 @@ export default {
     this.analiticaGet()
   },
   methods: {
+    selectRow(solicitud) {
+      this.$router.push({ name: 'analitica-detalle', params: { id: solicitud.id } })
+    },
     clearFilter () {
       this.filter = ''
       this.analiticaGet()

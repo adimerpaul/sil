@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Doctor;
+use App\Models\Paciente;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -99,6 +100,7 @@ class DatabaseSeeder extends Seeder
             AreaRangoQuimicaSeeder::class,
             PerfilImpresionSeeder::class,
             AreaRangoMicrobiologiaSeeder::class,
+            FormularioSeeder::class,
         ]);
 
         $userAdmin = User::create([
@@ -117,7 +119,7 @@ class DatabaseSeeder extends Seeder
             'role'  => 'Paciente',
             'avatar' => 'default.png',
             'email' => '',
-            'password' => '3517836', // o Hash::make('3517836')
+            'password' => '1234567', // o Hash::make('3517836')
             'establecimiento_id' => 1,
             'area_id' => 5,
         ]);
@@ -128,7 +130,7 @@ class DatabaseSeeder extends Seeder
             'role'  => 'Paciente',
             'avatar' => 'default.png',
             'email' => '',
-            'password' => '7286118', // o Hash::make('7286118')
+            'password' => '1234567', // o Hash::make('7286118')
             'establecimiento_id' => 1,
             'area_id' => 5,
         ]);
@@ -139,20 +141,52 @@ class DatabaseSeeder extends Seeder
             'role'  => 'Paciente',
             'avatar' => 'default.png',
             'email' => '',
-            'password' => '7296413', // o Hash::make('7296413')
+            'password' => '1234567', // o Hash::make('7296413')
+            'establecimiento_id' => 1,
+            'area_id' => 5,
+        ]);
+//        usuario admicion
+        $admision = User::create([
+            'name'  => 'Lucia Fernandez',
+            'username' => 'admision',
+            'role'  => 'Admision',
+            'avatar' => 'default.png',
+            'email' => '',
+            'password' => '1234567', // o Hash::make('admision123')
             'establecimiento_id' => 1,
             'area_id' => 5,
         ]);
         $permisos = [
+            'Dashboard',
             'Usuarios',
             'Pacientes',
-            'Hematologia',
-            'Quimica Sanguinea',
-            'Uruanalisis y Parasitologia',
-            'Bacteriologia',
-            'Inmunologia',
-
+            'Doctores',
+            'Establecimientos',
+            'Servicios',
+            'Consentimientos',
+            'Solicitudes',
+            'Area preanalitica',
+            'Analitica',
+            'Formularios',
         ];
+//        protected $fillable = [
+//        'fecha_recepcion', 'hora_recepcion',
+//        'nombre_completo', 'fecha_nac', 'genero', 'edad',
+//        'ci', 'telefono', 'direccion',
+//        'discapacidad', 'discapacidad_cual', 'discapacidad_otro',
+//        'embarazo', 'fum', 'sem_gest'
+//    ];
+        $pacienteAdimer = Paciente::create([
+            'nombre_completo' => 'Adimer Paul Chambi Ajata',
+            'fecha_nac' => '1985-03-10',
+            'genero' => 'M',
+            'edad' => 39,
+            'ci' => '7336199',
+            'telefono' => '555-0001',
+            'direccion' => 'Av. Siempre Viva 742',
+            'fecha_recepcion' => now()->toDateString(),
+            'hora_recepcion' => now()->toTimeString(),
+        ]);
         foreach ($permisos as $permiso) {
             Permission::create(['name' => $permiso]);
         }

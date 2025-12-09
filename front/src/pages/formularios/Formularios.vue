@@ -63,8 +63,11 @@
           :pagination="pagination"
           @request="onRequest"
           flat
+          dense
+          wrap-cells
           separator="horizontal"
           class="no-border-radius"
+          :rows-per-page-options="[0]"
         >
           <template #loading>
             <q-inner-loading showing>
@@ -80,36 +83,68 @@
                 text-color="white"
                 outline
               >
-                {{ props.row.area?.nombre || 'Sin área' }}
+                {{ props.row.area?.name || 'Sin área' }}
               </q-chip>
+            </q-td>
+          </template>
+<!--          template html-->
+          <template #body-cell-html="props">
+            <q-td :props="props">
+              <div style="max-height: 100px; overflow: auto; border: 1px solid #e0e0e0; padding: 8px; border-radius: 4px; background-color: #f9f9f9;">
+                <div v-html="props.row.html"></div>
+              </div>
             </q-td>
           </template>
 
           <template #body-cell-actions="props">
             <q-td :props="props" auto-width>
-              <q-btn
-                dense round flat
-                icon="visibility"
-                @click="openDialogView(props.row)"
-              >
-                <q-tooltip>Ver</q-tooltip>
-              </q-btn>
-              <q-btn
-                dense round flat
-                icon="edit"
-                color="primary"
-                @click="openDialogEdit(props.row)"
-              >
-                <q-tooltip>Editar</q-tooltip>
-              </q-btn>
-              <q-btn
-                dense round flat
-                icon="delete"
-                color="negative"
-                @click="confirmDelete(props.row)"
-              >
-                <q-tooltip>Eliminar</q-tooltip>
-              </q-btn>
+              <q-btn-dropdown label="Opciones" color="primary" dense no-caps size="10px">
+                <q-list>
+                  <q-item clickable v-ripple @click="openDialogView(props.row)" v-close-popup>
+                    <q-item-section avatar>
+                      <q-icon name="visibility" />
+                    </q-item-section>
+                    <q-item-section>Ver</q-item-section>
+                  </q-item>
+
+                  <q-item clickable v-ripple @click="openDialogEdit(props.row)" v-close-popup>
+                    <q-item-section avatar>
+                      <q-icon name="edit" />
+                    </q-item-section>
+                    <q-item-section>Editar</q-item-section>
+                  </q-item>
+
+                  <q-item clickable v-ripple @click="confirmDelete(props.row)" v-close-popup>
+                    <q-item-section avatar>
+                      <q-icon name="delete" />
+                    </q-item-section>
+                    <q-item-section>Eliminar</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
+<!--              <q-btn-->
+<!--                dense round flat-->
+<!--                icon="visibility"-->
+<!--                @click="openDialogView(props.row)"-->
+<!--              >-->
+<!--                <q-tooltip>Ver</q-tooltip>-->
+<!--              </q-btn>-->
+<!--              <q-btn-->
+<!--                dense round flat-->
+<!--                icon="edit"-->
+<!--                color="primary"-->
+<!--                @click="openDialogEdit(props.row)"-->
+<!--              >-->
+<!--                <q-tooltip>Editar</q-tooltip>-->
+<!--              </q-btn>-->
+<!--              <q-btn-->
+<!--                dense round flat-->
+<!--                icon="delete"-->
+<!--                color="negative"-->
+<!--                @click="confirmDelete(props.row)"-->
+<!--              >-->
+<!--                <q-tooltip>Eliminar</q-tooltip>-->
+<!--              </q-btn>-->
             </q-td>
           </template>
         </q-table>
@@ -252,15 +287,18 @@ export default {
         rowsNumber: 0,
       },
       columns: [
+        { name: 'actions', label: 'Acciones', field: 'id', align: 'right' },
         { name: 'id', label: 'ID', field: 'id', align: 'left', sortable: true },
         { name: 'nombre', label: 'Nombre', field: 'nombre', align: 'left', sortable: true },
         {
           name: 'area',
           label: 'Área',
-          field: row => row.area?.nombre,
+          field: row => row.area?.name,
           align: 'left',
           sortable: false
         },
+        // html
+        { name: 'html', label: 'Contenido HTML', field: 'html', align: 'left', sortable: false },
         // {
         //   name: 'updated_at',
         //   label: 'Actualizado',
@@ -269,7 +307,6 @@ export default {
         //   sortable: true,
         //   format: val => (val ? val.substring(0, 10) : '')
         // },
-        { name: 'actions', label: 'Acciones', field: 'id', align: 'right' }
       ],
       dialog: {
         visible: false,

@@ -153,7 +153,7 @@ class ServiciosSeeder extends Seeder
             // INMUNOLOGÍA / INFECCIOSOS
             // ---------------------------------------------------------
             [
-                'name' => 'INMUNOLOGÍA / INFECCIOSOS (Area 6)',
+                'name' => 'INMUNOLOGÍA (Area 6)',
                 'servicios' => [
                     [ 'codigo' => 86, 'nombre' => 'CHAGAS IgG (EN SUERO)',                             'metodo' => 'ELISA',        'precio' => 70 , 'subarea'=>'Infecciosos' ],
                     [ 'codigo' => 87, 'nombre' => 'CHAGAS (EN SUERO)',                                 'metodo' => 'HAI Y ELISA',  'precio' => 110 , 'subarea'=>'Infecciosos' ],
