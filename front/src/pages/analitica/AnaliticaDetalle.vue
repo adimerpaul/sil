@@ -56,13 +56,22 @@
               </q-item>
             </q-list>
           </q-btn-dropdown>
+<!--          <q-btn-->
+<!--            flat-->
+<!--            color="primary"-->
+<!--            icon="close"-->
+<!--            label="Cancelar"-->
+<!--            no-caps-->
+<!--            @click="$router.back()"-->
+<!--          />-->
+<!--          actulizar btn-->
           <q-btn
             flat
             color="primary"
-            icon="close"
-            label="Cancelar"
+            icon="refresh"
+            :loading="saving"
             no-caps
-            @click="$router.back()"
+            @click="cargarSolicitud"
           />
           <q-btn
             unelevated
@@ -153,72 +162,8 @@
       </q-card-section>
     </q-card>
 
-    <!-- TIPOS DE MUESTRA DESDE PRE-ANALÍTICA -->
-<!--    <q-card flat bordered class="q-mb-sm">-->
-<!--      <q-card-section class="q-pa-sm">-->
-<!--        <div-->
-<!--          v-if="tiposMuestra.length"-->
-<!--          class="q-mt-none"-->
-<!--        >-->
-<!--          <div class="text-subtitle2 q-mb-xs">-->
-<!--            Tipos de muestra enviados desde Pre-analítica-->
-<!--          </div>-->
-<!--          <q-markup-table dense bordered flat class="full-width">-->
-<!--            <thead>-->
-<!--            <tr>-->
-<!--              <th class="text-left">Área</th>-->
-<!--              <th class="text-left">Tipo de muestra</th>-->
-<!--              <th class="text-center">Estado</th>-->
-<!--            </tr>-->
-<!--            </thead>-->
-<!--            <tbody>-->
-<!--            <tr-->
-<!--              v-for="m in tiposMuestra"-->
-<!--              :key="m.id"-->
-<!--            >-->
-<!--              <td class="text-left text-caption">-->
-<!--                {{ m.area_tipo_muestra?.area?.name || '-' }}-->
-<!--              </td>-->
-<!--              <td class="text-left text-caption">-->
-<!--                {{ m.area_tipo_muestra?.tipo_muestra || m.nombre || '-' }}-->
-<!--              </td>-->
-<!--              <td class="text-center text-caption">-->
-<!--                <q-badge-->
-<!--                  v-if="m.selected"-->
-<!--                  color="green"-->
-<!--                  label="Seleccionada"-->
-<!--                  outline-->
-<!--                  dense-->
-<!--                />-->
-<!--                <q-badge-->
-<!--                  v-else-->
-<!--                  color="grey"-->
-<!--                  label="Pendiente"-->
-<!--                  outline-->
-<!--                  dense-->
-<!--                />-->
-<!--              </td>-->
-<!--            </tr>-->
-<!--            </tbody>-->
-<!--          </q-markup-table>-->
-<!--        </div>-->
-<!--      </q-card-section>-->
-<!--    </q-card>-->
-
     <!-- LISTA DE ÁREAS, SERVICIOS Y RANGOS -->
     <q-card flat bordered class="q-mb-md">
-<!--      <q-card-section class="q-pa-sm">-->
-<!--        <div class="text-subtitle2 q-mb-xs">-->
-<!--          Resultados por área y rango-->
-<!--        </div>-->
-<!--        <div class="text-caption text-grey-7">-->
-<!--          Cada área muestra sus parámetros (rangos de referencia). Escribe el-->
-<!--          valor obtenido para el paciente.-->
-<!--        </div>-->
-<!--      </q-card-section>-->
-
-<!--      <q-separator />-->
-
       <q-card-section class="q-pa-sm">
         <q-skeleton
           v-if="loading || !solicitud"
@@ -1171,68 +1116,50 @@
                 </q-markup-table>
                 <div v-else>
                   <div class="row">
-                    <div class="col-12 col-md-9"></div>
+                    <div class="col-12 col-md-9 q-pa-xs">
+                      <q-card v-for="solicitude_formulario in solicitud.solicitude_formularios" :key="solicitude_formulario.formulario_id" flat bordered>
+                        <q-card-section>
+                          <div class="text-h6 text-primary q-mb-sm row items-center">
+                            {{ solicitude_formulario.nombre }}
+                            <q-space />
+                            <q-btn
+                              dense
+                              flat
+                              round
+                              color="red"
+                              icon="delete"
+                              @click="solicitud.solicitude_formularios = solicitud.solicitude_formularios.filter(f => f.formulario_id !== solicitude_formulario.formulario_id)"
+                            />
+                          </div>
+                          <q-editor
+                            v-model="solicitude_formulario.html"
+                          />
+                        </q-card-section>
+                      </q-card>
+<!--                      <pre>{{areasConRangos}}</pre>-->
+<!--                      <pre>{{solicitud.solicitude_formularios}}</pre>-->
+<!--                      [-->
+<!--                      {-->
+<!--                      "solicitude_id": 2,-->
+<!--                      "formulario_id": 27,-->
+<!--                      "nombre": "Marcadores Cardiacos – Troponina I (cTnI)",-->
+<!--                      "html": "<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" width=\"100%\">\n    <thead>\n        <tr>\n            <th>ANALITO</th>\n            <th colspan=\"2\">RESULTADOS</th>\n            <th>VALORES DE REFERENCIA</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>TROPONINA-I (cTnI)</td>\n            <td></td>\n            <td>ng/ml</td>\n            <td>Menor a 1,3 ng/ml</td>\n        </tr>\n    </tbody>\n</table>"-->
+<!--                      }-->
+<!--                      ]-->
+                    </div>
                     <div class="col-12 col-md-3">
                       <div class="text-caption text-grey-7 text-center">
-<!--                        Seleccióne un area para insertar -->
                         Seleccióne un formulario para insertar <br>
+                        <q-input dense outlined v-model="buscarFormulario" placeholder="Buscar formulario" @update:model-value="filtrarFormulario" clearable />
+                        <br>
                         <template  v-for="formulario in formularios" :key="formulario.id">
-                          <q-btn class="q-ma-xs" size="sm" color="primary" :label="formulario.nombre" no-caps cl/>
+                          <q-btn class="q-ma-xs" size="sm" color="primary" :label="formulario.nombre" no-caps @click="agregarFormulario(formulario)" />
                           <br>
                         </template>
                       </div>
                     </div>
                   </div>
-                  <pre>{{formularios}}</pre>
-<!--                  [-->
-<!--                  {-->
-<!--                  "id": 27,-->
-<!--                  "nombre": "Marcadores Cardiacos – Troponina I (cTnI)",-->
-<!--                  "area_id": 5,-->
-<!--                  "html": "<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" width=\"100%\">\n    <thead>\n        <tr>\n            <th>ANALITO</th>\n            <th colspan=\"2\">RESULTADOS</th>\n            <th>VALORES DE REFERENCIA</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>TROPONINA-I (cTnI)</td>\n            <td></td>\n            <td>ng/ml</td>\n            <td>Menor a 1,3 ng/ml</td>\n        </tr>\n    </tbody>\n</table>",-->
-<!--                  "area": {-->
-<!--                  "id": 5,-->
-<!--                  "name": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
-<!--                  "descripcion": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
-<!--                  "estado": "ACTIVO"-->
-<!--                  }-->
-<!--                  },-->
-<!--                  {-->
-<!--                  "id": 26,-->
-<!--                  "nombre": "Paratohormona (PTH) – CLIA",-->
-<!--                  "area_id": 5,-->
-<!--                  "html": "<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" width=\"100%\">\n    <thead>\n        <tr>\n            <th>ANALITO</th>\n            <th colspan=\"2\">RESULTADOS</th>\n            <th>VALORES DE REFERENCIA</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>PARATOHORMONA (PTH)</td>\n            <td></td>\n            <td>pg/ml</td>\n            <td>9,0 a 94,0 pg/ml</td>\n        </tr>\n    </tbody>\n</table>",-->
-<!--                  "area": {-->
-<!--                  "id": 5,-->
-<!--                  "name": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
-<!--                  "descripcion": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
-<!--                  "estado": "ACTIVO"-->
-<!--                  }-->
-<!--                  },-->
-<!--                  {-->
-<!--                  "id": 25,-->
-<!--                  "nombre": "Marcadores Tumorales – Elisa / CLIA",-->
-<!--                  "area_id": 5,-->
-<!--                  "html": "<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" width=\"100%\">\n    <thead>\n        <tr>\n            <th>ANALITO</th>\n            <th colspan=\"2\">RESULTADOS</th>\n            <th>VALOR DE REFERENCIA</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr><td>CA-19-9</td><td></td><td>U/ml</td><td>Hasta 40,0 U/ml</td></tr>\n        <tr><td>CA-125</td><td></td><td>U/ml</td><td>Hasta 35,0 U/ml</td></tr>\n        <tr><td>CEA</td><td></td><td>ng/ml</td><td>Hasta 10,0 ng/ml</td></tr>\n        <tr><td>AFP</td><td></td><td>ng/ml</td><td>Hasta 8,5 ng/ml</td></tr>\n        <tr><td>CA-15-3</td><td></td><td>U/ml</td><td>Hasta 32,0 U/ml</td></tr>\n    </tbody>\n</table>",-->
-<!--                  "area": {-->
-<!--                  "id": 5,-->
-<!--                  "name": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
-<!--                  "descripcion": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
-<!--                  "estado": "ACTIVO"-->
-<!--                  }-->
-<!--                  },-->
-<!--                  {-->
-<!--                  "id": 24,-->
-<!--                  "nombre": "Marcadores de Diabetes – Péptido C e Insulina",-->
-<!--                  "area_id": 5,-->
-<!--                  "html": "<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" width=\"100%\">\n    <thead>\n        <tr>\n            <th>ANALITO</th>\n            <th colspan=\"2\">RESULTADOS</th>\n            <th>VALOR DE REFERENCIA</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>PÉPTIDO C</td>\n            <td></td>\n            <td>ng/ml</td>\n            <td>0,7 a 1,9 ng/ml</td>\n        </tr>\n        <tr>\n            <td>INSULINA</td>\n            <td></td>\n            <td>uUI/ml</td>\n            <td>\n                Niños: &lt; a 10 uUI/ml<br>\n                Adultos: 0,7 a 9,0 uUI/ml<br>\n                Diabéticos: 0,7 a 25,0 uUI/ml\n            </td>\n        </tr>\n    </tbody>\n</table>",-->
-<!--                  "area": {-->
-<!--                  "id": 5,-->
-<!--                  "name": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
-<!--                  "descripcion": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
-<!--                  "estado": "ACTIVO"-->
-<!--                  }-->
-<!--                  },-->
+<!--                  <pre>{{formularios}}</pre>-->
                 </div>
               </q-card-section>
             </q-card>
@@ -1255,8 +1182,10 @@ export default {
   name: 'AnaliticaDetallePage',
   data () {
     return {
+      buscarFormulario: '',
       qeditor: '',
       formularios: [],
+      formulariosAll: [],
       loading: false,
       saving: false,
       solicitud: null,
@@ -1299,11 +1228,38 @@ export default {
     this.formulariosGet()
   },
   methods: {
+    agregarFormulario(formulario) {
+      // verificar si ya se agrego
+      if (this.solicitud.solicitude_formularios &&
+          this.solicitud.solicitude_formularios.find(f => f.formulario_id === formulario.id)) {
+        this.$alert?.info?.('El formulario ya fue agregado.')
+        return
+      }
+      this.solicitud.solicitude_formularios = this.solicitud.solicitude_formularios || []
+      this.solicitud.solicitude_formularios.push({
+        solicitude_id: this.solicitud.id,
+        formulario_id: formulario.id,
+        nombre: formulario.nombre,
+        html: formulario.html,
+        area_id: formulario.area_id
+      })
+    },
+    filtrarFormulario() {
+      const busqueda = this.buscarFormulario?.trim().toLowerCase()
+      if (!busqueda) {
+        this.formularios = this.formulariosAll
+        return
+      }
+      this.formularios = this.formulariosAll.filter(f => {
+        return f.nombre.toLowerCase().includes(busqueda)
+      })
+    },
     formulariosGet () {
       this.$axios
         .get('formularios')
         .then(res => {
           this.formularios = res.data.data || []
+          this.formulariosAll = res.data.data || []
         })
         .catch(err => {
           console.error(err)
@@ -1511,7 +1467,8 @@ export default {
       this.$axios
         .post(`solicitudes/${this.solicitud.id}/analitica`, {
           resultados: this.resultados,
-          propiedades_area: this.areaExtras
+          propiedades_area: this.areaExtras,
+          formularios: this.solicitud.solicitude_formularios || []
         })
         .then(() => {
           this.$alert?.success?.(
