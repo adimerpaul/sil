@@ -78,7 +78,20 @@
               <td>{{ solicitud.paciente_ci }}</td>
               <td>{{ solicitud.establecimiento_salud }}</td>
               <td>{{ solicitud.fecha_envio_analitica }}</td>
-              <td>{{ solicitud.estado }}</td>
+              <td>
+<!--                VERDE FINALIZADO-->
+<!--                ROJO ENVIADO_ANALITICA-->
+<!--                {{ solicitud.estado }}-->
+<!--                <q-chip :color="solicitud.estado === 'FINALIZADO' ? 'green' : 'red'" text-color="white" dense>-->
+<!--                  {{ solicitud.estado }}-->
+<!--                </q-chip>-->
+                <q-chip v-if="solicitud.estado === 'FINALIZADO'" color="green" text-color="white" dense>
+                  Finalizado
+                </q-chip>
+                <q-chip v-else-if="solicitud.estado === 'ENVIADO_ANALITICA'" color="red" text-color="white" dense>
+                  Recibido
+                </q-chip>
+              </td>
               <td>
                 <ul style="padding-left: 1em; margin: 0;">
                   <li v-for="servicio in solicitud.servicios" :key="servicio.id">
@@ -91,103 +104,6 @@
           </q-markup-table>
         </div>
       </q-card-section>
-<!--      <pre>{{solicitudes}}</pre>-->
-<!--      [-->
-<!--      {-->
-<!--      "id": 5,-->
-<!--      "paciente_id": 3,-->
-<!--      "doctor_id": null,-->
-<!--      "codigo_solicitud": null,-->
-<!--      "tipo_atencion": "SI",-->
-<!--      "tipo_otro": null,-->
-<!--      "fecha_solicitud": "2025-12-09",-->
-<!--      "hora_solicitud": "02:47:00",-->
-<!--      "establecimiento_salud": "Hospital General",-->
-<!--      "zona_establecimiento": null,-->
-<!--      "diagnostico_clinico": null,-->
-<!--      "estado": "ENVIADO_ANALITICA",-->
-<!--      "codigo": 5,-->
-<!--      "nro_registro": "GER100789",-->
-<!--      "fecha_creacion": "2025-12-09 02:48:08",-->
-<!--      "fecha_pre_analitica": "2025-12-09 02:48:23",-->
-<!--      "fecha_envio_analitica": "2025-12-09 02:48:27",-->
-<!--      "fecha_aceptacion_analitica": null,-->
-<!--      "fecha_finalizacion": null,-->
-<!--      "sala": null,-->
-<!--      "cama": null,-->
-<!--      "paciente_nombre": "Giovana Evelyn Ramirez",-->
-<!--      "paciente_ci": "67890",-->
-<!--      "paciente_telefono": "567890",-->
-<!--      "paciente_direccion": "calle x",-->
-<!--      "paciente_fecha_nac": "1989-07-10",-->
-<!--      "paciente_genero": "F",-->
-<!--      "paciente_edad": 36,-->
-<!--      "doctor_nombre": null,-->
-<!--      "doctor_especialidad": null,-->
-<!--      "doctor_ci": null,-->
-<!--      "doctor_telefono": null,-->
-<!--      "doctor_email": null,-->
-<!--      "doctor_registro": null,-->
-<!--      "establecimiento_id": null,-->
-<!--      "user_id": 2,-->
-<!--      "user_preanalitica_id": 2,-->
-<!--      "user_analitica_id": null,-->
-<!--      "muestra_sangre_entera": null,-->
-<!--      "muestra_coagulo": null,-->
-<!--      "muestra_volumen": null,-->
-<!--      "muestra_identificacion": null,-->
-<!--      "muestra_equipo": null,-->
-<!--      "paciente": {-->
-<!--      "id": 3,-->
-<!--      "fecha_recepcion": null,-->
-<!--      "hora_recepcion": null,-->
-<!--      "nombre_completo": "Giovana Evelyn Ramirez",-->
-<!--      "fecha_nac": "1989-07-10",-->
-<!--      "genero": "F",-->
-<!--      "edad": 36,-->
-<!--      "ci": "67890",-->
-<!--      "telefono": "567890",-->
-<!--      "direccion": "calle x",-->
-<!--      "discapacidad": 0,-->
-<!--      "discapacidad_cual": null,-->
-<!--      "discapacidad_otro": null,-->
-<!--      "embarazo": 0,-->
-<!--      "fum": null,-->
-<!--      "sem_gest": null-->
-<!--      },-->
-<!--      "doctor": null,-->
-<!--      "servicios": [-->
-<!--      {-->
-<!--      "id": 84,-->
-<!--      "area_id": 5,-->
-<!--      "codigo": 86,-->
-<!--      "nombre": "CHAGAS IgG (EN SUERO)",-->
-<!--      "descripcion": null,-->
-<!--      "metodo": "ELISA",-->
-<!--      "subarea": "Infecciosos",-->
-<!--      "precio": "70.00",-->
-<!--      "estado": "ACTIVO",-->
-<!--      "pivot": {-->
-<!--      "solicitude_id": 5,-->
-<!--      "servicio_id": 84,-->
-<!--      "precio": "70.00",-->
-<!--      "area_id": 5,-->
-<!--      "nombre": "CHAGAS IgG (EN SUERO)",-->
-<!--      "created_at": "2025-12-09T06:48:08.000000Z",-->
-<!--      "updated_at": "2025-12-09T06:48:08.000000Z"-->
-<!--      },-->
-<!--      "area": {-->
-<!--      "id": 5,-->
-<!--      "name": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
-<!--      "descripcion": "INMUNOLOGÍA / INFECCIOSOS (Area 6)",-->
-<!--      "estado": "ACTIVO",-->
-<!--      "rangos": []-->
-<!--      }-->
-<!--      }-->
-<!--      ],-->
-<!--      "resultados": []-->
-<!--      }-->
-<!--      ]-->
     </q-card>
   </q-page>
 </template>
@@ -209,6 +125,13 @@ export default {
   },
   mounted () {
     this.analiticaGet()
+    if (!this.$store.socketAnalitica) {
+      this.$store.socketAnalitica = true
+      this.$socket.on('silSolicitud', msg => {
+        this.$alert.info('Nueva solicitud de analítica recibido.')
+        this.analiticaGet()
+      })
+    }
   },
   methods: {
     selectRow(solicitud) {

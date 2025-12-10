@@ -104,19 +104,6 @@
         <q-item-label header class="q-px-md text-grey-3 q-mt-sm">
           Módulos del Sistema
         </q-item-label>
-<!--        $permisos = [-->
-<!--        'Dashboard',-->
-<!--        'Usuarios',-->
-<!--        'Pacientes',-->
-<!--        'Doctores',-->
-<!--        'Establecimientos',-->
-<!--        'Servicios',-->
-<!--        'Concentimientos',-->
-<!--        'Solicitudes',-->
-<!--        'Area preanalitica',-->
-<!--        'Analitica',-->
-<!--        'Formularios',-->
-<!--        ];-->
         <q-item dense to="/" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Dashboard')">
           <q-item-section avatar>
             <q-icon name="dashboard" class="text-white"/>
@@ -125,44 +112,13 @@
             <q-item-label class="text-white">Dashboard</q-item-label>
           </q-item-section>
         </q-item>
+
         <q-item dense to="/usuarios" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Usuarios')">
           <q-item-section avatar>
             <q-icon name="people" class="text-white"/>
           </q-item-section>
           <q-item-section>
             <q-item-label class="text-white">Usuarios</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/pacientes" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Pacientes')">
-          <q-item-section avatar>
-            <q-icon name="folder_shared" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Pacientes</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/consentimientos" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Consentimientos')">
-          <q-item-section avatar>
-            <q-icon name="assignment_turned_in" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Consentimientos</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/doctores" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Doctores')">
-          <q-item-section avatar>
-            <q-icon name="medical_services" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Doctores</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/solicitudes" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Solicitudes')">
-          <q-item-section avatar>
-            <q-icon name="request_page" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Solicitudes</q-item-label>
           </q-item-section>
         </q-item>
         <q-item dense to="/establecimientos" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Establecimientos')">
@@ -173,12 +129,52 @@
             <q-item-label class="text-white">Establecimientos</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item dense to="/pacientes" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Pacientes')">
+          <q-item-section avatar>
+            <q-icon name="folder_shared" class="text-white"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-white">Pacientes</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item dense to="/doctores" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Doctores')">
+          <q-item-section avatar>
+            <q-icon name="medical_services" class="text-white"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-white">Doctores</q-item-label>
+          </q-item-section>
+        </q-item>
         <q-item dense to="/servicios" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Servicios')">
           <q-item-section avatar>
             <q-icon name="room_service" class="text-white"/>
           </q-item-section>
           <q-item-section>
             <q-item-label class="text-white">Servicios</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item dense to="/formularios" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Formularios')">
+          <q-item-section avatar>
+            <q-icon name="description" class="text-white"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-white">Formularios</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item dense to="/consentimientos" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Consentimientos')">
+          <q-item-section avatar>
+            <q-icon name="assignment_turned_in" class="text-white"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-white">Consentimientos</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item dense to="/solicitudes" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Solicitudes')">
+          <q-item-section avatar>
+            <q-icon name="request_page" class="text-white"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-white">Solicitudes</q-item-label>
           </q-item-section>
         </q-item>
         <q-item dense to="/area-preanalitica" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Area preanalitica')">
@@ -204,14 +200,6 @@
 <!--        component: () => import('pages/formularios/Formularios.vue'),-->
 <!--        meta: { requiresAuth: true, perm: 'Formularios' }-->
 <!--        }-->
-        <q-item dense to="/formularios" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Formularios')">
-          <q-item-section avatar>
-            <q-icon name="description" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Formularios</q-item-label>
-          </q-item-section>
-        </q-item>
 <!--        HEMATOLOGÍA (Area 2)-->
 <!--        QUÍMICA SANGUÍNEA Y SEROLOGÍA (Area 3)-->
 <!--        UROANÁLISIS (Area 4)-->

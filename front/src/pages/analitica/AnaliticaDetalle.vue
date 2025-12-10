@@ -1474,6 +1474,8 @@ export default {
           this.$alert?.success?.(
             'Analítica guardada y solicitud finalizada'
           )
+          // guarad u ir a analitica
+          this.$router.push('/analitica')
         })
         .catch(err => {
           console.error(err)

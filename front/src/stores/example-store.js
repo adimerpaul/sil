@@ -4,6 +4,7 @@ export const useCounterStore = defineStore('counter', {
   state: () => ({
     counter: 0,
     user: {},
+    socketAnalitica: false,
     isLogged: localStorage.getItem('tokenSil') ? true : false,
     permissions: [],
   }),
