@@ -16,9 +16,194 @@ use App\Models\SolitudePreAnalitica;
 use App\Models\SolicitudePropiedad; // <-- NUEVO
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class SolicitudeController extends Controller
 {
+    public function dashboard(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo   = $request->get('date_to');
+
+        // FILTRO BASE SOBRE SOLICITUDES
+        $query = Solicitude::query()
+            ->whereNull('deleted_at');
+
+        if ($dateFrom) {
+            $query->whereDate('fecha_solicitud', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->whereDate('fecha_solicitud', '<=', $dateTo);
+        }
+
+        // 1) KPIs de SOLICITUDES
+        $totalSolicitudes = (clone $query)->count();
+
+        $totalPacientes   = (clone $query)
+            ->whereNotNull('paciente_id')
+            ->distinct('paciente_id')
+            ->count('paciente_id');
+
+        $totalDoctores    = (clone $query)
+            ->whereNotNull('doctor_id')
+            ->distinct('doctor_id')
+            ->count('doctor_id');
+
+        $finalizadas      = (clone $query)
+            ->where('estado', 'FINALIZADO')
+            ->count();
+
+        // 2) KPIs de SERVICIOS (TABLA servicio_solicitudes)
+        $serviciosQuery = DB::table('servicio_solicitudes as ss')
+            ->join('solicitudes as s', 's.id', '=', 'ss.solicitude_id')
+            ->whereNull('s.deleted_at');
+
+        if ($dateFrom) {
+            $serviciosQuery->whereDate('s.fecha_solicitud', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $serviciosQuery->whereDate('s.fecha_solicitud', '<=', $dateTo);
+        }
+
+        $totalServicios = (clone $serviciosQuery)->count(); // filas en servicio_solicitudes
+
+        $promedioServicios = $totalSolicitudes > 0
+            ? round($totalServicios / $totalSolicitudes, 1)
+            : 0;
+
+        // 3) KPIs de PREANALÍTICA (TABLA solitude_pre_analiticas)
+        $preQuery = DB::table('solitude_pre_analiticas as spa')
+            ->join('solicitudes as s', 's.id', '=', 'spa.solicitude_id')
+            ->whereNull('s.deleted_at');
+
+        if ($dateFrom) {
+            $preQuery->whereDate('s.fecha_solicitud', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $preQuery->whereDate('s.fecha_solicitud', '<=', $dateTo);
+        }
+
+        $totalMuestrasPre = (clone $preQuery)->count();
+
+        // 4) SOLICITUDES Y SERVICIOS POR ÁREA
+        $porArea = DB::table('servicio_solicitudes as ss')
+            ->join('areas as a', 'a.id', '=', 'ss.area_id')
+            ->join('solicitudes as s', 's.id', '=', 'ss.solicitude_id')
+            ->whereNull('s.deleted_at')
+            ->when($dateFrom, function ($q) use ($dateFrom) {
+                $q->whereDate('s.fecha_solicitud', '>=', $dateFrom);
+            })
+            ->when($dateTo, function ($q) use ($dateTo) {
+                $q->whereDate('s.fecha_solicitud', '<=', $dateTo);
+            })
+            ->groupBy('ss.area_id', 'a.name')
+            ->select(
+                'ss.area_id',
+                'a.name as area_nombre',
+                DB::raw('COUNT(DISTINCT s.id) as solicitudes'),
+                DB::raw('COUNT(ss.id) as servicios')
+            )
+            ->orderByDesc('solicitudes')
+            ->get();
+
+        // 5) TOP SERVICIOS MÁS SOLICITADOS
+        $topServicios = DB::table('servicio_solicitudes as ss')
+            ->join('servicios as se', 'se.id', '=', 'ss.servicio_id')
+            ->join('solicitudes as s', 's.id', '=', 'ss.solicitude_id')
+            ->whereNull('s.deleted_at')
+            ->when($dateFrom, function ($q) use ($dateFrom) {
+                $q->whereDate('s.fecha_solicitud', '>=', $dateFrom);
+            })
+            ->when($dateTo, function ($q) use ($dateTo) {
+                $q->whereDate('s.fecha_solicitud', '<=', $dateTo);
+            })
+            ->groupBy('ss.servicio_id', 'se.nombre')
+            ->select(
+                'ss.servicio_id',
+                'se.nombre as servicio_nombre',
+                DB::raw('COUNT(*) as total')
+            )
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+
+        // 6) TOP TIPOS DE MUESTRA PREANALÍTICA
+        $porTipoMuestra = DB::table('solitude_pre_analiticas as spa')
+            ->join('area_tipo_muestras as atm', 'atm.id', '=', 'spa.area_tipo_muestra_id')
+            ->join('areas as a', 'a.id', '=', 'atm.area_id')
+            ->join('solicitudes as s', 's.id', '=', 'spa.solicitude_id')
+            ->whereNull('s.deleted_at')
+            ->when($dateFrom, function ($q) use ($dateFrom) {
+                $q->whereDate('s.fecha_solicitud', '>=', $dateFrom);
+            })
+            ->when($dateTo, function ($q) use ($dateTo) {
+                $q->whereDate('s.fecha_solicitud', '<=', $dateTo);
+            })
+            ->groupBy('atm.id', 'atm.tipo_muestra', 'a.name')
+            ->select(
+                'atm.id',
+                'atm.tipo_muestra',
+                'a.name as area_nombre',
+                DB::raw('COUNT(*) as total')
+            )
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+
+        // 7) SERIE POR FECHA (SOLICITUDES/DÍA)
+        $serieFechas = (clone $query)
+            ->select(DB::raw('DATE(fecha_solicitud) as fecha'), DB::raw('COUNT(*) as total'))
+            ->groupBy(DB::raw('DATE(fecha_solicitud)'))
+            ->orderBy('fecha')
+            ->get();
+
+        // 8) ÚLTIMAS SOLICITUDES, CON ÁREAS Y Nº SERVICIOS
+        $ultimasSolicitudes = (clone $query)
+            ->select(
+                'solicitudes.id',
+                'solicitudes.nro_registro',
+                'solicitudes.codigo_solicitud',
+                'solicitudes.paciente_nombre',
+                'solicitudes.doctor_nombre',
+                'solicitudes.tipo_atencion',
+                'solicitudes.estado',
+                'solicitudes.fecha_solicitud',
+                'solicitudes.hora_solicitud',
+                DB::raw('(
+                SELECT COUNT(*)
+                FROM servicio_solicitudes ss
+                WHERE ss.solicitude_id = solicitudes.id
+            ) as cant_servicios'),
+                DB::raw('(
+                SELECT GROUP_CONCAT(DISTINCT a.name SEPARATOR ", ")
+                FROM servicio_solicitudes ss
+                JOIN areas a ON a.id = ss.area_id
+                WHERE ss.solicitude_id = solicitudes.id
+            ) as areas')
+            )
+            ->orderByDesc('solicitudes.fecha_solicitud')
+            ->orderByDesc('solicitudes.id')
+            ->limit(20)
+            ->get();
+
+        return response()->json([
+            'resumen' => [
+                'total_solicitudes'           => $totalSolicitudes,
+                'total_servicios'             => $totalServicios,
+                'promedio_servicios'          => $promedioServicios,
+                'total_muestras_preanaliticas'=> $totalMuestrasPre,
+                // extras por si luego quieres usarlos
+                'total_pacientes'             => $totalPacientes,
+                'total_doctores'              => $totalDoctores,
+                'finalizadas'                 => $finalizadas,
+            ],
+            'por_area'          => $porArea,
+            'top_servicios'     => $topServicios,
+            'por_tipo_muestra'  => $porTipoMuestra,
+            'serie_fechas'      => $serieFechas,
+            'ultimas'           => $ultimasSolicitudes,
+        ]);
+    }
     function solicitudesAnalitica(Request $request)
     {
         $filter = $request->input('filter', '');
@@ -170,6 +355,12 @@ class SolicitudeController extends Controller
     {
         $solicitud = Solicitude::findOrFail($id);
         $area_tipo_muestras = $request->input('area_tipo_muestras', []);
+
+        $urlSocket = env('URL_SOCKET_IO', null);
+//        error_log("URL Socket: $urlSocket");
+        $response = Http::get($urlSocket . '/silSolicitud');
+//        error_log("Solicitud enviada: " . $response);
+
 
         foreach ($area_tipo_muestras as $area) {
             if (isset($area['area_tipo_muestras']) && is_array($area['area_tipo_muestras'])) {

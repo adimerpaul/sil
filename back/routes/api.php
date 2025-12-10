@@ -75,6 +75,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get   ('formularios/{id}',   [FormulariosController::class, 'show']);
     Route::put   ('formularios/{id}',   [FormulariosController::class, 'update']);
     Route::delete('formularios/{id}',   [FormulariosController::class, 'destroy']);
+
+    Route::get('reportes/solicitudes-dashboard', [SolicitudeController::class, 'dashboard']);
+
 });
 Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);
 Route::get('public/reportes/{codigo}', [SolicitudeController::class, 'imprimirAnaliticaPublica'])
