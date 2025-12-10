@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PerfilImpresion;
 use App\Models\ServicioSolicitude;
+use App\Models\SolicitudeFormulario;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Models\ResultadoLaboratorio;
@@ -479,7 +480,9 @@ class SolicitudeController extends Controller
             'servicios.area.rangos',
             'resultados',
             'preAnaliticaMuestras.areaTipoMuestra.area',
-            'propiedades', // <-- NUEVO
+            'propiedades',
+            'userPreanalitica',
+            'solicitudeFormularios'
         ])->findOrFail($id);
 
         return response()->json($solicitud);
@@ -510,8 +513,25 @@ class SolicitudeController extends Controller
         $solicitud       = Solicitude::findOrFail($id);
         $resultados      = $request->input('resultados', []);
         $propiedadesArea = $request->input('propiedades_area', []); // <-- NUEVO
+//        formularios: this.solicitud.solicitude_formularios || []
+        $fomularios       = $request->input('formularios', []);
 
-        DB::transaction(function () use ($solicitud, $resultados, $propiedadesArea) {
+        DB::transaction(function () use ($solicitud, $resultados, $propiedadesArea,$fomularios) {
+//            SolicitudeFormulario deletes
+            SolicitudeFormulario::where('solicitude_id', $solicitud->id)->delete();
+            foreach ($fomularios as $formularioData) {
+                $solicitudeFormulario = SolicitudeFormulario::updateOrCreate(
+                    [
+                        'solicitude_id' => $solicitud->id,
+                        'formulario_id' => $formularioData['formulario_id'],
+                        'area_id'       => $formularioData['area_id'] ?? null,
+                    ],
+                    [
+                        'nombre' => $formularioData['nombre'] ?? null,
+                        'html'   => $formularioData['html'] ?? null,
+                    ]
+                );
+            }
 
             foreach ($resultados as $areaId => $rangos) {
                 if (!is_array($rangos)) {

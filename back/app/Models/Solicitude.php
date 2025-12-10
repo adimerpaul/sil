@@ -122,4 +122,7 @@ class Solicitude extends Model implements AuditableContract
     {
         return $this->hasMany(SolicitudePropiedad::class);
     }
+    function solicitudeFormularios(){
+        return $this->hasMany(SolicitudeFormulario::class);
+    }
 }
