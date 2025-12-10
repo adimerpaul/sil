@@ -47,6 +47,10 @@ io.on('connection', (socket) => {
         console.log('reservas: ' + msg);
         io.emit('reservas', msg);
     });
+    socket.on('silSolicitud', (msg) => {
+        console.log('silSolicitud: ' + msg);
+        io.emit('silSolicitud', msg);
+    });
     socket.broadcast.emit('hi');
 });
 
