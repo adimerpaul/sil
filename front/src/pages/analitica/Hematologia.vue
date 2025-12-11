@@ -10,6 +10,16 @@
           </div>
         </div>
         <div class="col-auto">
+<!--          refresch-->
+          <q-btn
+            flat
+            icon="refresh"
+            label="Refrescar"
+            no-caps
+            class="q-mr-sm"
+            :disable="loading"
+            @click="load"
+          />
           <q-btn
             flat
             icon="arrow_back"
@@ -112,12 +122,18 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('Glóbulos Rojos', form.globulos_rojos)
+              ? 'text-negative text-weight-bold'
+              : ''
+          ]"
                 />
               </td>
-              <td>4.20 – 5.40</td>
-              <td>X10¹²/L</td>
+              <td>{{ rangoTexto('Glóbulos Rojos') }}</td>
+              <td>{{ rangoUnidad('Glóbulos Rojos') }}</td>
             </tr>
+
             <tr>
               <td>Glóbulos blancos</td>
               <td>
@@ -127,12 +143,18 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('Glóbulos Blancos', form.globulos_blancos)
+              ? 'text-negative text-weight-bold'
+              : ''
+          ]"
                 />
               </td>
-              <td>4.0 – 11.0</td>
-              <td>X10⁹/L</td>
+              <td>{{ rangoTexto('Glóbulos Blancos') }}</td>
+              <td>{{ rangoUnidad('Glóbulos Blancos') }}</td>
             </tr>
+
             <tr>
               <td>Plaquetas</td>
               <td>
@@ -142,12 +164,18 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('Plaquetas', form.plaquetas)
+              ? 'text-negative text-weight-bold'
+              : ''
+          ]"
                 />
               </td>
-              <td>150 – 450</td>
-              <td>X10⁹/L</td>
+              <td>{{ rangoTexto('Plaquetas') }}</td>
+              <td>{{ rangoUnidad('Plaquetas') }}</td>
             </tr>
+
             <tr>
               <td>Hemoglobina</td>
               <td>
@@ -157,12 +185,18 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('Hemoglobina', form.hemoglobina)
+              ? 'text-negative text-weight-bold'
+              : ''
+          ]"
                 />
               </td>
-              <td>12 – 17</td>
-              <td>g/dL</td>
+              <td>{{ rangoTexto('Hemoglobina') }}</td>
+              <td>{{ rangoUnidad('Hemoglobina') }}</td>
             </tr>
+
             <tr>
               <td>Hematocrito</td>
               <td>
@@ -172,12 +206,18 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('Hematocrito', form.hematocrito)
+              ? 'text-negative text-weight-bold'
+              : ''
+          ]"
                 />
               </td>
-              <td>36 – 52</td>
-              <td>%</td>
+              <td>{{ rangoTexto('Hematocrito') }}</td>
+              <td>{{ rangoUnidad('Hematocrito') }}</td>
             </tr>
+
             <tr>
               <td>VCM</td>
               <td>
@@ -187,12 +227,18 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('VCM', form.vcm)
+              ? 'text-negative text-weight-bold'
+              : ''
+          ]"
                 />
               </td>
-              <td>80 – 100</td>
-              <td>fL</td>
+              <td>{{ rangoTexto('VCM') }}</td>
+              <td>{{ rangoUnidad('VCM') }}</td>
             </tr>
+
             <tr>
               <td>HBCM</td>
               <td>
@@ -202,12 +248,18 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('HBCM', form.hbcm)
+              ? 'text-negative text-weight-bold'
+              : ''
+          ]"
                 />
               </td>
-              <td>27 – 33</td>
-              <td>pg</td>
+              <td>{{ rangoTexto('HBCM') }}</td>
+              <td>{{ rangoUnidad('HBCM') }}</td>
             </tr>
+
             <tr>
               <td>CHCM</td>
               <td>
@@ -217,12 +269,18 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('CHCM', form.chcm)
+              ? 'text-negative text-weight-bold'
+              : ''
+          ]"
                 />
               </td>
-              <td>32 – 36</td>
-              <td>g/dL</td>
+              <td>{{ rangoTexto('CHCM') }}</td>
+              <td>{{ rangoUnidad('CHCM') }}</td>
             </tr>
+
             <tr>
               <td>Leucocitos totales</td>
               <td>
@@ -232,11 +290,16 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('Leucocitos Totales', form.leucocitos_totales)
+              ? 'text-negative text-weight-bold'
+              : ''
+          ]"
                 />
               </td>
-              <td>4.0 – 11.0</td>
-              <td>X10⁹/L</td>
+              <td>{{ rangoTexto('Leucocitos Totales') }}</td>
+              <td>{{ rangoUnidad('Leucocitos Totales') }}</td>
             </tr>
             </tbody>
           </q-markup-table>
@@ -726,6 +789,7 @@ export default {
       loading: false,
       header: null,
       formLoaded: false,
+      rangos: [], // 👈 NUEVO
       form: {
         globulos_rojos: null,
         globulos_blancos: null,
@@ -827,6 +891,7 @@ export default {
         this.header = data.solicitud || null
         // Merge para no perder keys por defecto
         this.form = Object.assign({}, this.form, data.hematologia || {})
+        this.rangos = data.rangos || [] // 👈 NUEVO
         this.formLoaded = true
       } catch (e) {
         const msg = e.response?.data?.message || e.message
@@ -861,6 +926,44 @@ export default {
     },
     onSubmit () {
       this.save()
+    },
+    getRango (nombre) {
+      if (!this.rangos || !Array.isArray(this.rangos)) return null
+      return (
+        this.rangos.find(
+          r => (r.rango_nombre || '').toLowerCase() === (nombre || '').toLowerCase()
+        ) || null
+      )
+    },
+    rangoTexto (nombre) {
+      const r = this.getRango(nombre)
+      if (!r) return ''
+      // si tiene rango_minimo y rango_maximo, usamos eso
+      if (r.rango_minimo !== null && r.rango_maximo !== null) {
+        return `${r.rango_minimo} - ${r.rango_maximo}`
+      }
+      // si no, usamos interpretacion
+      if (r.interpretacion) {
+        return r.interpretacion
+      }
+      return ''
+    },
+    rangoUnidad (nombre) {
+      const r = this.getRango(nombre)
+      return r && r.unidad ? r.unidad : ''
+    },
+    isOutOfRange (nombre, valor) {
+      const r = this.getRango(nombre)
+      const num = parseFloat(valor)
+      if (!r || isNaN(num)) return false
+
+      if (r.rango_minimo !== null && num < r.rango_minimo) {
+        return true
+      }
+      if (r.rango_maximo !== null && num > r.rango_maximo) {
+        return true
+      }
+      return false
     }
   }
 }
