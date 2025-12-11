@@ -27,9 +27,10 @@ class HematologiaController extends Controller
         ]);
 
         // Buscar área de hematología (ajusta según el nombre que tengas)
-        $areaHemato = Area::where('name', 'HEMATOLOGIA')
-            ->orWhere('name', 'Hemograma')
+        $areaHemato = Area::where('title', 'HEMATOLOGÍA')
+            ->orWhere('title', 'Hematología')
             ->first();
+//        error_log('Área Hematología: ' . ($areaHemato ? $areaHemato->id : 'No encontrada'));
 
         $rangos = [];
         if ($areaHemato) {

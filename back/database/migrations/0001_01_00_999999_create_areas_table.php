@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');               // HEMATOLOGIA, QUIMICA SANGUINEA, etc.
             $table->string('descripcion')->nullable();
+            $table->string('title')->nullable();
             $table->string('estado')->default('ACTIVO'); // ACTIVO / INACTIVO
             $table->softDeletes();
             $table->timestamps();

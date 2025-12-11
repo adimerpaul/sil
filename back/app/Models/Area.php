@@ -15,6 +15,7 @@ class Area extends Model implements AuditableContract
         'name',
         'descripcion',
         'estado',
+        'title',
     ];
 
     protected $hidden = [

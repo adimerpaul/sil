@@ -16,6 +16,7 @@ class ServiciosSeeder extends Seeder
             // ---------------------------------------------------------
             [
                 'name' => 'HEMATOLOGÍA (Area 2)',
+                'title' => 'HEMATOLOGÍA',
                 'servicios' => [
                     [ 'codigo' => 1,  'nombre' => 'COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)', 'metodo' => 'M/SA', 'precio' => 55 ],
                     [ 'codigo' => 2,  'nombre' => 'ERITROSEDIMENTACIÓN (VSG- VES)',                  'metodo' => 'M',    'precio' => 15 ],
@@ -38,6 +39,7 @@ class ServiciosSeeder extends Seeder
             // ---------------------------------------------------------
             [
                 'name' => 'QUÍMICA SANGUÍNEA Y SEROLOGÍA (Area 3)',
+                'title' => 'QUÍMICA SANGUÍNEA Y SEROLOGÍA',
                 'servicios' => [
                     [ 'codigo' => 14, 'nombre' => 'ÁCIDO ÚRICO',                                      'metodo' => 'M/A', 'precio' => 20, 'subarea'=>'Química Sanguínea' ],
                     [ 'codigo' => 15, 'nombre' => 'ALBUMINA',                                        'metodo' => 'M/A', 'precio' => 20, 'subarea'=>'Química Sanguínea' ],
@@ -106,6 +108,7 @@ class ServiciosSeeder extends Seeder
             // ---------------------------------------------------------
             [
                 'name' => 'UROANÁLISIS  (Area 4)',
+                'title' => 'UROANÁLISIS',
                 'servicios' => [
                     [ 'codigo' => 65, 'nombre' => 'EXAMEN GENERAL DE ORINA',                           'metodo' => 'M', 'precio' => 20 , 'subarea'=>'Uroanálisis' ],
                     [ 'codigo' => 66, 'nombre' => 'MORFOLOGÍA DE ERITROCITOS',                         'metodo' => 'M', 'precio' => 10 , 'subarea'=>'Uroanálisis' ],
@@ -118,6 +121,7 @@ class ServiciosSeeder extends Seeder
 //            // ---------------------------------------------------------
             [
                 'name' => 'PARASITOLOGÍA (Area 4)',
+                'title' => 'PARASITOLOGÍA',
                 'servicios' => [
                     [ 'codigo' => 68, 'nombre' => 'AMEBAS EN FRESCO',                                  'metodo' => 'MANUAL', 'precio' => 15, 'area'=>'Parasitolgía' ],
                     [ 'codigo' => 69, 'nombre' => 'BENEDICT+ pH O PRUEBA DE TOLERANCIA A LA LACTOSA EN HECES', 'metodo' => 'MANUAL', 'precio' => 20, 'area'=>'Parasitolgía' ],
@@ -138,6 +142,7 @@ class ServiciosSeeder extends Seeder
             // ---------------------------------------------------------
             [
                 'name' => 'MICROBIOLOGÍA (Area 5)',
+                'title' => 'MICROBIOLOGÍA',
                 'servicios' => [
                     [ 'codigo' => 79, 'nombre' => 'CULTIVO Y ANTIBIOGRAMA PARA GÉRMENES COMUNES',      'metodo' => 'MANUAL', 'precio' => 60 ],
                     [ 'codigo' => 80, 'nombre' => 'CULTIVO MICOLÓGICO Y FUNGIGRAMA',                   'metodo' => 'MANUAL', 'precio' => 120 ],
@@ -154,6 +159,7 @@ class ServiciosSeeder extends Seeder
             // ---------------------------------------------------------
             [
                 'name' => 'INMUNOLOGÍA (Area 6)',
+                'title' => 'INMUNOLOGÍA',
                 'servicios' => [
                     [ 'codigo' => 86, 'nombre' => 'CHAGAS IgG (EN SUERO)',                             'metodo' => 'ELISA',        'precio' => 70 , 'subarea'=>'Infecciosos' ],
                     [ 'codigo' => 87, 'nombre' => 'CHAGAS (EN SUERO)',                                 'metodo' => 'HAI Y ELISA',  'precio' => 110 , 'subarea'=>'Infecciosos' ],
@@ -374,6 +380,7 @@ class ServiciosSeeder extends Seeder
             // ---------------------------------------------------------
             [
                 'name' => 'BIOLOGÍA MOLECULAR (Area 7)',
+                'title' => 'BIOLOGÍA MOLECULAR',
                 'servicios' => [
                     [ 'codigo' => 157, 'nombre' => 'PCR-RT CON TOMA DE MUESTRA (PRUEBA PARA DIAGNOSTICO COVID-19)', 'metodo' => 'PCR -RT', 'precio' => 500 ],
                     [ 'codigo' => 158, 'nombre' => 'PRUEBA DE ELISA PARA COVID-19 (CUANTIFICACION DE ANTICUERPOS IgM e IgG)', 'metodo' => 'ELISA', 'precio' => 300 ],
@@ -398,6 +405,7 @@ class ServiciosSeeder extends Seeder
                 'name'        => $a['name'],
                 'descripcion' => $a['name'],
                 'estado'      => 'ACTIVO',
+                'title'       => $a['title'] ?? $a['name'],
             ]);
 
             foreach ($a['servicios'] as $s) {
