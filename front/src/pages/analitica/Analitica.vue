@@ -102,6 +102,19 @@
                       </q-item-section>
                     </q-item>
 <!--                    {-->
+<!--                    path: '/analitica/uroanalisis/:id',-->
+<!--                    name: 'analitica-uroanalisis',-->
+<!--                    component: () => import('pages/analitica/Uroanalisis.vue'),-->
+<!--                    meta: { requiresAuth: true, perm: 'Analitica' }-->
+<!--                    },-->
+                    <q-item clickable @click="$router.push({ name: 'analitica-uroanalisis', params: { id: solicitud.id } })">
+                      <q-item-section avatar>
+                        <q-icon name="water_drop" />
+                      </q-item-section>
+                      <q-item-section>
+                        Uroanálisis
+                      </q-item-section>
+                    </q-item>
                   </q-list>
                 </q-btn-dropdown>
               </td>
@@ -111,12 +124,6 @@
               <td>{{ solicitud.establecimiento_salud }}</td>
               <td>{{ solicitud.fecha_envio_analitica }}</td>
               <td>
-<!--                VERDE FINALIZADO-->
-<!--                ROJO ENVIADO_ANALITICA-->
-<!--                {{ solicitud.estado }}-->
-<!--                <q-chip :color="solicitud.estado === 'FINALIZADO' ? 'green' : 'red'" text-color="white" dense>-->
-<!--                  {{ solicitud.estado }}-->
-<!--                </q-chip>-->
                 <q-chip v-if="solicitud.estado === 'FINALIZADO'" color="green" text-color="white" dense>
                   Finalizado
                 </q-chip>

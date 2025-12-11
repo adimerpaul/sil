@@ -32,6 +32,13 @@ const routes = [
         component: () => import('pages/analitica/QuimicaSanguinia.vue'),
         meta: { requiresAuth: true, perm: 'Analitica' }
       },
+      // uroanalisis
+      {
+        path: '/analitica/uroanalisis/:id',
+        name: 'analitica-uroanalisis',
+        component: () => import('pages/analitica/Uroanalisis.vue'),
+        meta: { requiresAuth: true, perm: 'Analitica' }
+      },
     //   formularios
       {
         path: '/formularios',
