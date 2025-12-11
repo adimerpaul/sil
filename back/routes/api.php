@@ -86,6 +86,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('quimica-sanguinea/solicitud/{id}', [\App\Http\Controllers\QuimicaSanguineaController::class, 'upsert']);
     Route::delete('quimica-sanguinea/solicitud/{id}', [\App\Http\Controllers\QuimicaSanguineaController::class, 'destroyBySolicitude']);
 
+    Route::get('uroanalisis/solicitud/{id}', [\App\Http\Controllers\UroanalisisController::class, 'showBySolicitude']);
+    Route::post('uroanalisis/solicitud/{id}', [\App\Http\Controllers\UroanalisisController::class, 'upsert']);
+    Route::delete('uroanalisis/solicitud/{id}', [\App\Http\Controllers\UroanalisisController::class, 'destroyBySolicitude']);
 });
 Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);
 Route::get('public/reportes/{codigo}', [SolicitudeController::class, 'imprimirAnaliticaPublica'])
