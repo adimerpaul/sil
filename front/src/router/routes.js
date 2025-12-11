@@ -26,6 +26,12 @@ const routes = [
         component: () => import('pages/analitica/Hematologia.vue'),
         meta: { requiresAuth: true, perm: 'Analitica' }
       },
+      {
+        path: '/analitica/quimica-sanguinia/:id',
+        name: 'analitica-quimica-sanguinia',
+        component: () => import('pages/analitica/QuimicaSanguinia.vue'),
+        meta: { requiresAuth: true, perm: 'Analitica' }
+      },
     //   formularios
       {
         path: '/formularios',

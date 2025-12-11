@@ -93,6 +93,15 @@
                         Hematología
                       </q-item-section>
                     </q-item>
+                    <q-item clickable @click="$router.push({ name: 'analitica-quimica-sanguinia', params: { id: solicitud.id } })">
+                      <q-item-section avatar>
+                        <q-icon name="science" />
+                      </q-item-section>
+                      <q-item-section>
+                        Química Sanguínea
+                      </q-item-section>
+                    </q-item>
+<!--                    {-->
                   </q-list>
                 </q-btn-dropdown>
               </td>
