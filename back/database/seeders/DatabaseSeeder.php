@@ -99,7 +99,8 @@ class DatabaseSeeder extends Seeder
             AreaRangoSeeder::class,
             AreaRangoQuimicaSeeder::class,
             PerfilImpresionSeeder::class,
-            AreaRangoMicrobiologiaSeeder::class,
+//            AreaRangoMicrobiologiaSeeder::class,
+            AreaRangoUroanalisisSeeder::class,
             FormularioSeeder::class,
         ]);
 

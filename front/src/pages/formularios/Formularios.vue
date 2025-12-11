@@ -9,6 +9,7 @@
             Diseña y administra formularios por área (Hematología, Química, etc.)
           </div>
         </div>
+
         <div class="col-12 col-sm-3">
           <q-input
             v-model="filters.search"
@@ -30,8 +31,8 @@
             </template>
           </q-input>
         </div>
+
         <div class="col-12 col-sm-3 text-right">
-<!--          actulizar-->
           <q-btn
             flat
             dense
@@ -87,7 +88,8 @@
               </q-chip>
             </q-td>
           </template>
-<!--          template html-->
+
+          <!-- HTML -->
           <template #body-cell-html="props">
             <q-td :props="props">
               <div style="max-height: 100px; overflow: auto; border: 1px solid #e0e0e0; padding: 8px; border-radius: 4px; background-color: #f9f9f9;">
@@ -96,6 +98,7 @@
             </q-td>
           </template>
 
+          <!-- ACCIONES -->
           <template #body-cell-actions="props">
             <q-td :props="props" auto-width>
               <q-btn-dropdown label="Opciones" color="primary" dense no-caps size="10px">
@@ -122,37 +125,15 @@
                   </q-item>
                 </q-list>
               </q-btn-dropdown>
-<!--              <q-btn-->
-<!--                dense round flat-->
-<!--                icon="visibility"-->
-<!--                @click="openDialogView(props.row)"-->
-<!--              >-->
-<!--                <q-tooltip>Ver</q-tooltip>-->
-<!--              </q-btn>-->
-<!--              <q-btn-->
-<!--                dense round flat-->
-<!--                icon="edit"-->
-<!--                color="primary"-->
-<!--                @click="openDialogEdit(props.row)"-->
-<!--              >-->
-<!--                <q-tooltip>Editar</q-tooltip>-->
-<!--              </q-btn>-->
-<!--              <q-btn-->
-<!--                dense round flat-->
-<!--                icon="delete"-->
-<!--                color="negative"-->
-<!--                @click="confirmDelete(props.row)"-->
-<!--              >-->
-<!--                <q-tooltip>Eliminar</q-tooltip>-->
-<!--              </q-btn>-->
             </q-td>
           </template>
+
         </q-table>
       </q-card-section>
     </q-card>
 
-    <!-- DIALOGO CREAR/EDITAR -->
-    <q-dialog v-model="dialog.visible" persistent >
+    <!-- DIALOGO CREAR / EDITAR -->
+    <q-dialog v-model="dialog.visible" persistent>
       <q-card style="max-width: 1100px; width: 95vw;">
         <q-card-section class="row items-center q-pb-none">
           <div class="col">
@@ -184,9 +165,8 @@
                   autofocus
                 />
               </div>
+
               <div class="col-12 col-md-6">
-<!--                option-value="id"-->
-<!--                option-label="nombre"-->
                 <q-select
                   v-model="form.area_id"
                   :options="areasOptions"
@@ -204,22 +184,21 @@
                     <q-icon name="science" />
                   </template>
                 </q-select>
-<!--                <pre>{{areasOptions}}</pre>-->
               </div>
             </div>
 
+            <!-- EDITOR -->
             <div class="q-mt-md column fit">
-              <div class="text-subtitle2 q-mb-xs">
-                Contenido (HTML) – Editor WYSIWYG
-              </div>
+              <div class="text-subtitle2 q-mb-xs">Contenido (HTML) – Editor WYSIWYG</div>
+
               <div class="q-card q-pa-none bg-grey-1 fit" style="border-radius: 8px;">
                 <q-editor
                   v-model="form.html"
                   :toolbar="editorToolbar"
-                  :definitions="editorDefinitions"
                   placeholder="Escribe o pega aquí el HTML del formulario..."
                 />
               </div>
+
               <div v-if="errors.html" class="text-negative text-caption q-mt-xs">
                 {{ errors.html }}
               </div>
@@ -242,14 +221,14 @@
       </q-card>
     </q-dialog>
 
-    <!-- DIALOGO VER SOLO LECTURA -->
-    <q-dialog v-model="dialogView.visible" >
+    <!-- DIALOGO VISTA PREVIA -->
+    <q-dialog v-model="dialogView.visible">
       <q-card style="max-width: 1100px; width: 95vw;">
         <q-card-section class="row items-center q-pb-none">
           <div class="col">
             <div class="text-h6">Vista previa – {{ dialogView.row?.nombre }}</div>
             <div class="text-caption text-grey-7">
-              Área: {{ dialogView.row?.area?.nombre || 'Sin área' }}
+              Área: {{ dialogView.row?.area?.name || 'Sin área' }}
             </div>
           </div>
           <div class="col-auto">
@@ -259,19 +238,20 @@
 
         <q-separator spaced />
 
-        <q-card-section class="q-pt-none" style="">
+        <q-card-section class="q-pt-none">
           <div v-html="dialogView.row?.html"></div>
         </q-card-section>
       </q-card>
     </q-dialog>
+
   </q-page>
 </template>
 
-<script>
-import { useQuasar } from 'quasar';
 
+<script>
 export default {
   name: 'FormulariosPage',
+
   data () {
     return {
       loading: false,
@@ -286,6 +266,7 @@ export default {
         rowsPerPage: 10,
         rowsNumber: 0,
       },
+
       columns: [
         { name: 'actions', label: 'Acciones', field: 'id', align: 'right' },
         { name: 'id', label: 'ID', field: 'id', align: 'left', sortable: true },
@@ -295,61 +276,49 @@ export default {
           label: 'Área',
           field: row => row.area?.name,
           align: 'left',
-          sortable: false
         },
-        // html
-        { name: 'html', label: 'Contenido HTML', field: 'html', align: 'left', sortable: false },
-        // {
-        //   name: 'updated_at',
-        //   label: 'Actualizado',
-        //   field: 'updated_at',
-        //   align: 'left',
-        //   sortable: true,
-        //   format: val => (val ? val.substring(0, 10) : '')
-        // },
+        { name: 'html', label: 'Contenido HTML', field: 'html', align: 'left' },
       ],
+
       dialog: {
         visible: false,
         isEdit: false,
       },
+
       dialogView: {
         visible: false,
         row: null,
       },
+
       form: {
         id: null,
         nombre: '',
         area_id: null,
         html: '',
       },
+
       errors: {},
+
       editorToolbar: [
         ['undo', 'redo'],
         ['bold', 'italic', 'underline', 'strike'],
         ['quote', 'unordered', 'ordered'],
         ['link'],
-        ['viewsource'],
+        ['viewsource'],   // ✔ botón nativo, sin definitions
         ['fullscreen']
-      ],
-      editorDefinitions: {
-        viewsource: {
-          icon: 'code',
-          tip: 'Ver código fuente',
-          handler: (ctx) => {
-            ctx.toggleFullscreen();
-          }
-        }
-      }
+      ]
+
     };
   },
+
   mounted () {
     this.fetchAreas();
     this.fetchFormularios();
   },
+
   methods: {
     async fetchAreas () {
       try {
-        // Ajusta la URL al endpoint simple de áreas que tengas
         const { data } = await this.$axios.get('/areas', { params: { all: 1 } });
         this.areasOptions = data;
       } catch (e) {
@@ -373,12 +342,10 @@ export default {
         this.pagination.rowsNumber = data.total;
         this.pagination.page = data.current_page;
         this.pagination.rowsPerPage = data.per_page;
+
       } catch (e) {
         console.error(e);
-        this.$q.notify({
-          type: 'negative',
-          message: 'Error al cargar los formularios'
-        });
+        this.$q.notify({ type: 'negative', message: 'Error al cargar los formularios' });
       } finally {
         this.loading = false;
       }
@@ -454,6 +421,7 @@ export default {
     async saveFormulario () {
       this.saving = true;
       this.errors = {};
+
       try {
         const payload = {
           nombre: this.form.nombre,
@@ -462,15 +430,16 @@ export default {
         };
 
         if (this.dialog.isEdit && this.form.id) {
-          const { data } = await this.$axios.put(`/formularios/${this.form.id}`, payload);
+          await this.$axios.put(`/formularios/${this.form.id}`, payload);
           this.$q.notify({ type: 'positive', message: 'Formulario actualizado' });
         } else {
-          const { data } = await this.$axios.post('/formularios', payload);
+          await this.$axios.post('/formularios', payload);
           this.$q.notify({ type: 'positive', message: 'Formulario creado' });
         }
 
         this.dialog.visible = false;
         this.fetchFormularios();
+
       } catch (e) {
         if (e.response && e.response.status === 422) {
           this.errors = e.response.data.errors || {};

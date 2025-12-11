@@ -105,20 +105,20 @@ class ServiciosSeeder extends Seeder
             // UROANÁLISIS
             // ---------------------------------------------------------
             [
-                'name' => 'UROANÁLISIS (Area 4)',
+                'name' => 'UROANÁLISIS  (Area 4)',
                 'servicios' => [
                     [ 'codigo' => 65, 'nombre' => 'EXAMEN GENERAL DE ORINA',                           'metodo' => 'M', 'precio' => 20 , 'subarea'=>'Uroanálisis' ],
                     [ 'codigo' => 66, 'nombre' => 'MORFOLOGÍA DE ERITROCITOS',                         'metodo' => 'M', 'precio' => 10 , 'subarea'=>'Uroanálisis' ],
-//                    [ 'codigo' => 67, 'nombre' => 'TEST DE CRISTALIZACIÓN',                            'metodo' => 'M', 'precio' => 10, 'subarea'=>'Uroanálisis'
-//                ],
-//            ],
+                    [ 'codigo' => 67, 'nombre' => 'TEST DE CRISTALIZACIÓN',                            'metodo' => 'M', 'precio' => 10, 'subarea'=>'Uroanálisis' ],
+                ],
+            ],
 //
 //            // ---------------------------------------------------------
 //            // PARASITOLOGÍA Y ESTUDIOS EN HECES FECALES
 //            // ---------------------------------------------------------
-//            [
-//                'name' => 'PARASITOLOGÍA (Area 4)',
-//                'servicios' => [
+            [
+                'name' => 'PARASITOLOGÍA (Area 4)',
+                'servicios' => [
                     [ 'codigo' => 68, 'nombre' => 'AMEBAS EN FRESCO',                                  'metodo' => 'MANUAL', 'precio' => 15, 'area'=>'Parasitolgía' ],
                     [ 'codigo' => 69, 'nombre' => 'BENEDICT+ pH O PRUEBA DE TOLERANCIA A LA LACTOSA EN HECES', 'metodo' => 'MANUAL', 'precio' => 20, 'area'=>'Parasitolgía' ],
                     [ 'codigo' => 70, 'nombre' => 'COPROPARASITOLÓGICO SIMPLE',                        'metodo' => 'MANUAL', 'precio' => 15, 'area'=>'Parasitolgía' ],

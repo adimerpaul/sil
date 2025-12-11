@@ -125,4 +125,8 @@ class Solicitude extends Model implements AuditableContract
     function solicitudeFormularios(){
         return $this->hasMany(SolicitudeFormulario::class);
     }
+    public function hematologia()
+    {
+        return $this->hasOne(Hematologia::class);
+    }
 }

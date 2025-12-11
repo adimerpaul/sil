@@ -19,6 +19,8 @@ class AreaRango extends Model implements AuditableContract
         'rango_maximo',
         'unidad',
         'interpretacion',
+        'lista',
+        'textarea'
     ];
 
     public function area()

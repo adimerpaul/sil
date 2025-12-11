@@ -62,6 +62,7 @@
           <q-markup-table dense wrap-cells flat bordered>
             <thead>
             <tr class="bg-primary text-white" >
+              <th>Opciones</th>
               <th>Id</th>
               <th>Paciente</th>
               <th>CI</th>
@@ -72,7 +73,29 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="solicitud in solicitudes" :key="solicitud.id" @click="selectRow(solicitud)" style="cursor: pointer;">
+            <tr v-for="solicitud in solicitudes" :key="solicitud.id" style="cursor: pointer;">
+              <td>
+<!--                btn dropdown-->
+                <q-btn-dropdown
+                  dense
+                  color="primary"
+                  no-caps
+                  label="Opciones"
+                  size="10px"
+                >
+                  <q-list>
+<!--                    HEMATOLOGÍA-->
+                    <q-item clickable @click="selectHematologia(solicitud)">
+                      <q-item-section avatar>
+                        <q-icon name="bloodtype" />
+                      </q-item-section>
+                      <q-item-section>
+                        Hematología
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-btn-dropdown>
+              </td>
               <td>{{ solicitud.id }}</td>
               <td>{{ solicitud.paciente_nombre }}</td>
               <td>{{ solicitud.paciente_ci }}</td>
@@ -134,6 +157,9 @@ export default {
     }
   },
   methods: {
+    selectHematologia(solicitud) {
+      this.$router.push({ name: 'analitica-hematologia', params: { id: solicitud.id } })
+    },
     selectRow(solicitud) {
       this.$router.push({ name: 'analitica-detalle', params: { id: solicitud.id } })
     },

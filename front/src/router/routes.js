@@ -19,6 +19,13 @@ const routes = [
         component: () => import('pages/analitica/AnaliticaDetalle.vue'),
         meta: { requiresAuth: true, perm: 'Analitica' }
       },
+      // this.$router.push({ name: 'analitica-hematologia', params: { id: solicitud.id } })
+      {
+        path: '/analitica/hematologia/:id',
+        name: 'analitica-hematologia',
+        component: () => import('pages/analitica/Hematologia.vue'),
+        meta: { requiresAuth: true, perm: 'Analitica' }
+      },
     //   formularios
       {
         path: '/formularios',

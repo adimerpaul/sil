@@ -19,6 +19,8 @@ return new class extends Migration
             $table->double('rango_maximo')->nullable();
             $table->string('unidad')->nullable();
             $table->string('interpretacion')->nullable();
+            $table->string('lista')->nullable();
+            $table->string('textarea')->nullable();
             $table->foreign('area_id')->references('id')->on('areas')->onDelete('cascade');
             $table->softDeletes();
             $table->timestamps();
