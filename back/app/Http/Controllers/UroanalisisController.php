@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Uroanalisis;
 use App\Models\Solicitude;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class UroanalisisController extends Controller
 {
@@ -60,4 +61,22 @@ class UroanalisisController extends Controller
             'message' => 'Uroanálisis eliminado',
         ]);
     }
+    public function pdfBySolicitude($solicitudeId)
+    {
+        $solicitud = Solicitude::with([
+            'paciente',
+            'doctor',
+            'servicios.area',
+        ])->findOrFail($solicitudeId);
+
+        $uro = Uroanalisis::where('solicitude_id', $solicitudeId)->first();
+
+        $pdf = Pdf::loadView('pdf.uroanalisis', [
+            'solicitud'   => $solicitud,
+            'uroanalisis' => $uro,
+        ])->setPaper('letter', 'landscape');
+
+        return $pdf->stream('UROANALISIS_'.$solicitud->nro_registro.'.pdf');
+    }
+
 }
