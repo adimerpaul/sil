@@ -39,6 +39,12 @@ const routes = [
         component: () => import('pages/analitica/Uroanalisis.vue'),
         meta: { requiresAuth: true, perm: 'Analitica' }
       },
+      {
+        path: '/analitica/parasitologia/:id',
+        name: 'analitica-parasitologia',
+        component: () => import('pages/analitica/Parasitologia.vue'),
+        meta: { requiresAuth: true, perm: 'Analitica' }
+      },
     //   formularios
       {
         path: '/formularios',

@@ -124,6 +124,14 @@
                       </q-item-section>
                     </q-item>
                   </q-list>
+                  <q-item clickable @click="$router.push({ name: 'analitica-parasitologia', params: { id: solicitud.id } })" v-close-popup>
+                    <q-item-section avatar>
+                      <q-icon name="bug_report" />
+                    </q-item-section>
+                    <q-item-section>
+                      Parasitología
+                    </q-item-section>
+                  </q-item>
                 </q-btn-dropdown>
               </td>
               <td>{{ solicitud.id }}</td>
