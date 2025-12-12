@@ -35,7 +35,10 @@ class UroanalisisController extends Controller
     public function upsert(Request $request, $solicitudeId)
     {
         $data = $request->all();
+        error_log('Datos recibidos para uroanálisis: ' . json_encode($data));
         $data['solicitude_id'] = $solicitudeId;
+//        valor_celulas
+        error_log('valor_celulas: ' . ($data['valor_celulas'] ?? 'no proporcionado'));
 
         $uro = Uroanalisis::updateOrCreate(
             ['solicitude_id' => $solicitudeId],

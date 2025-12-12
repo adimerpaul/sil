@@ -34,8 +34,15 @@ return new class extends Migration
             $table->string('bacterias')->nullable();
             $table->string('filamento_mucoide')->nullable();
             $table->string('cilindros')->nullable();
-            $table->string('celulas')->nullable();         // células varias
+//            valor_cilindros
+            $table->string('valor_cilindros')->nullable();
+//            valor_celulas
+            $table->string('celulas')->nullable();
+//            valor_celulas
+            $table->string('valor_celulas')->nullable();
             $table->string('cristales')->nullable();
+//            valor_cristales
+            $table->string('valor_cristales')->nullable();
 
             // OTROS EXÁMENES
             $table->text('morfologia_eritrocitaria')->nullable();
@@ -48,6 +55,8 @@ return new class extends Migration
             $table->string('bilirrubina')->nullable();
             $table->string('urobilinogeno')->nullable();
             $table->string('nitritos')->nullable();
+            $table->string('valor_morfologia')->nullable();
+            $table->string('otros')->nullable();
 
             // Observaciones generales
             $table->text('observaciones')->nullable();

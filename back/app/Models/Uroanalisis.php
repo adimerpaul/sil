@@ -41,6 +41,11 @@ class Uroanalisis extends Model implements AuditableContract{
         'urobilinogeno',
         'nitritos',
         'observaciones',
+        'valor_morfologia',
+        'valor_cilindros',
+        'valor_celulas',
+        'valor_cristales',
+        'otros',
     ];
 
     public function solicitude()
