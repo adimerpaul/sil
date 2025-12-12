@@ -357,9 +357,8 @@ class SolicitudeController extends Controller
         $area_tipo_muestras = $request->input('area_tipo_muestras', []);
 
         $urlSocket = env('URL_SOCKET_IO', null);
-//        error_log("URL Socket: $urlSocket");
+        return response()->json(['message' => 'URL_SOCKET_IO no está configurada', 'url' => $urlSocket], 500);
         $response = Http::get($urlSocket . '/silSolicitud');
-//        error_log("Solicitud enviada: " . $response);
 
 
         foreach ($area_tipo_muestras as $area) {
