@@ -85,7 +85,7 @@
                 >
                   <q-list>
 <!--                    HEMATOLOGÍA-->
-                    <q-item clickable @click="selectHematologia(solicitud)">
+                    <q-item clickable @click="selectHematologia(solicitud)" v-close-popup>
                       <q-item-section avatar>
                         <q-icon name="bloodtype" />
                       </q-item-section>
@@ -93,7 +93,15 @@
                         Hematología
                       </q-item-section>
                     </q-item>
-                    <q-item clickable @click="$router.push({ name: 'analitica-quimica-sanguinia', params: { id: solicitud.id } })">
+                    <q-item clickable @click="printHematologia(solicitud)" v-close-popup>
+                      <q-item-section avatar>
+                        <q-icon name="print" />
+                      </q-item-section>
+                      <q-item-section>
+                        Imprimir Hematología
+                      </q-item-section>
+                    </q-item>
+                    <q-item clickable @click="$router.push({ name: 'analitica-quimica-sanguinia', params: { id: solicitud.id } })" v-close-popup>
                       <q-item-section avatar>
                         <q-icon name="science" />
                       </q-item-section>
@@ -107,7 +115,7 @@
 <!--                    component: () => import('pages/analitica/Uroanalisis.vue'),-->
 <!--                    meta: { requiresAuth: true, perm: 'Analitica' }-->
 <!--                    },-->
-                    <q-item clickable @click="$router.push({ name: 'analitica-uroanalisis', params: { id: solicitud.id } })">
+                    <q-item clickable @click="$router.push({ name: 'analitica-uroanalisis', params: { id: solicitud.id } })" v-close-popup>
                       <q-item-section avatar>
                         <q-icon name="water_drop" />
                       </q-item-section>
@@ -173,6 +181,10 @@ export default {
     }
   },
   methods: {
+    printHematologia(solicitud) {
+      const url = `${this.$axios.defaults.baseURL}/hematologia/solicitud/${solicitud.id}/pdf`
+      window.open(url, '_blank')
+    },
     selectHematologia(solicitud) {
       this.$router.push({ name: 'analitica-hematologia', params: { id: solicitud.id } })
     },
