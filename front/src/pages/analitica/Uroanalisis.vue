@@ -208,11 +208,20 @@
                 <tr>
                   <td>Reacción (pH)</td>
                   <td>
-                    <q-input
+<!--                    <q-input-->
+<!--                      v-model="form.reaccion"-->
+<!--                      dense-->
+<!--                      outlined-->
+<!--                      placeholder="pH 6.0 ácido"-->
+<!--                    />-->
+<!--                    select with options from 5.0 to 9-->
+                    <q-select
                       v-model="form.reaccion"
+                      :options="['pH 5.0 ácido', 'pH 5.5 ácido', 'pH 6.0 ácido', 'pH 6.5 neutro', 'pH 7.0 neutro', 'pH 7.5 neutro', 'pH 8.0 alcalino', 'pH 8.5 alcalino', 'pH 9.0 alcalino']"
                       dense
                       outlined
-                      placeholder="pH 6.0 ácido"
+                      emit-value
+                      map-options
                     />
                   </td>
                   <td>*</td>
@@ -221,13 +230,22 @@
                 <tr>
                   <td>Densidad</td>
                   <td>
-                    <q-input
+<!--                    <q-input-->
+<!--                      v-model.number="form.densidad"-->
+<!--                      dense-->
+<!--                      outlined-->
+<!--                      type="number"-->
+<!--                      step="0.001"-->
+<!--                      input-class="text-right"-->
+<!--                    />-->
+<!--                    <select class="w-full bg-transparent border-b border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0 text-center text-[10px]"><option value="1.000">1.000</option><option value="1.005">1.005</option><option value="1.010">1.010</option><option value="1.015">1.015</option><option value="1.020">1.020</option><option value="1.025">1.025</option></select>-->
+                    <q-select
                       v-model.number="form.densidad"
+                      :options="[1.000, 1.005, 1.010, 1.015, 1.020, 1.025, 1.030]"
                       dense
                       outlined
-                      type="number"
-                      step="0.001"
-                      input-class="text-right"
+                      emit-value
+                      map-options
                     />
                   </td>
                   <td>mmHg</td>
@@ -236,9 +254,18 @@
                 <tr>
                   <td>Espuma</td>
                   <td>
+<!--                    <q-select-->
+<!--                      v-model="form.espuma"-->
+<!--                      :options="espumaOptions"-->
+<!--                      dense-->
+<!--                      outlined-->
+<!--                      emit-value-->
+<!--                      map-options-->
+<!--                    />-->
+<!--                    <select class="w-full bg-transparent border-b border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0 text-center text-[10px]"><option value="Fugaz">Fugaz</option><option value="Blanco Fugaz">Blanco Fugaz</option><option value="Persistente">Persistente</option></select>-->
                     <q-select
                       v-model="form.espuma"
-                      :options="espumaOptions"
+                      :options="['Fugaz', 'Blanco fugaz', 'Persistente','Amarillo fugaz', 'Amarillo persistente','Otros']"
                       dense
                       outlined
                       emit-value
@@ -251,9 +278,18 @@
                 <tr>
                   <td>Sedimento</td>
                   <td>
+<!--                    <q-select-->
+<!--                      v-model="form.sedimento"-->
+<!--                      :options="sedimentoOptions"-->
+<!--                      dense-->
+<!--                      outlined-->
+<!--                      emit-value-->
+<!--                      map-options-->
+<!--                    />-->
+<!--                    <select class="w-full bg-transparent border-b border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0 text-center text-[10px]"><option value="Muy Escaso">Muy Escaso</option><option value="Escaso">Escaso</option><option value="Moderado">Moderado</option><option value="Abundante">Abundante</option></select>-->
                     <q-select
                       v-model="form.sedimento"
-                      :options="sedimentoOptions"
+                      :options="['Muy Escaso', 'Escaso', 'Moderado', 'Abundante']"
                       dense
                       outlined
                       emit-value
@@ -286,20 +322,20 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <td>Células epiteliales</td>
-                  <td>
-                    <q-input
-                      v-model="form.celulas_epiteliales"
-                      dense
-                      outlined
-                      input-class="text-right"
-                      placeholder="0-1"
-                    />
-                  </td>
-                  <td>xcampo/uL</td>
-                  <td>0-1</td>
-                </tr>
+<!--                <tr>-->
+<!--                  <td>Células epiteliales</td>-->
+<!--                  <td>-->
+<!--                    <q-input-->
+<!--                      v-model="form.celulas_epiteliales"-->
+<!--                      dense-->
+<!--                      outlined-->
+<!--                      input-class="text-right"-->
+<!--                      placeholder="0-1"-->
+<!--                    />-->
+<!--                  </td>-->
+<!--                  <td>xcampo/uL</td>-->
+<!--                  <td>0-1</td>-->
+<!--                </tr>-->
                 <tr>
                   <td>Leucocitos</td>
                   <td>
@@ -315,7 +351,7 @@
                   <td>0-1</td>
                 </tr>
                 <tr>
-                  <td>Hematies</td>
+                  <td>Hematies (Eritrocitos)</td>
                   <td>
                     <q-input
                       v-model="form.hematies"
@@ -328,13 +364,59 @@
                   <td>0-1</td>
                 </tr>
                 <tr>
+                  <td>Morfología eritrocitaria</td>
+                  <td>
+<!--                    <q-input-->
+<!--                      v-model="form.morfologia_eritrocitaria"-->
+<!--                      dense-->
+<!--                      outlined-->
+<!--                      placeholder="NORMAL / Alteraciones..."-->
+<!--                    />-->
+<!--                    <select class="w-full bg-transparent border-b border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0 text-center text-[10px]"><option value="NORMAL">NORMAL</option><option value="DISMORFICO">DISMORFICO</option><option value="ISOMORFICO">ISOMORFICO</option><option value="ESTRELLADO (CRENADOS)">ESTRELLADO (CRENADOS)</option><option value="FANTASMA">FANTASMA</option><option value="SEPTADOS">SEPTADOS</option><option value="POLIDIVERTICULADOS">POLIDIVERTICULADOS</option><option value="ESPICULADOS">ESPICULADOS</option><option value="ANULARES">ANULARES</option><option value="MONODIVERTICULARES">MONODIVERTICULARES</option><option value="MIXTOS">MIXTOS</option><option value="VACIOS">VACIOS</option></select>-->
+                    <div class="row">
+                      <div class="col-6">
+                        <q-select
+                          v-model="form.morfologia_eritrocitaria"
+                          :options="['NORMAL', 'DISMORFICO', 'ISOMORFICO', 'ESTRELLADO (CRENADOS)', 'FANTASMA', 'SEPTADOS', 'POLIDIVERTICULADOS', 'ESPICULADOS', 'ANULARES', 'MONODIVERTICULARES', 'MIXTOS', 'VACIOS','ESQUISTOCITOS']"
+                          dense
+                          outlined
+                          emit-value
+                          map-options
+                        />
+                      </div>
+                      <div class="col-6">
+                        <q-input
+                          v-model="form.valor_morfologia"
+                          dense
+                          outlined
+                          placeholder="valor"
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  <td>xcampo/uL</td>
+                  <td>*</td>
+                </tr>
+                <tr>
                   <td>Bacterias</td>
                   <td>
-                    <q-input
+<!--                    <q-input-->
+<!--                      v-model="form.bacterias"-->
+<!--                      dense-->
+<!--                      outlined-->
+<!--                      placeholder="Escaso / ++ / +++"-->
+<!--                    />-->
+<!--                    No Observa-->
+<!--                    Escaso-->
+<!--                    Moderado-->
+<!--                    Abundante-->
+                    <q-select
                       v-model="form.bacterias"
+                      :options="['No Observa', 'Escaso', 'Moderado', 'Abundante']"
                       dense
                       outlined
-                      placeholder="Escaso / ++ / +++"
+                      emit-value
+                      map-options
                     />
                   </td>
                   <td>xcampo/uL</td>
@@ -343,11 +425,20 @@
                 <tr>
                   <td>Filamento mucoide</td>
                   <td>
-                    <q-input
+<!--                    <q-input-->
+<!--                      v-model="form.filamento_mucoide"-->
+<!--                      dense-->
+<!--                      outlined-->
+<!--                      placeholder="Escaso / ++ / +++"-->
+<!--                    />-->
+<!--                    :options="['No Observa', 'Escaso', 'Moderado', 'Abundante']"-->
+                    <q-select
                       v-model="form.filamento_mucoide"
+                      :options="['No Observa', 'Escaso', 'Moderado', 'Abundante']"
                       dense
                       outlined
-                      placeholder="Escaso / ++ / +++"
+                      emit-value
+                      map-options
                     />
                   </td>
                   <td>xcampo/uL</td>
@@ -356,25 +447,71 @@
                 <tr>
                   <td>Cilindros</td>
                   <td>
-                    <q-input
-                      v-model="form.cilindros"
-                      dense
-                      outlined
-                      placeholder="#"
-                    />
+                    <div class="row">
+                      <div class="col-6">
+                        <q-select
+                          v-model="form.cilindros"
+                          :options="['Hialino', 'Granuloso', 'Cereo', 'Leucocitario', 'Eritrocitario', 'Mixto', 'Epithelial', 'Bacteriano']"
+                          dense
+                          outlined
+                          emit-value
+                          map-options
+                        />
+                      </div>
+                      <div class="col-6">
+                        <q-input
+                          v-model="form.valor_cilindros"
+                          dense
+                          outlined
+                          placeholder="valor"
+                        />
+                      </div>
+                    </div>
+<!--                    form.cilindros valor-->
+
                   </td>
                   <td>xcampo/uL</td>
                   <td>#</td>
                 </tr>
                 <tr>
-                  <td>Células</td>
                   <td>
-                    <q-input
-                      v-model="form.celulas"
-                      dense
-                      outlined
-                      placeholder="#"
-                    />
+                    Células Epiteliales
+                  </td>
+                  <td>
+<!--                    <q-input-->
+<!--                      v-model="form.celulas"-->
+<!--                      dense-->
+<!--                      outlined-->
+<!--                      placeholder="#"-->
+<!--                    />-->
+<!--                    const opcionesCristales = [-->
+<!--                    "Oxalato de calcio dihidratado",-->
+<!--                    "Fosfato amorfo",-->
+<!--                    "Urato amorfo",-->
+<!--                    "Fosfato triple de amonio y magnesio",-->
+<!--                    "Ácido Úrico",-->
+<!--                    "OTROS"-->
+<!--                    ];-->
+                    <div class="row">
+                      <div class="col-6">
+                        <q-select
+                          v-model="form.celulas"
+                          :options="['Escamosas', 'Transicionales', 'Renal']"
+                          dense
+                          outlined
+                          emit-value
+                          map-options
+                        />
+                      </div>
+                      <div class="col-6">
+                        <q-input
+                          v-model="form.valor_celulas"
+                          dense
+                          outlined
+                          placeholder="valor"
+                        />
+                      </div>
+                    </div>
                   </td>
                   <td>xcampo/uL</td>
                   <td>#</td>
@@ -382,12 +519,37 @@
                 <tr>
                   <td>Cristales</td>
                   <td>
-                    <q-input
-                      v-model="form.cristales"
-                      dense
-                      outlined
-                      placeholder="# / Fosfato amorfo / etc."
-                    />
+<!--                    <q-input-->
+<!--                      v-model="form.cristales"-->
+<!--                      dense-->
+<!--                      outlined-->
+<!--                      placeholder="# / Fosfato amorfo / etc."-->
+<!--                    />-->
+<!--                    const opcionesCelulas = [-->
+<!--                    "Escamosas",-->
+<!--                    "Transicionales",-->
+<!--                    "Renal"-->
+<!--                    ];-->
+                    <div class="row">
+                      <div class="col-6">
+                        <q-select
+                          v-model="form.cristales"
+                          :options="['Oxalato de calcio dihidratado', 'Fosfato amorfo', 'Urato amorfo', 'Fosfato triple de amonio y magnesio', 'Ácido Úrico', 'OTROS']"
+                          dense
+                          outlined
+                          emit-value
+                          map-options
+                        />
+                      </div>
+                      <div class="col-6">
+                        <q-input
+                          v-model="form.valor_cristales"
+                          dense
+                          outlined
+                          placeholder="valor"
+                        />
+                      </div>
+                    </div>
                   </td>
                   <td>xcampo/uL</td>
                   <td>#</td>
@@ -397,7 +559,7 @@
 
               <!-- OTROS EXÁMENES -->
               <div class="section-title q-mb-xs">
-                Otros exámenes
+                Otros
               </div>
               <q-markup-table
                 dense
@@ -416,17 +578,17 @@
                 </thead>
                 <tbody>
                 <tr>
-                  <td>Morfología eritrocitaria</td>
+                  <td>Otros</td>
                   <td>
                     <q-input
-                      v-model="form.morfologia_eritrocitaria"
+                      v-model="form.otros"
                       dense
                       outlined
                       placeholder="NORMAL / Alteraciones..."
                     />
                   </td>
-                  <td>xcampo/uL</td>
-                  <td>*</td>
+                  <td></td>
+                  <td></td>
                 </tr>
                 </tbody>
               </q-markup-table>
@@ -480,9 +642,18 @@
                 <tr>
                   <td>Sangre</td>
                   <td>
+<!--                    <q-select-->
+<!--                      v-model="form.sangre"-->
+<!--                      :options="sangreOptions"-->
+<!--                      dense-->
+<!--                      outlined-->
+<!--                      emit-value-->
+<!--                      map-options-->
+<!--                    />-->
+<!--                    <select class="w-full bg-transparent border-b border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0 text-right text-[10px]"><option value="NO CONTIENE">NO CONTIENE</option><option value="TRAZAS">TRAZAS</option><option value="CONTIENE + (50 cel./ul)">CONTIENE + (50 cel./ul)</option><option value="CONTIENE ++ (80 cel./ul)">CONTIENE ++ (80 cel./ul)</option><option value="CONTIENE +++ (200 cel./ul)">CONTIENE +++ (200 cel./ul)</option></select>-->
                     <q-select
                       v-model="form.sangre"
-                      :options="sangreOptions"
+                      :options="['NO CONTIENE', 'TRAZAS', 'CONTIENE + ', 'CONTIENE ++ ', 'CONTIENE +++ ']"
                       dense
                       outlined
                       emit-value
@@ -493,9 +664,18 @@
                 <tr>
                   <td>Cetonas</td>
                   <td>
+<!--                    <q-select-->
+<!--                      v-model="form.cetonas"-->
+<!--                      :options="cetonasOptions"-->
+<!--                      dense-->
+<!--                      outlined-->
+<!--                      emit-value-->
+<!--                      map-options-->
+<!--                    />-->
+<!--                    <select class="w-full bg-transparent border-b border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0 text-right text-[10px]"><option value="NO CONTIENE">NO CONTIENE</option><option value="TRAZAS (5mg/dl)">TRAZAS (5mg/dl)</option><option value="CONTIENE+ (15mg/dl)">CONTIENE+ (15mg/dl)</option><option value="CONTIENE++ (40mg/dl)">CONTIENE++ (40mg/dl)</option><option value="CONTIENE+++ (80mg/dl)">CONTIENE+++ (80mg/dl)</option><option value="CONTIENE++++ (160mg/dl)">CONTIENE++++ (160mg/dl)</option></select>-->
                     <q-select
                       v-model="form.cetonas"
-                      :options="cetonasOptions"
+                      :options="['NO CONTIENE', 'TRAZAS','5mg/dl', '15mg/dl', '40mg/dl', '80mg/dl', '160mg/dl']"
                       dense
                       outlined
                       emit-value
@@ -506,9 +686,18 @@
                 <tr>
                   <td>Bilirrubina</td>
                   <td>
+<!--                    <q-select-->
+<!--                      v-model="form.bilirrubina"-->
+<!--                      :options="bilirrubinaOptions"-->
+<!--                      dense-->
+<!--                      outlined-->
+<!--                      emit-value-->
+<!--                      map-options-->
+<!--                    />-->
+<!--                    <select class="w-full bg-transparent border-b border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0 text-right text-[10px]"><option value="NO CONTIENE">NO CONTIENE</option><option value="CONTIENE+(1mg/dl)">CONTIENE+(1mg/dl)</option><option value="CONTIENE++(2mg/dl)">CONTIENE++(2mg/dl)</option><option value="CONTIENE+++(4mg/dl)">CONTIENE+++(4mg/dl)</option></select>-->
                     <q-select
                       v-model="form.bilirrubina"
-                      :options="bilirrubinaOptions"
+                      :options="['NO CONTIENE', '1 mg/dl', '2 mg/dl', '>=4 mg/dl']"
                       dense
                       outlined
                       emit-value
@@ -602,8 +791,8 @@ export default {
       formLoaded: false,
 
       // Opciones para selects (puedes ajustarlas a tu gusto)
-      colorOptions: ['Amarillo', 'Ámbar', 'Rojo', 'Pardo', 'Incoloro'],
-      olorOptions: ['Sui-generis', 'Fétido'],
+      colorOptions: ['Amarillo', 'Ámbar', 'Rojo', 'Pardo', 'Incoloro', 'Otros'],
+      olorOptions: ['Sui-generis', 'Fétido', 'Inodoro', 'Medicamentoso', 'Otros'],
       aspectoOptions: ['Límpido', 'Turbio', 'Opalescente'],
       espumaOptions: ['Ausente', 'Escasa', 'Moderada', 'Abundante'],
       sedimentoOptions: ['Ausente', 'Escaso', 'Moderado', 'Abundante'],
@@ -611,18 +800,18 @@ export default {
       proteinasOptions: [
         'NO CONTIENE',
         'TRAZAS',
-        'CONTIENE + (30 mg/dl)',
-        'CONTIENE ++ (100 mg/dl)',
-        'CONTIENE +++ (300 mg/dl)',
-        'CONTIENE ++++ (mg/dl)'
+        '30 mg/dl',
+        '100 mg/dl',
+        '300 mg/dl',
+        '>=2000 mg/dl'
       ],
       glucosaOptions: [
         'NO CONTIENE',
         'TRAZAS',
-        'CONTIENE + (250 mg/dl)',
-        'CONTIENE ++ (500 mg/dl)',
-        'CONTIENE +++ (1000 mg/dl)',
-        'CONTIENE ++++ (>=2000 mg/dl)'
+        '250 mg/dl',
+        '500 mg/dl',
+        '1000 mg/dl',
+        '>=2000 mg/dl'
       ],
       sangreOptions: ['NO CONTIENE', 'TRAZAS', 'POSITIVO +', 'POSITIVO ++', 'POSITIVO +++'],
       cetonasOptions: ['NO CONTIENE', 'TRAZAS', 'POSITIVO +', 'POSITIVO ++', 'POSITIVO +++'],
@@ -636,11 +825,14 @@ export default {
         'NORMAL (0.2 mg/dl)',
         '1 mg/dl',
         '2 mg/dl',
-        '4 mg/dl'
+        '4 mg/dl',
+        '8 mg/dl',
+        '>=12 mg/dl'
       ],
       nitritosOptions: ['NEGATIVO', 'POSITIVO'],
 
       form: {
+        otros: '',
         material_ensayo: 'ORINA',
         metodo: 'MANUAL/MICROSCÓPICO/TIRA REACTIVA',
         cantidad: null,
@@ -657,9 +849,13 @@ export default {
         bacterias: null,
         filamento_mucoide: null,
         cilindros: null,
+        valor_cilindros: null,
         celulas: null,
+        valor_celulas: null,
         cristales: null,
+        valor_cristales: null,
         morfologia_eritrocitaria: 'NORMAL',
+        valor_morfologia: null,
         proteinas: 'NO CONTIENE',
         glucosa: 'NO CONTIENE',
         sangre: 'NO CONTIENE',
