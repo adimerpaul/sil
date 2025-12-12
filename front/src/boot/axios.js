@@ -69,11 +69,11 @@ export default boot(({ app, router }) => {
       // useCounterStore().permissions = response.data.permissions
     }).catch(error => {
       console.log(error)
+      router.push('/login')
       localStorage.removeItem('tokenSil')
       useCounterStore().isLogged = false
       // useCounterStore().permissions = []
       useCounterStore().user = {}
-      router.push('/login')
     })
   }
   app.config.globalProperties.$api = api

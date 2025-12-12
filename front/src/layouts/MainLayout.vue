@@ -261,7 +261,14 @@ function logout () {
           localStorage.removeItem('tokenSIL')
           proxy.$router.push('/login')
         })
-        .catch(() => proxy.$alert.error('Error al cerrar sesión. Intente nuevamente.'))
+        // .catch(() => proxy.$alert.error('Error al cerrar sesión. Intente nuevamente.'))
+        .catch(() => {
+          proxy.$store.isLogged = false
+          proxy.$store.user = {}
+          proxy.$store.permissions = []
+          localStorage.removeItem('tokenSIL')
+          proxy.$router.push('/login')
+        })
     })
 }
 
