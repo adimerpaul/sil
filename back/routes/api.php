@@ -89,6 +89,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('uroanalisis/solicitud/{id}', [\App\Http\Controllers\UroanalisisController::class, 'showBySolicitude']);
     Route::post('uroanalisis/solicitud/{id}', [\App\Http\Controllers\UroanalisisController::class, 'upsert']);
     Route::delete('uroanalisis/solicitud/{id}', [\App\Http\Controllers\UroanalisisController::class, 'destroyBySolicitude']);
+
+    Route::get('parasitologia/solicitud/{id}', [\App\Http\Controllers\ParasitologiaController::class, 'showBySolicitude']);
+    Route::post('parasitologia/solicitud/{id}', [\App\Http\Controllers\ParasitologiaController::class, 'upsert']);
+    Route::delete('parasitologia/solicitud/{id}', [\App\Http\Controllers\ParasitologiaController::class, 'destroyBySolicitude']);
+
 });
 Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);
 Route::get('public/reportes/{codigo}', [SolicitudeController::class, 'imprimirAnaliticaPublica'])
@@ -98,3 +103,4 @@ Route::get('consentimientos/{id}/print', [ConsentimientoController::class, 'prin
 
 //pdfBySolicitude
 Route::get('/hematologia/solicitud/{id}/pdf', [\App\Http\Controllers\HematologiaController::class, 'pdfBySolicitude']);
+Route::get('parasitologia/solicitud/{id}/pdf', [\App\Http\Controllers\ParasitologiaController::class, 'pdfBySolicitude']);

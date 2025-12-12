@@ -129,4 +129,11 @@ class Solicitude extends Model implements AuditableContract
     {
         return $this->hasOne(Hematologia::class);
     }
+
+//"Add [solicitude_id] to fillable property to allow mass assignment on [App\\Models\\Parasitologia]."
+    function parasitologia()
+    {
+        return $this->hasOne(Parasitologia::class);
+    }
+
 }
