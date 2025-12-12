@@ -94,6 +94,11 @@
                       <q-item-section avatar><q-icon name="science" /></q-item-section>
                       <q-item-section>Química Sanguínea</q-item-section>
                     </q-item>
+                    <q-item clickable @click="printQuimica(solicitud)" v-close-popup>
+                      <q-item-section avatar><q-icon name="print" /></q-item-section>
+                      <q-item-section>Imprimir Química Sanguínea</q-item-section>
+                    </q-item>
+                    <q-separator spaced />
 
                     <q-item clickable @click="$router.push({ name: 'analitica-uroanalisis', params: { id: solicitud.id } })" v-close-popup>
                       <q-item-section avatar><q-icon name="water_drop" /></q-item-section>
@@ -175,6 +180,10 @@ export default {
     }
   },
   methods: {
+    printQuimica (solicitud) {
+      const url = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${solicitud.id}/pdf`
+      window.open(url, '_blank')
+    },
     printHematologia(solicitud) {
       const url = `${this.$axios.defaults.baseURL}/hematologia/solicitud/${solicitud.id}/pdf`
       window.open(url, '_blank')

@@ -35,6 +35,17 @@
             :loading="loading"
             @click="onSubmit"
           />
+<!--          imprimir-->
+          <q-btn
+            class="q-ml-sm"
+            outline
+            color="primary"
+            icon="print"
+            label="Imprimir"
+            no-caps
+            :disable="!formLoaded"
+            @click="printPdf"
+          />
         </div>
       </q-card-section>
 
@@ -868,6 +879,10 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+    printPdf(){
+      const url = this.$axios.defaults.baseURL + `/quimica-sanguinea/solicitud/${this.solicitudId}/pdf`
+      window.open(url, '_blank')
     },
     onSubmit () {
       this.save()
