@@ -6,6 +6,7 @@ use App\Models\Hematologia;
 use App\Models\Solicitude;
 use App\Models\Area;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class HematologiaController extends Controller
 {
@@ -72,5 +73,35 @@ class HematologiaController extends Controller
         $hematologia->delete();
 
         return response()->json(['message' => 'Hematología eliminada']);
+    }
+    public function pdfBySolicitude($solicitudeId)
+    {
+        $solicitud = Solicitude::with([
+            'paciente',
+            'doctor',
+            'servicios.area',
+        ])->findOrFail($solicitudeId);
+//        return $solicitud;
+
+        $hematologia = Hematologia::where('solicitude_id', $solicitudeId)->first();
+
+        // Área Hematología para rangos (ajusta título si en tu BD es distinto)
+        $areaHemato = Area::where('title', 'HEMATOLOGÍA')
+            ->orWhere('title', 'Hematología')
+            ->first();
+
+        $rangos = [];
+        if ($areaHemato) {
+            $rangos = $areaHemato->rangos()->orderBy('id')->get();
+        }
+
+        $pdf = Pdf::loadView('pdf.hematologia', [
+            'solicitud'   => $solicitud,
+            'hematologia' => $hematologia,
+            'rangos'      => $rangos,
+//        ])->setPaper('a4', 'portrait'); size carta landscape
+        ])->setPaper('letter', 'landscape');
+
+        return $pdf->stream('HEMATOLOGIA_'.$solicitud->nro_registro.'.pdf');
     }
 }

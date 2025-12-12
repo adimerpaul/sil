@@ -95,3 +95,6 @@ Route::get('public/reportes/{codigo}', [SolicitudeController::class, 'imprimirAn
     ->name('solicitudes.analitica.publica');
 
 Route::get('consentimientos/{id}/print', [ConsentimientoController::class, 'print']);
+
+//pdfBySolicitude
+Route::get('/hematologia/solicitud/{id}/pdf', [\App\Http\Controllers\HematologiaController::class, 'pdfBySolicitude']);
