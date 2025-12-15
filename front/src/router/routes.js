@@ -115,6 +115,20 @@ const routes = [
         component: () => import('pages/analitica/PanelSexual.vue'),
         meta: {requiresAuth: true, perm: 'Analitica'}
       },
+      // cultivo antibiograma
+      {
+        path: '/analitica/cultivo-antibiograma/:id',
+        name: 'analitica-cultivo-antibiograma',
+        component: () => import('pages/analitica/CultivoAntibiograma.vue'),
+        meta: {requiresAuth: true, perm: 'Analitica'}
+      },
+      // inmulogia
+      {
+        path: '/analitica/inmunologia/:id',
+        name: 'analitica-inmunologia',
+        component: () => import('pages/analitica/InmunologiaSolicitudPage.vue'),
+        meta: {requiresAuth: true, perm: 'Analitica'}
+      },
       //   formularios
       {
         path: '/formularios',

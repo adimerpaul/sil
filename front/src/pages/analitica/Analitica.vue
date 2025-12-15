@@ -170,6 +170,38 @@
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Panel Sexual</q-item-section>
                     </q-item>
+<!--                    {-->
+<!--                    path: '/analitica/cultivo-antibiograma/:id',-->
+<!--                    name: 'analitica-cultivo-antibiograma',-->
+<!--                    component: () => import('pages/analitica/CultivoAntibiograma.vue'),-->
+<!--                    meta: {requiresAuth: true, perm: 'Analitica'}-->
+<!--                    },-->
+                    <q-separator spaced />
+
+                    <q-item clickable @click="$router.push({ name: 'analitica-cultivo-antibiograma', params: { id: solicitud.id } })" v-close-popup dense>
+                      <q-item-section avatar><q-icon name="healing" /></q-item-section>
+                      <q-item-section>Cultivo y Antibiograma</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="printCultivoAntibiograma(solicitud)" v-close-popup dense>
+                      <q-item-section avatar><q-icon name="print" /></q-item-section>
+                      <q-item-section>Imprimir Cultivo y Antibiograma</q-item-section>
+                    </q-item>
+<!--                    {-->
+<!--                    path: '/analitica/inmunologia/:id',-->
+<!--                    name: 'analitica-inmunologia',-->
+<!--                    component: () => import('pages/analitica/InmunologiaSolicitudPage.vue'),-->
+<!--                    meta: {requiresAuth: true, perm: 'Analitica'}-->
+<!--                    },-->
+                    <q-separator spaced />
+
+                    <q-item clickable @click="$router.push({ name: 'analitica-inmunologia', params: { id: solicitud.id } })" v-close-popup dense>
+                      <q-item-section avatar><q-icon name="shield" /></q-item-section>
+                      <q-item-section>Inmunología</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="printInmunologia(solicitud)" v-close-popup dense>
+                      <q-item-section avatar><q-icon name="print" /></q-item-section>
+                      <q-item-section>Imprimir Inmunología</q-item-section>
+                    </q-item>
                   </q-list>
                 </q-btn-dropdown>
               </td>
@@ -254,6 +286,17 @@ export default {
     },
     printPanelSexual(solicitud) {
       const url = `${this.$axios.defaults.baseURL}/panel-sexual/solicitud/${solicitud.id}/pdf`
+      window.open(url, '_blank')
+    },
+    printCultivoAntibiograma(solicitud) {
+      const url = `${this.$axios.defaults.baseURL}/cultivo-antibiograma/solicitud/${solicitud.id}/pdf`
+      window.open(url, '_blank')
+    },
+    printInmunologia(solicitud) {
+      // const url = `${this.$axios.defaults.baseURL}/inmunologia/solicitud/${solicitud.id}/pdf`
+      // window.open(url, '_blank')
+      // http://localhost:8000/api/inmunologia/solicitud/3/pdf-all?area_id=5
+      const url = `${this.$axios.defaults.baseURL}/inmunologia/solicitud/${solicitud.id}/pdf-all?area_id=5`
       window.open(url, '_blank')
     },
     selectHematologia(solicitud) {
