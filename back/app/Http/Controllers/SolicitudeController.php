@@ -316,7 +316,8 @@ class SolicitudeController extends Controller
         }
 
         $paciente = Paciente::find($solicitud->paciente_id);
-        $nombreCompleto = $paciente ? $paciente->nombre_completo : 'Desconocido';
+//        $nombreCompleto = $paciente ? $paciente->nombre_completo : 'Desconocido';
+        $nombreCompleto = $solicitud->paciente_nombre ?? ($paciente ? $paciente->nombre_completo : 'Desconocido');
         $nro_registro   = $this->nroRegistro($nombreCompleto, $paciente->fecha_nac ?? null);
 
         $solicitud->codigo       = $this->generarCodigoPorTipoYMes($solicitud);

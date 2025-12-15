@@ -93,6 +93,10 @@ class DatabaseSeeder extends Seeder
 //                'embarazo' => (bool)rand(0, 1),
 //            ]);
 //        }
+//        diagnosticos_202512130542.sql
+        $path = database_path('seeders/diagnosticos_202512130542.sql');
+        $sql = file_get_contents($path);
+        \DB::unprepared($sql);
         $this->call([
             ServiciosSeeder::class,
             AreaTipoMuestraSeeder::class,
@@ -179,11 +183,11 @@ class DatabaseSeeder extends Seeder
 //    ];
         $pacienteAdimer = Paciente::create([
             'nombre_completo' => 'Adimer Paul Chambi Ajata',
-            'fecha_nac' => '1985-03-10',
+            'fecha_nac' => '1989-04-02',
             'genero' => 'M',
-            'edad' => 39,
+            'edad' => 36,
             'ci' => '7336199',
-            'telefono' => '555-0001',
+            'telefono' => '69603027',
             'direccion' => 'Av. Siempre Viva 742',
             'fecha_recepcion' => now()->toDateString(),
             'hora_recepcion' => now()->toTimeString(),

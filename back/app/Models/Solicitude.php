@@ -26,6 +26,7 @@ class Solicitude extends Model implements AuditableContract
         'establecimiento_salud',
         'zona_establecimiento',
         'diagnostico_clinico',
+        'diagnostico_select',
         'estado',                  // CREADO, ATENDIENDO, FINALIZADO
         'codigo',
         'nro_registro',

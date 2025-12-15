@@ -94,6 +94,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('parasitologia/solicitud/{id}', [\App\Http\Controllers\ParasitologiaController::class, 'upsert']);
     Route::delete('parasitologia/solicitud/{id}', [\App\Http\Controllers\ParasitologiaController::class, 'destroyBySolicitude']);
 
+    Route::get('diagnosticos', [\App\Http\Controllers\DiagnosticoController::class, 'index']);
+
 });
 Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);
 Route::get('public/reportes/{codigo}', [SolicitudeController::class, 'imprimirAnaliticaPublica'])

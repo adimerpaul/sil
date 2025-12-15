@@ -32,6 +32,7 @@ return new class extends Migration
             $table->string('establecimiento_salud')->nullable();
             $table->string('zona_establecimiento')->nullable();
             $table->text('diagnostico_clinico')->nullable();
+            $table->string('diagnostico_select')->nullable();
             $table->string('estado')->default('CREADO');
             $table->integer('codigo')->nullable();
             $table->string('nro_registro')->nullable();
