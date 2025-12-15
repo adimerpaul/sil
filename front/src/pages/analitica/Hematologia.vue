@@ -10,15 +10,29 @@
           </div>
         </div>
         <div class="col-auto">
-<!--          refresch-->
+          <!--          refresch-->
+          <!--          <q-btn-->
+          <!--            flat-->
+          <!--            icon="refresh"-->
+          <!--            label="Refrescar"-->
+          <!--            no-caps-->
+          <!--            class="q-mr-sm"-->
+          <!--            :disable="loading"-->
+          <!--            @click="load"-->
+          <!--          />-->
+          <!--          ntn imprimir-->
+          <!--          printHematologia(solicitud) {-->
+          <!--          const url = `${this.$axios.defaults.baseURL}/hematologia/solicitud/${solicitud.id}/pdf`-->
+          <!--          window.open(url, '_blank')-->
+          <!--          },-->
           <q-btn
             flat
-            icon="refresh"
-            label="Refrescar"
+            icon="print"
+            label="Imprimir"
             no-caps
             class="q-mr-sm"
-            :disable="loading"
-            @click="load"
+            :disable="loading || !header"
+            @click="printHematologia"
           />
           <q-btn
             flat
@@ -39,7 +53,7 @@
         </div>
       </q-card-section>
 
-      <q-separator />
+      <q-separator/>
 
       <!-- DATOS DE LA SOLICITUD / PACIENTE -->
       <q-card-section v-if="header" class="q-pa-sm">
@@ -85,7 +99,7 @@
       </q-card-section>
 
       <q-inner-loading :showing="loading && !formLoaded">
-        <q-spinner size="42px" />
+        <q-spinner size="42px"/>
       </q-inner-loading>
     </q-card>
 
@@ -318,7 +332,7 @@
             <thead>
             <tr>
               <th class="text-left">Célula</th>
-              <th class="text-left">% </th>
+              <th class="text-left">%</th>
               <th class="text-left">Valor absoluto</th>
               <th class="text-left">Rango % ref.</th>
             </tr>
@@ -774,7 +788,7 @@
       </q-card-section>
 
       <q-inner-loading :showing="loading && formLoaded">
-        <q-spinner size="42px" />
+        <q-spinner size="42px"/>
       </q-inner-loading>
     </q-card>
   </q-page>
@@ -783,7 +797,7 @@
 <script>
 export default {
   name: 'HematologiaPage',
-  data () {
+  data() {
     return {
       solicitudId: this.$route.params.id,
       loading: false,
@@ -839,55 +853,55 @@ export default {
     }
   },
   computed: {
-    pacienteNombre () {
+    pacienteNombre() {
       const h = this.header
       if (!h) return '-'
       if (h.paciente && h.paciente.nombre_completo) return h.paciente.nombre_completo
       return h.paciente_nombre || '-'
     },
-    pacienteEdad () {
+    pacienteEdad() {
       const h = this.header
       if (!h) return '-'
       if (h.paciente && h.paciente.edad) return h.paciente.edad
       return h.paciente_edad || '-'
     },
-    pacienteGenero () {
+    pacienteGenero() {
       const h = this.header
       if (!h) return '-'
       if (h.paciente && h.paciente.genero) return h.paciente.genero
       return h.paciente_genero || '-'
     },
-    doctorNombre () {
+    doctorNombre() {
       const h = this.header
       if (!h) return '-'
       if (h.doctor && h.doctor.nombre) return h.doctor.nombre
       return h.doctor_nombre || '-'
     },
-    solicitudFecha () {
+    solicitudFecha() {
       const h = this.header
       if (!h) return '-'
       return h.fecha_solicitud || '-'
     },
-    solicitudCodigo () {
+    solicitudCodigo() {
       const h = this.header
       if (!h) return '-'
       return h.nro_registro || h.codigo_solicitud || h.id || '-'
     },
-    solicitudEstado () {
+    solicitudEstado() {
       const h = this.header
       if (!h) return '-'
       return h.estado || '-'
     }
   },
-  mounted () {
+  mounted() {
     this.load()
   },
   methods: {
-    async load () {
+    async load() {
       try {
         this.loading = true
         this.formLoaded = false
-        const { data } = await this.$axios.get(`/hematologia/solicitud/${this.solicitudId}`)
+        const {data} = await this.$axios.get(`/hematologia/solicitud/${this.solicitudId}`)
         this.header = data.solicitud || null
         // Merge para no perder keys por defecto
         this.form = Object.assign({}, this.form, data.hematologia || {})
@@ -904,7 +918,7 @@ export default {
         this.loading = false
       }
     },
-    async save () {
+    async save() {
       try {
         this.loading = true
         await this.$axios.post(`/hematologia/solicitud/${this.solicitudId}`, this.form)
@@ -924,10 +938,15 @@ export default {
         this.loading = false
       }
     },
-    onSubmit () {
+    printHematologia() {
+      const id = this.solicitudId
+      const url = `${this.$axios.defaults.baseURL}/hematologia/solicitud/${id}/pdf`
+      window.open(url, '_blank')
+    },
+    onSubmit() {
       this.save()
     },
-    getRango (nombre) {
+    getRango(nombre) {
       if (!this.rangos || !Array.isArray(this.rangos)) return null
       return (
         this.rangos.find(
@@ -935,7 +954,7 @@ export default {
         ) || null
       )
     },
-    rangoTexto (nombre) {
+    rangoTexto(nombre) {
       const r = this.getRango(nombre)
       if (!r) return ''
       // si tiene rango_minimo y rango_maximo, usamos eso
@@ -948,11 +967,11 @@ export default {
       }
       return ''
     },
-    rangoUnidad (nombre) {
+    rangoUnidad(nombre) {
       const r = this.getRango(nombre)
       return r && r.unidad ? r.unidad : ''
     },
-    isOutOfRange (nombre, valor) {
+    isOutOfRange(nombre, valor) {
       const r = this.getRango(nombre)
       const num = parseFloat(valor)
       if (!r || isNaN(num)) return false

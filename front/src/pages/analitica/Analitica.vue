@@ -78,49 +78,97 @@
                 <q-btn-dropdown dense color="primary" no-caps label="Opciones" size="10px">
                   <q-list>
                     <!-- HEMATOLOGÍA -->
-                    <q-item clickable @click="selectHematologia(solicitud)" v-close-popup>
+                    <q-item clickable @click="selectHematologia(solicitud)" v-close-popup dense>
                       <q-item-section avatar><q-icon name="bloodtype" /></q-item-section>
                       <q-item-section>Hematología</q-item-section>
                     </q-item>
 
-                    <q-item clickable @click="printHematologia(solicitud)" v-close-popup>
+                    <q-item clickable @click="printHematologia(solicitud)" v-close-popup dense>
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Hematología</q-item-section>
                     </q-item>
 
                     <q-separator spaced />
 
-                    <q-item clickable @click="$router.push({ name: 'analitica-quimica-sanguinia', params: { id: solicitud.id } })" v-close-popup>
+                    <q-item clickable @click="$router.push({ name: 'analitica-quimica-sanguinia', params: { id: solicitud.id } })" v-close-popup dense>
                       <q-item-section avatar><q-icon name="science" /></q-item-section>
                       <q-item-section>Química Sanguínea</q-item-section>
                     </q-item>
-                    <q-item clickable @click="printQuimica(solicitud)" v-close-popup>
+                    <q-item clickable @click="printQuimica(solicitud)" v-close-popup dense>
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Química Sanguínea</q-item-section>
                     </q-item>
                     <q-separator spaced />
 
-                    <q-item clickable @click="$router.push({ name: 'analitica-uroanalisis', params: { id: solicitud.id } })" v-close-popup>
+                    <q-item clickable @click="$router.push({ name: 'analitica-uroanalisis', params: { id: solicitud.id } })" v-close-popup dense>
                       <q-item-section avatar><q-icon name="water_drop" /></q-item-section>
                       <q-item-section>Uroanálisis</q-item-section>
                     </q-item>
 
                     <!-- ✅ IMPRIMIR UROANÁLISIS -->
-                    <q-item clickable @click="printUroanalisis(solicitud)" v-close-popup>
+                    <q-item clickable @click="printUroanalisis(solicitud)" v-close-popup dense>
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Uroanálisis</q-item-section>
                     </q-item>
 
                     <q-separator spaced />
 
-                    <q-item clickable @click="$router.push({ name: 'analitica-parasitologia', params: { id: solicitud.id } })" v-close-popup>
+                    <q-item clickable @click="$router.push({ name: 'analitica-parasitologia', params: { id: solicitud.id } })" v-close-popup dense>
                       <q-item-section avatar><q-icon name="bug_report" /></q-item-section>
                       <q-item-section>Parasitología</q-item-section>
                     </q-item>
 
-                    <q-item clickable @click="printParasitologia(solicitud)" v-close-popup>
+                    <q-item clickable @click="printParasitologia(solicitud)" v-close-popup dense>
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Parasitología</q-item-section>
+                    </q-item>
+<!--                    {-->
+<!--                    path: '/analitica/papiloma-humano/:id',-->
+<!--                    name: 'analitica-papiloma-humano',-->
+<!--                    component: () => import('pages/analitica/PapilomaHumano.vue'),-->
+<!--                    meta: {requiresAuth: true, perm: 'Analitica'}-->
+<!--                    },-->
+                    <q-separator spaced />
+
+                    <q-item clickable @click="$router.push({ name: 'analitica-papiloma-humano', params: { id: solicitud.id } })" v-close-popup dense>
+                      <q-item-section avatar><q-icon name="health_and_safety" /></q-item-section>
+                      <q-item-section>Papiloma Humano</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="printPapilomaHumano(solicitud)" v-close-popup dense>
+                      <q-item-section avatar><q-icon name="print" /></q-item-section>
+                      <q-item-section>Imprimir Papiloma Humano</q-item-section>
+                    </q-item>
+<!--                    {-->
+<!--                    path: '/analitica/panel-respiratorio/:id',-->
+<!--                    name: 'analitica-panel-respiratorio',-->
+<!--                    component: () => import('pages/analitica/PanelRespiratorio.vue'),-->
+<!--                    meta: {requiresAuth: true, perm: 'Analitica'}-->
+<!--                    },-->
+                    <q-separator spaced />
+
+                    <q-item clickable @click="$router.push({ name: 'analitica-panel-respiratorio', params: { id: solicitud.id } })" v-close-popup dense>
+                      <q-item-section avatar><q-icon name="air" /></q-item-section>
+                      <q-item-section>Panel Respiratorio</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="printPanelRespiratorio(solicitud)" v-close-popup dense>
+                      <q-item-section avatar><q-icon name="print" /></q-item-section>
+                      <q-item-section>Imprimir Panel Respiratorio</q-item-section>
+                    </q-item>
+<!--                    {-->
+<!--                    path: '/analitica/panel-sexual/:id',-->
+<!--                    name: 'analitica-panel-sexual',-->
+<!--                    component: () => import('pages/analitica/PanelSexual.vue'),-->
+<!--                    meta: {requiresAuth: true, perm: 'Analitica'}-->
+<!--                    },-->
+                    <q-separator spaced />
+
+                    <q-item clickable @click="$router.push({ name: 'analitica-panel-sexual', params: { id: solicitud.id } })" v-close-popup dense>
+                      <q-item-section avatar><q-icon name="favorite" /></q-item-section>
+                      <q-item-section>Panel Sexual</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="printPanelSexual(solicitud)" v-close-popup dense>
+                      <q-item-section avatar><q-icon name="print" /></q-item-section>
+                      <q-item-section>Imprimir Panel Sexual</q-item-section>
                     </q-item>
                   </q-list>
                 </q-btn-dropdown>
@@ -194,6 +242,18 @@ export default {
     },
     printParasitologia(solicitud) {
       const url = `${this.$axios.defaults.baseURL}/parasitologia/solicitud/${solicitud.id}/pdf`
+      window.open(url, '_blank')
+    },
+    printPapilomaHumano(solicitud) {
+      const url = `${this.$axios.defaults.baseURL}/papiloma-humano/solicitud/${solicitud.id}/pdf`
+      window.open(url, '_blank')
+    },
+    printPanelRespiratorio(solicitud) {
+      const url = `${this.$axios.defaults.baseURL}/panel-respiratorio/solicitud/${solicitud.id}/pdf`
+      window.open(url, '_blank')
+    },
+    printPanelSexual(solicitud) {
+      const url = `${this.$axios.defaults.baseURL}/panel-sexual/solicitud/${solicitud.id}/pdf`
       window.open(url, '_blank')
     },
     selectHematologia(solicitud) {

@@ -94,6 +94,27 @@ const routes = [
         component: () => import('pages/analitica/Parasitologia.vue'),
         meta: {requiresAuth: true, perm: 'Analitica'}
       },
+      // papiloma humano
+      {
+        path: '/analitica/papiloma-humano/:id',
+        name: 'analitica-papiloma-humano',
+        component: () => import('pages/analitica/PapilomaHumano.vue'),
+        meta: {requiresAuth: true, perm: 'Analitica'}
+      },
+      // panel drespiratorio
+      {
+        path: '/analitica/panel-respiratorio/:id',
+        name: 'analitica-panel-respiratorio',
+        component: () => import('pages/analitica/PanelRespiratorio.vue'),
+        meta: {requiresAuth: true, perm: 'Analitica'}
+      },
+      // panel sexual
+      {
+        path: '/analitica/panel-sexual/:id',
+        name: 'analitica-panel-sexual',
+        component: () => import('pages/analitica/PanelSexual.vue'),
+        meta: {requiresAuth: true, perm: 'Analitica'}
+      },
       //   formularios
       {
         path: '/formularios',
