@@ -98,18 +98,7 @@
       <q-card-section class="q-pa-sm">
         <q-form @submit.prevent="onSubmit">
 
-          <div class="row q-col-gutter-sm q-mb-sm">
-            <div class="col-12 col-md-3">
-              <q-select
-                v-model="form.tipo"
-                :options="['SIMPLE', 'SERIADO']"
-                dense
-                outlined
-                label="Tipo"
-                @update:model-value="onTipoChange"
-              />
-            </div>
-          </div>
+
 
           <div class="row q-col-gutter-sm">
             <!-- MACROSCOPÍA -->
@@ -126,7 +115,10 @@
                   <q-select v-model="form.color" dense outlined label="Color"
                             :options="['MARRÓN','AMARILLO','VERDOSO','NEGRUZCO','OTRO']" class="q-mb-sm" />
                   <q-select v-model="form.consistencia" dense outlined label="Consistencia"
-                            :options="['PASTOSA','LÍQUIDA','SEMILÍQUIDA','FORMADA','OTRO']" class="q-mb-sm" />
+                            :options="['SÓLIDA','LÍQUIDA','PASTOSA','DIARREICA','DIARREICA CON MOCO','OTROS']" class="q-mb-sm" />
+<!--                            CONSISTENCIA: SOLIDA, LIQUIDA, PASTOSA, DIARREICA, DIARREICA CON MOCO, OTROS-->
+<!--                            :options="['SOLIDA','LIQUIDA','PASTOSA','DIARREICA','DIARREICA CON MOCO','OTROS']" class="q-mb-sm" />-->
+
 
                   <q-input v-model="form.otros" dense outlined type="textarea" autogrow label="Otros (Opcional)" class="q-mb-sm" />
                   <q-select v-model="form.bacterias" dense outlined label="Bacterias"
@@ -147,9 +139,21 @@
                       </div>
                     </div>
                     <div class="col-auto">
-                      <q-chip square color="primary" text-color="white" dense>
-                        {{ form.tipo }}
-                      </q-chip>
+<!--                      <div class="row q-col-gutter-sm q-mb-sm">-->
+<!--                        <div class="col-12 col-md-3">-->
+                          <q-select
+                            v-model="form.tipo"
+                            :options="['SIMPLE', 'SERIADO']"
+                            dense
+                            outlined
+                            label="Tipo"
+                            @update:model-value="onTipoChange"
+                          />
+<!--                        </div>-->
+<!--                      </div>-->
+<!--                      <q-chip square color="primary" text-color="white" dense>-->
+<!--                        {{ form.tipo }}-->
+<!--                      </q-chip>-->
                     </div>
                   </div>
 
@@ -189,7 +193,16 @@
 
                     <div class="col-12 col-md-4">
                       <q-select v-model="form.test_benedict" dense outlined label="Test de Benedict"
-                                :options="['NEGATIVO','POSITIVO']" />
+                                :options="['pH 5.0 ácido','pH 5.5 ácido','pH 6.0 ácido','pH 6.5 ácido','pH 7.0 neutro','pH 7.5 alcalino','pH 8.0 alcalino','pH 9.0 alcalino']" />
+                      <!--                                :options="['NEGATIVO','POSITIVO']" />-->
+                      <!--                      para TEST DE BENEDICT poner las siguientes reacciones:                              pH 	5.0 ácido-->
+                      <!--                      pH 	5.5 ácido-->
+                      <!--                      pH 	6.0 ácido-->
+                      <!--                      pH 	6.5 ácido-->
+                      <!--                      pH 	7.0 neutro-->
+                      <!--                      pH 	7.5 alcalino-->
+                      <!--                      pH 	8.0 alcalino-->
+                      <!--                      pH 	9.0 alcalino-->
                     </div>
 
                     <div class="col-12 col-md-4">
@@ -200,14 +213,34 @@
 
                   <q-separator spaced />
 
+<!--                  <q-input-->
+<!--                    v-model="form.otros_examenes"-->
+<!--                    dense-->
+<!--                    outlined-->
+<!--                    type="textarea"-->
+<!--                    autogrow-->
+<!--                    label="Otros exámenes"-->
+<!--                  />-->
+<!--                  AMEBAS EN FRESCO-->
+<!--                  EXAMEN DIRECTO PARA LEISHMANIA-->
+<!--                  GOTA GRUESA PARA MALARIA-->
+<!--                  MICROMÉTODO PARA CHAGAS-->
+<!--                  TÉCNICA DE GRAHAM-->
+                  <q-select v-model="form.otros_examenes" dense outlined label="Otros exámenes"
+                            :options="['AMEBAS EN FRESCO','EXAMEN DIRECTO PARA LEISHMANIA','GOTA GRUESA PARA MALARIA','MICROMÉTODO PARA CHAGAS','TÉCNICA DE GRAHAM','OTROS']" />
+
                   <q-input
-                    v-model="form.otros_examenes"
+                    v-model="form.otros_examenes_otros"
+                    v-if="form.otros_examenes === 'OTROS'"
                     dense
                     outlined
                     type="textarea"
                     autogrow
-                    label="Otros exámenes"
+                    label="Especifique otros exámenes"
                   />
+
+
+
                 </q-card-section>
               </q-card>
             </div>

@@ -37,6 +37,8 @@ return new class extends Migration {
             $table->string('test_benedict')->nullable();           // NEGATIVO / POSITIVO
             $table->string('reaccion')->nullable();                // pH 7.0 neutro, etc
             $table->text('otros_examenes')->nullable();
+//            otros_examenes_otros
+            $table->text('otros_examenes_otros')->nullable();
 
             $table->foreign('solicitude_id')->references('id')->on('solicitudes')->onDelete('cascade');
 

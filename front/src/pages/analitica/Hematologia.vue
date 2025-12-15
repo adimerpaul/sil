@@ -755,12 +755,20 @@
                 class="bg-white q-mb-xs"
                 label="Método (A, M, M/SA, etc.)"
               />
-              <q-input
-                v-model="form.equipo"
-                dense
-                outlined
-                class="bg-white"
-                label="Equipo (ej. Mindray BC 3000 Plus)"
+<!--              <q-input-->
+<!--                v-model="form.equipo"-->
+<!--                dense-->
+<!--                outlined-->
+<!--                class="bg-white"-->
+<!--                label="Equipo (ej. Mindray BC 3000 Plus)"-->
+<!--              /> BC 5130 y BC 3000-->
+              <q-select v-model="form.equipo"
+                        :options="['Mindray BC 3000 Plus', 'Mindray BC 5130', 'Otro']"
+                        dense
+                        outlined
+                        clearable
+                        class="bg-white"
+                        label="Equipo"
               />
             </div>
           </div>

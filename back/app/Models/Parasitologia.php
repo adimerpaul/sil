@@ -31,6 +31,7 @@ class Parasitologia extends Model implements AuditableContract
         'test_benedict',
         'reaccion',
         'otros_examenes',
+        'otros_examenes_otros',
     ];
 
     protected $hidden = [
