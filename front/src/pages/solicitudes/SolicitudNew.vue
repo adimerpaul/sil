@@ -5,12 +5,14 @@
         <div class="text-subtitle1">Nueva solicitud</div>
         <q-space />
         <q-btn icon="arrow_back" flat round dense @click="$router.push({ path: '/solicitudes' })" />
+<!--        boton guardar-->
+        <q-btn color="primary" label="Guardar" @click="$refs.form.submit()" :loading="loading" />
       </q-card-section>
 
       <q-separator />
 
       <q-card-section class="q-pa-sm">
-        <q-form @submit="guardar">
+        <q-form @submit="guardar" ref="form">
           <!-- Paciente -->
           <div class="row items-center q-mb-xs">
             <q-icon name="person" size="18px" class="q-mr-xs" />
@@ -133,8 +135,46 @@
                         label="Unidad solicitante" dense outlined clearable />
             </div>
 
-            <div class="col-6">
+            <div class="col-4">
               <q-input v-model="solicitud.cama" label="Sala / Cama" dense outlined />
+            </div>
+<!--            diagnostico_select-->
+            <div class="col-8">
+              <q-select
+                v-model="solicitud.diagnostico_select"
+                :options="diagnosticos"
+                option-label="cie10"
+                option-value="cie10"
+                dense
+                outlined
+                clearable
+                label="Buscar diagnóstico clínico"
+                use-input
+                emit-value
+                map-options
+                input-debounce="300"
+                @filter="onFilterDiagnosticos"
+              >
+                <template #option="scope">
+                  <q-item v-bind="scope.itemProps">
+                    <q-item-section>
+                      <q-item-label>{{ scope.opt.cie10 }}</q-item-label>
+                      <q-item-label caption>
+                        Especialidad: {{ scope.opt.especialidad }}
+                      </q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+<!--              <pre>{{solicitud.diagnostico_select}}</pre>-->
+<!--              <pre>{{diagnosticos}}</pre>-->
+<!--              [-->
+<!--              {-->
+<!--              "id": 1,-->
+<!--              "servicio": "CONSULTA EXTERNA",-->
+<!--              "especialidad": "ANESTESIOLOGIA                                    ",-->
+<!--              "cie10": "O82   Parto único por cesárea                                                                                          "-->
+<!--              },-->
             </div>
           </div>
 
@@ -151,15 +191,16 @@
           <q-card flat bordered class="q-mb-xs">
             <q-card-section class="row q-col-gutter-xs">
               <div class="col-12 col-sm-6">
-                <q-input v-model="serviciosFilter" dense outlined label="Buscar servicio (nombre / código / subárea)">
+                <q-input v-model="serviciosFilter" dense outlined label="Buscar servicio (nombre / código / subárea)" clearable>
                   <template #append><q-icon name="search" /></template>
                 </q-input>
               </div>
               <div class="col-12 col-sm-6">
                 <q-select v-model="serviciosAreaId" :options="areas" option-label="name" option-value="id"
-                          dense outlined clearable label="Filtrar por área">
+                          dense outlined clearable label="Filtrar por área" emit-value map-options>
                   <template #prepend><q-icon name="science" /></template>
                 </q-select>
+<!--                <pre>{{serviciosAreaId}}</pre>-->
               </div>
             </q-card-section>
 
@@ -173,6 +214,17 @@
               <div v-else>
                 Mostrando todos los servicios disponibles (atención particular / especificar).
               </div>
+              <div v-if="selectedServicios.length === 0" class="q-mt-sm">
+                No ha seleccionado ningún servicio aún.
+              </div>
+              <div v-else>
+                Servicios seleccionados:
+                <ul>
+                  <li v-for="(s, index) in selectedServicios" :key="index">
+                    {{ s.area }} - {{ s.servicio }} (Bs. {{ s.precio }})
+                  </li>
+                </ul>
+              </div>
             </q-card-section>
           </q-card>
 
@@ -183,7 +235,9 @@
                 :key="area.id || area.name"
                 :label="area.name"
                 icon="science"
-                expand-separator dense
+                expand-separator
+                dense
+                default-opened
                 v-show="filteredServicios(area).length > 0"
               >
                 <q-card flat>
@@ -239,10 +293,27 @@ export default {
       establecimientos: [],
       searchCi: '',
       serviciosFilter: '',
-      serviciosAreaId: null
+      serviciosAreaId: null,
+      diagnosticos: [],
+      diagnosticosAll: [],
     }
   },
   computed: {
+    selectedServicios() {
+      const selected = []
+      this.areas.forEach(area => {
+        (area.servicios || []).forEach(servicio => {
+          if (servicio.seleccionado) {
+            selected.push({
+              area: area.name,
+              servicio: servicio.nombre,
+              precio: servicio.precio
+            })
+          }
+        })
+      })
+      return selected
+    },
     currentEstablecimiento () {
       if (!this.solicitud.establecimiento_salud) return null
       return this.establecimientos.find(e => e.nombre === this.solicitud.establecimiento_salud) || null
@@ -256,6 +327,7 @@ export default {
   mounted () {
     this.initSolicitud()
     this.loadDoctores()
+    this.diagnosticosGet()
     this.$axios.get('establecimientos').then(res => { this.establecimientos = res.data })
     this.$axios.get('areas').then(res => {
       this.areas = res.data
@@ -263,6 +335,35 @@ export default {
     })
   },
   methods: {
+    onFilterDiagnosticos (val, update) {
+      update(() => {
+        const text = (val || '').toLowerCase().trim()
+
+        if (!text) {
+          this.diagnosticos = this.diagnosticosAll
+          return
+        }
+
+        this.diagnosticos = this.diagnosticosAll
+          .filter(d => {
+            const cie10 = String(d.cie10 || '').toLowerCase()
+            const esp = String(d.especialidad || '').toLowerCase()
+            const serv = String(d.servicio || '').toLowerCase()
+            return (
+              cie10.includes(text) ||
+              esp.includes(text) ||
+              serv.includes(text)
+            )
+          })
+          .slice(0, 50) // 🔥 limita resultados (performance)
+      })
+    },
+    diagnosticosGet () {
+      this.$axios.get('diagnosticos').then(res => {
+        this.diagnosticos = res.data
+        this.diagnosticosAll = res.data
+      })
+    },
     initSolicitud () {
       this.solicitud = {
         paciente_id: null,
