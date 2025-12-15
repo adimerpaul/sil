@@ -107,6 +107,16 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/panel-sexual/solicitud/{id}', [\App\Http\Controllers\PanelSexualController::class, 'upsert']);
     Route::delete('/panel-sexual/solicitud/{id}', [\App\Http\Controllers\PanelSexualController::class, 'destroyBySolicitude']);
 
+    Route::get('/cultivo-antibiograma/solicitud/{id}', [\App\Http\Controllers\CultivoAntibiogramaController::class, 'showBySolicitude']);
+    Route::post('/cultivo-antibiograma/solicitud/{id}', [\App\Http\Controllers\CultivoAntibiogramaController::class, 'upsert']);
+    Route::delete('/cultivo-antibiograma/solicitud/{id}', [\App\Http\Controllers\CultivoAntibiogramaController::class, 'destroyBySolicitude']);
+
+    Route::get('/inmunologia/solicitud/{id}', [\App\Http\Controllers\InmunologiaController::class, 'dashboard']);
+    Route::post('/inmunologia/solicitud/{id}/add', [\App\Http\Controllers\InmunologiaController::class, 'add']);
+
+    Route::put('/inmunologia/solicitude-formulario/{id}', [\App\Http\Controllers\InmunologiaController::class, 'update']);
+    Route::delete('/inmunologia/solicitude-formulario/{id}', [\App\Http\Controllers\InmunologiaController::class, 'remove']);
+
 });
 Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);
 Route::get('public/reportes/{codigo}', [SolicitudeController::class, 'imprimirAnaliticaPublica'])
@@ -122,6 +132,11 @@ Route::get('/quimica-sanguinea/solicitud/{id}/pdf', [\App\Http\Controllers\Quimi
 Route::get('papiloma-humano/solicitud/{id}/pdf', [\App\Http\Controllers\PapilomaHumanoController::class, 'pdfBySolicitude']);
 Route::get('/panel-respiratorio/solicitud/{id}/pdf', [\App\Http\Controllers\PanelRespiratorioController::class, 'pdfBySolicitude']);
 Route::get('/panel-sexual/solicitud/{id}/pdf', [\App\Http\Controllers\PanelSexualController::class, 'pdfBySolicitude']);
+Route::get('/cultivo-antibiograma/solicitud/{id}/pdf', [\App\Http\Controllers\CultivoAntibiogramaController::class, 'pdfBySolicitude']);
+
+Route::get('/inmunologia/solicitude-formulario/{id}/pdf', [\App\Http\Controllers\InmunologiaController::class, 'pdfOne']);
+Route::get('/inmunologia/solicitud/{id}/pdf-all', [\App\Http\Controllers\InmunologiaController::class, 'pdfAll']);
+
 
 
 

@@ -6,20 +6,35 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable as AuditableTrait;
-class SolicitudeFormulario extends Model implements AuditableContract{
 
+class SolicitudeFormulario extends Model implements AuditableContract
+{
     use SoftDeletes, AuditableTrait;
+
+    protected $table = 'solicitude_formularios';
+
     protected $fillable = [
         'solicitude_id',
         'formulario_id',
+        'area_id',
         'nombre',
         'html',
-        'area_id',
     ];
-    protected $hidden= [
-        'created_at', 'updated_at', 'deleted_at',
-    ];
-    function solicitude(){
-        return $this->belongsTo(Solicitude::class);
+
+    protected $hidden = ['deleted_at', 'created_at', 'updated_at'];
+
+    public function solicitud()
+    {
+        return $this->belongsTo(Solicitude::class, 'solicitude_id');
+    }
+
+    public function formulario()
+    {
+        return $this->belongsTo(Formularios::class, 'formulario_id');
+    }
+
+    public function area()
+    {
+        return $this->belongsTo(Area::class, 'area_id');
     }
 }

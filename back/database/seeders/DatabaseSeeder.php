@@ -42,27 +42,27 @@ class DatabaseSeeder extends Seeder
 
 
 
-        $doctor = Doctor::create([
-            'nombre' => 'Dr. Juan Perez',
-            'especialidad' => 'Cardiologia',
-            'ci' => '12345678',
-            'telefono' => '555-1234',
-            'email' => 'perez@gmail.com',
-            'registro' => 'REG-001',
-            'estado' => 'ACTIVO',
-            'establecimiento_id' => 1,
-        ]);
-//        docto 2 establecimiento
-        $doctor2 = Doctor::create([
-            'nombre' => 'Dra. Ana Gomez',
-            'especialidad' => 'Pediatria',
-            'ci' => '87654321',
-            'telefono' => '555-5678',
-            'email' => 'ana@gmail.com',
-            'registro' => 'REG-002',
-            'estado' => 'ACTIVO',
-            'establecimiento_id' => 2,
-        ]);
+//        $doctor = Doctor::create([
+//            'nombre' => 'Dr. Juan Perez',
+//            'especialidad' => 'Cardiologia',
+//            'ci' => '12345678',
+//            'telefono' => '555-1234',
+//            'email' => 'perez@gmail.com',
+//            'registro' => 'REG-001',
+//            'estado' => 'ACTIVO',
+//            'establecimiento_id' => 1,
+//        ]);
+////        docto 2 establecimiento
+//        $doctor2 = Doctor::create([
+//            'nombre' => 'Dra. Ana Gomez',
+//            'especialidad' => 'Pediatria',
+//            'ci' => '87654321',
+//            'telefono' => '555-5678',
+//            'email' => 'ana@gmail.com',
+//            'registro' => 'REG-002',
+//            'estado' => 'ACTIVO',
+//            'establecimiento_id' => 2,
+//        ]);
         $paciente = \App\Models\Paciente::create([
             'fecha_recepcion' => '2024-01-15',
             'hora_recepcion' => '10:30:00',
