@@ -94,6 +94,11 @@ class DatabaseSeeder extends Seeder
 //            ]);
 //        }
 //        diagnosticos_202512130542.sql
+//        doctors_202512150411.sql
+        $path = database_path('seeders/doctors_202512150411.sql');
+        $sql = file_get_contents($path);
+        \DB::unprepared($sql);
+
         $path = database_path('seeders/diagnosticos_202512130542.sql');
         $sql = file_get_contents($path);
         \DB::unprepared($sql);

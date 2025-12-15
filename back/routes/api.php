@@ -95,6 +95,17 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('parasitologia/solicitud/{id}', [\App\Http\Controllers\ParasitologiaController::class, 'destroyBySolicitude']);
 
     Route::get('diagnosticos', [\App\Http\Controllers\DiagnosticoController::class, 'index']);
+    Route::get('papiloma-humano/solicitud/{id}', [\App\Http\Controllers\PapilomaHumanoController::class, 'showBySolicitude']);
+    Route::post('papiloma-humano/solicitud/{id}', [\App\Http\Controllers\PapilomaHumanoController::class, 'upsert']);
+    Route::delete('papiloma-humano/solicitud/{id}', [\App\Http\Controllers\PapilomaHumanoController::class, 'destroyBySolicitude']);
+
+    Route::get('/panel-respiratorio/solicitud/{id}', [\App\Http\Controllers\PanelRespiratorioController::class, 'showBySolicitude']);
+    Route::post('/panel-respiratorio/solicitud/{id}', [\App\Http\Controllers\PanelRespiratorioController::class, 'upsert']);
+    Route::delete('/panel-respiratorio/solicitud/{id}', [\App\Http\Controllers\PanelRespiratorioController::class, 'destroyBySolicitude']);
+
+    Route::get('/panel-sexual/solicitud/{id}', [\App\Http\Controllers\PanelSexualController::class, 'showBySolicitude']);
+    Route::post('/panel-sexual/solicitud/{id}', [\App\Http\Controllers\PanelSexualController::class, 'upsert']);
+    Route::delete('/panel-sexual/solicitud/{id}', [\App\Http\Controllers\PanelSexualController::class, 'destroyBySolicitude']);
 
 });
 Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);
@@ -108,5 +119,11 @@ Route::get('/hematologia/solicitud/{id}/pdf', [\App\Http\Controllers\Hematologia
 Route::get('parasitologia/solicitud/{id}/pdf', [\App\Http\Controllers\ParasitologiaController::class, 'pdfBySolicitude']);
 Route::get('uroanalisis/solicitud/{id}/pdf', [\App\Http\Controllers\UroanalisisController::class, 'pdfBySolicitude']);
 Route::get('/quimica-sanguinea/solicitud/{id}/pdf', [\App\Http\Controllers\QuimicaSanguineaController::class, 'pdfBySolicitude']);
+Route::get('papiloma-humano/solicitud/{id}/pdf', [\App\Http\Controllers\PapilomaHumanoController::class, 'pdfBySolicitude']);
+Route::get('/panel-respiratorio/solicitud/{id}/pdf', [\App\Http\Controllers\PanelRespiratorioController::class, 'pdfBySolicitude']);
+Route::get('/panel-sexual/solicitud/{id}/pdf', [\App\Http\Controllers\PanelSexualController::class, 'pdfBySolicitude']);
+
+
+
 
 

@@ -136,5 +136,10 @@ class Solicitude extends Model implements AuditableContract
     {
         return $this->hasOne(Parasitologia::class);
     }
+    public function papilomaHumano()
+    {
+        return $this->hasOne(PapilomaHumano::class);
+    }
+
 
 }

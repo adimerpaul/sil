@@ -117,6 +117,71 @@ class AreaTipoMuestraSeeder extends Seeder
                 'created_at'   => $now,
                 'updated_at'   => $now,
             ],
+//            Orina
+//Sangre
+//Estupo
+//LCR
+//Secreción
+//Secreción Vaginal
+//Secreción Uretral
+//Secreción Brazo Izquierdo
+//Secreción Celulosa
+//Cavidad Abdominal
+//Hisopado Faringeo
+//Espermacultivo
+//Punta de Cateter
+//Hueco Pupliteo Izquierdo
+//Liquido Peritonal
+//Apendice
+//Otros
+            [
+                'area_id'      => 5,
+                'tipo_muestra' => 'Orina',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 5,
+                'tipo_muestra' => 'Sangre',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 5,
+                'tipo_muestra' => 'LCR',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 5,
+                'tipo_muestra' => 'Secreción Vaginal',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 5,
+                'tipo_muestra' => 'Secreción Uretral',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 5,
+                'tipo_muestra' => 'Hisopado Faríngeo',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 5,
+                'tipo_muestra' => 'Liquido Peritoneal',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 5,
+                'tipo_muestra' => 'Otros',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
 
             // 6) BIOLOGÍA MOLECULAR  (area_id = 6)
             [
@@ -128,6 +193,84 @@ class AreaTipoMuestraSeeder extends Seeder
             [
                 'area_id'      => 6,
                 'tipo_muestra' => 'Secreciones',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+//            area7
+//            Hisopado Cervical
+//Hisopado Ondetral
+//Hisopado Bucal
+//Hisopado NasoFaringeo
+//Hisopado Faringeo
+//Aspirado
+//Hisopado Combinado
+//Hisopado OroFaringeo
+//Hisopado Uretral
+//Hisopado Vaginal
+//Otros
+            [
+                'area_id'      => 7,
+                'tipo_muestra' => 'Hisopado Cervical',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 7,
+                'tipo_muestra' => 'Hisopado Ondetral',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 7,
+                'tipo_muestra' => 'Hisopado Bucal',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 7,
+                'tipo_muestra' => 'Hisopado NasoFaringeo',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 7,
+                'tipo_muestra' => 'Hisopado Faringeo',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 7,
+                'tipo_muestra' => 'Aspirado',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 7,
+                'tipo_muestra' => 'Hisopado Combinado',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 7,
+                'tipo_muestra' => 'Hisopado OroFaringeo',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 7,
+                'tipo_muestra' => 'Hisopado Uretral',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 7,
+                'tipo_muestra' => 'Hisopado Vaginal',
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ],
+            [
+                'area_id'      => 7,
+                'tipo_muestra' => 'Otros',
                 'created_at'   => $now,
                 'updated_at'   => $now,
             ],

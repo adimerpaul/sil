@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\PanelSexual;
+use App\Models\Solicitude;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+
+class PanelSexualController extends Controller
+{
+    public function showBySolicitude($id)
+    {
+        $solicitud = Solicitude::with(['paciente', 'doctor'])->findOrFail($id);
+
+        $panel = PanelSexual::firstOrNew([
+            'solicitude_id' => $id
+        ]);
+
+        $defaults = [
+            'chlamydia_trachomatis'   => 'NO DETECTADO',
+            'mycoplasma_genitalium'   => 'NO DETECTADO',
+            'neisseria_gonorrhoeae'   => 'NO DETECTADO',
+            'trichomonas_vaginalis'   => 'NO DETECTADO',
+            'ureaplasma_urealyticum'  => 'NO DETECTADO',
+            'ureaplasma_parvum'       => 'NO DETECTADO',
+            'mycoplasma_hominis'      => 'NO DETECTADO',
+            'hsv_1'                   => 'NO DETECTADO',
+            'hsv_2'                   => 'NO DETECTADO',
+            'treponema_pallidum'      => 'NO DETECTADO',
+            'candida_albicans'        => 'NO DETECTADO',
+            'gardnerella_vaginalis'   => 'NO DETECTADO',
+        ];
+
+        foreach ($defaults as $k => $v) {
+            if (empty($panel->{$k})) $panel->{$k} = $v;
+        }
+
+        return response()->json([
+            'solicitud' => $solicitud,
+            'panel'     => $panel,
+        ]);
+    }
+
+    public function upsert(Request $request, $id)
+    {
+        $data = $request->all();
+        $data['solicitude_id'] = $id;
+
+        $registro = PanelSexual::updateOrCreate(
+            ['solicitude_id' => $id],
+            $data
+        );
+
+        return response()->json($registro);
+    }
+
+    public function destroyBySolicitude($id)
+    {
+        $registro = PanelSexual::where('solicitude_id', $id)->firstOrFail();
+        $registro->delete();
+
+        return response()->json(['message' => 'Registro eliminado']);
+    }
+
+    public function pdfBySolicitude($id)
+    {
+        $solicitud = Solicitude::with(['paciente', 'doctor'])->findOrFail($id);
+        $panel = PanelSexual::where('solicitude_id', $id)->first();
+
+        $pdf = Pdf::loadView('pdf.panel_sexual', [
+            'solicitud' => $solicitud,
+            'panel' => $panel,
+        ])->setPaper('letter', 'landscape');
+
+        return $pdf->stream('PANEL_ITS_'.$solicitud->nro_registro.'.pdf');
+    }
+}
