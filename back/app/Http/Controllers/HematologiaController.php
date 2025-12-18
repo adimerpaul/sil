@@ -21,6 +21,7 @@ class HematologiaController extends Controller
             'paciente',
             'doctor',
             'servicios.area',
+//            'servicios'
         ])->findOrFail($solicitudeId);
 
         $hematologia = Hematologia::firstOrNew([

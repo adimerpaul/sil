@@ -193,8 +193,8 @@
 
                     <div class="col-12 col-md-4">
                       <q-select v-model="form.test_benedict" dense outlined label="Test de Benedict"
-                                :options="['pH 5.0 ácido','pH 5.5 ácido','pH 6.0 ácido','pH 6.5 ácido','pH 7.0 neutro','pH 7.5 alcalino','pH 8.0 alcalino','pH 9.0 alcalino']" />
-                      <!--                                :options="['NEGATIVO','POSITIVO']" />-->
+                                                      :options="['NEGATIVO','POSITIVO']" />
+                      <!--                                :options="['pH 5.0 ácido','pH 5.5 ácido','pH 6.0 ácido','pH 6.5 ácido','pH 7.0 neutro','pH 7.5 alcalino','pH 8.0 alcalino','pH 9.0 alcalino']" />-->
                       <!--                      para TEST DE BENEDICT poner las siguientes reacciones:                              pH 	5.0 ácido-->
                       <!--                      pH 	5.5 ácido-->
                       <!--                      pH 	6.0 ácido-->
@@ -207,39 +207,38 @@
 
                     <div class="col-12 col-md-4">
                       <q-select v-model="form.reaccion" dense outlined label="Reacción"
-                                :options="['pH 5.0 ácido','pH 6.0 ácido','pH 7.0 neutro','pH 8.0 alcalino','OTRO']" />
+                                :options="['pH 5.0 ácido','pH 5.5 ácido','pH 6.0 ácido','pH 6.5 ácido','pH 7.0 neutro','pH 7.5 alcalino','pH 8.0 alcalino','pH 9.0 alcalino']" />
                     </div>
                   </div>
 
                   <q-separator spaced />
-
-<!--                  <q-input-->
-<!--                    v-model="form.otros_examenes"-->
-<!--                    dense-->
-<!--                    outlined-->
-<!--                    type="textarea"-->
-<!--                    autogrow-->
-<!--                    label="Otros exámenes"-->
-<!--                  />-->
-<!--                  AMEBAS EN FRESCO-->
-<!--                  EXAMEN DIRECTO PARA LEISHMANIA-->
-<!--                  GOTA GRUESA PARA MALARIA-->
-<!--                  MICROMÉTODO PARA CHAGAS-->
-<!--                  TÉCNICA DE GRAHAM-->
-                  <q-select v-model="form.otros_examenes" dense outlined label="Otros exámenes"
-                            :options="['AMEBAS EN FRESCO','EXAMEN DIRECTO PARA LEISHMANIA','GOTA GRUESA PARA MALARIA','MICROMÉTODO PARA CHAGAS','TÉCNICA DE GRAHAM','OTROS']" />
-
-                  <q-input
-                    v-model="form.otros_examenes_otros"
-                    v-if="form.otros_examenes === 'OTROS'"
-                    dense
-                    outlined
-                    type="textarea"
-                    autogrow
-                    label="Especifique otros exámenes"
-                  />
-
-
+                  <div class="row q-col-gutter-sm">
+                    <div class="col-12 col-md-12">
+                      <q-select v-model="form.otros_examenes" dense outlined label="Otros exámenes"
+                                :options="['AMEBAS EN FRESCO','EXAMEN DIRECTO PARA LEISHMANIA','GOTA GRUESA PARA MALARIA','MICROMÉTODO PARA CHAGAS','TÉCNICA DE GRAHAM','OTROS']" />
+<!--                      <template v-if="form.otros_examenes === 'OTROS'">-->
+<!--                        <br>-->
+<!--                        <q-input-->
+<!--                          v-model="form.otros_examenes_otros"-->
+<!--                          dense-->
+<!--                          outlined-->
+<!--                          type="textarea"-->
+<!--                          autogrow-->
+<!--                          label="Especifique otros exámenes"-->
+<!--                        />-->
+<!--                      </template>-->
+                    </div>
+                    <div class="col-12 col-md-12">
+<!--                      otros_examenes_descripcion-->
+                      <q-input
+                        v-model="form.otros_examenes_otros"
+                        dense
+                        outlined
+                        type="textarea"
+                        label="Descripción otros exámenes"
+                      />
+                    </div>
+                  </div>
 
                 </q-card-section>
               </q-card>

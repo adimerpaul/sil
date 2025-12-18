@@ -11,15 +11,15 @@
         </div>
         <div class="col-auto">
           <!--          refresch-->
-          <!--          <q-btn-->
-          <!--            flat-->
-          <!--            icon="refresh"-->
-          <!--            label="Refrescar"-->
-          <!--            no-caps-->
-          <!--            class="q-mr-sm"-->
-          <!--            :disable="loading"-->
-          <!--            @click="load"-->
-          <!--          />-->
+                    <q-btn
+                      flat
+                      icon="refresh"
+                      label="Refrescar"
+                      no-caps
+                      class="q-mr-sm"
+                      :disable="loading"
+                      @click="load"
+                    />
           <!--          ntn imprimir-->
           <!--          printHematologia(solicitud) {-->
           <!--          const url = `${this.$axios.defaults.baseURL}/hematologia/solicitud/${solicitud.id}/pdf`-->
