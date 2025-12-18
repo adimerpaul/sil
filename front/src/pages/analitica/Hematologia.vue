@@ -138,14 +138,14 @@
                   step="0.01"
                   :input-class="[
             'text-right',
-            isOutOfRange('Glóbulos Rojos', form.globulos_rojos)
+            isOutOfRange('Globulos Rojos', form.globulos_rojos)
               ? 'text-negative text-weight-bold'
               : ''
           ]"
                 />
               </td>
-              <td>{{ rangoTexto('Glóbulos Rojos') }}</td>
-              <td>{{ rangoUnidad('Glóbulos Rojos') }}</td>
+              <td>{{ rangoTexto('Globulos Rojos') }}</td>
+              <td>{{ rangoUnidad('Globulos Rojos') }}</td>
             </tr>
 
             <tr>
@@ -159,14 +159,14 @@
                   step="0.01"
                   :input-class="[
             'text-right',
-            isOutOfRange('Glóbulos Blancos', form.globulos_blancos)
+            isOutOfRange('Globulos Blancos (Leucocitos)', form.globulos_blancos)
               ? 'text-negative text-weight-bold'
               : ''
           ]"
                 />
               </td>
-              <td>{{ rangoTexto('Glóbulos Blancos') }}</td>
-              <td>{{ rangoUnidad('Glóbulos Blancos') }}</td>
+              <td>{{ rangoTexto('Globulos Blancos (Leucocitos)') }}</td>
+              <td>{{ rangoUnidad('Globulos Blancos (Leucocitos)') }}</td>
             </tr>
 
             <tr>
@@ -243,14 +243,14 @@
                   step="0.01"
                   :input-class="[
             'text-right',
-            isOutOfRange('VCM', form.vcm)
+            isOutOfRange('V.C.M.', form.vcm)
               ? 'text-negative text-weight-bold'
               : ''
           ]"
                 />
               </td>
-              <td>{{ rangoTexto('VCM') }}</td>
-              <td>{{ rangoUnidad('VCM') }}</td>
+              <td>{{ rangoTexto('V.C.M.') }}</td>
+              <td>{{ rangoUnidad('V.C.M.') }}</td>
             </tr>
 
             <tr>
@@ -264,14 +264,14 @@
                   step="0.01"
                   :input-class="[
             'text-right',
-            isOutOfRange('HBCM', form.hbcm)
+            isOutOfRange('Hb.C.M.', form.hbcm)
               ? 'text-negative text-weight-bold'
               : ''
           ]"
                 />
               </td>
-              <td>{{ rangoTexto('HBCM') }}</td>
-              <td>{{ rangoUnidad('HBCM') }}</td>
+              <td>{{ rangoTexto('Hb.C.M.') }}</td>
+              <td>{{ rangoUnidad('Hb.C.M.') }}</td>
             </tr>
 
             <tr>
@@ -306,14 +306,14 @@
                   step="0.01"
                   :input-class="[
             'text-right',
-            isOutOfRange('Leucocitos Totales', form.leucocitos_totales)
+            isOutOfRange('Leucocitos totales', form.leucocitos_totales)
               ? 'text-negative text-weight-bold'
               : ''
           ]"
                 />
               </td>
-              <td>{{ rangoTexto('Leucocitos Totales') }}</td>
-              <td>{{ rangoUnidad('Leucocitos Totales') }}</td>
+              <td>{{ rangoTexto('Leucocitos totales') }}</td>
+              <td>{{ rangoUnidad('Leucocitos totales') }}</td>
             </tr>
             </tbody>
           </q-markup-table>
@@ -335,6 +335,7 @@
               <th class="text-left">%</th>
               <th class="text-left">Valor absoluto</th>
               <th class="text-left">Rango % ref.</th>
+              <th class="text-left">Rango absoluto ref.</th>
             </tr>
             </thead>
             <tbody>
@@ -347,7 +348,12 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('Basofilos', form.basofilos_porcentaje)
+              ? 'text-negative text-weight-bold'
+              : ''
+          ]"
                 />
               </td>
               <td>
@@ -357,10 +363,16 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+                    'text-right',
+                    isOutOfRange('Basilos (Absoluto)', form.basofilos_absoluto)
+                      ? 'text-negative text-weight-bold'
+                      : ''
+                  ]"
                 />
               </td>
-              <td>0 – 2</td>
+              <td>{{ rangoTexto('Basofilos') }}</td>
+              <td>{{ rangoTexto('Basilos (Absoluto)') }}</td>
             </tr>
             <tr>
               <td>Eosinófilos</td>
@@ -371,7 +383,12 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('Eosinofilos', form.eosinofilos_porcentaje)
+              ? 'text-negative text-weight-bold'
+              : ''
+                  ]"
                 />
               </td>
               <td>
@@ -381,10 +398,20 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+                    'text-right',
+                    isOutOfRange('Eosinofilos (Absoluto)', form.eosinofilos_absoluto)
+                      ? 'text-negative text-weight-bold'
+                      : ''
+                  ]"
                 />
               </td>
-              <td>0 – 6</td>
+              <td>
+                {{ rangoTexto('Eosinofilos') }}
+              </td>
+              <td>
+                {{ rangoTexto('Eosinofilos (Absoluto)') }}
+              </td>
             </tr>
             <tr>
               <td>Cayados</td>
@@ -395,7 +422,12 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('Cayados', form.cayados_porcentaje)
+              ? 'text-negative text-weight-bold'
+              : ''
+                  ]"
                 />
               </td>
               <td>
@@ -405,10 +437,20 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+                    'text-right',
+                    isOutOfRange('Cayados (Absoluto)', form.cayados_absoluto)
+                      ? 'text-negative text-weight-bold'
+                      : ''
+                  ]"
                 />
               </td>
-              <td>&lt; 6</td>
+              <td>
+                {{ rangoTexto('Cayados') }}
+              </td>
+              <td>
+                {{ rangoTexto('Cayados (Absoluto)') }}
+              </td>
             </tr>
             <tr>
               <td>Segmentados</td>
@@ -419,7 +461,12 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('Segmentados', form.segmentados_porcentaje)
+              ? 'text-negative text-weight-bold'
+              : ''
+                  ]"
                 />
               </td>
               <td>
@@ -429,10 +476,20 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+                    'text-right',
+                    isOutOfRange('Segmentados (Absoluto)', form.segmentados_absoluto)
+                      ? 'text-negative text-weight-bold'
+                      : ''
+                  ]"
                 />
               </td>
-              <td>40 – 70</td>
+              <td>
+                {{ rangoTexto('Segmentados') }}
+              </td>
+              <td>
+                {{ rangoTexto('Segmentados (Absoluto)') }}
+              </td>
             </tr>
             <tr>
               <td>Linfocitos</td>
@@ -443,7 +500,12 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('Linfocitos', form.linfocitos_porcentaje)
+              ? 'text-negative text-weight-bold'
+              : ''
+                  ]"
                 />
               </td>
               <td>
@@ -453,10 +515,20 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+                    'text-right',
+                    isOutOfRange('Linfocitos (Absoluto)', form.linfocitos_absoluto)
+                      ? 'text-negative text-weight-bold'
+                      : ''
+                  ]"
                 />
               </td>
-              <td>20 – 45</td>
+              <td>
+                {{ rangoTexto('Linfocitos') }}
+              </td>
+              <td>
+                {{ rangoTexto('Linfocitos (Absoluto)') }}
+              </td>
             </tr>
             <tr>
               <td>Monocitos</td>
@@ -467,7 +539,12 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('Monocitos', form.monocitos_porcentaje)
+              ? 'text-negative text-weight-bold'
+              : ''
+                  ]"
                 />
               </td>
               <td>
@@ -477,10 +554,20 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+                    'text-right',
+                    isOutOfRange('Monocitos (Absoluto)', form.monocitos_absoluto)
+                      ? 'text-negative text-weight-bold'
+                      : ''
+                  ]"
                 />
               </td>
-              <td>2 – 10</td>
+              <td>
+                {{ rangoTexto('Monocitos') }}
+              </td>
+              <td>
+                {{ rangoTexto('Monocitos (Absoluto)') }}
+              </td>
             </tr>
             <tr>
               <td>Blastos</td>
@@ -491,7 +578,12 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('BLASTOS', form.blastos_porcentaje)
+              ? 'text-negative text-weight-bold'
+              : ''
+                  ]"
                 />
               </td>
               <td>
@@ -504,7 +596,9 @@
                   input-class="text-right"
                 />
               </td>
-              <td>0</td>
+              <td>
+                {{ rangoTexto('BLASTOS') }}
+              </td>
             </tr>
             <tr>
               <td>Metamielocitos</td>
@@ -515,7 +609,12 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('METAMIELOCITO', form.metamielocitos_porcentaje)
+              ? 'text-negative text-weight-bold'
+              : ''
+                  ]"
                 />
               </td>
               <td>
@@ -528,7 +627,9 @@
                   input-class="text-right"
                 />
               </td>
-              <td>0</td>
+              <td>
+                {{ rangoTexto('METAMIELOCITO') }}
+              </td>
             </tr>
             <tr>
               <td>Eritroblastos</td>
@@ -539,7 +640,12 @@
                   outlined
                   type="number"
                   step="0.01"
-                  input-class="text-right"
+                  :input-class="[
+            'text-right',
+            isOutOfRange('ERITROBLASTOS', form.eritroblastos_porcentaje)
+              ? 'text-negative text-weight-bold'
+              : ''
+                  ]"
                 />
               </td>
               <td>
@@ -552,7 +658,9 @@
                   input-class="text-right"
                 />
               </td>
-              <td>0</td>
+              <td>
+                {{ rangoTexto('ERITROBLASTOS') }}
+              </td>
             </tr>
             </tbody>
           </q-markup-table>
@@ -955,6 +1063,7 @@ export default {
       this.save()
     },
     getRango(nombre) {
+      console.log(Array.isArray(this.rangos), this.rangos)
       if (!this.rangos || !Array.isArray(this.rangos)) return null
       return (
         this.rangos.find(
