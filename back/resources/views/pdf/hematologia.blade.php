@@ -401,13 +401,22 @@
             <!-- ===== FIRMAS ===== -->
             <table class="no-border" style="margin-top:6px;">
                 <tr>
-                    <td class="center" style="width:50%;">
+                    <td class="center" style="width:33%;">
                         ___________________________<br>
                         <span class="muted small">Firma / Sello</span>
                     </td>
-                    <td class="center" style="width:50%;">
+                    <td class="center" style="width:33%;">
                         ___________________________<br>
                         <span class="muted small">Bioquímico(a) / Responsable</span>
+                    </td>
+                    <td class="center" style="width:34%; position:relative;">
+                        @if(!empty($qrSvgBase64))
+                            <img
+                                src="data:image/svg+xml;base64,{{ $qrSvgBase64 }}"
+                                style="width:80px; height:80px;"
+                                alt="QR"
+                            >
+                        @endif
                     </td>
                 </tr>
             </table>

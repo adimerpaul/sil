@@ -71,8 +71,9 @@ class PanelRespiratorioController extends Controller
         return response()->json(['message' => 'Registro eliminado']);
     }
 
-    public function pdfBySolicitude($id)
+    public function pdfBySolicitude($code)
     {
+        $id = PanelRespiratorio::where('code', $code)->value('solicitude_id');
         $solicitud = Solicitude::with(['paciente', 'doctor'])->findOrFail($id);
         $panel = PanelRespiratorio::where('solicitude_id', $id)->first();
 

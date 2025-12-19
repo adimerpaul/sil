@@ -261,35 +261,46 @@ export default {
   },
   methods: {
     printQuimica (solicitud) {
-      const url = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${solicitud.id}/pdf`
+      const url = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${solicitud.quimica_sanguinea?.code}/pdf`
       window.open(url, '_blank')
     },
     printHematologia(solicitud) {
-      const url = `${this.$axios.defaults.baseURL}/hematologia/solicitud/${solicitud.id}/pdf`
+      // $query = Solicitude::with([
+      //   'paciente', 'doctor', 'servicios.area.rangos', 'resultados',
+      //   'hematologia',
+      //   'quimicaSanguinea',
+      //   'uroanalisis',
+      //   'parasitologia',
+      //   'papilomaHumano',
+      //   'panelRespiratorio',
+      //   'panelSexual',
+      //   'cultivoAntibiograma',
+      // ])
+      const url = `${this.$axios.defaults.baseURL}/hematologia/solicitud/${solicitud.hematologia?.code}/pdf`
       window.open(url, '_blank')
     },
     printUroanalisis (solicitud) {
-      const url = `${this.$axios.defaults.baseURL}/uroanalisis/solicitud/${solicitud.id}/pdf`
+      const url = `${this.$axios.defaults.baseURL}/uroanalisis/solicitud/${solicitud.quimicaSanguinea?.code}/pdf`
       window.open(url, '_blank')
     },
     printParasitologia(solicitud) {
-      const url = `${this.$axios.defaults.baseURL}/parasitologia/solicitud/${solicitud.id}/pdf`
+      const url = `${this.$axios.defaults.baseURL}/parasitologia/solicitud/${solicitud.parasitologia?.code}/pdf`
       window.open(url, '_blank')
     },
     printPapilomaHumano(solicitud) {
-      const url = `${this.$axios.defaults.baseURL}/papiloma-humano/solicitud/${solicitud.id}/pdf`
+      const url = `${this.$axios.defaults.baseURL}/papiloma-humano/solicitud/${solicitud.papilomaHumano?.code}/pdf`
       window.open(url, '_blank')
     },
     printPanelRespiratorio(solicitud) {
-      const url = `${this.$axios.defaults.baseURL}/panel-respiratorio/solicitud/${solicitud.id}/pdf`
+      const url = `${this.$axios.defaults.baseURL}/panel-respiratorio/solicitud/${solicitud.panelRespiratorio?.code}/pdf`
       window.open(url, '_blank')
     },
     printPanelSexual(solicitud) {
-      const url = `${this.$axios.defaults.baseURL}/panel-sexual/solicitud/${solicitud.id}/pdf`
+      const url = `${this.$axios.defaults.baseURL}/panel-sexual/solicitud/${solicitud.panelSexual?.code}/pdf`
       window.open(url, '_blank')
     },
     printCultivoAntibiograma(solicitud) {
-      const url = `${this.$axios.defaults.baseURL}/cultivo-antibiograma/solicitud/${solicitud.id}/pdf`
+      const url = `${this.$axios.defaults.baseURL}/cultivo-antibiograma/solicitud/${solicitud.cultivoAntibiograma?.code}/pdf`
       window.open(url, '_blank')
     },
     printInmunologia(solicitud) {

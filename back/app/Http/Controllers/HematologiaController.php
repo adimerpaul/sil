@@ -7,6 +7,7 @@ use App\Models\Solicitude;
 use App\Models\Area;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class HematologiaController extends Controller
 {
@@ -75,8 +76,9 @@ class HematologiaController extends Controller
 
         return response()->json(['message' => 'Hematología eliminada']);
     }
-    public function pdfBySolicitude($solicitudeId)
+    public function pdfBySolicitude($code)
     {
+        $solicitudeId = Hematologia::where('code', $code)->value('solicitude_id');
         $solicitud = Solicitude::with([
             'paciente',
             'doctor',
@@ -90,6 +92,10 @@ class HematologiaController extends Controller
         $areaHemato = Area::where('title', 'HEMATOLOGÍA')
             ->orWhere('title', 'Hematología')
             ->first();
+        $url = url("/api/hematologia/solicitud/{$code}/pdf");
+        $qrSvgBase64 = base64_encode(
+            QrCode::format('svg')->size(110)->margin(1)->generate($url)
+        );
 
         $rangos = [];
         if ($areaHemato) {
@@ -100,7 +106,8 @@ class HematologiaController extends Controller
             'solicitud'   => $solicitud,
             'hematologia' => $hematologia,
             'rangos'      => $rangos,
-//        ])->setPaper('a4', 'portrait'); size carta landscape
+            'qrSvgBase64' => $qrSvgBase64,
+            'qrUrl'       => $url,
         ])->setPaper('letter', 'landscape');
 
         return $pdf->stream('HEMATOLOGIA_'.$solicitud->nro_registro.'.pdf');

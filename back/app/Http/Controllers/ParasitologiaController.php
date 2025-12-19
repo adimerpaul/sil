@@ -57,8 +57,10 @@ class ParasitologiaController extends Controller
         return response()->json(['message' => 'Parasitología eliminada']);
     }
 
-    public function pdfBySolicitude($solicitudeId)
+    public function pdfBySolicitude($code)
     {
+        $solicitudeId = Parasitologia::where('codigo', $code)
+            ->value('solicitude_id');
         $solicitud = Solicitude::with([
             'paciente',
             'doctor',

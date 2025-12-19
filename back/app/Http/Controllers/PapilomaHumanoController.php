@@ -45,8 +45,10 @@ class PapilomaHumanoController extends Controller
         return response()->json(['message' => 'Registro eliminado']);
     }
 
-    public function pdfBySolicitude($id)
+    public function pdfBySolicitude($code)
     {
+        $id = PapilomaHumano::where('codigo', $code)
+            ->value('solicitude_id');
         $solicitud = Solicitude::with(['paciente', 'doctor'])->findOrFail($id);
         $papiloma = PapilomaHumano::where('solicitude_id', $id)->first();
 

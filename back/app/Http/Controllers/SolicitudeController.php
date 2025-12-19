@@ -13,7 +13,9 @@ use App\Models\Solicitude;
 use App\Models\Paciente;
 use App\Models\Doctor;
 use App\Models\SolitudePreAnalitica;
-use App\Models\SolicitudePropiedad; // <-- NUEVO
+use App\Models\SolicitudePropiedad;
+
+// <-- NUEVO
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -23,7 +25,7 @@ class SolicitudeController extends Controller
     public function dashboard(Request $request)
     {
         $dateFrom = $request->get('date_from');
-        $dateTo   = $request->get('date_to');
+        $dateTo = $request->get('date_to');
 
         // FILTRO BASE SOBRE SOLICITUDES
         $query = Solicitude::query()
@@ -39,17 +41,17 @@ class SolicitudeController extends Controller
         // 1) KPIs de SOLICITUDES
         $totalSolicitudes = (clone $query)->count();
 
-        $totalPacientes   = (clone $query)
+        $totalPacientes = (clone $query)
             ->whereNotNull('paciente_id')
             ->distinct('paciente_id')
             ->count('paciente_id');
 
-        $totalDoctores    = (clone $query)
+        $totalDoctores = (clone $query)
             ->whereNotNull('doctor_id')
             ->distinct('doctor_id')
             ->count('doctor_id');
 
-        $finalizadas      = (clone $query)
+        $finalizadas = (clone $query)
             ->where('estado', 'FINALIZADO')
             ->count();
 
@@ -188,28 +190,73 @@ class SolicitudeController extends Controller
 
         return response()->json([
             'resumen' => [
-                'total_solicitudes'           => $totalSolicitudes,
-                'total_servicios'             => $totalServicios,
-                'promedio_servicios'          => $promedioServicios,
-                'total_muestras_preanaliticas'=> $totalMuestrasPre,
+                'total_solicitudes' => $totalSolicitudes,
+                'total_servicios' => $totalServicios,
+                'promedio_servicios' => $promedioServicios,
+                'total_muestras_preanaliticas' => $totalMuestrasPre,
                 // extras por si luego quieres usarlos
-                'total_pacientes'             => $totalPacientes,
-                'total_doctores'              => $totalDoctores,
-                'finalizadas'                 => $finalizadas,
+                'total_pacientes' => $totalPacientes,
+                'total_doctores' => $totalDoctores,
+                'finalizadas' => $finalizadas,
             ],
-            'por_area'          => $porArea,
-            'top_servicios'     => $topServicios,
-            'por_tipo_muestra'  => $porTipoMuestra,
-            'serie_fechas'      => $serieFechas,
-            'ultimas'           => $ultimasSolicitudes,
+            'por_area' => $porArea,
+            'top_servicios' => $topServicios,
+            'por_tipo_muestra' => $porTipoMuestra,
+            'serie_fechas' => $serieFechas,
+            'ultimas' => $ultimasSolicitudes,
         ]);
     }
+
     function solicitudesAnalitica(Request $request)
     {
         $filter = $request->input('filter', '');
-        $fecha  = $request->input('fecha', '');
+        $fecha = $request->input('fecha', '');
 
-        $query = Solicitude::with(['paciente', 'doctor', 'servicios.area.rangos', 'resultados'])
+//        public function hematologia()
+//    {
+//        return $this->hasOne(Hematologia::class);
+//    }
+//
+//        public function quimicaSanguinea()
+//    {
+//        return $this->hasOne(QuimicaSanguinea::class);
+//    }
+//
+//        public function uroanalisis()
+//    {
+//        return $this->hasOne(Uroanalisis::class);
+//    }
+//        function parasitologia()
+//        {
+//            return $this->hasOne(Parasitologia::class);
+//        }
+//        public function papilomaHumano()
+//    {
+//        return $this->hasOne(PapilomaHumano::class);
+//    }
+//        public function panelRespiratorio()
+//    {
+//        return $this->hasOne(PanelRespiratorio::class);
+//    }
+//        public function panelSexual()
+//    {
+//        return $this->hasOne(PanelSexual::class);
+//    }
+//        public function cultivoAntibiograma()
+//    {
+//        return $this->hasOne(CultivoAntibiograma::class);
+//    }
+        $query = Solicitude::with([
+            'paciente', 'doctor', 'servicios.area.rangos', 'resultados',
+            'hematologia',
+            'quimicaSanguinea',
+            'uroanalisis',
+            'parasitologia',
+            'papilomaHumano',
+            'panelRespiratorio',
+            'panelSexual',
+            'cultivoAntibiograma',
+            ])
             ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO']);
 
         $user = $request->user();
@@ -240,6 +287,7 @@ class SolicitudeController extends Controller
 
         return $query->orderBy('id', 'desc')->get();
     }
+
     public function imprimirAnaliticaPublica($codigo)
     {
         $solicitud = Solicitude::with([
@@ -290,12 +338,12 @@ class SolicitudeController extends Controller
         $resultados = $solicitud->resultados;
 
         $pdf = Pdf::loadView('reportes.solicitud_media_carta', [
-            'solicitud'       => $solicitud,
-            'hemoItems'       => $hemoItems,
-            'quimicaItems'    => $quimicaItems,
+            'solicitud' => $solicitud,
+            'hemoItems' => $hemoItems,
+            'quimicaItems' => $quimicaItems,
             'perfilHemograma' => $perfilHemograma,
-            'perfilQuimica'   => $perfilQuimica,
-            'resultados'      => $resultados,
+            'perfilQuimica' => $perfilQuimica,
+            'resultados' => $resultados,
         ])->setPaper('letter', 'portrait');
 
         return $pdf;
@@ -318,11 +366,11 @@ class SolicitudeController extends Controller
         $paciente = Paciente::find($solicitud->paciente_id);
 //        $nombreCompleto = $paciente ? $paciente->nombre_completo : 'Desconocido';
         $nombreCompleto = $solicitud->paciente_nombre ?? ($paciente ? $paciente->nombre_completo : 'Desconocido');
-        $nro_registro   = $this->nroRegistro($nombreCompleto, $paciente->fecha_nac ?? null);
+        $nro_registro = $this->nroRegistro($nombreCompleto, $paciente->fecha_nac ?? null);
 
-        $solicitud->codigo       = $this->generarCodigoPorTipoYMes($solicitud);
+        $solicitud->codigo = $this->generarCodigoPorTipoYMes($solicitud);
         $solicitud->nro_registro = $nro_registro;
-        $solicitud->estado       = 'ATENDIENDO';
+        $solicitud->estado = 'ATENDIENDO';
         $solicitud->fecha_pre_analitica = now();
         $solicitud->user_preanalitica_id = $request->user() ? $request->user()->id : null;
 
@@ -339,7 +387,7 @@ class SolicitudeController extends Controller
         $timestamp = strtotime($fechaBase);
 
         $anio = date('Y', $timestamp);
-        $mes  = date('m', $timestamp);
+        $mes = date('m', $timestamp);
 
         $ultimoCodigo = Solicitude::where('tipo_atencion', $tipo)
             ->whereYear('fecha_solicitud', $anio)
@@ -389,7 +437,7 @@ class SolicitudeController extends Controller
         $solicitud->save();
 
         return response()->json([
-            'message'            => 'Muestras preanalíticas actualizadas',
+            'message' => 'Muestras preanalíticas actualizadas',
             'area_tipo_muestras' => $solicitud,
         ]);
     }
@@ -431,17 +479,17 @@ class SolicitudeController extends Controller
         $partes = preg_split('/\s+/', mb_strtoupper($nombreCompleto, 'UTF-8'));
 
         if (count($partes) >= 3) {
-            $nombre   = $partes[0];
-            $apPat    = $partes[count($partes) - 2];
-            $apMat    = $partes[count($partes) - 1];
+            $nombre = $partes[0];
+            $apPat = $partes[count($partes) - 2];
+            $apMat = $partes[count($partes) - 1];
         } elseif (count($partes) === 2) {
-            $nombre   = $partes[0];
-            $apPat    = $partes[1];
-            $apMat    = $partes[1];
+            $nombre = $partes[0];
+            $apPat = $partes[1];
+            $apMat = $partes[1];
         } else {
-            $nombre   = $partes[0];
-            $apPat    = $partes[0];
-            $apMat    = $partes[0];
+            $nombre = $partes[0];
+            $apPat = $partes[0];
+            $apMat = $partes[0];
         }
 
         $iniciales =
@@ -517,12 +565,12 @@ class SolicitudeController extends Controller
         if ($request->filled('doctor_id')) {
             $d = Doctor::find($request->doctor_id);
             if ($d) {
-                $data['doctor_nombre']       = $data['doctor_nombre']       ?? $d->nombre;
+                $data['doctor_nombre'] = $data['doctor_nombre'] ?? $d->nombre;
                 $data['doctor_especialidad'] = $data['doctor_especialidad'] ?? $d->especialidad;
-                $data['doctor_ci']           = $data['doctor_ci']           ?? $d->ci;
-                $data['doctor_telefono']     = $data['doctor_telefono']     ?? $d->telefono;
-                $data['doctor_email']        = $data['doctor_email']        ?? $d->email;
-                $data['doctor_registro']     = $data['doctor_registro']     ?? $d->registro;
+                $data['doctor_ci'] = $data['doctor_ci'] ?? $d->ci;
+                $data['doctor_telefono'] = $data['doctor_telefono'] ?? $d->telefono;
+                $data['doctor_email'] = $data['doctor_email'] ?? $d->email;
+                $data['doctor_registro'] = $data['doctor_registro'] ?? $d->registro;
             }
         }
 
@@ -553,21 +601,21 @@ class SolicitudeController extends Controller
         $p = Paciente::where('ci', $ci)->first();
         if ($p) {
             $p->nombre_completo = $data['paciente_nombre'] ?? $p->nombre_completo;
-            $p->telefono        = $data['paciente_telefono'] ?? $p->telefono;
-            $p->direccion       = $data['paciente_direccion'] ?? $p->direccion;
-            $p->fecha_nac       = $data['paciente_fecha_nac'] ?? $p->fecha_nac;
-            $p->genero          = $data['paciente_genero'] ?? $p->genero;
-            $p->edad            = $data['paciente_edad'] ?? $p->edad;
+            $p->telefono = $data['paciente_telefono'] ?? $p->telefono;
+            $p->direccion = $data['paciente_direccion'] ?? $p->direccion;
+            $p->fecha_nac = $data['paciente_fecha_nac'] ?? $p->fecha_nac;
+            $p->genero = $data['paciente_genero'] ?? $p->genero;
+            $p->edad = $data['paciente_edad'] ?? $p->edad;
             $p->save();
         } else {
             $p = Paciente::create([
                 'nombre_completo' => $data['paciente_nombre'],
-                'ci'              => $ci,
-                'telefono'        => $data['paciente_telefono'] ?? null,
-                'direccion'       => $data['paciente_direccion'] ?? null,
-                'fecha_nac'       => $data['paciente_fecha_nac'] ?? null,
-                'genero'          => $data['paciente_genero'] ?? null,
-                'edad'            => $data['paciente_edad'] ?? null,
+                'ci' => $ci,
+                'telefono' => $data['paciente_telefono'] ?? null,
+                'direccion' => $data['paciente_direccion'] ?? null,
+                'fecha_nac' => $data['paciente_fecha_nac'] ?? null,
+                'genero' => $data['paciente_genero'] ?? null,
+                'edad' => $data['paciente_edad'] ?? null,
             ]);
         }
 
@@ -591,12 +639,12 @@ class SolicitudeController extends Controller
         if ($request->filled('doctor_id')) {
             $d = Doctor::find($request->doctor_id);
             if ($d) {
-                $data['doctor_nombre']       = $data['doctor_nombre']       ?? $d->nombre;
+                $data['doctor_nombre'] = $data['doctor_nombre'] ?? $d->nombre;
                 $data['doctor_especialidad'] = $data['doctor_especialidad'] ?? $d->especialidad;
-                $data['doctor_ci']           = $data['doctor_ci']           ?? $d->ci;
-                $data['doctor_telefono']     = $data['doctor_telefono']     ?? $d->telefono;
-                $data['doctor_email']        = $data['doctor_email']        ?? $d->email;
-                $data['doctor_registro']     = $data['doctor_registro']     ?? $d->registro;
+                $data['doctor_ci'] = $data['doctor_ci'] ?? $d->ci;
+                $data['doctor_telefono'] = $data['doctor_telefono'] ?? $d->telefono;
+                $data['doctor_email'] = $data['doctor_email'] ?? $d->email;
+                $data['doctor_registro'] = $data['doctor_registro'] ?? $d->registro;
             }
         }
 
@@ -701,13 +749,13 @@ class SolicitudeController extends Controller
 
     public function guardarAnalitica(Request $request, $id)
     {
-        $solicitud       = Solicitude::findOrFail($id);
-        $resultados      = $request->input('resultados', []);
+        $solicitud = Solicitude::findOrFail($id);
+        $resultados = $request->input('resultados', []);
         $propiedadesArea = $request->input('propiedades_area', []); // <-- NUEVO
 //        formularios: this.solicitud.solicitude_formularios || []
-        $fomularios       = $request->input('formularios', []);
+        $fomularios = $request->input('formularios', []);
 
-        DB::transaction(function () use ($solicitud, $resultados, $propiedadesArea,$fomularios) {
+        DB::transaction(function () use ($solicitud, $resultados, $propiedadesArea, $fomularios) {
 //            SolicitudeFormulario deletes
             SolicitudeFormulario::where('solicitude_id', $solicitud->id)->delete();
             foreach ($fomularios as $formularioData) {
@@ -715,11 +763,11 @@ class SolicitudeController extends Controller
                     [
                         'solicitude_id' => $solicitud->id,
                         'formulario_id' => $formularioData['formulario_id'],
-                        'area_id'       => $formularioData['area_id'] ?? null,
+                        'area_id' => $formularioData['area_id'] ?? null,
                     ],
                     [
                         'nombre' => $formularioData['nombre'] ?? null,
-                        'html'   => $formularioData['html'] ?? null,
+                        'html' => $formularioData['html'] ?? null,
                     ]
                 );
             }
@@ -740,7 +788,7 @@ class SolicitudeController extends Controller
 
                     // Área 1: Hematología (auto / manual)
                     if ($areaId === 1) {
-                        $valorAuto   = $this->parseValorNullable($payload['valor_automatizado'] ?? null);
+                        $valorAuto = $this->parseValorNullable($payload['valor_automatizado'] ?? null);
                         $valorManual = $this->parseValorNullable($payload['valor_manual'] ?? null);
 
                         if ($valorAuto === null && $valorManual === null) {
@@ -750,17 +798,17 @@ class SolicitudeController extends Controller
                             continue;
                         }
 
-                        $valorFinal  = null;
-                        $preferido   = null;
+                        $valorFinal = null;
+                        $preferido = null;
                         $metodoFinal = null;
 
                         if ($valorManual !== null) {
-                            $valorFinal  = $valorManual;
-                            $preferido   = 'MAN';
+                            $valorFinal = $valorManual;
+                            $preferido = 'MAN';
                             $metodoFinal = 'MANUAL';
                         } elseif ($valorAuto !== null) {
-                            $valorFinal  = $valorAuto;
-                            $preferido   = 'AUTO';
+                            $valorFinal = $valorAuto;
+                            $preferido = 'AUTO';
                             $metodoFinal = 'AUTOMATIZADO';
                         }
 
@@ -770,12 +818,12 @@ class SolicitudeController extends Controller
                                 'area_rango_id' => $rangoId,
                             ],
                             [
-                                'area_id'            => $areaId,
+                                'area_id' => $areaId,
                                 'valor_automatizado' => $valorAuto,
-                                'valor_manual'       => $valorManual,
-                                'valor_final'        => $valorFinal,
-                                'preferido'          => $preferido,
-                                'metodo_final'       => $metodoFinal,
+                                'valor_manual' => $valorManual,
+                                'valor_final' => $valorFinal,
+                                'preferido' => $preferido,
+                                'metodo_final' => $metodoFinal,
                             ]
                         );
                     } else {
@@ -795,12 +843,12 @@ class SolicitudeController extends Controller
                                 'area_rango_id' => $rangoId,
                             ],
                             [
-                                'area_id'            => $areaId,
-                                'valor_final'        => $valor,
-                                'metodo_final'       => null,
+                                'area_id' => $areaId,
+                                'valor_final' => $valor,
+                                'metodo_final' => null,
                                 'valor_automatizado' => null,
-                                'valor_manual'       => null,
-                                'preferido'          => null,
+                                'valor_manual' => null,
+                                'preferido' => null,
                             ]
                         );
                     }
@@ -810,8 +858,8 @@ class SolicitudeController extends Controller
             // Guardar propiedades extra por área
             $this->guardarPropiedadesArea($solicitud, $propiedadesArea);
 
-            $solicitud->estado                = 'FINALIZADO';
-            $solicitud->user_analitica_id     = auth()->id();
+            $solicitud->estado = 'FINALIZADO';
+            $solicitud->user_analitica_id = auth()->id();
             $solicitud->fecha_envio_analitica = now();
             if (empty($solicitud->fecha_finalizacion)) {
                 $solicitud->fecha_finalizacion = now();
@@ -860,11 +908,11 @@ class SolicitudeController extends Controller
                 SolicitudePropiedad::updateOrCreate(
                     [
                         'solicitude_id' => $solicitud->id,
-                        'area_id'       => $areaId,
-                        'campo'         => $campo,
+                        'area_id' => $areaId,
+                        'campo' => $campo,
                     ],
                     [
-                        'valor'         => (string)$valor,
+                        'valor' => (string)$valor,
                     ]
                 );
             }

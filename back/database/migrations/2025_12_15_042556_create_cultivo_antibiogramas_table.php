@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('numero_identificacion')->nullable();   // SUS
             $table->string('codigo_microbiologia')->nullable();
             $table->string('institucion')->nullable();
+            $table->string('code', 100)->nullable();
 
             $table->string('cultivo_solicitado')->nullable();      // Urocultivo / Coprocultivo / Esputo / etc.
             $table->string('localizacion')->nullable();            // Interno/Externo

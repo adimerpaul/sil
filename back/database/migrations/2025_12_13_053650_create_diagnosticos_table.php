@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('servicio');
             $table->string('especialidad');
             $table->string('cie10');
+            $table->string('code', 100)->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

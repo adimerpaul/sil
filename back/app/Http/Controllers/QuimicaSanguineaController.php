@@ -10,8 +10,10 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class QuimicaSanguineaController extends Controller
 {
-    public function pdfBySolicitude($solicitudeId)
+    public function pdfBySolicitude($code)
     {
+        $solicitudeId = QuimicaSanguinea::where('code', $code)
+            ->value('solicitude_id');
         $solicitud = Solicitude::with(['paciente', 'doctor', 'servicios.area'])
             ->findOrFail($solicitudeId);
 

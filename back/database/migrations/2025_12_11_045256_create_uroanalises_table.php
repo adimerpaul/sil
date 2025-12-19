@@ -57,6 +57,7 @@ return new class extends Migration
             $table->string('nitritos')->nullable();
             $table->string('valor_morfologia')->nullable();
             $table->string('otros')->nullable();
+            $table->string('code', 100)->nullable();
 
             // Observaciones generales
             $table->text('observaciones')->nullable();

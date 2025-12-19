@@ -39,6 +39,7 @@ return new class extends Migration {
             $table->text('otros_examenes')->nullable();
 //            otros_examenes_otros
             $table->text('otros_examenes_otros')->nullable();
+            $table->string('code', 100)->nullable();
 
             $table->foreign('solicitude_id')->references('id')->on('solicitudes')->onDelete('cascade');
 

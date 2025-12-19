@@ -131,7 +131,15 @@ class Solicitude extends Model implements AuditableContract
         return $this->hasOne(Hematologia::class);
     }
 
-//"Add [solicitude_id] to fillable property to allow mass assignment on [App\\Models\\Parasitologia]."
+    public function quimicaSanguinea()
+    {
+        return $this->hasOne(QuimicaSanguinea::class);
+    }
+
+    public function uroanalisis()
+    {
+        return $this->hasOne(Uroanalisis::class);
+    }
     function parasitologia()
     {
         return $this->hasOne(Parasitologia::class);
@@ -139,6 +147,18 @@ class Solicitude extends Model implements AuditableContract
     public function papilomaHumano()
     {
         return $this->hasOne(PapilomaHumano::class);
+    }
+    public function panelRespiratorio()
+    {
+        return $this->hasOne(PanelRespiratorio::class);
+    }
+    public function panelSexual()
+    {
+        return $this->hasOne(PanelSexual::class);
+    }
+    public function cultivoAntibiograma()
+    {
+        return $this->hasOne(CultivoAntibiograma::class);
     }
 
 

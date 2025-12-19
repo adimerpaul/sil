@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable as AuditableTrait;
+use Illuminate\Support\Str;
+
 class Parasitologia extends Model implements AuditableContract
 {
     use SoftDeletes, AuditableTrait;
@@ -32,6 +34,7 @@ class Parasitologia extends Model implements AuditableContract
         'reaccion',
         'otros_examenes',
         'otros_examenes_otros',
+        'code'
     ];
 
     protected $hidden = [
@@ -39,4 +42,14 @@ class Parasitologia extends Model implements AuditableContract
         'created_at',
         'updated_at',
     ];
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            if (empty($model->code)) {
+                $model->code = Str::uuid()->toString();
+                // sin guiones (32 chars)
+                $model->code = str_replace('-', '', $model->code);
+            }
+        });
+    }
 }

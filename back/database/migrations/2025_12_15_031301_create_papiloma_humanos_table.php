@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('hpv_16')->nullable();
             $table->string('hpv_18')->nullable();
             $table->string('hpv_45')->nullable();
+            $table->string('code', 100)->nullable();
 
             $table->text('observaciones')->nullable();
 

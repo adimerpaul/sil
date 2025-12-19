@@ -63,8 +63,10 @@ class PanelSexualController extends Controller
         return response()->json(['message' => 'Registro eliminado']);
     }
 
-    public function pdfBySolicitude($id)
+    public function pdfBySolicitude($code)
     {
+        $id = PanelSexual::where('code', $code)
+            ->value('solicitude_id');
         $solicitud = Solicitude::with(['paciente', 'doctor'])->findOrFail($id);
         $panel = PanelSexual::where('solicitude_id', $id)->first();
 

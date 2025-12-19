@@ -64,12 +64,14 @@
               <q-select
                 v-model="solicitud.doctor_id"
                 :options="doctoresOptions"
+                use-input
                 option-value="id"
                 :option-label="doctor =>
                   doctor.nombre + ' (' + doctor.especialidad + ')' +
                   (doctor.telefono ? ' - ' + doctor.telefono : '') + ' ' +
                   (doctor.establecimiento?.nombre || '')
                 "
+                @filter="filterDoctores"
                 emit-value map-options
                 dense outlined clearable
                 label="Doctor (opcional)"
@@ -289,6 +291,7 @@ export default {
       loading: false,
       solicitud: {},
       doctoresOptions: [],
+      doctoresOptionsAll: [],
       areas: [],
       establecimientos: [],
       searchCi: '',
@@ -335,6 +338,31 @@ export default {
     })
   },
   methods: {
+    filterDoctores(val, update) {
+      update(() => {
+        const text = (val || '').toLowerCase().trim()
+
+        if (!text) {
+          this.doctoresOptions = this.doctoresOptionsAll
+          return
+        }
+
+        this.doctoresOptions = this.doctoresOptionsAll
+          .filter(d => {
+            const nombre = String(d.nombre || '').toLowerCase()
+            const esp = String(d.especialidad || '').toLowerCase()
+            const ci = String(d.ci || '').toLowerCase()
+            const tel = String(d.telefono || '').toLowerCase()
+            return (
+              nombre.includes(text) ||
+              esp.includes(text) ||
+              ci.includes(text) ||
+              tel.includes(text)
+            )
+          })
+          .slice(0, 50) // 🔥 limita resultados (performance)
+      })
+    },
     onFilterDiagnosticos (val, update) {
       update(() => {
         const text = (val || '').toLowerCase().trim()
@@ -415,7 +443,10 @@ export default {
     },
 
     loadDoctores () {
-      this.$axios.get('doctores').then(res => { this.doctoresOptions = res.data })
+      this.$axios.get('doctores').then(res => {
+        this.doctoresOptions = res.data
+        this.doctoresOptionsAll = res.data
+      })
     },
 
     onChangeCi (val) {

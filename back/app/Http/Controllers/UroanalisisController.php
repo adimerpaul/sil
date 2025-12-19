@@ -61,8 +61,10 @@ class UroanalisisController extends Controller
             'message' => 'Uroanálisis eliminado',
         ]);
     }
-    public function pdfBySolicitude($solicitudeId)
+    public function pdfBySolicitude($code)
     {
+        $solicitudeId = Uroanalisis::where('codigo', $code)
+            ->value('solicitude_id');
         $solicitud = Solicitude::with([
             'paciente',
             'doctor',

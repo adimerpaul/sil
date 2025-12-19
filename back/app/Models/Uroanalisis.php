@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable as AuditableTrait;
+use Illuminate\Support\Str;
+
 class Uroanalisis extends Model implements AuditableContract{
     use SoftDeletes, AuditableTrait;
 
@@ -46,10 +48,21 @@ class Uroanalisis extends Model implements AuditableContract{
         'valor_celulas',
         'valor_cristales',
         'otros',
+        'code',
     ];
 
     public function solicitude()
     {
         return $this->belongsTo(Solicitude::class);
+    }
+    protected static function booted()
+    {
+        static::creating(function ($model) {
+            if (empty($model->code)) {
+                $model->code = Str::uuid()->toString();
+                // sin guiones (32 chars)
+                $model->code = str_replace('-', '', $model->code);
+            }
+        });
     }
 }

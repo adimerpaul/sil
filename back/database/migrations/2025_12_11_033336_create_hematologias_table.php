@@ -84,7 +84,8 @@ return new class extends Migration
 
             // Información general del análisis
             $table->string('metodo', 10)->nullable();      // A, M, M/SA...
-            $table->string('equipo', 100)->nullable();     // MIDRAY BC 3000 PLUS, etc.
+            $table->string('equipo', 100)->nullable();
+            $table->string('code', 100)->nullable();
 
             $table->timestamps();
             $table->softDeletes();

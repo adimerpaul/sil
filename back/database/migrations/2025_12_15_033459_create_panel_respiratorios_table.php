@@ -34,6 +34,7 @@ return new class extends Migration
             $table->string('legionella_pneumophila')->nullable();
 
             $table->text('observaciones')->nullable();
+            $table->string('code', 100)->nullable();
 
             $table->foreign('solicitude_id')->references('id')->on('solicitudes')->onDelete('cascade');
             $table->softDeletes();

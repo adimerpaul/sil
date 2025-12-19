@@ -59,8 +59,9 @@ class CultivoAntibiogramaController extends Controller
         return response()->json(['message' => 'Registro eliminado']);
     }
 
-    public function pdfBySolicitude($id)
+    public function pdfBySolicitude($code)
     {
+        $id = CultivoAntibiograma::where('code', $code)->value('solicitude_id');
         $solicitud = Solicitude::with(['paciente', 'doctor'])->findOrFail($id);
         $cultivo = CultivoAntibiograma::where('solicitude_id', $id)->first();
 
