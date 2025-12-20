@@ -6,6 +6,7 @@ use App\Models\Parasitologia;
 use App\Models\Solicitude;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ParasitologiaController extends Controller
 {
@@ -59,7 +60,7 @@ class ParasitologiaController extends Controller
 
     public function pdfBySolicitude($code)
     {
-        $solicitudeId = Parasitologia::where('codigo', $code)
+        $solicitudeId = Parasitologia::where('code', $code)
             ->value('solicitude_id');
         $solicitud = Solicitude::with([
             'paciente',
@@ -69,9 +70,16 @@ class ParasitologiaController extends Controller
 
         $parasitologia = Parasitologia::where('solicitude_id', $solicitudeId)->first();
 
+        $url = url("/api/parasitologia/solicitud/{$code}/pdf");
+        $qrSvgBase64 = base64_encode(
+            QrCode::format('svg')->size(110)->margin(1)->generate($url)
+        );
+
         $pdf = Pdf::loadView('pdf.parasitologia', [
             'solicitud'     => $solicitud,
             'parasitologia' => $parasitologia,
+            'qrSvgBase64'   => $qrSvgBase64,
+            'url'           => $url,
         ])->setPaper('letter', 'landscape');
 
         return $pdf->stream('PARASITOLOGIA_'.$solicitud->nro_registro.'.pdf');

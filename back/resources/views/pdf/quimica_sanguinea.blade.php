@@ -482,11 +482,20 @@
                             <!-- Firmas -->
                             <table class="no-border" style="margin-top:4px;">
                                 <tr>
-                                    <td class="center" style="width:50%">
+                                    <td class="center" style="width:33%">
                                         _____________________<br><span class="small muted">Firma</span>
                                     </td>
-                                    <td class="center" style="width:50%">
+                                    <td class="center" style="width:33%">
                                         _____________________<br><span class="small muted">Bioquímico(a)</span>
+                                    </td>
+                                    <td class="center" style="width:34%">
+                                        @if(!empty($qrSvgBase64))
+                                            <img
+                                                src="data:image/svg+xml;base64,{{ $qrSvgBase64 }}"
+                                                style="width:45px; height:45px;"
+                                                alt="QR"
+                                            >
+                                        @endif
                                     </td>
                                 </tr>
                             </table>

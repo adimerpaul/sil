@@ -6,6 +6,7 @@ use App\Models\Uroanalisis;
 use App\Models\Solicitude;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class UroanalisisController extends Controller
 {
@@ -36,10 +37,11 @@ class UroanalisisController extends Controller
     public function upsert(Request $request, $solicitudeId)
     {
         $data = $request->all();
-        error_log('Datos recibidos para uroanálisis: ' . json_encode($data));
+//        error_log('Datos recibidos para uroanálisis: ' . json_encode($data));
         $data['solicitude_id'] = $solicitudeId;
 //        valor_celulas
-        error_log('valor_celulas: ' . ($data['valor_celulas'] ?? 'no proporcionado'));
+//        error_log('valor_celulas: ' . ($data['valor_celulas'] ?? 'no proporcionado'));
+
 
         $uro = Uroanalisis::updateOrCreate(
             ['solicitude_id' => $solicitudeId],
@@ -63,7 +65,7 @@ class UroanalisisController extends Controller
     }
     public function pdfBySolicitude($code)
     {
-        $solicitudeId = Uroanalisis::where('codigo', $code)
+        $solicitudeId = Uroanalisis::where('code', $code)
             ->value('solicitude_id');
         $solicitud = Solicitude::with([
             'paciente',
@@ -73,9 +75,16 @@ class UroanalisisController extends Controller
 
         $uro = Uroanalisis::where('solicitude_id', $solicitudeId)->first();
 
+        $url = url("/api/uroanalisis/solicitud/{$code}/pdf");
+        $qrSvgBase64 = base64_encode(
+            QrCode::format('svg')->size(110)->margin(1)->generate($url)
+        );
+
         $pdf = Pdf::loadView('pdf.uroanalisis', [
             'solicitud'   => $solicitud,
             'uroanalisis' => $uro,
+            'qrSvgBase64' => $qrSvgBase64,
+            'url'         => $url,
         ])->setPaper('letter', 'landscape');
 
         return $pdf->stream('UROANALISIS_'.$solicitud->nro_registro.'.pdf');

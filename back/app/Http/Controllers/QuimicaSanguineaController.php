@@ -7,6 +7,7 @@ use App\Models\Solicitude;
 use App\Models\Area;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class QuimicaSanguineaController extends Controller
 {
@@ -32,11 +33,17 @@ class QuimicaSanguineaController extends Controller
         if ($areaQuimica) {
             $rangos = $areaQuimica->rangos()->orderBy('id')->get();
         }
+        $url = url("/api/quimica-sanguinea/solicitud/{$code}/pdf");
+        $qrSvgBase64 = base64_encode(
+            QrCode::format('svg')->size(110)->margin(1)->generate($url)
+        );
 
         $pdf = Pdf::loadView('pdf.quimica_sanguinea', [
             'solicitud' => $solicitud,
             'quimica'   => $quimica,
             'rangos'    => $rangos,
+            'qrSvgBase64' => $qrSvgBase64,
+            'url' => $url,
         ])->setPaper('letter', 'landscape');
 
         return $pdf->stream('QUIMICA_'.$solicitud->nro_registro.'.pdf');
