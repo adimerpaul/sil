@@ -173,6 +173,8 @@ export default {
       await this.$axios.post(`/panel-respiratorio/solicitud/${this.$route.params.id}`, this.form)
       this.$alert.success('Resultado guardado correctamente')
       this.loading = false
+      // this. ir a traz
+      this.$router.back()
     },
     printPdf () {
       const code = this.form.code

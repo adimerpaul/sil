@@ -259,6 +259,8 @@ export default {
       )
       this.$alert.success('Resultado guardado correctamente')
       this.loading = false
+      // this.ir a tra o ir a a analitica
+      this.$router.back()
     },
     printPdf() {
       const code = this.form.code

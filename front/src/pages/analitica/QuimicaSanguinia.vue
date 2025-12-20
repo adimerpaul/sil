@@ -805,6 +805,7 @@ export default {
         await this.$axios.post(`/quimica-sanguinea/solicitud/${this.solicitudId}`, this.form)
         if (this.$alert?.success) this.$alert.success('Química sanguínea guardada correctamente')
         else console.log('Química sanguínea guardada correctamente')
+        this.$router.back()
       } catch (e) {
         const msg = e.response?.data?.message || e.message
         if (this.$alert?.error) this.$alert.error('Error al guardar: ' + msg)

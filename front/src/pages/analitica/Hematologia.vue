@@ -707,6 +707,8 @@ export default {
         await this.$axios.post(`/hematologia/solicitud/${this.solicitudId}`, this.form)
         if (this.$alert && this.$alert.success) this.$alert.success('Hematología guardada correctamente')
         else console.log('Hematología guardada correctamente')
+        // irse a analitica
+        this.$router.push('/analitica')
       } catch (e) {
         const msg = e.response?.data?.message || e.message
         if (this.$alert && this.$alert.error) this.$alert.error('Error al guardar: ' + msg)

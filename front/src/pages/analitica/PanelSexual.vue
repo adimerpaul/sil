@@ -144,6 +144,7 @@ export default {
       await this.$axios.post(`/panel-sexual/solicitud/${this.$route.params.id}`, this.form)
       this.$alert.success('Resultado guardado correctamente')
       this.loading = false
+      this.$router.back()
     },
     printPdf () {
       const code = this.form.code

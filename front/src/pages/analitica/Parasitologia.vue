@@ -368,6 +368,8 @@ export default {
         this.loading = true
         await this.$axios.post(`/parasitologia/solicitud/${this.solicitudId}`, this.form)
         this.$alert?.success ? this.$alert.success('Parasitología guardada correctamente') : console.log('OK')
+        // ir a traz
+        this.$router.back()
       } catch (e) {
         const msg = e.response?.data?.message || e.message
         this.$alert?.error ? this.$alert.error('Error al guardar: ' + msg) : console.error(msg)

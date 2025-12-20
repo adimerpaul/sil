@@ -5,9 +5,9 @@
       <q-card-section class="row items-center q-col-gutter-xs">
         <div class="col-12 col-sm-3">
           <div class="text-subtitle2">{{$store.user.area?.name}}</div>
-<!--          <div class="text-caption text-grey-7">-->
-<!--            Solicitudes recibidas de Preanalítica (estado ENVIADO_ANALITICA)-->
-<!--          </div>-->
+          <!--          <div class="text-caption text-grey-7">-->
+          <!--            Solicitudes recibidas de Preanalítica (estado ENVIADO_ANALITICA)-->
+          <!--          </div>-->
         </div>
 
         <div class="col-12 col-sm-4">
@@ -33,7 +33,7 @@
             </template>
           </q-input>
         </div>
-<!--        inout fecha-->
+        <!--        inout fecha-->
         <div class="col-12 col-sm-3">
           <q-input
             v-model="fecha"
@@ -87,9 +87,29 @@
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Hematología</q-item-section>
                     </q-item>
+                    <!--                    enviar whatsapp dcotor y paciente-->
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'HematologiaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.hematologia?.code">
+                      <q-item-section avatar>
+                        <q-icon name="fa-brands fa-whatsapp" />
+                      </q-item-section>
+                      <q-item-section>
+                        WhatsApp Doctor({{solicitud.doctor_telefono}})
+                        <!--                        <pre>{{solicitud.doctor_telefono}}</pre>-->
+                      </q-item-section>
+                    </q-item>
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'HematologiaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.hematologia?.code">
+                      <q-item-section avatar>
+                        <q-icon name="fa-brands fa-whatsapp" />
+                      </q-item-section>
+                      <q-item-section>
+                        WhatsApp Paciente({{solicitud.paciente_telefono}})
+                        <!--                        <pre>{{solicitud.paciente_telefono}}</pre>-->
+                      </q-item-section>
+                    </q-item>
 
                     <q-separator spaced />
 
+                    <!-- QUÍMICA SANGUÍNEA -->
                     <q-item clickable @click="$router.push({ name: 'analitica-quimica-sanguinia', params: { id: solicitud.id } })" v-close-popup dense>
                       <q-item-section avatar><q-icon name="science" /></q-item-section>
                       <q-item-section>Química Sanguínea</q-item-section>
@@ -98,13 +118,25 @@
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Química Sanguínea</q-item-section>
                     </q-item>
+
+                    <!-- WhatsApp Química -->
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'QuimicaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.quimica_sanguinea?.code">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'QuimicaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.quimica_sanguinea?.code">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
+                    </q-item>
+
                     <q-separator spaced />
 
+                    <!-- UROANÁLISIS -->
                     <q-item clickable @click="$router.push({ name: 'analitica-uroanalisis', params: { id: solicitud.id } })" v-close-popup dense>
                       <q-item-section avatar><q-icon name="water_drop" /></q-item-section>
                       <q-item-section>
                         Uroanálisis
-<!--                        <pre>{{solicitud.uroanalisis.code}}</pre>-->
+                        <!--                        <pre>{{solicitud.uroanalisis.code}}</pre>-->
                       </q-item-section>
                     </q-item>
 
@@ -113,8 +145,19 @@
                       <q-item-section>Imprimir Uroanálisis</q-item-section>
                     </q-item>
 
+                    <!-- WhatsApp Uroanálisis -->
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'UroanalisisDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.uroanalisis?.code">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'UroanalisisPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.uroanalisis?.code">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
+                    </q-item>
+
                     <q-separator spaced />
 
+                    <!-- PARASITOLOGÍA -->
                     <q-item clickable @click="$router.push({ name: 'analitica-parasitologia', params: { id: solicitud.id } })" v-close-popup dense>
                       <q-item-section avatar><q-icon name="bug_report" /></q-item-section>
                       <q-item-section>Parasitología</q-item-section>
@@ -124,33 +167,45 @@
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Parasitología</q-item-section>
                     </q-item>
-<!--                    {-->
-<!--                    path: '/analitica/papiloma-humano/:id',-->
-<!--                    name: 'analitica-papiloma-humano',-->
-<!--                    component: () => import('pages/analitica/PapilomaHumano.vue'),-->
-<!--                    meta: {requiresAuth: true, perm: 'Analitica'}-->
-<!--                    },-->
+
+                    <!-- WhatsApp Parasitología -->
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'ParasitologiaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.parasitologia?.code">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'ParasitologiaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.parasitologia?.code">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
+                    </q-item>
+
                     <q-separator spaced />
 
+                    <!-- PAPILOMA HUMANO -->
                     <q-item clickable @click="$router.push({ name: 'analitica-papiloma-humano', params: { id: solicitud.id } })" v-close-popup dense>
                       <q-item-section avatar><q-icon name="health_and_safety" /></q-item-section>
                       <q-item-section>
                         Papiloma Humano
-<!--                        <pre>{{solicitud}}</pre>-->
+                        <!--                        <pre>{{solicitud}}</pre>-->
                       </q-item-section>
                     </q-item>
                     <q-item clickable @click="printPapilomaHumano(solicitud)" v-close-popup dense v-if="solicitud.papiloma_humano?.code">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Papiloma Humano</q-item-section>
                     </q-item>
-<!--                    {-->
-<!--                    path: '/analitica/panel-respiratorio/:id',-->
-<!--                    name: 'analitica-panel-respiratorio',-->
-<!--                    component: () => import('pages/analitica/PanelRespiratorio.vue'),-->
-<!--                    meta: {requiresAuth: true, perm: 'Analitica'}-->
-<!--                    },-->
+
+                    <!-- WhatsApp Papiloma Humano -->
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'PapilomaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.papiloma_humano?.code">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'PapilomaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.papiloma_humano?.code">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
+                    </q-item>
+
                     <q-separator spaced />
 
+                    <!-- PANEL RESPIRATORIO -->
                     <q-item clickable @click="$router.push({ name: 'analitica-panel-respiratorio', params: { id: solicitud.id } })" v-close-popup dense>
                       <q-item-section avatar><q-icon name="air" /></q-item-section>
                       <q-item-section>Panel Respiratorio</q-item-section>
@@ -159,14 +214,20 @@
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Panel Respiratorio</q-item-section>
                     </q-item>
-<!--                    {-->
-<!--                    path: '/analitica/panel-sexual/:id',-->
-<!--                    name: 'analitica-panel-sexual',-->
-<!--                    component: () => import('pages/analitica/PanelSexual.vue'),-->
-<!--                    meta: {requiresAuth: true, perm: 'Analitica'}-->
-<!--                    },-->
+
+                    <!-- WhatsApp Panel Respiratorio -->
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'PanelRespiratorioDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.panel_respiratorio?.code">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'PanelRespiratorioPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.panel_respiratorio?.code">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
+                    </q-item>
+
                     <q-separator spaced />
 
+                    <!-- PANEL SEXUAL -->
                     <q-item clickable @click="$router.push({ name: 'analitica-panel-sexual', params: { id: solicitud.id } })" v-close-popup dense>
                       <q-item-section avatar><q-icon name="favorite" /></q-item-section>
                       <q-item-section>Panel Sexual</q-item-section>
@@ -175,41 +236,42 @@
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Panel Sexual</q-item-section>
                     </q-item>
-<!--                    {-->
-<!--                    path: '/analitica/cultivo-antibiograma/:id',-->
-<!--                    name: 'analitica-cultivo-antibiograma',-->
-<!--                    component: () => import('pages/analitica/CultivoAntibiograma.vue'),-->
-<!--                    meta: {requiresAuth: true, perm: 'Analitica'}-->
-<!--                    },-->
-<!--                    <q-separator spaced />-->
 
-<!--                    <q-item clickable @click="$router.push({ name: 'analitica-cultivo-antibiograma', params: { id: solicitud.id } })" v-close-popup dense>-->
-<!--                      <q-item-section avatar><q-icon name="healing" /></q-item-section>-->
-<!--                      <q-item-section>Cultivo y Antibiograma</q-item-section>-->
-<!--                    </q-item>-->
-<!--                    <q-item clickable @click="printCultivoAntibiograma(solicitud)" v-close-popup dense v-if="solicitud.cultivoAntibiograma?.code">-->
-<!--                      <q-item-section avatar><q-icon name="print" /></q-item-section>-->
-<!--                      <q-item-section>Imprimir Cultivo y Antibiograma</q-item-section>-->
-<!--                    </q-item>-->
-<!--                    {-->
-<!--                    path: '/analitica/inmunologia/:id',-->
-<!--                    name: 'analitica-inmunologia',-->
-<!--                    component: () => import('pages/analitica/InmunologiaSolicitudPage.vue'),-->
-<!--                    meta: {requiresAuth: true, perm: 'Analitica'}-->
-<!--                    },-->
+                    <!-- WhatsApp Panel Sexual -->
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'PanelSexualDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.panel_sexual?.code">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'PanelSexualPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.panel_sexual?.code">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
+                    </q-item>
+
                     <q-separator spaced />
 
+                    <!-- INMUNOLOGÍA -->
                     <q-item clickable @click="$router.push({ name: 'analitica-inmunologia', params: { id: solicitud.id } })" v-close-popup dense>
                       <q-item-section avatar><q-icon name="shield" /></q-item-section>
                       <q-item-section>
                         Inmunología
-<!--                        <pre>{{solicitud}}</pre>-->
+                        <!--                        <pre>{{solicitud}}</pre>-->
                       </q-item-section>
                     </q-item>
                     <q-item clickable @click="printInmunologia(solicitud)" v-close-popup dense>
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Inmunología</q-item-section>
                     </q-item>
+
+                    <!-- WhatsApp Inmunología (solo si hay "code"; si tu backend no usa code, ajusta aquí) -->
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'InmunologiaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.inmunologia?.code">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'InmunologiaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.inmunologia?.code">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
+                    </q-item>
+
                   </q-list>
                 </q-btn-dropdown>
               </td>
@@ -272,6 +334,87 @@ export default {
       const url = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${solicitud.quimica_sanguinea?.code}/pdf`
       window.open(url, '_blank')
     },
+
+    enviarWhatsApp(solicitud, tipo) {
+      let mensajeWhatssApp = ''
+      let telefono = ''
+      let linkPdf = ''
+
+      // ===== Links por tipo (mismo estilo que Hematología) =====
+      if (tipo === 'HematologiaDoctor' || tipo === 'HematologiaPaciente') {
+        linkPdf = `${this.$axios.defaults.baseURL}/hematologia/solicitud/${solicitud.hematologia?.code}/pdf`
+      } else if (tipo === 'QuimicaDoctor' || tipo === 'QuimicaPaciente') {
+        linkPdf = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${solicitud.quimica_sanguinea?.code}/pdf`
+      } else if (tipo === 'UroanalisisDoctor' || tipo === 'UroanalisisPaciente') {
+        linkPdf = `${this.$axios.defaults.baseURL}/uroanalisis/solicitud/${solicitud.uroanalisis?.code}/pdf`
+      } else if (tipo === 'ParasitologiaDoctor' || tipo === 'ParasitologiaPaciente') {
+        linkPdf = `${this.$axios.defaults.baseURL}/parasitologia/solicitud/${solicitud.parasitologia?.code}/pdf`
+      } else if (tipo === 'PapilomaDoctor' || tipo === 'PapilomaPaciente') {
+        linkPdf = `${this.$axios.defaults.baseURL}/papiloma-humano/solicitud/${solicitud.papiloma_humano?.code}/pdf`
+      } else if (tipo === 'PanelRespiratorioDoctor' || tipo === 'PanelRespiratorioPaciente') {
+        linkPdf = `${this.$axios.defaults.baseURL}/panel-respiratorio/solicitud/${solicitud.panel_respiratorio?.code}/pdf`
+      } else if (tipo === 'PanelSexualDoctor' || tipo === 'PanelSexualPaciente') {
+        linkPdf = `${this.$axios.defaults.baseURL}/panel-sexual/solicitud/${solicitud.panel_sexual?.code}/pdf`
+      } else if (tipo === 'InmunologiaDoctor' || tipo === 'InmunologiaPaciente') {
+        // Nota: aquí asumo que Inmunología tiene code (como los demás). Si no, quítalo y usa tu pdf-all.
+        linkPdf = `${this.$axios.defaults.baseURL}/inmunologia/solicitud/${solicitud.inmunologia?.code}/pdf`
+      }
+
+      // ===== Mensajes Doctor/Paciente =====
+      if (tipo === 'HematologiaDoctor') {
+        mensajeWhatssApp = `Estimado Dr. ${solicitud.doctor_nombre}, le informamos que los resultados de Hematología para el paciente ${solicitud.paciente_nombre} (CI: ${solicitud.paciente_ci}) ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.doctor_telefono
+      } else if (tipo === 'HematologiaPaciente') {
+        mensajeWhatssApp = `Estimado/a ${solicitud.paciente_nombre}, le informamos que sus resultados de Hematología ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.paciente_telefono
+      } else if (tipo === 'QuimicaDoctor') {
+        mensajeWhatssApp = `Estimado Dr. ${solicitud.doctor_nombre}, le informamos que los resultados de Química Sanguínea para el paciente ${solicitud.paciente_nombre} (CI: ${solicitud.paciente_ci}) ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.doctor_telefono
+      } else if (tipo === 'QuimicaPaciente') {
+        mensajeWhatssApp = `Estimado/a ${solicitud.paciente_nombre}, le informamos que sus resultados de Química Sanguínea ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.paciente_telefono
+      } else if (tipo === 'UroanalisisDoctor') {
+        mensajeWhatssApp = `Estimado Dr. ${solicitud.doctor_nombre}, le informamos que los resultados de Uroanálisis para el paciente ${solicitud.paciente_nombre} (CI: ${solicitud.paciente_ci}) ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.doctor_telefono
+      } else if (tipo === 'UroanalisisPaciente') {
+        mensajeWhatssApp = `Estimado/a ${solicitud.paciente_nombre}, le informamos que sus resultados de Uroanálisis ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.paciente_telefono
+      } else if (tipo === 'ParasitologiaDoctor') {
+        mensajeWhatssApp = `Estimado Dr. ${solicitud.doctor_nombre}, le informamos que los resultados de Parasitología para el paciente ${solicitud.paciente_nombre} (CI: ${solicitud.paciente_ci}) ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.doctor_telefono
+      } else if (tipo === 'ParasitologiaPaciente') {
+        mensajeWhatssApp = `Estimado/a ${solicitud.paciente_nombre}, le informamos que sus resultados de Parasitología ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.paciente_telefono
+      } else if (tipo === 'PapilomaDoctor') {
+        mensajeWhatssApp = `Estimado Dr. ${solicitud.doctor_nombre}, le informamos que los resultados de Papiloma Humano para el paciente ${solicitud.paciente_nombre} (CI: ${solicitud.paciente_ci}) ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.doctor_telefono
+      } else if (tipo === 'PapilomaPaciente') {
+        mensajeWhatssApp = `Estimado/a ${solicitud.paciente_nombre}, le informamos que sus resultados de Papiloma Humano ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.paciente_telefono
+      } else if (tipo === 'PanelRespiratorioDoctor') {
+        mensajeWhatssApp = `Estimado Dr. ${solicitud.doctor_nombre}, le informamos que los resultados de Panel Respiratorio para el paciente ${solicitud.paciente_nombre} (CI: ${solicitud.paciente_ci}) ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.doctor_telefono
+      } else if (tipo === 'PanelRespiratorioPaciente') {
+        mensajeWhatssApp = `Estimado/a ${solicitud.paciente_nombre}, le informamos que sus resultados de Panel Respiratorio ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.paciente_telefono
+      } else if (tipo === 'PanelSexualDoctor') {
+        mensajeWhatssApp = `Estimado Dr. ${solicitud.doctor_nombre}, le informamos que los resultados de Panel Sexual para el paciente ${solicitud.paciente_nombre} (CI: ${solicitud.paciente_ci}) ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.doctor_telefono
+      } else if (tipo === 'PanelSexualPaciente') {
+        mensajeWhatssApp = `Estimado/a ${solicitud.paciente_nombre}, le informamos que sus resultados de Panel Sexual ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.paciente_telefono
+      } else if (tipo === 'InmunologiaDoctor') {
+        mensajeWhatssApp = `Estimado Dr. ${solicitud.doctor_nombre}, le informamos que los resultados de Inmunología para el paciente ${solicitud.paciente_nombre} (CI: ${solicitud.paciente_ci}) ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.doctor_telefono
+      } else if (tipo === 'InmunologiaPaciente') {
+        mensajeWhatssApp = `Estimado/a ${solicitud.paciente_nombre}, le informamos que sus resultados de Inmunología ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.paciente_telefono
+      }
+
+      const urlWhatsApp = `https://api.whatsapp.com/send?phone=${telefono}&text=${encodeURIComponent(mensajeWhatssApp)}`
+      window.open(urlWhatsApp, '_blank')
+    },
+
     printHematologia(solicitud) {
       // $query = Solicitude::with([
       //   'paciente', 'doctor', 'servicios.area.rangos', 'resultados',

@@ -962,6 +962,7 @@ export default {
         } else {
           console.log('Uroanálisis guardado correctamente')
         }
+        this.$router.back()
       } catch (e) {
         const msg = e.response?.data?.message || e.message
         if (this.$alert && this.$alert.error) {
