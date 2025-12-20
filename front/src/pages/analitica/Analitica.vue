@@ -83,7 +83,7 @@
                       <q-item-section>Hematología</q-item-section>
                     </q-item>
 
-                    <q-item clickable @click="printHematologia(solicitud)" v-close-popup dense>
+                    <q-item clickable @click="printHematologia(solicitud)" v-close-popup dense v-if="solicitud.hematologia?.code">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Hematología</q-item-section>
                     </q-item>
@@ -94,7 +94,7 @@
                       <q-item-section avatar><q-icon name="science" /></q-item-section>
                       <q-item-section>Química Sanguínea</q-item-section>
                     </q-item>
-                    <q-item clickable @click="printQuimica(solicitud)" v-close-popup dense>
+                    <q-item clickable @click="printQuimica(solicitud)" v-close-popup dense v-if="solicitud.quimica_sanguinea?.code">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Química Sanguínea</q-item-section>
                     </q-item>
@@ -102,11 +102,13 @@
 
                     <q-item clickable @click="$router.push({ name: 'analitica-uroanalisis', params: { id: solicitud.id } })" v-close-popup dense>
                       <q-item-section avatar><q-icon name="water_drop" /></q-item-section>
-                      <q-item-section>Uroanálisis</q-item-section>
+                      <q-item-section>
+                        Uroanálisis
+<!--                        <pre>{{solicitud.uroanalisis.code}}</pre>-->
+                      </q-item-section>
                     </q-item>
 
-                    <!-- ✅ IMPRIMIR UROANÁLISIS -->
-                    <q-item clickable @click="printUroanalisis(solicitud)" v-close-popup dense>
+                    <q-item clickable @click="printUroanalisis(solicitud)" v-close-popup dense v-if="solicitud.uroanalisis?.code">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Uroanálisis</q-item-section>
                     </q-item>
@@ -118,7 +120,7 @@
                       <q-item-section>Parasitología</q-item-section>
                     </q-item>
 
-                    <q-item clickable @click="printParasitologia(solicitud)" v-close-popup dense>
+                    <q-item clickable @click="printParasitologia(solicitud)" v-close-popup dense v-if="solicitud.parasitologia?.code">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Parasitología</q-item-section>
                     </q-item>
@@ -134,7 +136,7 @@
                       <q-item-section avatar><q-icon name="health_and_safety" /></q-item-section>
                       <q-item-section>Papiloma Humano</q-item-section>
                     </q-item>
-                    <q-item clickable @click="printPapilomaHumano(solicitud)" v-close-popup dense>
+                    <q-item clickable @click="printPapilomaHumano(solicitud)" v-close-popup dense v-if="solicitud.papilomaHumano?.code">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Papiloma Humano</q-item-section>
                     </q-item>
@@ -150,7 +152,7 @@
                       <q-item-section avatar><q-icon name="air" /></q-item-section>
                       <q-item-section>Panel Respiratorio</q-item-section>
                     </q-item>
-                    <q-item clickable @click="printPanelRespiratorio(solicitud)" v-close-popup dense>
+                    <q-item clickable @click="printPanelRespiratorio(solicitud)" v-close-popup dense v-if="solicitud.panelRespiratorio?.code">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Panel Respiratorio</q-item-section>
                     </q-item>
@@ -166,7 +168,7 @@
                       <q-item-section avatar><q-icon name="favorite" /></q-item-section>
                       <q-item-section>Panel Sexual</q-item-section>
                     </q-item>
-                    <q-item clickable @click="printPanelSexual(solicitud)" v-close-popup dense>
+                    <q-item clickable @click="printPanelSexual(solicitud)" v-close-popup dense v-if="solicitud.panelSexual?.code">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Panel Sexual</q-item-section>
                     </q-item>
@@ -182,7 +184,7 @@
                       <q-item-section avatar><q-icon name="healing" /></q-item-section>
                       <q-item-section>Cultivo y Antibiograma</q-item-section>
                     </q-item>
-                    <q-item clickable @click="printCultivoAntibiograma(solicitud)" v-close-popup dense>
+                    <q-item clickable @click="printCultivoAntibiograma(solicitud)" v-close-popup dense v-if="solicitud.cultivoAntibiograma?.code">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Cultivo y Antibiograma</q-item-section>
                     </q-item>
@@ -198,7 +200,7 @@
                       <q-item-section avatar><q-icon name="shield" /></q-item-section>
                       <q-item-section>Inmunología</q-item-section>
                     </q-item>
-                    <q-item clickable @click="printInmunologia(solicitud)" v-close-popup dense>
+                    <q-item clickable @click="printInmunologia(solicitud)" v-close-popup dense v-if="solicitud.inmunologia?.code">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Inmunología</q-item-section>
                     </q-item>
@@ -280,7 +282,7 @@ export default {
       window.open(url, '_blank')
     },
     printUroanalisis (solicitud) {
-      const url = `${this.$axios.defaults.baseURL}/uroanalisis/solicitud/${solicitud.quimicaSanguinea?.code}/pdf`
+      const url = `${this.$axios.defaults.baseURL}/uroanalisis/solicitud/${solicitud.uroanalisis?.code}/pdf`
       window.open(url, '_blank')
     },
     printParasitologia(solicitud) {
