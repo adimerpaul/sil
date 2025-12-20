@@ -717,8 +717,10 @@ export default {
     },
 
     printHematologia () {
-      const id = this.solicitudId
-      const url = `${this.$axios.defaults.baseURL}/hematologia/solicitud/${id}/pdf`
+      // const id = this.solicitudId
+      const code = this.form?.code || ''
+      // console.log('Imprimir hematología:', this.form)
+      const url = `${this.$axios.defaults.baseURL}/hematologia/solicitud/${code}/pdf`
       window.open(url, '_blank')
     },
 

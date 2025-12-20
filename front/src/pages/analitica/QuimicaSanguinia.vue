@@ -815,7 +815,8 @@ export default {
     },
 
     printPdf () {
-      const url = this.$axios.defaults.baseURL + `/quimica-sanguinea/solicitud/${this.solicitudId}/pdf`
+      let code = this.form.code || 'N/A'
+      const url = this.$axios.defaults.baseURL + `/quimica-sanguinea/solicitud/${code}/pdf`
       window.open(url, '_blank')
     },
 

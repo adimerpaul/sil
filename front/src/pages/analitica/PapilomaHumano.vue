@@ -261,7 +261,8 @@ export default {
       this.loading = false
     },
     printPdf() {
-      const url = `${this.$axios.defaults.baseURL}/papiloma-humano/solicitud/${this.solicitud.id}/pdf`
+      const code = this.form.code
+      const url = `${this.$axios.defaults.baseURL}/papiloma-humano/solicitud/${code}/pdf`
       window.open(url, '_blank')
     }
   }

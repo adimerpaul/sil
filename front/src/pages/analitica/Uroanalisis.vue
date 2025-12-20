@@ -974,7 +974,8 @@ export default {
       }
     },
     printPdf () {
-      const url = `${this.$axios.defaults.baseURL}/uroanalisis/solicitud/${this.solicitudId}/pdf`
+      const code = this.form.code
+      const url = `${this.$axios.defaults.baseURL}/uroanalisis/solicitud/${code}/pdf`
       window.open(url, '_blank')
     },
     onSubmit () {

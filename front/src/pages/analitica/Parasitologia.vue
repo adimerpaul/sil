@@ -379,7 +379,8 @@ export default {
       this.save()
     },
     printPdf () {
-      const url = `${this.$axios.defaults.baseURL}/parasitologia/solicitud/${this.solicitudId}/pdf`
+      const code = this.form.code
+      const url = `${this.$axios.defaults.baseURL}/parasitologia/solicitud/${code}/pdf`
       window.open(url, '_blank')
     }
   }
