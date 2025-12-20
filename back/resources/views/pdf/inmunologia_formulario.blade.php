@@ -43,7 +43,7 @@
         /* Contenido HTML “impreso” */
         .content{
             margin-top: 6px;
-            border: 1px solid #111;
+            /*border: 1px solid #111;*/
             padding: 6px;
             min-height: 210px;
         }
@@ -126,13 +126,25 @@
 
             <table class="no-border" style="margin-top:6px;">
                 <tr>
-                    <td class="center" style="width:50%;">
+                    <td class="center" style="width:33%;">
                         ___________________________<br>
                         <span class="muted small">Firma / Sello</span>
                     </td>
-                    <td class="center" style="width:50%;">
+                    <td class="center" style="width:33%;">
                         ___________________________<br>
                         <span class="muted small">Bioquímico(a) / Responsable</span>
+                    </td>
+                    <td class="center" style="width:33%;">
+                        {{-- QR CODE --}}
+                        @php
+                            $url = url("/api/inmunologia/solicitude-formulario/{$row->id}/pdf");
+                            $qrSvgBase64 = base64_encode(
+                            QrCode::format('svg')->size(110)->margin(1)->generate($url)
+                            );
+                        @endphp
+                        @if($qrSvgBase64)
+                            <img src="data:image/svg+xml;base64,{{ $qrSvgBase64 }}" style="width:70px;">
+                        @endif
                     </td>
                 </tr>
             </table>

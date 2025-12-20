@@ -6,6 +6,7 @@ use App\Models\PapilomaHumano;
 use App\Models\Solicitude;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PapilomaHumanoController extends Controller
 {
@@ -47,14 +48,21 @@ class PapilomaHumanoController extends Controller
 
     public function pdfBySolicitude($code)
     {
-        $id = PapilomaHumano::where('codigo', $code)
+        $id = PapilomaHumano::where('code', $code)
             ->value('solicitude_id');
         $solicitud = Solicitude::with(['paciente', 'doctor'])->findOrFail($id);
         $papiloma = PapilomaHumano::where('solicitude_id', $id)->first();
 
+        $url = url("/api/papiloma-humano/solicitud/{$code}/pdf");
+        $qrSvgBase64 = base64_encode(
+            QrCode::format('svg')->size(110)->margin(1)->generate($url)
+        );
+
         $pdf = Pdf::loadView('pdf.papiloma_humano', [
             'solicitud' => $solicitud,
             'papiloma'  => $papiloma,
+            'qrSvgBase64' => $qrSvgBase64,
+            'url' => $url,
         ])->setPaper('letter', 'landscape');
 
         return $pdf->stream('VPH_'.$solicitud->nro_registro.'.pdf');

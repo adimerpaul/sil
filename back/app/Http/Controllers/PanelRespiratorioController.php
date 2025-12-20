@@ -6,6 +6,7 @@ use App\Models\PanelRespiratorio;
 use App\Models\Solicitude;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PanelRespiratorioController extends Controller
 {
@@ -77,9 +78,16 @@ class PanelRespiratorioController extends Controller
         $solicitud = Solicitude::with(['paciente', 'doctor'])->findOrFail($id);
         $panel = PanelRespiratorio::where('solicitude_id', $id)->first();
 
+        $url = url("/api/panel-respiratorio/solicitud/{$code}/pdf");
+        $qrSvgBase64 = base64_encode(
+            QrCode::format('svg')->size(110)->margin(1)->generate($url)
+        );
+
         $pdf = Pdf::loadView('pdf.panel_respiratorio', [
             'solicitud' => $solicitud,
             'panel' => $panel,
+            'qrSvgBase64' => $qrSvgBase64,
+            'url' => $url,
         ])->setPaper('letter', 'landscape');
 
 

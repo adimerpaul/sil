@@ -92,6 +92,7 @@ class HematologiaController extends Controller
         $areaHemato = Area::where('title', 'HEMATOLOGÍA')
             ->orWhere('title', 'Hematología')
             ->first();
+
         $url = url("/api/hematologia/solicitud/{$code}/pdf");
         $qrSvgBase64 = base64_encode(
             QrCode::format('svg')->size(110)->margin(1)->generate($url)
