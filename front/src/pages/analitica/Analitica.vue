@@ -134,9 +134,12 @@
 
                     <q-item clickable @click="$router.push({ name: 'analitica-papiloma-humano', params: { id: solicitud.id } })" v-close-popup dense>
                       <q-item-section avatar><q-icon name="health_and_safety" /></q-item-section>
-                      <q-item-section>Papiloma Humano</q-item-section>
+                      <q-item-section>
+                        Papiloma Humano
+<!--                        <pre>{{solicitud}}</pre>-->
+                      </q-item-section>
                     </q-item>
-                    <q-item clickable @click="printPapilomaHumano(solicitud)" v-close-popup dense v-if="solicitud.papilomaHumano?.code">
+                    <q-item clickable @click="printPapilomaHumano(solicitud)" v-close-popup dense v-if="solicitud.papiloma_humano?.code">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Papiloma Humano</q-item-section>
                     </q-item>
@@ -152,7 +155,7 @@
                       <q-item-section avatar><q-icon name="air" /></q-item-section>
                       <q-item-section>Panel Respiratorio</q-item-section>
                     </q-item>
-                    <q-item clickable @click="printPanelRespiratorio(solicitud)" v-close-popup dense v-if="solicitud.panelRespiratorio?.code">
+                    <q-item clickable @click="printPanelRespiratorio(solicitud)" v-close-popup dense v-if="solicitud.panel_respiratorio?.code">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Panel Respiratorio</q-item-section>
                     </q-item>
@@ -168,7 +171,7 @@
                       <q-item-section avatar><q-icon name="favorite" /></q-item-section>
                       <q-item-section>Panel Sexual</q-item-section>
                     </q-item>
-                    <q-item clickable @click="printPanelSexual(solicitud)" v-close-popup dense v-if="solicitud.panelSexual?.code">
+                    <q-item clickable @click="printPanelSexual(solicitud)" v-close-popup dense v-if="solicitud.panel_sexual?.code">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Panel Sexual</q-item-section>
                     </q-item>
@@ -178,16 +181,16 @@
 <!--                    component: () => import('pages/analitica/CultivoAntibiograma.vue'),-->
 <!--                    meta: {requiresAuth: true, perm: 'Analitica'}-->
 <!--                    },-->
-                    <q-separator spaced />
+<!--                    <q-separator spaced />-->
 
-                    <q-item clickable @click="$router.push({ name: 'analitica-cultivo-antibiograma', params: { id: solicitud.id } })" v-close-popup dense>
-                      <q-item-section avatar><q-icon name="healing" /></q-item-section>
-                      <q-item-section>Cultivo y Antibiograma</q-item-section>
-                    </q-item>
-                    <q-item clickable @click="printCultivoAntibiograma(solicitud)" v-close-popup dense v-if="solicitud.cultivoAntibiograma?.code">
-                      <q-item-section avatar><q-icon name="print" /></q-item-section>
-                      <q-item-section>Imprimir Cultivo y Antibiograma</q-item-section>
-                    </q-item>
+<!--                    <q-item clickable @click="$router.push({ name: 'analitica-cultivo-antibiograma', params: { id: solicitud.id } })" v-close-popup dense>-->
+<!--                      <q-item-section avatar><q-icon name="healing" /></q-item-section>-->
+<!--                      <q-item-section>Cultivo y Antibiograma</q-item-section>-->
+<!--                    </q-item>-->
+<!--                    <q-item clickable @click="printCultivoAntibiograma(solicitud)" v-close-popup dense v-if="solicitud.cultivoAntibiograma?.code">-->
+<!--                      <q-item-section avatar><q-icon name="print" /></q-item-section>-->
+<!--                      <q-item-section>Imprimir Cultivo y Antibiograma</q-item-section>-->
+<!--                    </q-item>-->
 <!--                    {-->
 <!--                    path: '/analitica/inmunologia/:id',-->
 <!--                    name: 'analitica-inmunologia',-->
@@ -198,9 +201,12 @@
 
                     <q-item clickable @click="$router.push({ name: 'analitica-inmunologia', params: { id: solicitud.id } })" v-close-popup dense>
                       <q-item-section avatar><q-icon name="shield" /></q-item-section>
-                      <q-item-section>Inmunología</q-item-section>
+                      <q-item-section>
+                        Inmunología
+<!--                        <pre>{{solicitud}}</pre>-->
+                      </q-item-section>
                     </q-item>
-                    <q-item clickable @click="printInmunologia(solicitud)" v-close-popup dense v-if="solicitud.inmunologia?.code">
+                    <q-item clickable @click="printInmunologia(solicitud)" v-close-popup dense>
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Inmunología</q-item-section>
                     </q-item>
@@ -290,15 +296,15 @@ export default {
       window.open(url, '_blank')
     },
     printPapilomaHumano(solicitud) {
-      const url = `${this.$axios.defaults.baseURL}/papiloma-humano/solicitud/${solicitud.papilomaHumano?.code}/pdf`
+      const url = `${this.$axios.defaults.baseURL}/papiloma-humano/solicitud/${solicitud.papiloma_humano?.code}/pdf`
       window.open(url, '_blank')
     },
     printPanelRespiratorio(solicitud) {
-      const url = `${this.$axios.defaults.baseURL}/panel-respiratorio/solicitud/${solicitud.panelRespiratorio?.code}/pdf`
+      const url = `${this.$axios.defaults.baseURL}/panel-respiratorio/solicitud/${solicitud.panel_respiratorio?.code}/pdf`
       window.open(url, '_blank')
     },
     printPanelSexual(solicitud) {
-      const url = `${this.$axios.defaults.baseURL}/panel-sexual/solicitud/${solicitud.panelSexual?.code}/pdf`
+      const url = `${this.$axios.defaults.baseURL}/panel-sexual/solicitud/${solicitud.panel_sexual?.code}/pdf`
       window.open(url, '_blank')
     },
     printCultivoAntibiograma(solicitud) {
