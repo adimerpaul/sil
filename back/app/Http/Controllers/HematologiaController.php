@@ -62,6 +62,10 @@ class HematologiaController extends Controller
             ['solicitude_id' => $solicitudeId],
             $data
         );
+        $soliditude = Solicitude::find($solicitudeId);
+        $soliditude->estado = 'ANALIZADO';
+        $soliditude->fecha_finalizacion = now();
+        $soliditude->save();
 
         return response()->json($hematologia);
     }
@@ -112,6 +116,7 @@ class HematologiaController extends Controller
         $qrSvgBase64 = base64_encode(
             QrCode::format('svg')->size(110)->margin(1)->generate($url)
         );
+//        return $solicitud->preAnaliticaMuestras;
 
         // 6) generar PDF
         $pdf = Pdf::loadView('pdf.hematologia', [

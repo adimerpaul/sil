@@ -96,6 +96,10 @@ class QuimicaSanguineaController extends Controller
             ['solicitude_id' => $solicitudeId],
             $data
         );
+        $soliditude = Solicitude::find($solicitudeId);
+        $soliditude->estado = 'ANALIZADO';
+        $soliditude->fecha_finalizacion = now();
+        $soliditude->save();
 
         return response()->json($quimica);
     }

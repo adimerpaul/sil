@@ -204,14 +204,20 @@
             <td colspan="3"><div class="line clip">{{ $solicitud->diagnostico_select ?? '-' }}</div></td>
         </tr>
         <tr>
-            <td><span class="label">TIPO MUESTRA:</span></td>
-            <td><div class="line clip">{{ $solicitud->muestra_identificacion ?? 'SANGRE / COÁGULO' }}</div></td>
+            <td colspan="2"><span class="label">CODIGO MUESTRA:</span></td>
+            <td colspan="6" class="line clip">
+                {{ $solicitud->codigo ?? '-' }}-{{ $solicitud->nro_registro ?? '-' }}
+            </td>
         </tr>
         <tr>
             <td><span class="label">EST. DE SALUD:</span></td>
             <td colspan="3"><div class="line clip">{{ $solicitud->establecimiento_salud ?? '-' }}</div></td>
-            <td><span class="label">CI:</span></td>
-            <td><div class="line clip">{{ $solicitud->paciente_ci ?? '-' }}</div></td>
+            <td colspan="2"><span class="label">FECHA DE RESULTADO:</span></td>
+            <td colspan="2">
+                <div class="line clip">
+                    {{ $solicitud->fecha_finalizacion ?? '-' }}
+                </div>
+            </td>
         </tr>
     </table>
 

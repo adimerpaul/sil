@@ -33,6 +33,11 @@ class InmunologiaController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
+        $soliditude = Solicitude::find($solicitudeId);
+        $soliditude->estado = 'ANALIZADO';
+        $soliditude->fecha_finalizacion = now();
+        $soliditude->save();
+
         return response()->json([
             'solicitud'      => $solicitud,
             'disponibles'    => $disponibles,

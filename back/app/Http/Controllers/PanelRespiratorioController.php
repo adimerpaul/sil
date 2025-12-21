@@ -60,6 +60,10 @@ class PanelRespiratorioController extends Controller
             ['solicitude_id' => $id],
             $data
         );
+        $soliditude = Solicitude::find($id);
+        $soliditude->estado = 'ANALIZADO';
+        $soliditude->fecha_finalizacion = now();
+        $soliditude->save();
 
         return response()->json($registro);
     }

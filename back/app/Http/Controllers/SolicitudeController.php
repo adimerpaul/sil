@@ -257,7 +257,7 @@ class SolicitudeController extends Controller
             'panelSexual',
             'cultivoAntibiograma',
             ])
-            ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO']);
+            ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO','ANALIZADO']);
 
         $user = $request->user();
 

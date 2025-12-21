@@ -36,6 +36,10 @@ class PanelSexualController extends Controller
         foreach ($defaults as $k => $v) {
             if (empty($panel->{$k})) $panel->{$k} = $v;
         }
+        $soliditude = Solicitude::find($id);
+        $soliditude->estado = 'ANALIZADO';
+        $soliditude->fecha_finalizacion = now();
+        $soliditude->save();
 
         return response()->json([
             'solicitud' => $solicitud,

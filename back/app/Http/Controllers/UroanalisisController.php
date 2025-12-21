@@ -48,6 +48,11 @@ class UroanalisisController extends Controller
             $data
         );
 
+        $soliditude = Solicitude::find($solicitudeId);
+        $soliditude->estado = 'ANALIZADO';
+        $soliditude->fecha_finalizacion = now();
+        $soliditude->save();
+
         return response()->json($uro);
     }
 
