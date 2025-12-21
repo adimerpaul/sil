@@ -61,6 +61,9 @@ class Hematologia extends Model implements AuditableContract
         'metodo',
         'equipo',
         'code',
+        'serie_roja',
+        'serie_blanca',
+        'serie_plaqueta'
     ];
 
     protected $hidden = [

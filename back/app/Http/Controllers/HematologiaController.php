@@ -78,31 +78,42 @@ class HematologiaController extends Controller
     }
     public function pdfBySolicitude($code)
     {
+        // 1) buscar solicitud por code en hematología
         $solicitudeId = Hematologia::where('code', $code)->value('solicitude_id');
+        if (!$solicitudeId) {
+            abort(404, 'No se encontró la solicitud para ese código.');
+        }
+
+        // 2) solicitud con relaciones
         $solicitud = Solicitude::with([
             'paciente',
             'doctor',
             'servicios.area',
         ])->findOrFail($solicitudeId);
-//        return $solicitud;
 
+        // 3) hematología
         $hematologia = Hematologia::where('solicitude_id', $solicitudeId)->first();
 
-        // Área Hematología para rangos (ajusta título si en tu BD es distinto)
+        // Si quieres que nunca sea null:
+        // $hematologia = Hematologia::firstOrNew(['solicitude_id' => $solicitudeId]);
+
+        // 4) rangos del área Hematología
         $areaHemato = Area::where('title', 'HEMATOLOGÍA')
             ->orWhere('title', 'Hematología')
             ->first();
-
-        $url = url("/api/hematologia/solicitud/{$code}/pdf");
-        $qrSvgBase64 = base64_encode(
-            QrCode::format('svg')->size(110)->margin(1)->generate($url)
-        );
 
         $rangos = [];
         if ($areaHemato) {
             $rangos = $areaHemato->rangos()->orderBy('id')->get();
         }
 
+        // 5) QR apuntando al mismo PDF
+        $url = url("/api/hematologia/solicitud/{$code}/pdf");
+        $qrSvgBase64 = base64_encode(
+            QrCode::format('svg')->size(110)->margin(1)->generate($url)
+        );
+
+        // 6) generar PDF
         $pdf = Pdf::loadView('pdf.hematologia', [
             'solicitud'   => $solicitud,
             'hematologia' => $hematologia,
@@ -111,6 +122,7 @@ class HematologiaController extends Controller
             'qrUrl'       => $url,
         ])->setPaper('letter', 'landscape');
 
-        return $pdf->stream('HEMATOLOGIA_'.$solicitud->nro_registro.'.pdf');
+        $nro = $solicitud->nro_registro ?? $solicitud->id;
+        return $pdf->stream('HEMATOLOGIA_'.$nro.'.pdf');
     }
 }

@@ -87,6 +87,10 @@ return new class extends Migration
             $table->string('equipo', 100)->nullable();
             $table->string('code', 100)->nullable();
 
+            $table->text('serie_roja')->nullable();
+            $table->text('serie_blanca')->nullable();
+            $table->text('serie_plaqueta')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
 

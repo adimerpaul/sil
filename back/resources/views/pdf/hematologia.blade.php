@@ -2,7 +2,6 @@
 <html lang="es">
 <head>
     <meta charset="utf-8">
-
     <style>
         @page { size: letter landscape; margin: 10px 12px; }
         * { box-sizing: border-box; }
@@ -15,57 +14,29 @@
             line-height: 1;
         }
 
-        /* 2 columnas */
-        .sheet{
-            width:100%;
-            overflow:hidden;
-        }
-        .half{
-            width:48%;
-            float:left;
-            overflow:hidden;
-            padding:0;
-        }
-
-        /* Ajusta tamaño aquí (más grande = más cerca a 1.05) */
-        .half-left{
-            transform: scale(1.02);
-            transform-origin: top left;
-            padding-right: 6px;
-        }
-        .half-right{
-            transform: scale(1.02);
-            transform-origin: top left;
-            padding-left: 6px;
-        }
-
-        /* ====== TIPOS ====== */
         .title { font-weight:700; font-size: 10.2px; text-align:center; }
         .subtitle { font-size: 8px; text-align:center; margin-top: 1px; }
         .muted { color:#555; }
-
-        /* ====== LÍNEAS / CAJAS ====== */
-        .hr { border-top: 1.8px solid #111; margin: 2px 0; }
-        .box { border: 1px solid #111; padding: 3px 4px; }
         .small { font-size: 7.6px; }
         .center { text-align:center; }
         .right { text-align:right; }
 
-        /* ====== TABLAS ====== */
-        table{ width:100%; border-collapse: collapse; table-layout: fixed; }
-        th, td{ border:1px solid #111; padding: 1.8px 3px; vertical-align: middle; }
-        th{ background:#f2f2f2; font-weight:700; font-size: 7.8px; }
-        .no-border td, .no-border th{ border:none; padding:0; }
+        .hr { border-top: 1.8px solid #111; margin: 2px 0; }
 
-        .section{ margin-top: 4px; }
-        .section h3{
-            margin: 0 0 2px;
-            font-size: 8.2px;
+        .section-title{
+            margin-top: 2px;
+            margin-bottom: 1px;
+            font-size: 8px;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: .2px;
+            letter-spacing: .25px;
         }
 
-        /* ====== FORM ====== */
+        table{ width:100%; border-collapse: collapse; table-layout: fixed; }
+        th, td{ border:1px solid #111; padding: 1px 2px; vertical-align: middle; }
+        th{ background:#f2f2f2; font-weight:700; font-size: 7px; }
+        .no-border td, .no-border th{ border:none; padding:0; }
+
         .form-grid td{
             border:none;
             padding: 2px 3px 2px 0;
@@ -82,19 +53,15 @@
 
         img{ max-width: 100%; }
         .clip{ overflow:hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .out-range{ color: #c10015; font-weight: 700; }
 
-        /* ====== FUERA DE RANGO ====== */
-        .out-range{
-            color: #c10015;
-            font-weight: 700;
-        }
+        /* ✅ layout estable en DomPDF */
+        .sheet-table { width:100%; border-collapse: collapse; }
+        .sheet-table td { border:none; vertical-align: top; }
+        .half-cell { width:50%; padding: 0 6px; }
 
-        /* Limpieza float */
-        .clearfix::after{
-            content:"";
-            display:block;
-            clear:both;
-        }
+        /* evita cortes raros */
+        .block { page-break-inside: avoid; }
     </style>
 </head>
 
@@ -140,290 +107,403 @@
 
         return false;
     };
+
+    /* =========================
+       HELPERS: SERVICIOS
+       ========================= */
+    $norm = function($v){
+        $v = (string)($v ?? '');
+        $v = preg_replace('/\s+/u', ' ', trim($v));
+        return mb_strtolower($v);
+    };
+
+    $canServicios = function($can) use ($solicitud, $norm) {
+        $servicios = $solicitud->servicios ?? [];
+        if (!is_iterable($servicios)) return false;
+
+        $targets = is_array($can) ? $can : [$can];
+        $wanted = array_map($norm, $targets);
+
+        foreach ($servicios as $s) {
+            $sn = $norm($s->nombre ?? '');
+            if (in_array($sn, $wanted, true)) return true;
+        }
+        return false;
+    };
+
+    /* =========================
+       FLAGS DE SECCIÓN
+       ========================= */
+    $showHemograma = true;
+        // ✅ aquí YA NO pongo "|| true" para que se oculte si no está el servicio
+
+    $showIndices = $canServicios('ÍNDICES HEMATIMÉTRICOS');
+    $showDiferencial = $canServicios('HEMOGRAMA COMPLETO+ PLAQUETAS');
+
+    $showCoagulograma = $canServicios([
+        'COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)',
+        'TIEMPO DE PROTROMBINA (TP)',
+        'TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)'
+    ]);
+
+    $showOtros = $canServicios(['FIBRINÓGENO','RECUENTO DE RETICULOCITOS']);
+    $showFrotis = $canServicios('FROTIS SANGUÍNEO/LEUCOGRAMA');
+
+    /* =========================
+       RENDER 1 COPIA (para duplicar)
+       ========================= */
+    $renderHalf = function() use (
+        $solicitud, $hematologia, $rangos, $qrSvgBase64,
+        $canServicios, $outOfRange, $rangoTexto, $rangoUnidad,
+        $showHemograma, $showIndices, $showDiferencial, $showCoagulograma, $showOtros, $showFrotis
+    ){
+        ob_start();
 @endphp
 
-<div class="sheet clearfix">
+<div class="block">
+    <table class="no-border">
+        <tr>
+            <td style="width:15%;">
+                <img src="{{ public_path('img/logo-hospital.png') }}" style="width:58px;">
+            </td>
+            <td>
+                <div class="title">HOSPITAL GENERAL SAN JUAN DE DIOS ORURO BLOQUE CENTRAL</div>
+                <div class="subtitle muted">LABORATORIO DE ANÁLISIS CLÍNICO - MICROBIOLÓGICO</div>
+                <div class="subtitle muted small">Dirección: San Felipe entre 6 de Octubre y Tarija</div>
+                <div class="subtitle muted small">REGISTRO CONALAB: 001 &nbsp;&nbsp; REGISTRO CODELAB: 000004</div>
+            </td>
+            <td style="width:15%;" class="right">
+                <img src="{{ public_path('img/logo-labo.png') }}" style="width:58px;">
+            </td>
+        </tr>
+    </table>
 
-{{--    <!-- COPIA IZQUIERDA -->--}}
-{{--    <div class="half half-left">--}}
-{{--        @include('pdf.partials.hematologia_copia', [--}}
-{{--            'solicitud' => $solicitud,--}}
-{{--            'hematologia' => $hematologia,--}}
-{{--            'rangos' => $rangos,--}}
-{{--            'rangoTexto' => $rangoTexto,--}}
-{{--            'rangoUnidad' => $rangoUnidad,--}}
-{{--            'outOfRange' => $outOfRange,--}}
-{{--        ])--}}
-{{--    </div>--}}
+    <div class="hr"></div>
 
-{{--    <!-- COPIA DERECHA -->--}}
-{{--    <div class="half half-right">--}}
-{{--        @include('pdf.partials.hematologia_copia', [--}}
-{{--            'solicitud' => $solicitud,--}}
-{{--            'hematologia' => $hematologia,--}}
-{{--            'rangos' => $rangos,--}}
-{{--            'rangoTexto' => $rangoTexto,--}}
-{{--            'rangoUnidad' => $rangoUnidad,--}}
-{{--            'outOfRange' => $outOfRange,--}}
-{{--        ])--}}
-{{--    </div>--}}
-    @foreach(['left', 'right'] as $side)
-        <div class="half half-{{ $side }}" style="margin: 10px 6px;">
-            <!-- ===== HEADER ===== -->
-            <table class="no-border">
+    <table class="form-grid" style="margin-top:2px;">
+        <tr>
+            <td style="width:15%"><span class="label">CÓDIGO:</span></td>
+            <td style="width:10%"><div class="line clip">{{ $solicitud->codigo ?? $solicitud->id }}</div></td>
+            <td style="width:10%"><span class="label">ATENCION:</span></td>
+            <td style="width:15%"><div class="line clip">{{ $solicitud->tipo_atencion==='SI'?'SUS':'EXT' }}</div></td>
+            <td colspan="2" style="width:20%"><span class="label">NRO. REGISTRO:</span></td>
+            <td colspan="2" style="width:30%"><div class="line clip">{{ $solicitud->nro_registro ?? '-' }}</div></td>
+        </tr>
+        <tr>
+            <td><span class="label">PACIENTE:</span></td>
+            <td colspan="3"><div class="line clip">{{ $solicitud->paciente_nombre ?? '-' }}</div></td>
+            <td><span class="label">EDAD:</span></td>
+            <td><div class="line clip">{{ $solicitud->paciente_edad ?? '-' }}</div></td>
+            <td><span class="label">SEXO:</span></td>
+            <td><div class="line clip">{{ $solicitud->paciente_genero ?? '-' }}</div></td>
+        </tr>
+        <tr>
+            <td><span class="label">MEDICO SOL.:</span></td>
+            <<td colspan="3"><div class="line clip">{{ $solicitud->doctor_nombre ?? '-' }}</div></td>
+            <td ><span class="label">DX:</span></td>
+            <td colspan="3"><div class="line clip">{{ $solicitud->diagnostico_select ?? '-' }}</div></td>
+        </tr>
+        <tr>
+            <td><span class="label">TIPO MUESTRA:</span></td>
+            <td><div class="line clip">{{ $solicitud->muestra_identificacion ?? 'SANGRE / COÁGULO' }}</div></td>
+        </tr>
+        <tr>
+            <td><span class="label">EST. DE SALUD:</span></td>
+            <td colspan="3"><div class="line clip">{{ $solicitud->establecimiento_salud ?? '-' }}</div></td>
+            <td><span class="label">CI:</span></td>
+            <td><div class="line clip">{{ $solicitud->paciente_ci ?? '-' }}</div></td>
+        </tr>
+    </table>
+
+    <div class="center" style="margin-top:4px; font-weight:700; font-size:9px;">
+        HEMATOLOGÍA
+    </div>
+
+    <div class="center muted small" style="margin-top:1px;">
+        Equipo: {{ $solicitud->muestra_equipo ?? '—' }} · Método: {{ $hematologia->metodo ?? '—' }}
+    </div>
+
+    @if($showHemograma)
+        <div class="section-title">Hemograma</div>
+        <table>
+            <thead>
+            <tr>
+                <th style="width:38%;">ANALITO</th>
+                <th style="width:18%;" class="center">RESULTADO</th>
+                <th style="width:26%;" class="center">RANGO REF.</th>
+                <th style="width:18%;" class="center">UNIDAD</th>
+            </tr>
+            </thead>
+            <tbody>
+            @php
+//                $rowGR = $canServicios(['HEMOGRAMA COMPLETO+ PLAQUETAS','MORFOLOGÍA DE GLÓBULOS ROJOS']);
+//                $rowGB = $canServicios('HEMOGRAMA COMPLETO+ PLAQUETAS');
+//                $rowPL = $canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','HEMOGRAMA COMPLETO+ PLAQUETAS','RECUENTO DE PLAQUETAS']);
+//                $rowHB = $canServicios(['HEMOGRAMA COMPLETO+ PLAQUETAS','HEMATOCRITO Y HEMOGLOBINA']);
+//                $rowHT = $canServicios(['HEMOGRAMA COMPLETO+ PLAQUETAS','HEMATOCRITO Y HEMOGLOBINA']);
+            $rowGR = true;
+            $rowGB = true;
+            $rowPL = true;
+            $rowHB = true;
+            $rowHT = true;
+            @endphp
+
+            @if($rowGR)
                 <tr>
-                    <td style="width:15%;">
-                        <img src="{{ public_path('img/logo-hospital.png') }}" style="width:58px;">
+                    <td>Glóbulos rojos</td>
+                    <td class="center {{ $outOfRange('Globulos Rojos', $hematologia->globulos_rojos ?? null) ? 'out-range' : '' }}">
+                        {{ $hematologia->globulos_rojos ?? '' }}
                     </td>
-
-                    <td>
-                        <div class="title">HOSPITAL GENERAL SAN JUAN DE DIOS ORURO BLOQUE CENTRAL</div>
-                        <div class="subtitle muted">LABORATORIO DE ANÁLISIS CLÍNICO - MICROBIOLÓGICO</div>
-                        <div class="subtitle muted small">Dirección: San Felipe entre 6 de Octubre y Tarija</div>
-                        <div class="subtitle muted small">REGISTRO CONALAB: 001 &nbsp;&nbsp; REGISTRO CODELAB: 000004</div>
-                    </td>
-
-                    <td style="width:15%;" class="right">
-                        <img src="{{ public_path('img/logo-labo.png') }}" style="width:58px;">
-                    </td>
+                    <td class="center">{{ $rangoTexto('Globulos Rojos') }}</td>
+                    <td class="center">{{ $rangoUnidad('Globulos Rojos') }}</td>
                 </tr>
-            </table>
-
-            <div class="hr"></div>
-
-            <!-- ===== FORM ===== -->
-            <table class="form-grid" style="margin-top:2px;">
+            @endif
+            @if($rowGB)
                 <tr>
-                    <td style="width:18%"><span class="label">CÓDIGO:</span></td>
-                    <td style="width:32%"><div class="line clip">{{ $solicitud->codigo ?? $solicitud->id }}</div></td>
-                    <td style="width:20%"><span class="label">NRO. REGISTRO:</span></td>
-                    <td style="width:30%"><div class="line clip">{{ $solicitud->nro_registro ?? '-' }}</div></td>
-                </tr>
-
-                <tr>
-                    <td><span class="label">PACIENTE:</span></td>
-                    <td><div class="line clip">{{ $solicitud->paciente_nombre ?? '-' }}</div></td>
-                    <td><span class="label">EDAD:</span></td>
-                    <td><div class="line clip">{{ $solicitud->paciente_edad ?? '-' }}</div></td>
-                </tr>
-
-                <tr>
-                    <td><span class="label">MEDICO SOL.:</span></td>
-                    <td><div class="line clip">{{ $solicitud->doctor_nombre ?? '-' }}</div></td>
-                    <td><span class="label">SEXO:</span></td>
-                    <td><div class="line clip">{{ $solicitud->paciente_genero ?? '-' }}</div></td>
-                </tr>
-
-                <tr>
-                    <td><span class="label">FECHA SOL. MEDICO:</span></td>
-                    <td><div class="line clip">{{ $solicitud->fecha_solicitud ?? '-' }}</div></td>
-                    <td><span class="label">TIPO MUESTRA:</span></td>
-                    <td><div class="line clip">{{ $solicitud->muestra_identificacion ?? 'SANGRE / COÁGULO' }}</div></td>
-                </tr>
-
-                <tr>
-                    <td><span class="label">EST. DE SALUD:</span></td>
-                    <td><div class="line clip">{{ $solicitud->establecimiento_salud ?? '-' }}</div></td>
-                    <td><span class="label">CI:</span></td>
-                    <td><div class="line clip">{{ $solicitud->paciente_ci ?? '-' }}</div></td>
-                </tr>
-            </table>
-
-            <div class="section center" style="margin-top:4px; font-weight:700; font-size:9px;">
-                HEMATOLOGÍA
-            </div>
-
-            <div class="center muted small" style="margin-top:1px;">
-                Equipo: {{ $solicitud->muestra_equipo ?? '—' }} · Método: {{ $hematologia->metodo ?? '—' }}
-            </div>
-
-            <!-- ===== HEMOGRAMA BÁSICO ===== -->
-            <div class="section">
-                <h3>Hemograma básico</h3>
-                <table>
-                    <thead>
-                    <tr>
-                        <th style="width:38%;">PRUEBA</th>
-                        <th style="width:18%;" class="center">RESULTADO</th>
-                        <th style="width:18%;" class="center">UNIDAD</th>
-                        <th style="width:26%;" class="center">RANGO</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>Glóbulos rojos</td>
-                        <td class="center {{ $outOfRange('Glóbulos Rojos', $hematologia->globulos_rojos ?? null) ? 'out-range' : '' }}">
-                            {{ $hematologia->globulos_rojos ?? '' }}
-                        </td>
-                        <td class="center">{{ $rangoUnidad('Glóbulos Rojos') }}</td>
-                        <td class="center">{{ $rangoTexto('Glóbulos Rojos') }}</td>
-                    </tr>
-                    <tr>
-                        <td>Glóbulos blancos</td>
-                        <td class="center {{ $outOfRange('Glóbulos Blancos', $hematologia->globulos_blancos ?? null) ? 'out-range' : '' }}">
-                            {{ $hematologia->globulos_blancos ?? '' }}
-                        </td>
-                        <td class="center">{{ $rangoUnidad('Glóbulos Blancos') }}</td>
-                        <td class="center">{{ $rangoTexto('Glóbulos Blancos') }}</td>
-                    </tr>
-                    <tr>
-                        <td>Plaquetas</td>
-                        <td class="center {{ $outOfRange('Plaquetas', $hematologia->plaquetas ?? null) ? 'out-range' : '' }}">
-                            {{ $hematologia->plaquetas ?? '' }}
-                        </td>
-                        <td class="center">{{ $rangoUnidad('Plaquetas') }}</td>
-                        <td class="center">{{ $rangoTexto('Plaquetas') }}</td>
-                    </tr>
-                    <tr>
-                        <td>Hemoglobina</td>
-                        <td class="center {{ $outOfRange('Hemoglobina', $hematologia->hemoglobina ?? null) ? 'out-range' : '' }}">
-                            {{ $hematologia->hemoglobina ?? '' }}
-                        </td>
-                        <td class="center">{{ $rangoUnidad('Hemoglobina') }}</td>
-                        <td class="center">{{ $rangoTexto('Hemoglobina') }}</td>
-                    </tr>
-                    <tr>
-                        <td>Hematocrito</td>
-                        <td class="center {{ $outOfRange('Hematocrito', $hematologia->hematocrito ?? null) ? 'out-range' : '' }}">
-                            {{ $hematologia->hematocrito ?? '' }}
-                        </td>
-                        <td class="center">{{ $rangoUnidad('Hematocrito') }}</td>
-                        <td class="center">{{ $rangoTexto('Hematocrito') }}</td>
-                    </tr>
-                    <tr>
-                        <td>VCM</td>
-                        <td class="center {{ $outOfRange('VCM', $hematologia->vcm ?? null) ? 'out-range' : '' }}">
-                            {{ $hematologia->vcm ?? '' }}
-                        </td>
-                        <td class="center">{{ $rangoUnidad('VCM') }}</td>
-                        <td class="center">{{ $rangoTexto('VCM') }}</td>
-                    </tr>
-                    <tr>
-                        <td>HBCM</td>
-                        <td class="center {{ $outOfRange('HBCM', $hematologia->hbcm ?? null) ? 'out-range' : '' }}">
-                            {{ $hematologia->hbcm ?? '' }}
-                        </td>
-                        <td class="center">{{ $rangoUnidad('HBCM') }}</td>
-                        <td class="center">{{ $rangoTexto('HBCM') }}</td>
-                    </tr>
-                    <tr>
-                        <td>CHCM</td>
-                        <td class="center {{ $outOfRange('CHCM', $hematologia->chcm ?? null) ? 'out-range' : '' }}">
-                            {{ $hematologia->chcm ?? '' }}
-                        </td>
-                        <td class="center">{{ $rangoUnidad('CHCM') }}</td>
-                        <td class="center">{{ $rangoTexto('CHCM') }}</td>
-                    </tr>
-                    <tr>
-                        <td>Leucocitos totales</td>
-                        <td class="center {{ $outOfRange('Leucocitos Totales', $hematologia->leucocitos_totales ?? null) ? 'out-range' : '' }}">
-                            {{ $hematologia->leucocitos_totales ?? '' }}
-                        </td>
-                        <td class="center">{{ $rangoUnidad('Leucocitos Totales') }}</td>
-                        <td class="center">{{ $rangoTexto('Leucocitos Totales') }}</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- ===== DIFERENCIAL + COAGULOGRAMA ===== -->
-            <table class="no-border" style="margin-top:4px;">
-                <tr>
-                    <td style="width:62%; padding-right:4px;">
-                        <div class="section">
-                            <h3>Recuento diferencial</h3>
-                            <table>
-                                <thead>
-                                <tr>
-                                    <th style="width:40%;">CÉLULA</th>
-                                    <th style="width:18%;" class="center">%</th>
-                                    <th style="width:22%;" class="center">ABS</th>
-                                    <th style="width:20%;" class="center">REF%</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr><td>Basófilos</td><td class="center">{{ $hematologia->basofilos_porcentaje ?? '' }}</td><td class="center">{{ $hematologia->basofilos_absoluto ?? '' }}</td><td class="center">0–2</td></tr>
-                                <tr><td>Eosinófilos</td><td class="center">{{ $hematologia->eosinofilos_porcentaje ?? '' }}</td><td class="center">{{ $hematologia->eosinofilos_absoluto ?? '' }}</td><td class="center">0–6</td></tr>
-                                <tr><td>Cayados</td><td class="center">{{ $hematologia->cayados_porcentaje ?? '' }}</td><td class="center">{{ $hematologia->cayados_absoluto ?? '' }}</td><td class="center">&lt; 6</td></tr>
-                                <tr><td>Segmentados</td><td class="center">{{ $hematologia->segmentados_porcentaje ?? '' }}</td><td class="center">{{ $hematologia->segmentados_absoluto ?? '' }}</td><td class="center">40–70</td></tr>
-                                <tr><td>Linfocitos</td><td class="center">{{ $hematologia->linfocitos_porcentaje ?? '' }}</td><td class="center">{{ $hematologia->linfocitos_absoluto ?? '' }}</td><td class="center">20–45</td></tr>
-                                <tr><td>Monocitos</td><td class="center">{{ $hematologia->monocitos_porcentaje ?? '' }}</td><td class="center">{{ $hematologia->monocitos_absoluto ?? '' }}</td><td class="center">2–10</td></tr>
-                                <tr><td>Blastos</td><td class="center">{{ $hematologia->blastos_porcentaje ?? '' }}</td><td class="center">{{ $hematologia->blastos_absoluto ?? '' }}</td><td class="center">0</td></tr>
-                                <tr><td>Metamielocitos</td><td class="center">{{ $hematologia->metamielocitos_porcentaje ?? '' }}</td><td class="center">{{ $hematologia->metamielocitos_absoluto ?? '' }}</td><td class="center">0</td></tr>
-                                <tr><td>Eritroblastos</td><td class="center">{{ $hematologia->eritroblastos_porcentaje ?? '' }}</td><td class="center">{{ $hematologia->eritroblastos_absoluto ?? '' }}</td><td class="center">0</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <td>Glóbulos blancos</td>
+                    <td class="center {{ $outOfRange('Globulos Blancos (Leucocitos)', $hematologia->globulos_blancos ?? null) ? 'out-range' : '' }}">
+                        {{ $hematologia->globulos_blancos ?? '' }}
                     </td>
-
-                    <td style="width:38%;">
-                        <div class="section">
-                            <h3>Coagulograma</h3>
-                            <table>
-                                <thead>
-                                <tr>
-                                    <th style="width:48%;">PRUEBA</th>
-                                    <th style="width:22%;" class="center">RES</th>
-                                    <th style="width:30%;" class="center">REF</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr><td>TP</td><td class="center">{{ $hematologia->tiempo_protrombina ?? '' }}</td><td class="center">11–15</td></tr>
-                                <tr><td>Actividad</td><td class="center">{{ $hematologia->actividad_protrombina ?? '' }}</td><td class="center">70–100</td></tr>
-                                <tr><td>INR</td><td class="center">{{ $hematologia->inr ?? '' }}</td><td class="center">0.8–1.2</td></tr>
-                                <tr><td>APTT</td><td class="center">{{ $hematologia->aptt ?? '' }}</td><td class="center">24–35</td></tr>
-                                <tr><td>Fibrinógeno</td><td class="center">{{ $hematologia->fibrinogeno ?? '' }}</td><td class="center">2.0–4.0</td></tr>
-                                <tr><td>V.E.S</td><td class="center">{{ $hematologia->ves ?? '' }}</td><td class="center">&lt; 20</td></tr>
-                                </tbody>
-                            </table>
-
-                            <div class="section">
-                                <h3>Grupo sanguíneo</h3>
-                                <table>
-                                    <tr>
-                                        <td><b>ABO:</b> {{ $hematologia->grupo_sanguineo ?? '' }}</td>
-                                        <td><b>Rh:</b> {{ $hematologia->factor_rh ?? '' }}</td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                        </div>
-                    </td>
+                    <td class="center">{{ $rangoTexto('Globulos Blancos (Leucocitos)') }}</td>
+                    <td class="center">{{ $rangoUnidad('Globulos Blancos (Leucocitos)') }}</td>
                 </tr>
-            </table>
-
-            <!-- ===== MORFOLOGÍA ===== -->
-            <div class="section">
-                <h3>Morfología de eritrocitos</h3>
-                <div class="box" style="min-height:26px;">{{ $hematologia->morfologia_eritrocitos ?? '' }}</div>
-            </div>
-
-            <!-- ===== FIRMAS ===== -->
-            <table class="no-border" style="margin-top:6px;">
+            @endif
+            @if($rowPL)
                 <tr>
-                    <td class="center" style="width:33%;">
-                        ___________________________<br>
-                        <span class="muted small">Firma / Sello</span>
+                    <td>Plaquetas</td>
+                    <td class="center {{ $outOfRange('Plaquetas', $hematologia->plaquetas ?? null) ? 'out-range' : '' }}">
+                        {{ $hematologia->plaquetas ?? '' }}
                     </td>
-                    <td class="center" style="width:33%;">
-                        ___________________________<br>
-                        <span class="muted small">Bioquímico(a) / Responsable</span>
-                    </td>
-                    <td class="center" style="width:34%; position:relative;">
-                        @if(!empty($qrSvgBase64))
-                            <img
-                                src="data:image/svg+xml;base64,{{ $qrSvgBase64 }}"
-                                style="width:80px; height:80px;"
-                                alt="QR"
-                            >
-                        @endif
-                    </td>
+                    <td class="center">{{ $rangoTexto('Plaquetas') }}</td>
+                    <td class="center">{{ $rangoUnidad('Plaquetas') }}</td>
                 </tr>
-            </table>
-        </div>
-    @endforeach
+            @endif
+            @if($rowHB)
+                <tr>
+                    <td>Hemoglobina</td>
+                    <td class="center {{ $outOfRange('Hemoglobina', $hematologia->hemoglobina ?? null) ? 'out-range' : '' }}">
+                        {{ $hematologia->hemoglobina ?? '' }}
+                    </td>
+                    <td class="center">{{ $rangoTexto('Hemoglobina') }}</td>
+                    <td class="center">{{ $rangoUnidad('Hemoglobina') }}</td>
+                </tr>
+            @endif
+            @if($rowHT)
+                <tr>
+                    <td>Hematocrito</td>
+                    <td class="center {{ $outOfRange('Hematocrito', $hematologia->hematocrito ?? null) ? 'out-range' : '' }}">
+                        {{ $hematologia->hematocrito ?? '' }}
+                    </td>
+                    <td class="center">{{ $rangoTexto('Hematocrito') }}</td>
+                    <td class="center">{{ $rangoUnidad('Hematocrito') }}</td>
+                </tr>
+            @endif
+            </tbody>
+        </table>
+    @endif
 
+    @if($showIndices)
+        <div class="section-title">Índices hematimétricos</div>
+        <table>
+            <thead>
+            <tr>
+                <th style="width:38%;">ANALITO</th>
+                <th style="width:18%;" class="center">RESULTADO</th>
+                <th style="width:26%;" class="center">RANGO REF.</th>
+                <th style="width:18%;" class="center">UNIDAD</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>VCM</td>
+                <td class="center {{ $outOfRange('V.C.M.', $hematologia->vcm ?? null) ? 'out-range' : '' }}">{{ $hematologia->vcm ?? '' }}</td>
+                <td class="center">{{ $rangoTexto('V.C.M.') }}</td>
+                <td class="center">{{ $rangoUnidad('V.C.M.') }}</td>
+            </tr>
+            <tr>
+                <td>HBCM</td>
+                <td class="center {{ $outOfRange('Hb.C.M.', $hematologia->hbcm ?? null) ? 'out-range' : '' }}">{{ $hematologia->hbcm ?? '' }}</td>
+                <td class="center">{{ $rangoTexto('Hb.C.M.') }}</td>
+                <td class="center">{{ $rangoUnidad('Hb.C.M.') }}</td>
+            </tr>
+            <tr>
+                <td>CHCM</td>
+                <td class="center {{ $outOfRange('CHCM', $hematologia->chcm ?? null) ? 'out-range' : '' }}">{{ $hematologia->chcm ?? '' }}</td>
+                <td class="center">{{ $rangoTexto('CHCM') }}</td>
+                <td class="center">{{ $rangoUnidad('CHCM') }}</td>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+    @if($showDiferencial)
+        <div class="section-title">Recuento diferencial</div>
+        <table>
+            <thead>
+            <tr>
+                <th style="width:30%;">CÉLULA</th>
+                <th style="width:14%;" class="center">%</th>
+                <th style="width:18%;" class="center">ABS</th>
+                <th style="width:18%;" class="center">RANGO %</th>
+                <th style="width:20%;" class="center">RANGO ABS</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Basófilos</td>
+                <td class="center">{{ $hematologia->basofilos_porcentaje ?? '' }}</td>
+                <td class="center">{{ $hematologia->basofilos_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoTexto('Basofilos') }}</td>
+                <td class="center">{{ $rangoTexto('Basilos (Absoluto)') }}</td>
+            </tr>
+            <tr>
+                <td>Eosinófilos</td>
+                <td class="center">{{ $hematologia->eosinofilos_porcentaje ?? '' }}</td>
+                <td class="center">{{ $hematologia->eosinofilos_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoTexto('Eosinofilos') }}</td>
+                <td class="center">{{ $rangoTexto('Eosinofilos (Absoluto)') }}</td>
+            </tr>
+            <tr>
+                <td>Cayados</td>
+                <td class="center">{{ $hematologia->cayados_porcentaje ?? '' }}</td>
+                <td class="center">{{ $hematologia->cayados_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoTexto('Cayados') }}</td>
+                <td class="center">{{ $rangoTexto('Cayados (Absoluto)') }}</td>
+            </tr>
+            <tr>
+                <td>Segmentados</td>
+                <td class="center">{{ $hematologia->segmentados_porcentaje ?? '' }}</td>
+                <td class="center">{{ $hematologia->segmentados_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoTexto('Segmentados') }}</td>
+                <td class="center">{{ $rangoTexto('Segmentados (Absoluto)') }}</td>
+            </tr>
+            <tr>
+                <td>Linfocitos</td>
+                <td class="center">{{ $hematologia->linfocitos_porcentaje ?? '' }}</td>
+                <td class="center">{{ $hematologia->linfocitos_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoTexto('Linfocitos') }}</td>
+                <td class="center">{{ $rangoTexto('Linfocitos (Absoluto)') }}</td>
+            </tr>
+            <tr>
+                <td>Monocitos</td>
+                <td class="center">{{ $hematologia->monocitos_porcentaje ?? '' }}</td>
+                <td class="center">{{ $hematologia->monocitos_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoTexto('Monocitos') }}</td>
+                <td class="center">{{ $rangoTexto('Monocitos (Absoluto)') }}</td>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+    @if($showCoagulograma)
+        <div class="section-title">Coagulograma</div>
+        <table>
+            <thead>
+            <tr>
+                <th style="width:46%;">PRUEBA</th>
+                <th style="width:18%;" class="center">RESULTADO</th>
+                <th style="width:22%;" class="center">RANGO</th>
+                <th style="width:14%;" class="center">UNID.</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if($canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO DE PROTROMBINA (TP)']))
+                <tr><td>Tiempo de protrombina (TP)</td><td class="center">{{ $hematologia->tiempo_protrombina ?? '' }}</td><td class="center">11 – 15</td><td class="center">seg</td></tr>
+                <tr><td>Actividad de protrombina</td><td class="center">{{ $hematologia->actividad_protrombina ?? '' }}</td><td class="center">70 – 100</td><td class="center">%</td></tr>
+                <tr><td>INR</td><td class="center">{{ $hematologia->inr ?? '' }}</td><td class="center">0.8 – 1.2</td><td class="center">-</td></tr>
+            @endif
+            @if($canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)']))
+                <tr><td>APTT</td><td class="center">{{ $hematologia->aptt ?? '' }}</td><td class="center">24 – 35</td><td class="center">seg</td></tr>
+            @endif
+            </tbody>
+        </table>
+    @endif
+
+    @if($showOtros)
+        <div class="section-title">Otros</div>
+        <table>
+            <thead>
+            <tr>
+                <th style="width:46%;">PRUEBA</th>
+                <th style="width:18%;" class="center">RESULTADO</th>
+                <th style="width:22%;" class="center">RANGO</th>
+                <th style="width:14%;" class="center">UNID.</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if($canServicios('FIBRINÓGENO'))
+                <tr><td>Fibrinógeno</td><td class="center">{{ $hematologia->fibrinogeno ?? '' }}</td><td class="center">2.0 – 4.0</td><td class="center">g/L</td></tr>
+            @endif
+            @if($canServicios('RECUENTO DE RETICULOCITOS'))
+                <tr><td>IPR</td><td class="center">{{ $hematologia->ipr ?? '' }}</td><td class="center">{{ $rangoTexto('IPR') }}</td><td class="center">{{ $rangoUnidad('IPR') }}</td></tr>
+                <tr><td>Reticulocitos</td><td class="center">{{ $hematologia->ipr2 ?? '' }}</td><td class="center">{{ $rangoTexto('Reticulocitos') }}</td><td class="center">{{ $rangoUnidad('Reticulocitos') }}</td></tr>
+            @endif
+            </tbody>
+        </table>
+    @endif
+
+    @if($showFrotis)
+        <div class="section-title">Frotis</div>
+        <table>
+            <thead>
+            <tr>
+                <th style="width:33%;">SERIE ROJA</th>
+                <th style="width:33%;">SERIE BLANCA</th>
+                <th style="width:34%;">SERIE PLAQUETARIA</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td style="height:25px; vertical-align: top;font-size: 7px">{!! nl2br(e($hematologia->serie_roja ?? '')) !!}</td>
+                <td style="height:25px; vertical-align: top;font-size: 7px">{!! nl2br(e($hematologia->serie_blanca ?? '')) !!}</td>
+                <td style="height:25px; vertical-align: top;font-size: 7px">{!! nl2br(e($hematologia->serie_plaqueta ?? '')) !!}</td>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+    @if($canServicios('GRUPO SANGUÍNEO Y FACTOR'))
+        <div class="section-title">Grupo sanguíneo</div>
+        <table>
+            <tbody>
+            <tr>
+                <td><b>ABO:</b> {{ $hematologia->grupo_sanguineo ?? '' }}</td>
+                <td><b>Rh:</b> {{ $hematologia->factor_rh ?? '' }}</td>
+            </tr>
+            </tbody>
+        </table>
+    @endif
+
+    <table class="no-border" style="margin-top:6px;">
+        <tr>
+            <td class="center" style="width:33%;">
+                ___________________________<br>
+                <span class="muted small">Firma / Sello</span>
+            </td>
+            <td class="center" style="width:33%;">
+                ___________________________<br>
+                <span class="muted small">Bioquímico(a) / Responsable</span>
+            </td>
+            <td class="center" style="width:34%;">
+                @if(!empty($qrSvgBase64))
+                    <img src="data:image/svg+xml;base64,{{ $qrSvgBase64 }}" style="width:80px; height:80px;" alt="QR">
+                @endif
+            </td>
+        </tr>
+    </table>
 </div>
+
+@php
+    return ob_get_clean();
+};
+@endphp
+
+<table class="sheet-table">
+    <tr>
+        <td class="half-cell">{!! $renderHalf() !!}</td>
+        <td class="half-cell">{!! $renderHalf() !!}</td>
+    </tr>
+</table>
 
 </body>
 </html>

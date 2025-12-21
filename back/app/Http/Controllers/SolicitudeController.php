@@ -547,11 +547,14 @@ class SolicitudeController extends Controller
             $data['user_id'] = $request->user()->id;
         }
 
-//        error_log('establecimiento_salud: ' . $request->establecimiento_salud);
-        $EstablecimientoSalud = \App\Models\Establecimiento::where('nombre', $request->establecimiento_salud)->first();
-//        error_log('EstablecimientoSalud: ' . json_encode($EstablecimientoSalud));
-        if ($EstablecimientoSalud) {
-            $data['establecimiento_id'] = $EstablecimientoSalud->id;
+        error_log('establecimiento_salud: ' . $request->establecimiento_salud);
+        $establecimientoSalud = \App\Models\Establecimiento::where('nombre', $request->establecimiento_salud)->first();
+        error_log('EstablecimientoSalud: ' . json_encode($establecimientoSalud));
+        if ($establecimientoSalud) {
+            error_log('entro');
+            $data['establecimiento_id'] = $establecimientoSalud->id;
+        }else{
+            error_log('no entro');
         }
 
         $ci = $request->paciente_ci;
@@ -626,6 +629,9 @@ class SolicitudeController extends Controller
     public function update(Request $request, $id)
     {
         $solicitud = Solicitude::findOrFail($id);
+//        if (!empty($solicitud->codigo)) {
+//            return response()->json(['message' => 'No se puede modificar una solicitud que ya tiene código asignado'], 422);
+//        }
         $data = $request->all();
 
         $ci = $request->paciente_ci;
@@ -648,9 +654,21 @@ class SolicitudeController extends Controller
             }
         }
 
-        $solicitud->update($data);
+        $servicios = $request->input('servicios', []);
+        foreach ($servicios as $servicio) {
+//            $servicioSolicitud = Servicio::find($servicio['id']);
+            $newServicioSolicitud = new ServicioSolicitude();
+            $newServicioSolicitud->solicitude_id = $solicitud->id;
+            $newServicioSolicitud->servicio_id = $servicio['id'];
+            $newServicioSolicitud->area_id = $servicio['area_id'];
+            $newServicioSolicitud->precio = $servicio['precio'] ?? null;
+            $newServicioSolicitud->nombre = $servicio['nombre'] ?? '';
+            $newServicioSolicitud->save();
+        }
 
         $this->syncServicios($solicitud, $request->input('servicios', []));
+//        solitud uupte
+        $solicitud->update($data);
 
         return response()->json($solicitud->load(['paciente', 'doctor', 'servicios']));
     }
