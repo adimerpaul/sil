@@ -161,6 +161,9 @@
               :loading="loadingRowId === props.row.id"
               @click.stop="onGenerarCodigo(props.row)"
             />
+            <span v-else class="text-red text-bold">
+              Sin Enviar Muestra
+            </span>
           </q-td>
         </template>
 

@@ -889,6 +889,45 @@
             </tr>
             </tbody>
           </q-markup-table>
+            <div class="section-title q-mb-xs">FROTIS</div>
+            <div class="row">
+              <div class="col-12 col-md-4">
+                <q-input
+                  v-if="canServicios(['FROTIS SANGUÍNEO/LEUCOGRAMA','MORFOLOGÍA DE GLÓBULOS ROJOS'])"
+                  v-model="form.serie_roja"
+                  type="textarea"
+                  dense
+                  outlined
+                  autogrow
+                  class="bg-white q-mb-md"
+                  label="Serie roja"
+                />
+              </div>
+              <div class="col-12 col-md-4">
+                <q-input
+                  v-if="canServicios(['FROTIS SANGUÍNEO/LEUCOGRAMA'])"
+                  v-model="form.serie_blanca"
+                  type="textarea"
+                  dense
+                  outlined
+                  autogrow
+                  class="bg-white q-mb-md"
+                  label="Serie blanca"
+                />
+              </div>
+              <div class="col-12 col-md-4">
+                <q-input
+                  v-if="canServicios(['FROTIS SANGUÍNEO/LEUCOGRAMA'])"
+                  v-model="form.serie_plaqueta"
+                  type="textarea"
+                  dense
+                  outlined
+                  autogrow
+                  class="bg-white q-mb-md"
+                  label="Serie plaquetaria"
+                />
+              </div>
+            </div>
 
           <!-- GRUPO SANGUÍNEO -->
           <div class="row q-col-gutter-sm q-mb-md">
