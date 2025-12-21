@@ -77,6 +77,8 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'metodo',
         'equipo',
         'code',
+        'globulina',
+        'relacion_ag',
     ];
 
     protected $hidden = [

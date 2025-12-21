@@ -281,7 +281,7 @@
               <td>{{ solicitud.establecimiento_salud }}</td>
               <td>{{ solicitud.fecha_envio_analitica }}</td>
               <td>
-                <q-chip v-if="solicitud.estado === 'FINALIZADO'" color="green" text-color="white" dense>
+                <q-chip v-if="solicitud.estado === 'ANALIZADO'" color="green" text-color="white" dense>
                   Finalizado
                 </q-chip>
                 <q-chip v-else-if="solicitud.estado === 'ENVIADO_ANALITICA'" color="red" text-color="white" dense>

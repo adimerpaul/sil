@@ -85,6 +85,11 @@ return new class extends Migration
             $table->string('metodo', 100)->nullable();
             $table->string('equipo', 150)->nullable();
             $table->string('code', 100)->nullable();
+//            Globulina = Proteinas_Totales – Albumina
+//Relacion A/G= Albumina/Globulina
+            $table->decimal('globulina', 8, 2)->nullable();
+            $table->decimal('relacion_ag', 8, 2)->nullable();
+
 
             $table->softDeletes();
             $table->timestamps();

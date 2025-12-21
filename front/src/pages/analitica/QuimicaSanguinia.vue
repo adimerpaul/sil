@@ -135,30 +135,37 @@
                 <td>Ácido Úrico</td>
                 <td>
                   <q-input v-model.number="form.acido_urico" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('Ácido Úrico', form.acido_urico)" />
+                           :input-class="inputRangeClass('Acido Urico', form.acido_urico)" />
                 </td>
-                <td>{{ rangoTexto('Ácido Úrico') }}</td>
-                <td>{{ rangoUnidad('Ácido Úrico') }}</td>
+                <td>{{ rangoTexto('Acido Urico') }}</td>
+                <td>{{ rangoUnidad('Acido Urico') }}</td>
               </tr>
 
               <tr v-if="canServicios(['ALBUMINA','PROTEINOGRAMA (PROTEÍNAS TOTALES, ALBÚMINA, GLOBULINA)'])">
                 <td>Albúmina</td>
                 <td>
-                  <q-input v-model.number="form.albumina" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('Albúmina', form.albumina)" />
+                  <q-input
+                    v-model.number="form.albumina" dense outlined type="number" step="0.01"
+                    @update:model-value="
+                    form.globulina = form.proteinas_totales - form.albumina;
+                    form.relacion_ag = form.albumina / form.globulina
+"
+                           :input-class="inputRangeClass('Albumina', form.albumina)" />
                 </td>
-                <td>{{ rangoTexto('Albúmina') }}</td>
-                <td>{{ rangoUnidad('Albúmina') }}</td>
+                <td>{{ rangoTexto('Albumina') }}</td>
+                <td>{{ rangoUnidad('Albumina') }}</td>
               </tr>
 
               <tr v-if="canServicios(['PROTEINAS TOTALES','PROTEINOGRAMA (PROTEÍNAS TOTALES, ALBÚMINA, GLOBULINA)'])">
                 <td>Proteínas totales</td>
                 <td>
-                  <q-input v-model.number="form.proteinas_totales" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('Proteínas totales', form.proteinas_totales)" />
+                  <q-input
+                    v-model.number="form.proteinas_totales" dense outlined type="number" step="0.01"
+                    @update:model-value="form.globulina = form.proteinas_totales - form.albumina"
+                           :input-class="inputRangeClass('Proteinas totales', form.proteinas_totales)" />
                 </td>
-                <td>{{ rangoTexto('Proteínas totales') }}</td>
-                <td>{{ rangoUnidad('Proteínas totales') }}</td>
+                <td>{{ rangoTexto('Proteinas totales') }}</td>
+                <td>{{ rangoUnidad('Proteinas totales') }}</td>
               </tr>
 
               <tr v-if="canServicios(['GLICEMIA','PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)','PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)'])">
@@ -200,6 +207,29 @@
                 <td>{{ rangoTexto('Creatinina') }}</td>
                 <td>{{ rangoUnidad('Creatinina') }}</td>
               </tr>
+<!--              Globulina = Proteinas_Totales – Albumina-->
+
+              <tr v-if="canServicios('PROTEINOGRAMA (PROTEÍNAS TOTALES, ALBÚMINA, GLOBULINA)')">
+                <td>Globulina</td>
+                <td>
+                  <!--              Relacion A/G= Albumina/Globulina-->
+                  <q-input
+                    v-model.number="form.globulina" dense outlined type="number" step="0.01"
+                    @update:model-value="form.relacion_ag = form.albumina / form.globulina"
+                           :input-class="inputRangeClass('Globulina', form.globulina)" />
+                </td>
+                <td>{{ rangoTexto('Globulina') }}</td>
+                <td>{{ rangoUnidad('Globulina') }}</td>
+              </tr>
+              <tr v-if="canServicios('PROTEINOGRAMA (PROTEÍNAS TOTALES, ALBÚMINA, GLOBULINA)')">
+                <td>Relación A/G</td>
+                <td>
+                  <q-input v-model.number="form.relacion_ag" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('Relación A/G', form.relacion_ag)" />
+                </td>
+                <td>{{ rangoTexto('Relación A/G') }}</td>
+                <td>{{ rangoUnidad('Relación A/G') }}</td>
+              </tr>
               </tbody>
             </q-markup-table>
           </div>
@@ -234,7 +264,10 @@
               <tr v-if="canServicios(['BILIRRUBINAS TOTALES Y FRACCIONADAS','PERFIL HEPÁTICO O HEPATOGRAMA (BILIRRUBINAS TOTALES Y FRACCIONADAS, FOSFATASA ALCALINA, GOT, GPT, GGT, TP)'])">
                 <td>Bilirrubina Total</td>
                 <td>
-                  <q-input v-model.number="form.bilirrubina_total" dense outlined type="number" step="0.01"
+<!--                  Bilirrubina Indirecta = Bilirrubina Total - Bilirrubina Directa-->
+                  <q-input
+                    v-model.number="form.bilirrubina_total" dense outlined type="number" step="0.01"
+                    @update:model-value="form.bilirrubina_indirecta = form.bilirrubina_total - form.bilirrubina_directa"
                            :input-class="inputRangeClass('Bilirrubina Total', form.bilirrubina_total)" />
                 </td>
                 <td>{{ rangoTexto('Bilirrubina Total') }}</td>
@@ -244,7 +277,10 @@
               <tr v-if="canServicios(['BILIRRUBINAS TOTALES Y FRACCIONADAS','PERFIL HEPÁTICO O HEPATOGRAMA (BILIRRUBINAS TOTALES Y FRACCIONADAS, FOSFATASA ALCALINA, GOT, GPT, GGT, TP)'])">
                 <td>Bilirrubina Directa</td>
                 <td>
-                  <q-input v-model.number="form.bilirrubina_directa" dense outlined type="number" step="0.01"
+<!--                  Bilirrubina Indirecta = Bilirrubina Total - Bilirrubina Directa-->
+                  <q-input
+                    v-model.number="form.bilirrubina_directa" dense outlined type="number" step="0.01"
+                    @update:model-value="form.bilirrubina_indirecta = form.bilirrubina_total - form.bilirrubina_directa"
                            :input-class="inputRangeClass('Bilirrubina Directa', form.bilirrubina_directa)" />
                 </td>
                 <td>{{ rangoTexto('Bilirrubina Directa') }}</td>
