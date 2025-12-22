@@ -11,12 +11,12 @@
         body{
             margin:0; padding:0;
             font-family: DejaVu Sans, sans-serif;
-            font-size: 7.2px;
+            font-size: 7px;
             line-height: 1.08;
             color:#111;
         }
 
-        .hr{ border-top:1.4px solid #111; margin:2px 0; }
+        /*.hr{ border-top:1.4px solid #111; margin:2px 0; }*/
         .muted{ color:#666; }
         .bold{ font-weight:700; }
         .center{ text-align:center; }
@@ -76,7 +76,7 @@
         .w-rango{ width:26%; }
 
         /* evitar cortes */
-        table, tr, td, th, .block { page-break-inside: avoid; }
+        /*table, tr, td, th, .block { page-break-inside: avoid; }*/
     </style>
 </head>
 
@@ -112,58 +112,11 @@
       return $obj->$field ?? '';
     }
 @endphp
-<table style="width: 100%; border-collapse:collapse; table-layout:fixed;">
+<table >
     <tr>
             @foreach(['izq','der'] as $side)
             <td style="width: 50%; vertical-align:top; padding:0 4px;">
-                <!-- ===================== HEADER ===================== -->
-                <table class="no-border">
-                    <tr>
-                        <td style="width:12%">
-                            @if(file_exists(public_path('img/logo-hospital.png')))
-                                <img src="{{ public_path('img/logo-hospital.png') }}" style="width:48px">
-                            @endif
-                        </td>
-                        <td class="center">
-                            <div style="font-size:9px;font-weight:700;">HOSPITAL GENERAL SAN JUAN DE DIOS ORURO</div>
-                            <div class="small muted">LABORATORIO DE ANÁLISIS CLÍNICO - MICROBIOLÓGICO</div>
-                            <div class="small muted">San Felipe entre 6 de Octubre y Tarija</div>
-                        </td>
-                        <td style="width:12%" class="right">
-                            @if(file_exists(public_path('img/logo-labo.png')))
-                                <img src="{{ public_path('img/logo-labo.png') }}" style="width:48px">
-                            @endif
-                        </td>
-                    </tr>
-                </table>
-
-                <div class="hr"></div>
-
-                <!-- ===================== DATOS PACIENTE ===================== -->
-                <table class="tbl" style="margin-bottom:3px;">
-                    <tr>
-                        <td style="width:10%" class="bold">Paciente</td>
-                        <td style="width:40%">{{ $solicitud->paciente_nombre ?? optional($solicitud->paciente)->nombre_completo ?? '-' }}</td>
-                        <td style="width:8%" class="bold">CI</td>
-                        <td style="width:18%">{{ $solicitud->paciente_ci ?? optional($solicitud->paciente)->ci ?? '-' }}</td>
-                        <td style="width:8%" class="bold">N°</td>
-                        <td style="width:16%">{{ $solicitud->nro_registro ?? $solicitud->id ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="bold">Edad</td>
-                        <td>{{ $solicitud->paciente_edad ?? optional($solicitud->paciente)->edad ?? '-' }}</td>
-                        <td class="bold">Sexo</td>
-                        <td>{{ $solicitud->paciente_genero ?? optional($solicitud->paciente)->genero ?? '-' }}</td>
-                        <td class="bold">Fecha</td>
-                        <td>{{ $solicitud->fecha_solicitud ?? $solicitud->date ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="bold">Médico</td>
-                        <td colspan="3">{{ $solicitud->doctor_nombre ?? optional($solicitud->doctor)->nombre ?? '-' }}</td>
-                        <td class="bold">Estado</td>
-                        <td>{{ $solicitud->estado ?? '-' }}</td>
-                    </tr>
-                </table>
+                {!! view('components.header', ['solicitud' => $solicitud])->render() !!}
 
                 <div class="center bold" style="font-size:8px; margin:2px 0;">QUÍMICA SANGUÍNEA</div>
                 <div class="center small muted">
@@ -177,7 +130,7 @@
                         <td class="col">
 
                             <!-- Química sanguínea básica -->
-                            <div class="block">
+                            <div >
                                 <div class="title">Química sanguínea básica</div>
                                 <div class="body">
                                     <table class="tbl">
@@ -215,7 +168,7 @@
                             </div>
 
                             <!-- Perfil lipídico -->
-                            <div class="block">
+                            <div >
                                 <div class="title">Perfil lipídico</div>
                                 <div class="body">
                                     <table class="tbl">
@@ -256,7 +209,7 @@
                         <td class="col">
 
                             <!-- Enzimas hepáticas y bilirrubinas -->
-                            <div class="block">
+                            <div >
                                 <div class="title">Enzimas hepáticas y bilirrubinas</div>
                                 <div class="body">
                                     <table class="tbl">
@@ -295,7 +248,7 @@
                             </div>
 
                             <!-- Electrolitos y minerales -->
-                            <div class="block">
+                            <div >
                                 <div class="title">Electrolitos y minerales</div>
                                 <div class="body">
                                     <table class="tbl">
@@ -347,7 +300,7 @@
                                 <tr>
                                     <td class="col">
 
-                                        <div class="block">
+                                        <div >
                                             <div class="title">Orina de 24 horas</div>
                                             <div class="body">
                                                 <table class="tbl">
@@ -384,7 +337,7 @@
 
                                     <td class="col">
 
-                                        <div class="block">
+                                        <div >
                                             <div class="title">Control glucémico</div>
                                             <div class="body">
                                                 <table class="tbl">
@@ -421,7 +374,7 @@
                             </table>
 
                             <!-- Serológicos full ancho -->
-                            <div class="block">
+                            <div >
                                 <div class="title">Pruebas serológicas</div>
                                 <div class="body">
                                     <table class="tbl">
@@ -459,7 +412,7 @@
                             </div>
 
                             <!-- Observaciones / Metodo / Equipo -->
-                            <div class="block">
+                            <div >
                                 <div class="title">Observaciones / Método / Equipo</div>
                                 <div class="body">
                                     <table class="tbl">

@@ -50,65 +50,7 @@
     @foreach(['left','right'] as $side)
         <div class="half half-{{ $side }}" style="margin: 10px 6px;">
 
-            <!-- HEADER -->
-            <table class="no-border">
-                <tr>
-                    <td style="width:15%;">
-                        <img src="{{ public_path('img/logo-hospital.png') }}" style="width:58px;">
-                    </td>
-
-                    <td>
-                        <div class="title">HOSPITAL GENERAL SAN JUAN DE DIOS ORURO BLOQUE CENTRAL</div>
-                        <div class="subtitle muted">LABORATORIO DE ANÁLISIS CLÍNICO - MICROBIOLÓGICO</div>
-                        <div class="subtitle muted small">Dirección: San Felipe entre 6 de Octubre y Tarija</div>
-                        <div class="subtitle muted small">REGISTRO CONALAB: 001 &nbsp;&nbsp; REGISTRO CODELAB: 000004</div>
-                    </td>
-
-                    <td style="width:15%;" class="right">
-                        <img src="{{ public_path('img/logo-labo.png') }}" style="width:58px;">
-                    </td>
-                </tr>
-            </table>
-
-            <div class="hr"></div>
-
-            <!-- DATOS -->
-            <table class="form-grid" style="margin-top:2px;">
-                <tr>
-                    <td style="width:18%"><span class="label">CÓDIGO:</span></td>
-                    <td style="width:32%"><div class="line clip">{{ $solicitud->codigo ?? $solicitud->id }}</div></td>
-                    <td style="width:20%"><span class="label">NRO. REGISTRO:</span></td>
-                    <td style="width:30%"><div class="line clip">{{ $solicitud->nro_registro ?? '-' }}</div></td>
-                </tr>
-
-                <tr>
-                    <td><span class="label">PACIENTE:</span></td>
-                    <td><div class="line clip">{{ $solicitud->paciente_nombre ?? '-' }}</div></td>
-                    <td><span class="label">EDAD:</span></td>
-                    <td><div class="line clip">{{ $solicitud->paciente_edad ?? '-' }}</div></td>
-                </tr>
-
-                <tr>
-                    <td><span class="label">MEDICO SOL.:</span></td>
-                    <td><div class="line clip">{{ $solicitud->doctor_nombre ?? '-' }}</div></td>
-                    <td><span class="label">SEXO:</span></td>
-                    <td><div class="line clip">{{ $solicitud->paciente_genero ?? '-' }}</div></td>
-                </tr>
-
-                <tr>
-                    <td><span class="label">FECHA SOL. MEDICO:</span></td>
-                    <td><div class="line clip">{{ $solicitud->fecha_solicitud ?? '-' }}</div></td>
-                    <td><span class="label">TIPO MUESTRA:</span></td>
-                    <td><div class="line clip">{{ $solicitud->muestra_identificacion ?? 'HECES FECALES' }}</div></td>
-                </tr>
-
-                <tr>
-                    <td><span class="label">EST. DE SALUD:</span></td>
-                    <td><div class="line clip">{{ $solicitud->establecimiento_salud ?? '-' }}</div></td>
-                    <td><span class="label">CI:</span></td>
-                    <td><div class="line clip">{{ $solicitud->paciente_ci ?? '-' }}</div></td>
-                </tr>
-            </table>
+            {!! view('components.header', ['solicitud' => $solicitud])->render() !!}
 
             <div class="section center" style="margin-top:4px; font-weight:700; font-size:9px;">
                 PARASITOLOGÍA

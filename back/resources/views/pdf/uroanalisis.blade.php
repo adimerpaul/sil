@@ -9,7 +9,7 @@
         body{
             margin:0; padding:0;
             font-family: DejaVu Sans, sans-serif;
-            font-size: 9px;
+            font-size: 7px;
             color:#111;
             line-height: 1.05;
         }
@@ -22,10 +22,10 @@
         table { page-break-inside: avoid; }
         tr, td, th { page-break-inside: avoid; }
 
-        .title { font-weight:700; font-size: 10px; text-align:center; }
-        .subtitle { font-size: 7.8px; text-align:center; margin-top: 1px; }
+        .title { font-weight:700; font-size: 7px; text-align:center; }
+        .subtitle { font-size: 7px; text-align:center; margin-top: 1px; }
         .muted { color:#555; }
-        .small { font-size: 7.3px; }
+        .small { font-size: 7px; }
         .hr { border-top: 1.6px solid #111; margin: 2px 0; }
 
         table.inner{ width:100%; border-collapse: collapse; table-layout: fixed; }
@@ -37,7 +37,7 @@
         table.inner th{
             background:#f2f2f2;
             font-weight:700;
-            font-size: 7.6px;
+            font-size: 7px;
         }
 
         .no-border td, .no-border th{ border:none; padding:0; }
@@ -47,7 +47,7 @@
             border:none;
             padding: 2px 3px 2px 0;
             vertical-align: bottom;
-            font-size: 7.4px;
+            font-size: 7px;
         }
 
         .label{ font-weight:700; }
@@ -55,13 +55,13 @@
             border-bottom: 1px solid #111;
             height: 11px;
             padding: 0 3px;
-            font-size: 7.5px;
+            font-size: 7px;
         }
 
         .section{ margin-top: 3px; }
         .section h3{
             margin: 0 0 2px;
-            font-size: 8px;
+            font-size: 6px;
             text-transform: uppercase;
             letter-spacing: .2px;
         }
@@ -81,65 +81,7 @@
         <td class="col">
             @includeWhen(false, 'noop') {{-- solo para evitar warnings en algunos editores --}}
             @php $side = 'left'; @endphp
-            {{-- ====== CONTENIDO UROANÁLISIS (UNA COLUMNA) ====== --}}
-            <table class="no-border" style="width:100%;">
-                <tr>
-                    <td style="width:15%;">
-                        <img src="{{ public_path('img/logo-hospital.png') }}" style="width:58px;">
-                    </td>
-
-                    <td>
-                        <div class="title">HOSPITAL GENERAL SAN JUAN DE DIOS ORURO BLOQUE CENTRAL</div>
-                        <div class="subtitle muted">LABORATORIO DE ANÁLISIS CLÍNICO - MICROBIOLÓGICO</div>
-                        <div class="subtitle muted small">Dirección: San Felipe entre 6 de Octubre y Tarija</div>
-                        <div class="subtitle muted small">REGISTRO CONALAB: 001 &nbsp;&nbsp; REGISTRO CODELAB: 000004</div>
-                    </td>
-
-                    <td style="width:15%;" class="right">
-                        <img src="{{ public_path('img/logo-labo.png') }}" style="width:58px;">
-                    </td>
-                </tr>
-            </table>
-
-            <div class="hr"></div>
-
-            {{-- DATOS --}}
-            <table class="grid" style="margin-top:2px;">
-                <tr>
-                    <td style="width:18%"><span class="label">CÓDIGO:</span></td>
-                    <td style="width:32%"><div class="line">{{ $solicitud->codigo ?? $solicitud->id }}</div></td>
-                    <td style="width:20%"><span class="label">NRO. REGISTRO:</span></td>
-                    <td style="width:30%"><div class="line">{{ $solicitud->nro_registro ?? '-' }}</div></td>
-                </tr>
-
-                <tr>
-                    <td><span class="label">PACIENTE:</span></td>
-                    <td><div class="line">{{ $solicitud->paciente_nombre ?? '-' }}</div></td>
-                    <td><span class="label">EDAD:</span></td>
-                    <td><div class="line">{{ $solicitud->paciente_edad ?? '-' }}</div></td>
-                </tr>
-
-                <tr>
-                    <td><span class="label">MEDICO SOL.:</span></td>
-                    <td><div class="line">{{ $solicitud->doctor_nombre ?? '-' }}</div></td>
-                    <td><span class="label">SEXO:</span></td>
-                    <td><div class="line">{{ $solicitud->paciente_genero ?? '-' }}</div></td>
-                </tr>
-
-                <tr>
-                    <td><span class="label">FECHA SOL. MEDICO:</span></td>
-                    <td><div class="line">{{ $solicitud->fecha_solicitud ?? '-' }}</div></td>
-                    <td><span class="label">TIPO MUESTRA:</span></td>
-                    <td><div class="line">ORINA</div></td>
-                </tr>
-
-                <tr>
-                    <td><span class="label">EST. DE SALUD:</span></td>
-                    <td><div class="line">{{ $solicitud->establecimiento_salud ?? '-' }}</div></td>
-                    <td><span class="label">CI:</span></td>
-                    <td><div class="line">{{ $solicitud->paciente_ci ?? '-' }}</div></td>
-                </tr>
-            </table>
+            {!! view('components.header', ['solicitud' => $solicitud])->render() !!}
 
             <div class="section center" style="margin-top:4px; font-weight:700; font-size:9px;">
                 UROANÁLISIS
