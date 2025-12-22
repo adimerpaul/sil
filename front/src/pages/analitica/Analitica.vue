@@ -287,6 +287,10 @@
                 <q-chip v-else-if="solicitud.estado === 'ENVIADO_ANALITICA'" color="red" text-color="white" dense>
                   Recibido
                 </q-chip>
+<!--                MUESTRA RECHAZADA-->
+                <q-chip v-else-if="solicitud.estado === 'MUESTRA RECHAZADA'" color="orange" text-color="white" dense>
+                  Muestra Rechazada
+                </q-chip>
               </td>
               <td>
                 <ul style="padding-left: 1em; margin: 0;">
@@ -321,13 +325,13 @@ export default {
   },
   mounted () {
     this.analiticaGet()
-    if (!this.$store.socketAnalitica) {
-      this.$store.socketAnalitica = true
-      this.$socket.on('silSolicitud', msg => {
-        this.$alert.info('Nueva solicitud de analítica recibido.')
-        this.analiticaGet()
-      })
-    }
+    // if (!this.$store.socketAnalitica) {
+    //   this.$store.socketAnalitica = true
+    //   this.$socket.on('silSolicitud', msg => {
+    //     this.$alert.info('Nueva solicitud de analítica recibido.')
+    //     this.analiticaGet()
+    //   })
+    // }
   },
   methods: {
     printQuimica (solicitud) {

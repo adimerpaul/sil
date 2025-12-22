@@ -49,53 +49,109 @@
       </q-card-section>
 
       <q-separator />
+<!--      <table class="form-grid" style="margin-top:2px;">-->
+<!--        <tr>-->
+<!--          <td style="width:15%"><span class="label">CÓDIGO:</span></td>-->
+<!--          <td style="width:10%"><div class="line clip">{{ $solicitud->codigo ?? $solicitud->id }}</div></td>-->
+<!--          <td style="width:10%"><span class="label">ATENCION:</span></td>-->
+<!--          <td style="width:15%"><div class="line clip">{{ ($solicitud->tipo_atencion ?? '') === 'SI' ? 'SUS' : 'EXT' }}</div></td>-->
+<!--          <td colspan="2" style="width:20%"><span class="label">NRO. REGISTRO:</span></td>-->
+<!--          <td colspan="2" style="width:30%"><div class="line clip">{{ $solicitud->nro_registro ?? '-' }}</div></td>-->
+<!--        </tr>-->
 
-      <!-- DATOS SOLICITUD / PACIENTE (SIN COMPUTEDS, SIN FALLBACKS) -->
-      <q-card-section v-if="header" class="q-pa-sm">
+<!--        <tr>-->
+<!--          <td><span class="label">PACIENTE:</span></td>-->
+<!--          <td colspan="3"><div class="line clip">{{ $solicitud->paciente_nombre ?? '-' }}</div></td>-->
+<!--          <td><span class="label">EDAD:</span></td>-->
+<!--          <td><div class="line clip">{{ $solicitud->paciente_edad ?? '-' }}</div></td>-->
+<!--          <td><span class="label">SEXO:</span></td>-->
+<!--          <td><div class="line clip">{{ $solicitud->paciente_genero ?? '-' }}</div></td>-->
+<!--        </tr>-->
+
+<!--        <tr>-->
+<!--          <td><span class="label">MEDICO SOL.:</span></td>-->
+<!--          <td colspan="3"><div class="line clip">{{ $solicitud->doctor_nombre ?? '-' }}</div></td>-->
+<!--          <td><span class="label">DX:</span></td>-->
+<!--          <td colspan="3"><div class="line clip">{{ $solicitud->diagnostico_select ?? '-' }}</div></td>-->
+<!--        </tr>-->
+
+<!--        <tr>-->
+<!--          <td colspan="2"><span class="label">CODIGO MUESTRA:</span></td>-->
+<!--          <td colspan="6" class="line clip">-->
+<!--            {{ ($solicitud->codigo ?? '-') . '-' . ($solicitud->nro_registro ?? '-') }}-->
+<!--          </td>-->
+<!--        </tr>-->
+
+<!--        <tr>-->
+<!--          <td><span class="label">EST. DE SALUD:</span></td>-->
+<!--          <td colspan="3"><div class="line clip">{{ $solicitud->establecimiento_salud ?? '-' }}</div></td>-->
+<!--          <td colspan="2"><span class="label">FECHA DE RESULTADO:</span></td>-->
+<!--          <td colspan="2"><div class="line clip">{{ $solicitud->fecha_finalizacion ?? '-' }}</div></td>-->
+<!--        </tr>-->
+<!--      </table>-->
+      <q-card-section v-if="header" class="q-pa-sm bg-blue-1">
         <div class="row q-col-gutter-sm text-caption">
-          <div class="col-12 col-md-4">
-            <div class="text-grey-7">Paciente</div>
-            <div class="text-body2 text-weight-medium">
-              {{ header?.paciente?.nombre }}
-            </div>
-            <div class="text-grey-7 q-mt-xs">
-              Edad: <b>{{ header?.paciente?.edad }}</b> • Género: <b>{{ header?.paciente?.genero }}</b>
-            </div>
+          <div class="col-12 col-md-2">
+            <q-icon name="badge" class="q-mr-sm" color="blue" />
+            <span class="text-bold">CÓDIGO:</span>
+            <span class="line clip">{{ header.codigo || header.id }}</span>
           </div>
 
-          <div class="col-12 col-md-4">
-            <div class="text-grey-7">Médico solicitante</div>
-            <div class="text-body2 text-weight-medium">
-              {{ header?.doctor?.nombre }}
-            </div>
-            <div class="text-grey-7 q-mt-xs">
-              Fecha solicitud: <b>{{ header?.fecha_solicitud }}</b>
-            </div>
+          <div class="col-12 col-md-2">
+            <q-icon name="local_hospital" class="q-mr-sm" color="blue" />
+            <span class="text-bold">ATENCIÓN:</span> <span class="line clip">{{ (header.tipo_atencion || '') === 'SI' ? 'SUS' : 'EXT' }}</span>
           </div>
-
-          <div class="col-12 col-md-4">
-            <div class="text-grey-7">Solicitud</div>
-            <div class="row items-center q-col-gutter-xs q-mt-xs">
-              <div class="col-auto">
-                <q-chip square color="primary" text-color="white" dense>
-                  N° {{ header?.nro_registro }}
-                </q-chip>
-              </div>
-              <div class="col-auto">
-                <q-chip square outline color="primary" class="badge-estado" dense>
-                  {{ header?.estado }}
-                </q-chip>
-              </div>
-            </div>
+          <div class="col-12 col-md-3">
+            <q-icon name="assignment_ind" class="q-mr-sm" color="blue" />
+            <span class="text-bold">NRO. REGISTRO:</span>
+            <span class="line clip">{{ header.nro_registro || '-' }}</span>
           </div>
-
-          <!-- LISTA SERVICIOS -->
-          <div class="col-12">
-            <ul class="q-pl-md q-mt-none">
-              <li v-for="(s, index) in (header?.servicios || [])" :key="index">
-                {{ s.nombre }}
-              </li>
-            </ul>
+          <div class="col-12 col-md-5">
+            <q-icon name="person" class="q-mr-sm" color="blue" />
+            <span class="text-bold">PACIENTE:</span>
+            <span class="line clip">{{ header.paciente_nombre || '-' }}</span>
+          </div>
+          <div class="col-12 col-md-2">
+            <q-icon name="cake" class="q-mr-sm" color="blue" />
+            <span class="text-bold">EDAD:</span>
+            <span class="line clip">{{ header.paciente_edad || '-' }}</span>
+          </div>
+          <div class="col-12 col-md-2">
+            <q-icon name="wc" class="q-mr-sm" color="blue" />
+            <span class="text-bold">SEXO:</span>
+            <span class="line clip">{{ header.paciente_genero || '-' }}</span>
+          </div>
+          <div class="col-12 col-md-4">
+            <q-icon name="medical_services" class="q-mr-sm" color="blue" />
+            <span class="text-bold">MÉDICO SOL.:</span>
+            <span class="line clip">{{ header.doctor_nombre || '-' }}</span>
+          </div>
+          <div class="col-12 col-md-4">
+            <q-icon name="healing" class="q-mr-sm" color="blue" />
+            <span class="text-bold">DX:</span>
+            <span class="line clip">{{ header.diagnostico_select || '-' }}</span>
+          </div>
+          <div class="col-12 col-md-6">
+            <q-icon name="local_hospital" class="q-mr-sm" color="blue" />
+            <span class="text-bold">EST. DE SALUD:</span>
+            <span class="line clip">{{ header.establecimiento_salud || '-' }}</span>
+          </div>
+          <div class="col-12 col-md-6">
+            <q-icon name="event" class="q-mr-sm" color="blue" />
+            <span class="text-bold">CÓDIGO MUESTRA:    </span>
+            <span class="line clip" >
+              {{ `${header.codigo || '-'}-${header.nro_registro || '-'}` }}
+            </span>
+          </div>
+<!--          tiempo de creacion hasta finalizacion-->
+          <div class="col-12 col-md-6">
+            <q-icon name="schedule" class="q-mr-sm" color="blue" />
+            <span class="text-bold">TIEMPO: </span>
+<!--            <span class="line clip"> {{ tiempoTranscurrido }}</span>-->
+<!--            chip-->
+            <q-chip class="line clip" color="blue" text-color="white" size="xs">
+              {{ tiempoTranscurrido }}
+            </q-chip>
           </div>
         </div>
       </q-card-section>
@@ -959,15 +1015,44 @@
 
             <div class="col-12 col-sm-4">
               <div class="section-title q-mb-xs">Método / Equipo</div>
-              <q-input v-model="form.metodo" dense outlined class="bg-white q-mb-xs" label="Método (A, M, M/SA, etc.)" />
+<!--              <q-input v-model="form.metodo" dense outlined class="bg-white q-mb-xs" label="Método (A, M, M/SA, etc.)" />-->
+<!--              Automática SemiAutomática Manual-->
+              <q-select
+                v-model="form.metodo"
+                :options="['Automática', 'SemiAutomática', 'Manual']"
+                dense
+                outlined
+                clearable
+                class="bg-white"
+                label="Método"
+              />
+<!--              EQUIPO: Mindray 240 –STAT FAX 4500-RADIOMETER-->
+<!--              Mindray 3000-->
               <q-select
                 v-model="form.equipo"
-                :options="['Mindray BC 3000 Plus', 'Mindray BC 5130', 'Otro']"
+                :options="['Mindray BC 3000 Plus', 'Mindray BC 5130','Mindray 240 –STAT FAX 4500-RADIOMETER', 'Otro']"
                 dense
                 outlined
                 clearable
                 class="bg-white"
                 label="Equipo"
+              />
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="section-title q-mb-xs">Muestra rechazada</div>
+
+              <q-toggle v-model="form.muestra_rechazada" label="¿Muestra rechazada?" true-value="Si" false-value="No"
+                        @update:model-value="form.muestra_observacion = ''"
+              />
+            </div>
+            <div class="col-12 col-md-4" v-if="form.muestra_rechazada === 'Si'">
+              <div class="section-title q-mb-xs">Observación</div>
+              <q-input
+                v-model="form.muestra_observacion"
+                type="textarea"
+                dense
+                outlined
+                label="Observación de la muestra"
               />
             </div>
           </div>
@@ -988,6 +1073,8 @@
 </template>
 
 <script>
+import moment from "moment";
+
 export default {
   name: 'HematologiaPage',
   data () {
@@ -1114,11 +1201,26 @@ export default {
         grupo_sanguineo: '',
         factor_rh: '',
         metodo: '',
-        equipo: ''
+        equipo: '',
+        muestra_rechazada: 'No',
       }
     }
   },
-
+  computed: {
+    tiempoTranscurrido () {
+      console.log(this.header.fecha_creacion)
+      console.log(this.header.fecha_finalizacion)
+       // con monent forma h m s
+      const start = this.header ? moment(this.header.fecha_creacion) : null
+      const end = this.header && this.header.fecha_finalizacion ? moment(this.header.fecha_finalizacion) : moment()
+      if (!start || !end) return ''
+      const duration = moment.duration(end.diff(start))
+      const hours = Math.floor(duration.asHours())
+      const minutes = duration.minutes()
+      const seconds = duration.seconds()
+      return `${hours}h ${minutes}m ${seconds}s`
+    }
+  },
   mounted () {
     this.load()
     // tiempos sacar de tablaTP
@@ -1134,17 +1236,20 @@ export default {
       const hb = parseFloat(this.form.hemoglobina)
       const ht = parseFloat(this.form.hematocrito)
       if (!isNaN(gr) && !isNaN(ht) && ht !== 0) {
-        this.form.vcm = ((gr * 10) / ht)
+        // this.form.vcm = ((gr * 10) / ht) redondear a 2 decimales
+        this.form.vcm = parseFloat(((gr * 10) / ht).toFixed(2))
       } else {
         this.form.vcm = null
       }
       if (!isNaN(hb) && !isNaN(ht) && ht !== 0) {
-        this.form.hbcm = (hb / ht) / 10
+        // this.form.hbcm = (hb / ht) / 10
+        this.form.hbcm = parseFloat(((hb / ht) / 10).toFixed(2))
       } else {
         this.form.hbcm = null
       }
       if (!isNaN(gr) && !isNaN(hb) && hb !== 0) {
-        this.form.chcm = (gr * 10) / hb
+        // this.form.chcm = (gr * 10) / hb
+        this.form.chcm = parseFloat(((gr * 10)*1000 / hb).toFixed(2))
       } else {
         this.form.chcm = null
       }
@@ -1166,6 +1271,11 @@ export default {
         const { data } = await this.$axios.get(`/hematologia/solicitud/${this.solicitudId}`)
         this.header = data.solicitud || null
         this.form = Object.assign({}, this.form, data.hematologia || {})
+        // console.log(data.solicitud)
+        const muestra_rechazada = data.solicitud?.muestra_rechazada || 'No'
+        const muestra_observacion = data.solicitud?.muestra_observacion || ''
+        this.form.muestra_rechazada = muestra_rechazada
+        this.form.muestra_observacion = muestra_observacion
         this.rangos = data.rangos || []
         this.formLoaded = true
       } catch (e) {

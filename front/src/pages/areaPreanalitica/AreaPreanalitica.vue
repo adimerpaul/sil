@@ -782,11 +782,15 @@ export default {
       const dias = duracion.days();
       const horas = duracion.hours();
       const minutos = duracion.minutes();
+      const segundos = duracion.seconds();
 
       let resultado = '';
       if (dias > 0) resultado += `${dias} d `;
       if (horas > 0) resultado += `${horas} h `;
       if (minutos > 0) resultado += `${minutos} m`;
+      if (dias === 0 && horas === 0 && minutos === 0) {
+        resultado += `${segundos} s`;
+      }
 
       return resultado.trim();
     },

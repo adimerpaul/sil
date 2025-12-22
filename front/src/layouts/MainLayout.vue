@@ -191,7 +191,10 @@
           </q-item-section>
           <q-item-section>
             <q-item-label class="text-white">
-              {{$store.user.area?.name}}
+<!--              si el susatio role es adminsitrador colcaor Analitica-->
+              <span v-if="$store.user.role === 'Administrador'">Analítica</span>
+              <span v-else>Área {{$store.user.area?.name}}</span>
+<!--              {{$store.user.area?.name}}-->
             </q-item-label>
           </q-item-section>
         </q-item>

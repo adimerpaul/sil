@@ -723,6 +723,23 @@
               <div class="col-12 col-sm-8">
                 <q-input v-model="form.equipo" dense outlined class="bg-white" label="Equipo" />
               </div>
+              <div class="col-12 col-md-4">
+                <div class="section-title q-mb-xs">Muestra rechazada</div>
+
+                <q-toggle v-model="form.muestra_rechazada" label="¿Muestra rechazada?" true-value="Si" false-value="No"
+                          @update:model-value="form.muestra_observacion = ''"
+                />
+              </div>
+              <div class="col-12 col-md-4" v-if="form.muestra_rechazada === 'Si'">
+                <div class="section-title q-mb-xs">Observación</div>
+                <q-input
+                  v-model="form.muestra_observacion"
+                  type="textarea"
+                  dense
+                  outlined
+                  label="Observación de la muestra"
+                />
+              </div>
             </div>
           </div>
 
@@ -824,6 +841,10 @@ export default {
         const { data } = await this.$axios.get(`/quimica-sanguinea/solicitud/${this.solicitudId}`)
         this.header = data.solicitud || null
         this.form = Object.assign({}, this.form, data.quimica || {})
+        const muestra_rechazada = data.solicitud?.muestra_rechazada || 'No'
+        const muestra_observacion = data.solicitud?.muestra_observacion || ''
+        this.form.muestra_rechazada = muestra_rechazada
+        this.form.muestra_observacion = muestra_observacion
         this.rangos = data.rangos || []
         this.formLoaded = true
       } catch (e) {
