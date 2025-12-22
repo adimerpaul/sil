@@ -60,6 +60,8 @@ return new class extends Migration
             $table->string('doctor_telefono', 100)->nullable();
             $table->string('doctor_email')->nullable();
             $table->string('doctor_registro')->nullable();
+            $table->string('muestra_rechazada')->nullable();
+            $table->string('muestra_observacion')->nullable();
 
             $table->unsignedBigInteger('establecimiento_id')->nullable();
             $table->foreign('establecimiento_id')
