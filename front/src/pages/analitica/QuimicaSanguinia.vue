@@ -115,7 +115,8 @@
               'NITROGENO UREICO SERICO (NUS)',
               'CREATININA SÉRICA',
               'PERFIL RENAL (CREATININA SÉRICA, ÁCIDO ÚRICO, UREA)',
-              'PROTEINOGRAMA (PROTEÍNAS TOTALES, ALBÚMINA, GLOBULINA)'
+              'PROTEINOGRAMA (PROTEÍNAS TOTALES, ALBÚMINA, GLOBULINA)',
+              'CLEARENCE DE CREATININA'
             ])"
           >
             <div class="section-title q-mb-xs">Química sanguínea básica</div>
@@ -436,7 +437,8 @@
               'IONOGRAMA (NA,K,CL,CA,Mg,P)',
               'CALCIO',
               'FÓSFORO',
-              'MAGNESIO'
+              'MAGNESIO',
+              'HIERRO'
             ])"
           >
             <div class="section-title q-mb-xs">Electrolitos y minerales</div>
@@ -511,6 +513,15 @@
                 <td>{{ rangoTexto('Magnesio') }}</td>
                 <td>{{ rangoUnidad('Magnesio') }}</td>
               </tr>
+              <tr v-if="canServicios(['HIERRO'])">
+                <td>Hierro serico</td>
+                <td>
+                  <q-input v-model.number="form.hierro_serico" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('Hierro sérico', form.hierro_serico)" />
+                </td>
+                <td>{{ rangoTexto('Hierro sérico') }}</td>
+                <td>{{ rangoUnidad('Hierro sérico') }}</td>
+              </tr>
               </tbody>
             </q-markup-table>
           </div>
@@ -521,7 +532,8 @@
           <div
             v-if="hasAnyServicios([
               'CREATININA EN ORINA (CREATINURIA)',
-              'PROTEINURIA 24 HRS'
+              'PROTEINURIA 24 HRS',
+              'CLEARENCE DE CREATININA'
             ])"
           >
             <div class="section-title q-mb-xs">Orina de 24 horas</div>
@@ -557,7 +569,7 @@
                 <td>{{ rangoUnidad('Proteinuria de 24 hrs.') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['PROTEINURIA 24 HRS','CREATININA EN ORINA (CREATINURIA)'])">
+              <tr v-if="canServicios(['PROTEINURIA 24 HRS','CREATININA EN ORINA (CREATINURIA)','CLEARENCE DE CREATININA'])">
                 <td>Volumen 24 h</td>
                 <td>
                   <q-input v-model.number="form.volumen_24h" dense outlined type="number" step="0.01"
@@ -569,6 +581,76 @@
               </tbody>
             </q-markup-table>
           </div>
+<!--          7.	OTROS-->
+<!--          CK TOTAL-->
+<!--          CK MB-->
+<!--          LDH-->
+<!--          LIPASA-->
+          <!-- =======================
+               OTROS
+               ======================= -->
+          <div
+            v-if="hasAnyServicios([
+              'CK TOTAL',
+              'CK MB',
+              'LACTATO DESHIDROGENASA ( LDH )',
+              'LIPASA'
+              ])"
+          >
+            <div class="section-title q-mb-xs">Otros</div>
+
+            <q-markup-table dense flat bordered square class="bg-white q-mb-md">
+              <thead>
+              <tr>
+                <th class="text-left">Parámetro</th>
+                <th class="text-left">Resultado</th>
+                <th class="text-left">Rango de referencia</th>
+                <th class="text-left">Unidad</th>
+              </tr>
+              </thead>
+
+              <tbody>
+              <tr v-if="canServicios('CK TOTAL')">
+                <td>CK-Total</td>
+                <td>
+                  <q-input v-model.number="form.ck_total" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('CK-Total', form.ck_total)" />
+                </td>
+                <td>{{ rangoTexto('CK-Total') }}</td>
+                <td>{{ rangoUnidad('CK-Total') }}</td>
+              </tr>
+
+              <tr v-if="canServicios('CK MB')">
+                <td>CK MB</td>
+                <td>
+                  <q-input v-model.number="form.ck_mb" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('CK MB', form.ck_mb)" />
+                </td>
+                <td>{{ rangoTexto('CK MB') }}</td>
+                <td>{{ rangoUnidad('CK MB') }}</td>
+              </tr>
+              <tr v-if="canServicios('LACTATO DESHIDROGENASA ( LDH )')">
+                <td>LDH</td>
+                <td>
+                  <q-input v-model.number="form.ldh" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('LDH', form.ldh)" />
+                </td>
+                <td>{{ rangoTexto('LDH') }}</td>
+                <td>{{ rangoUnidad('LDH') }}</td>
+              </tr>
+              <tr v-if="canServicios('LIPASA')">
+                <td>Lipasa</td>
+                <td>
+                  <q-input v-model.number="form.lipasa" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('Lipasa', form.lipasa)" />
+                </td>
+                <td>{{ rangoTexto('Lipasa') }}</td>
+                <td>{{ rangoUnidad('Lipasa') }}</td>
+              </tr>
+              </tbody>
+            </q-markup-table>
+          </div>
+
 
           <!-- =======================
                CONTROL GLUCÉMICO
@@ -600,6 +682,16 @@
                 <td>{{ rangoTexto('Hb A1C') }}</td>
                 <td>{{ rangoUnidad('Hb A1C') }}</td>
               </tr>
+<!--              hb_glicosilada-->
+              <tr v-if="canServicios('HEMOGLOBINA GLICOSILADA A1c')">
+                <td>Hb Glicosilada</td>
+                <td>
+                  <q-input v-model.number="form.hb_glicosilada" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('Hb Glicosilada', form.hb_glicosilada)" />
+                </td>
+                <td>{{ rangoTexto('Hb Glicosilada') }}</td>
+                <td>{{ rangoUnidad('Hb Glicosilada') }}</td>
+              </tr>
               </tbody>
             </q-markup-table>
           </div>
@@ -620,7 +712,8 @@
               'PRUEBA RAPIDA PARA TROPONINA',
               'REACCIÓN DE WIDAL',
               'RPR- VDRL',
-              'TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)'
+              'TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)',
+              'CLEARENCE DE CREATININA'
             ])"
           >
             <div class="section-title q-mb-xs">Pruebas serológicas</div>
@@ -685,6 +778,12 @@
                 <td><q-input v-model="form.reaccion_widal" dense outlined placeholder="O-, H-, A-, B-" /></td>
                 <td>{{ rangoTexto('Reacción de Widal') }}</td>
                 <td>{{ rangoUnidad('Reacción de Widal') }}</td>
+              </tr>
+              <tr v-if="canServicios('CLEARENCE DE CREATININA')">
+                <td>DCE</td>
+                <td><q-input v-model="form.dce" dense outlined placeholder="Valor en ml/min" /></td>
+                <td>{{ rangoTexto('DCE') }}</td>
+                <td>{{ rangoUnidad('DCE') }}</td>
               </tr>
               </tbody>
             </q-markup-table>
@@ -821,6 +920,7 @@ export default {
     // ========= servicio match (IGUAL QUE HEMATOLOGÍA) =========
     canServicios (can) {
       const norm = (v) => String(v ?? '').replace(/\s+/g, ' ').trim().toLowerCase()
+      // console.log('canServicios', can)
       if (!this.header || !Array.isArray(this.header.servicios)) return false
       const targets = Array.isArray(can) ? can : [can]
       const wanted = targets.map(norm)
@@ -830,6 +930,7 @@ export default {
     // muestra sección si existe al menos 1 servicio
     hasAnyServicios (list) {
       const arr = Array.isArray(list) ? list : [list]
+      // console.log('hasAnyServicios', arr)
       return arr.some(x => this.canServicios(x))
     },
 

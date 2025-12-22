@@ -64,6 +64,7 @@ return new class extends Migration
             $table->decimal('magnesio', 8, 2)->nullable();
 
             $table->decimal('ldh', 8, 2)->nullable();
+            $table->decimal('lipasa', 8, 2)->nullable();
 
             // ORINA 24 HRS
             $table->decimal('creatinuria_24h', 8, 2)->nullable();

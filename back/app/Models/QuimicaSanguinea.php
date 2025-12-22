@@ -79,6 +79,7 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'code',
         'globulina',
         'relacion_ag',
+        'lipasa'
     ];
 
     protected $hidden = [
