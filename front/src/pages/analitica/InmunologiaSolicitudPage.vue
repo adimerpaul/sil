@@ -25,36 +25,36 @@
       <q-separator />
 
       <!-- Datos solicitud -->
-      <q-card-section class="q-pa-sm">
-        <div class="row q-col-gutter-sm text-caption">
-          <div class="col-12 col-md-4">
-            <div class="text-grey-7">Paciente</div>
-            <div class="text-body2 text-weight-medium">{{ solicitud?.paciente_nombre }}</div>
-            <div class="text-grey-7 q-mt-xs">
-              Edad: <b>{{ solicitud?.paciente_edad }}</b> • Género: <b>{{ solicitud?.paciente_genero }}</b>
-            </div>
-          </div>
+<!--      <q-card-section class="q-pa-sm">-->
+<!--        <div class="row q-col-gutter-sm text-caption">-->
+<!--          <div class="col-12 col-md-4">-->
+<!--            <div class="text-grey-7">Paciente</div>-->
+<!--            <div class="text-body2 text-weight-medium">{{ solicitud?.paciente_nombre }}</div>-->
+<!--            <div class="text-grey-7 q-mt-xs">-->
+<!--              Edad: <b>{{ solicitud?.paciente_edad }}</b> • Género: <b>{{ solicitud?.paciente_genero }}</b>-->
+<!--            </div>-->
+<!--          </div>-->
 
-          <div class="col-12 col-md-4">
-            <div class="text-grey-7">Médico solicitante</div>
-            <div class="text-body2 text-weight-medium">{{ solicitud?.doctor_nombre || 'N/A' }}</div>
-            <div class="text-grey-7 q-mt-xs">Fecha solicitud: <b>{{ solicitud?.fecha_solicitud }}</b></div>
-          </div>
+<!--          <div class="col-12 col-md-4">-->
+<!--            <div class="text-grey-7">Médico solicitante</div>-->
+<!--            <div class="text-body2 text-weight-medium">{{ solicitud?.doctor_nombre || 'N/A' }}</div>-->
+<!--            <div class="text-grey-7 q-mt-xs">Fecha solicitud: <b>{{ solicitud?.fecha_solicitud }}</b></div>-->
+<!--          </div>-->
 
-          <div class="col-12 col-md-4">
-            <div class="text-grey-7">Solicitud</div>
-            <div class="row items-center q-col-gutter-xs q-mt-xs">
-              <div class="col-auto">
-                <q-chip square color="primary" text-color="white" dense>N° {{ solicitud?.codigo }}</q-chip>
-              </div>
-              <div class="col-auto">
-                <q-chip square outline color="primary" dense>{{ solicitud?.estado }}</q-chip>
-              </div>
-            </div>
-          </div>
-        </div>
-      </q-card-section>
-
+<!--          <div class="col-12 col-md-4">-->
+<!--            <div class="text-grey-7">Solicitud</div>-->
+<!--            <div class="row items-center q-col-gutter-xs q-mt-xs">-->
+<!--              <div class="col-auto">-->
+<!--                <q-chip square color="primary" text-color="white" dense>N° {{ solicitud?.codigo }}</q-chip>-->
+<!--              </div>-->
+<!--              <div class="col-auto">-->
+<!--                <q-chip square outline color="primary" dense>{{ solicitud?.estado }}</q-chip>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </q-card-section>-->
+      <InfoServicio :header="solicitud" />
       <q-separator />
 
       <!-- Layout 3 columnas -->
@@ -196,8 +196,11 @@
 </template>
 
 <script>
+import InfoServicio from "components/InfoServicio.vue";
+
 export default {
   name: 'InmunologiaSolicitudPage',
+  components: {InfoServicio},
   data () {
     return {
       loading: false,

@@ -43,55 +43,56 @@
       <q-separator />
 
       <!-- DATOS SOLICITUD / PACIENTE (SIN COMPUTEDS) -->
-      <q-card-section v-if="header" class="q-pa-sm">
-        <div class="row q-col-gutter-sm text-caption">
-          <div class="col-12 col-md-4">
-            <div class="text-grey-7">Paciente</div>
-            <div class="text-body2 text-weight-medium">
-              {{ header?.paciente?.nombre }}
-            </div>
-            <div class="text-grey-7 q-mt-xs">
-              Edad: <b>{{ header?.paciente?.edad }}</b> • Género: <b>{{ header?.paciente?.genero }}</b>
-            </div>
-          </div>
+<!--      <q-card-section v-if="header" class="q-pa-sm">-->
+<!--        <div class="row q-col-gutter-sm text-caption">-->
+<!--          <div class="col-12 col-md-4">-->
+<!--            <div class="text-grey-7">Paciente</div>-->
+<!--            <div class="text-body2 text-weight-medium">-->
+<!--              {{ header?.paciente?.nombre }}-->
+<!--            </div>-->
+<!--            <div class="text-grey-7 q-mt-xs">-->
+<!--              Edad: <b>{{ header?.paciente?.edad }}</b> • Género: <b>{{ header?.paciente?.genero }}</b>-->
+<!--            </div>-->
+<!--          </div>-->
 
-          <div class="col-12 col-md-4">
-            <div class="text-grey-7">Médico solicitante</div>
-            <div class="text-body2 text-weight-medium">
-              {{ header?.doctor?.nombre }}
-            </div>
-            <div class="text-grey-7 q-mt-xs">
-              Fecha solicitud: <b>{{ header?.fecha_solicitud }}</b>
-            </div>
-          </div>
+<!--          <div class="col-12 col-md-4">-->
+<!--            <div class="text-grey-7">Médico solicitante</div>-->
+<!--            <div class="text-body2 text-weight-medium">-->
+<!--              {{ header?.doctor?.nombre }}-->
+<!--            </div>-->
+<!--            <div class="text-grey-7 q-mt-xs">-->
+<!--              Fecha solicitud: <b>{{ header?.fecha_solicitud }}</b>-->
+<!--            </div>-->
+<!--          </div>-->
 
-          <div class="col-12 col-md-4">
-            <div class="text-grey-7">Solicitud</div>
-            <div class="row items-center q-col-gutter-xs q-mt-xs">
-              <div class="col-auto">
-                <q-chip square color="primary" text-color="white" dense>
-                  N° {{ header?.nro_registro }}
-                </q-chip>
-              </div>
-              <div class="col-auto">
-                <q-chip square outline color="primary" class="badge-estado" dense>
-                  {{ header?.estado }}
-                </q-chip>
-              </div>
-            </div>
-          </div>
+<!--          <div class="col-12 col-md-4">-->
+<!--            <div class="text-grey-7">Solicitud</div>-->
+<!--            <div class="row items-center q-col-gutter-xs q-mt-xs">-->
+<!--              <div class="col-auto">-->
+<!--                <q-chip square color="primary" text-color="white" dense>-->
+<!--                  N° {{ header?.nro_registro }}-->
+<!--                </q-chip>-->
+<!--              </div>-->
+<!--              <div class="col-auto">-->
+<!--                <q-chip square outline color="primary" class="badge-estado" dense>-->
+<!--                  {{ header?.estado }}-->
+<!--                </q-chip>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
 
-          <!-- LISTA SERVICIOS -->
-          <div class="col-12">
-            <ul class="q-pl-md q-mt-none">
-              <li v-for="(s, index) in (header?.servicios || [])" :key="index">
-                {{ s.nombre }}
-              </li>
-            </ul>
-          </div>
-        </div>
-      </q-card-section>
+<!--          &lt;!&ndash; LISTA SERVICIOS &ndash;&gt;-->
+<!--          <div class="col-12">-->
+<!--            <ul class="q-pl-md q-mt-none">-->
+<!--              <li v-for="(s, index) in (header?.servicios || [])" :key="index">-->
+<!--                {{ s.nombre }}-->
+<!--              </li>-->
+<!--            </ul>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </q-card-section>-->
 
+      <InfoServicio :header="header" />
       <q-inner-loading :showing="loading && !formLoaded">
         <q-spinner size="42px" />
       </q-inner-loading>
@@ -859,8 +860,11 @@
 </template>
 
 <script>
+import InfoServicio from "components/InfoServicio.vue";
+
 export default {
   name: 'QuimicaSanguineaPage',
+  components: {InfoServicio},
   data () {
     return {
       solicitudId: this.$route.params.id,

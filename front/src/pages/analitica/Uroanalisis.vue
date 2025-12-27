@@ -52,53 +52,53 @@
       <q-separator />
 
       <!-- DATOS DE SOLICITUD / PACIENTE -->
-      <q-card-section v-if="header" class="q-pa-sm">
-        <div class="row q-col-gutter-sm text-caption">
-          <div class="col-12 col-md-4">
-            <div class="text-grey-7">Paciente</div>
-            <div class="text-body2 text-weight-medium">
-              {{ pacienteNombre }}
-            </div>
-            <div class="text-grey-7 q-mt-xs">
-              Edad: <b>{{ pacienteEdad }}</b>
-              • Género: <b>{{ pacienteGenero }}</b>
-            </div>
-          </div>
+<!--      <q-card-section v-if="header" class="q-pa-sm">-->
+<!--        <div class="row q-col-gutter-sm text-caption">-->
+<!--          <div class="col-12 col-md-4">-->
+<!--            <div class="text-grey-7">Paciente</div>-->
+<!--            <div class="text-body2 text-weight-medium">-->
+<!--              {{ pacienteNombre }}-->
+<!--            </div>-->
+<!--            <div class="text-grey-7 q-mt-xs">-->
+<!--              Edad: <b>{{ pacienteEdad }}</b>-->
+<!--              • Género: <b>{{ pacienteGenero }}</b>-->
+<!--            </div>-->
+<!--          </div>-->
 
-          <div class="col-12 col-md-4">
-            <div class="text-grey-7">Médico solicitante</div>
-            <div class="text-body2 text-weight-medium">
-              {{ doctorNombre }}
-            </div>
-            <div class="text-grey-7 q-mt-xs">
-              Fecha solicitud: <b>{{ solicitudFecha }}</b>
-            </div>
-          </div>
+<!--          <div class="col-12 col-md-4">-->
+<!--            <div class="text-grey-7">Médico solicitante</div>-->
+<!--            <div class="text-body2 text-weight-medium">-->
+<!--              {{ doctorNombre }}-->
+<!--            </div>-->
+<!--            <div class="text-grey-7 q-mt-xs">-->
+<!--              Fecha solicitud: <b>{{ solicitudFecha }}</b>-->
+<!--            </div>-->
+<!--          </div>-->
 
-          <div class="col-12 col-md-4">
-            <div class="text-grey-7">Solicitud</div>
-            <div class="row items-center q-col-gutter-xs q-mt-xs">
-              <div class="col-auto">
-                <q-chip square color="primary" text-color="white" dense>
-                  N° {{ solicitudCodigo }}
-                </q-chip>
-              </div>
-              <div class="col-auto">
-                <q-chip
-                  square
-                  outline
-                  color="primary"
-                  class="badge-estado"
-                  dense
-                >
-                  {{ solicitudEstado }}
-                </q-chip>
-              </div>
-            </div>
-          </div>
-        </div>
-      </q-card-section>
-
+<!--          <div class="col-12 col-md-4">-->
+<!--            <div class="text-grey-7">Solicitud</div>-->
+<!--            <div class="row items-center q-col-gutter-xs q-mt-xs">-->
+<!--              <div class="col-auto">-->
+<!--                <q-chip square color="primary" text-color="white" dense>-->
+<!--                  N° {{ solicitudCodigo }}-->
+<!--                </q-chip>-->
+<!--              </div>-->
+<!--              <div class="col-auto">-->
+<!--                <q-chip-->
+<!--                  square-->
+<!--                  outline-->
+<!--                  color="primary"-->
+<!--                  class="badge-estado"-->
+<!--                  dense-->
+<!--                >-->
+<!--                  {{ solicitudEstado }}-->
+<!--                </q-chip>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </q-card-section>-->
+      <InfoServicio :header="header" />
       <q-inner-loading :showing="loading && !formLoaded">
         <q-spinner size="42px" />
       </q-inner-loading>
@@ -790,8 +790,11 @@
 </template>
 
 <script>
+import InfoServicio from "components/InfoServicio.vue";
+
 export default {
   name: 'UroanalisisPage',
+  components: {InfoServicio},
 
   data () {
     return {

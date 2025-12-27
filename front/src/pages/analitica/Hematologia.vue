@@ -89,72 +89,7 @@
 <!--          <td colspan="2"><div class="line clip">{{ $solicitud->fecha_finalizacion ?? '-' }}</div></td>-->
 <!--        </tr>-->
 <!--      </table>-->
-      <q-card-section v-if="header" class="q-pa-sm bg-blue-1">
-        <div class="row q-col-gutter-sm text-caption">
-          <div class="col-12 col-md-2">
-            <q-icon name="badge" class="q-mr-sm" color="blue" />
-            <span class="text-bold">CÓDIGO:</span>
-            <span class="line clip">{{ header.codigo || header.id }}</span>
-          </div>
-
-          <div class="col-12 col-md-2">
-            <q-icon name="local_hospital" class="q-mr-sm" color="blue" />
-            <span class="text-bold">ATENCIÓN:</span> <span class="line clip">{{ (header.tipo_atencion || '') === 'SI' ? 'SUS' : 'EXT' }}</span>
-          </div>
-          <div class="col-12 col-md-3">
-            <q-icon name="assignment_ind" class="q-mr-sm" color="blue" />
-            <span class="text-bold">NRO. REGISTRO:</span>
-            <span class="line clip">{{ header.nro_registro || '-' }}</span>
-          </div>
-          <div class="col-12 col-md-5">
-            <q-icon name="person" class="q-mr-sm" color="blue" />
-            <span class="text-bold">PACIENTE:</span>
-            <span class="line clip">{{ header.paciente_nombre || '-' }}</span>
-          </div>
-          <div class="col-12 col-md-2">
-            <q-icon name="cake" class="q-mr-sm" color="blue" />
-            <span class="text-bold">EDAD:</span>
-            <span class="line clip">{{ header.paciente_edad || '-' }}</span>
-          </div>
-          <div class="col-12 col-md-2">
-            <q-icon name="wc" class="q-mr-sm" color="blue" />
-            <span class="text-bold">SEXO:</span>
-            <span class="line clip">{{ header.paciente_genero || '-' }}</span>
-          </div>
-          <div class="col-12 col-md-4">
-            <q-icon name="medical_services" class="q-mr-sm" color="blue" />
-            <span class="text-bold">MÉDICO SOL.:</span>
-            <span class="line clip">{{ header.doctor_nombre || '-' }}</span>
-          </div>
-          <div class="col-12 col-md-4">
-            <q-icon name="healing" class="q-mr-sm" color="blue" />
-            <span class="text-bold">DX:</span>
-            <span class="line clip">{{ header.diagnostico_select || '-' }}</span>
-          </div>
-          <div class="col-12 col-md-6">
-            <q-icon name="local_hospital" class="q-mr-sm" color="blue" />
-            <span class="text-bold">EST. DE SALUD:</span>
-            <span class="line clip">{{ header.establecimiento_salud || '-' }}</span>
-          </div>
-          <div class="col-12 col-md-6">
-            <q-icon name="event" class="q-mr-sm" color="blue" />
-            <span class="text-bold">CÓDIGO MUESTRA:    </span>
-            <span class="line clip" >
-              {{ `${header.codigo || '-'}-${header.nro_registro || '-'}` }}
-            </span>
-          </div>
-<!--          tiempo de creacion hasta finalizacion-->
-          <div class="col-12 col-md-6">
-            <q-icon name="schedule" class="q-mr-sm" color="blue" />
-            <span class="text-bold">TIEMPO: </span>
-<!--            <span class="line clip"> {{ tiempoTranscurrido }}</span>-->
-<!--            chip-->
-            <q-chip class="line clip" color="blue" text-color="white" size="xs">
-              {{ tiempoTranscurrido }}
-            </q-chip>
-          </div>
-        </div>
-      </q-card-section>
+      <InfoServicio :header="header" />
 
       <q-inner-loading :showing="loading && !formLoaded">
         <q-spinner size="42px" />
@@ -1074,9 +1009,11 @@
 
 <script>
 import moment from "moment";
+import InfoServicio from "components/InfoServicio.vue";
 
 export default {
   name: 'HematologiaPage',
+  components: {InfoServicio},
   data () {
     return {
       solicitudId: this.$route.params.id,

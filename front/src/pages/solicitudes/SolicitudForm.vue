@@ -4,7 +4,6 @@
         <div class="text-subtitle1">Nueva solicitud</div>
         <q-space />
         <q-btn icon="arrow_back" flat round dense @click="$router.push({ path: '/solicitudes' })" />
-        <!--        boton guardar-->
         <q-btn color="primary" label="Guardar" @click="$refs.form.submit()" :loading="loading" />
       </q-card-section>
 
@@ -517,10 +516,19 @@ export default {
     buscarPacientePorCi () {
       if (!this.searchCi) return
       this.loading = true
+      this.solicitud.paciente_id = null
+      this.solicitud.paciente_nombre = ''
+      this.solicitud.paciente_telefono = ''
+      this.solicitud.paciente_direccion = ''
+      this.solicitud.paciente_fecha_nac = ''
+      this.solicitud.paciente_genero = ''
+      this.solicitud.paciente_edad = null
       this.$axios
         .get(`pacientes/buscar-ci/${this.searchCi}`)
         .then(res => { this.onSelectPaciente(res.data) })
-        .catch(() => {})
+        .catch(() => {
+          // paciente no encontrado vaciar los demas campos
+        })
         .finally(() => { this.loading = false })
     },
 
