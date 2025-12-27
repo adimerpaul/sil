@@ -12,7 +12,7 @@ class PanelSexualController extends Controller
 {
     public function showBySolicitude($id)
     {
-        $solicitud = Solicitude::with(['paciente', 'doctor'])->findOrFail($id);
+        $solicitud = Solicitude::with(['paciente', 'doctor','servicios'])->findOrFail($id);
 
         $panel = PanelSexual::firstOrNew([
             'solicitude_id' => $id

@@ -12,7 +12,7 @@ class PapilomaHumanoController extends Controller
 {
     public function showBySolicitude($id)
     {
-        $solicitud = Solicitude::with(['paciente', 'doctor'])
+        $solicitud = Solicitude::with(['paciente', 'doctor','servicios'])
             ->findOrFail($id);
 
         $papiloma = PapilomaHumano::firstOrNew([

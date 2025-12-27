@@ -1,5 +1,5 @@
 <style>
-    @page { size: letter landscape; margin: 10px 12px; }
+    /*@page { size: letter landscape; margin: 10px 12px; }*/
     * { box-sizing: border-box; }
 
     body{

@@ -12,7 +12,7 @@ class PanelRespiratorioController extends Controller
 {
     public function showBySolicitude($id)
     {
-        $solicitud = Solicitude::with(['paciente', 'doctor'])->findOrFail($id);
+        $solicitud = Solicitude::with(['paciente', 'doctor','servicios'])->findOrFail($id);
 
         $panel = PanelRespiratorio::firstOrNew([
             'solicitude_id' => $id

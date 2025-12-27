@@ -44,7 +44,8 @@ class QuimicaSanguineaController extends Controller
             'rangos'    => $rangos,
             'qrSvgBase64' => $qrSvgBase64,
             'url' => $url,
-        ])->setPaper('letter', 'landscape');
+//            landscape
+        ])->setPaper('letter');
 
         return $pdf->stream('QUIMICA_'.$solicitud->nro_registro.'.pdf');
     }

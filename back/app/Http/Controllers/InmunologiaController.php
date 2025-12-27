@@ -21,7 +21,7 @@ class InmunologiaController extends Controller
         $areaId = (int) $request->get('area_id', 0);
         if ($areaId <= 0) abort(422, 'area_id es requerido');
 
-        $solicitud = Solicitude::with(['paciente', 'doctor'])->findOrFail($solicitudeId);
+        $solicitud = Solicitude::with(['paciente', 'doctor','servicios'])->findOrFail($solicitudeId);
 
         $disponibles = Formularios::where('area_id', $areaId)
             ->orderBy('nombre')
