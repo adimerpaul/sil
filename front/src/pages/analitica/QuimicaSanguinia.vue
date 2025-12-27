@@ -42,56 +42,6 @@
 
       <q-separator />
 
-      <!-- DATOS SOLICITUD / PACIENTE (SIN COMPUTEDS) -->
-<!--      <q-card-section v-if="header" class="q-pa-sm">-->
-<!--        <div class="row q-col-gutter-sm text-caption">-->
-<!--          <div class="col-12 col-md-4">-->
-<!--            <div class="text-grey-7">Paciente</div>-->
-<!--            <div class="text-body2 text-weight-medium">-->
-<!--              {{ header?.paciente?.nombre }}-->
-<!--            </div>-->
-<!--            <div class="text-grey-7 q-mt-xs">-->
-<!--              Edad: <b>{{ header?.paciente?.edad }}</b> • Género: <b>{{ header?.paciente?.genero }}</b>-->
-<!--            </div>-->
-<!--          </div>-->
-
-<!--          <div class="col-12 col-md-4">-->
-<!--            <div class="text-grey-7">Médico solicitante</div>-->
-<!--            <div class="text-body2 text-weight-medium">-->
-<!--              {{ header?.doctor?.nombre }}-->
-<!--            </div>-->
-<!--            <div class="text-grey-7 q-mt-xs">-->
-<!--              Fecha solicitud: <b>{{ header?.fecha_solicitud }}</b>-->
-<!--            </div>-->
-<!--          </div>-->
-
-<!--          <div class="col-12 col-md-4">-->
-<!--            <div class="text-grey-7">Solicitud</div>-->
-<!--            <div class="row items-center q-col-gutter-xs q-mt-xs">-->
-<!--              <div class="col-auto">-->
-<!--                <q-chip square color="primary" text-color="white" dense>-->
-<!--                  N° {{ header?.nro_registro }}-->
-<!--                </q-chip>-->
-<!--              </div>-->
-<!--              <div class="col-auto">-->
-<!--                <q-chip square outline color="primary" class="badge-estado" dense>-->
-<!--                  {{ header?.estado }}-->
-<!--                </q-chip>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-
-<!--          &lt;!&ndash; LISTA SERVICIOS &ndash;&gt;-->
-<!--          <div class="col-12">-->
-<!--            <ul class="q-pl-md q-mt-none">-->
-<!--              <li v-for="(s, index) in (header?.servicios || [])" :key="index">-->
-<!--                {{ s.nombre }}-->
-<!--              </li>-->
-<!--            </ul>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </q-card-section>-->
-
       <InfoServicio :header="header" />
       <q-inner-loading :showing="loading && !formLoaded">
         <q-spinner size="42px" />
@@ -842,6 +792,274 @@
               </div>
             </div>
           </div>
+<!--          CITOQUIMICO-->
+
+<!--          CANTIDAD: 4  ml-->
+<!--          COLOR: AMARILLO-->
+<!--          ASPECTO : LIMPIDO-->
+
+<!--          EXAMEN QUIMICO-->
+<!--          GLUCOSA: 81 mg/dL  			PH: Alcalino 7.5-->
+<!--          PROTEINAS TOTALES: 1.13g/Dl			DENSIDAD: 1,015-->
+<!--          ALBUMINA: 0.38 g/dl			LDH: 45 U/L-->
+<!--          EXAMEN MICROSCOPICO-->
+<!--          GLOBULOS BLANCOS: 40 x mm3-->
+
+
+<!--          RECUENTO DIFERENCIAL-->
+
+<!--          POLIMORFONUCLEARES: 68%-->
+<!--          MONONUCLEARES: 32 %-->
+          <!-- citoquimico -->
+          <div
+            v-if="hasAnyServicios([
+              'CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS'
+            ])"
+          >
+            <div class="section-title q-mb-xs">Citoquímico</div>
+<!--            EXAMEN FISICO-->
+<!--            CANTIDAD: 4  ml-->
+<!--            COLOR: AMARILLO-->
+<!--            ASPECTO : LIMPIDO-->
+
+<!--            EXAMEN QUIMICO-->
+<!--            GLUCOSA: 81 mg/dL  			PH: Alcalino 7.5-->
+<!--            PROTEINAS TOTALES: 1.13g/Dl			DENSIDAD: 1,015-->
+<!--            ALBUMINA: 0.38 g/dl			LDH: 45 U/L-->
+<!--            EXAMEN MICROSCOPICO-->
+<!--            GLOBULOS BLANCOS: 40 x mm3-->
+
+
+<!--            RECUENTO DIFERENCIAL-->
+
+<!--            POLIMORFONUCLEARES: 68%-->
+<!--            MONONUCLEARES: 32 %-->
+            <div class="section-title q-mb-xs">EXAMEN FISICO</div>
+            <q-markup-table dense flat bordered square class="bg-white q-mb-md">
+              <thead>
+              <tr>
+                <th class="text-left">Parámetro</th>
+                <th class="text-left">Resultado</th>
+                <th class="text-left">Rango de referencia</th>
+                <th class="text-left">Unidad</th>
+              </tr>
+              </thead>
+
+              <tbody>
+<!--              cantidad color aspecto-->
+              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
+                <td>Cantidad (ml)</td>
+                <td>
+                  <q-input v-model.number="form.citoquimico_cantidad" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('Cantidad (ml)', form.citoquimico_cantidad)" />
+                </td>
+                <td>{{ rangoTexto('Cantidad (ml)') }}</td>
+                <td>{{ rangoUnidad('Cantidad (ml)') }}</td>
+              </tr>
+              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
+                <td>Color</td>
+                <td>
+<!--                  <q-input v-model="form.citoquimico_color" dense outlined placeholder="Ejemplo: Amarillo, rojo, incoloro" />-->
+<!--                  ['Amarillo', 'Ámbar', 'Rojo', 'Pardo', 'Incoloro', 'Otros']-->
+                  <q-select v-model="form.citoquimico_color" :options="['Amarillo', 'Ámbar', 'Rojo', 'Pardo', 'Incoloro', 'Otros']" dense outlined
+                            placeholder="Seleccione el color" />
+                </td>
+                <td>{{ rangoTexto('Color') }}</td>
+                <td>{{ rangoUnidad('Color') }}</td>
+              </tr>
+              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
+                <td>Aspecto</td>
+                <td>
+<!--                  <q-input v-model="form.citoquimico_aspecto" dense outlined placeholder="Ejemplo: Límpido, turbio" />-->
+<!--                  ['Límpido', 'Turbio', 'Opalescente']-->
+                  <q-select v-model="form.citoquimico_aspecto" :options="['Límpido', 'Turbio', 'Opalescente']" dense outlined
+                            placeholder="Seleccione el aspecto" />
+                </td>
+                <td>{{ rangoTexto('Aspecto') }}</td>
+                <td>{{ rangoUnidad('Aspecto') }}</td>
+              </tr>
+<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
+<!--                <td>Glucosa</td>-->
+<!--                <td>-->
+<!--                  <q-input v-model.number="form.citoquimico_glucosa" dense outlined type="number" step="0.01"-->
+<!--                           :input-class="inputRangeClass('Glucosa', form.citoquimico_glucosa)" />-->
+<!--                </td>-->
+<!--                <td>{{ rangoTexto('Glucosa') }}</td>-->
+<!--                <td>{{ rangoUnidad('Glucosa') }}</td>-->
+<!--              </tr>-->
+<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
+<!--                <td>pH</td>-->
+<!--                <td>-->
+<!--                  <q-input v-model.number="form.citoquimico_ph" dense outlined type="number" step="0.01"-->
+<!--                           :input-class="inputRangeClass('pH', form.citoquimico_ph)" />-->
+<!--                </td>-->
+<!--                <td>{{ rangoTexto('pH') }}</td>-->
+<!--                <td>{{ rangoUnidad('pH') }}</td>-->
+<!--              </tr>-->
+<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
+<!--                <td>Proteínas totales</td>-->
+<!--                <td>-->
+<!--                  <q-input v-model.number="form.citoquimico_proteinas_totales" dense outlined type="number" step="0.01"-->
+<!--                           :input-class="inputRangeClass('Proteínas totales', form.citoquimico_proteinas_totales)" />-->
+<!--                </td>-->
+<!--                <td>{{ rangoTexto('Proteínas totales') }}</td>-->
+<!--                <td>{{ rangoUnidad('Proteínas totales') }}</td>-->
+<!--              </tr>-->
+<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
+<!--                <td>Albumina</td>-->
+<!--                <td>-->
+<!--                  <q-input v-model.number="form.citoquimico_albumina" dense outlined type="number" step="0.01"-->
+<!--                           :input-class="inputRangeClass('Albumina', form.citoquimico_albumina)" />-->
+<!--                </td>-->
+<!--                <td>{{ rangoTexto('Albumina') }}</td>-->
+<!--                <td>{{ rangoUnidad('Albumina') }}</td>-->
+<!--              </tr>-->
+<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
+<!--                <td>LDH</td>-->
+<!--                <td>-->
+<!--                  <q-input v-model.number="form.citoquimico_ldh" dense outlined type="number" step="0.01"-->
+<!--                           :input-class="inputRangeClass('LDH', form.citoquimico_ldh)" />-->
+<!--                </td>-->
+<!--                <td>{{ rangoTexto('LDH') }}</td>-->
+<!--                <td>{{ rangoUnidad('LDH') }}</td>-->
+<!--              </tr>-->
+<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
+<!--                <td>Glóbulos blancos</td>-->
+<!--                <td>-->
+<!--                  <q-input v-model.number="form.citoquimico_globulos_blancos" dense outlined type="number" step="0.01"-->
+<!--                           :input-class="inputRangeClass('Glóbulos blancos', form.citoquimico_globulos_blancos)" />-->
+<!--                </td>-->
+<!--                <td>{{ rangoTexto('Glóbulos blancos') }}</td>-->
+<!--                <td>{{ rangoUnidad('Glóbulos blancos') }}</td>-->
+<!--              </tr>-->
+<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
+<!--                <td>Polimorfonucleares (%)</td>-->
+<!--                <td>-->
+<!--                  <q-input v-model.number="form.citoquimico_polimorfonucleares" dense outlined type="number" step="0.01"-->
+<!--                           :input-class="inputRangeClass('Polimorfonucleares (%)', form.citoquimico_polimorfonucleares)" />-->
+<!--                </td>-->
+<!--                <td>{{ rangoTexto('Polimorfonucleares (%)') }}</td>-->
+<!--                <td>{{ rangoUnidad('Polimorfonucleares (%)') }}</td>-->
+<!--              </tr>-->
+<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
+<!--                <td>Mononucleares (%)</td>-->
+<!--                <td>-->
+<!--                  <q-input v-model.number="form.citoquimico_mononucleares" dense outlined type="number" step="0.01"-->
+<!--                           :input-class="inputRangeClass('Mononucleares (%)', form.citoquimico_mononucleares)" />-->
+<!--                </td>-->
+<!--                <td>{{ rangoTexto('Mononucleares (%)') }}</td>-->
+<!--                <td>{{ rangoUnidad('Mononucleares (%)') }}</td>-->
+<!--              </tr>-->
+              </tbody>
+              <div  class="section-title q-mb-xs">EXAMEN QUIMICO</div>
+              <tbody>
+              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
+                <td>Glucosa</td>
+                <td>
+                  <q-input v-model.number="form.citoquimico_glucosa" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('Glucosa', form.citoquimico_glucosa)" />
+<!--                  glucosaOptions: [-->
+<!--                  'NO CONTIENE',-->
+<!--                  'TRAZAS',-->
+<!--                  '250 mg/dl',-->
+<!--                  '500 mg/dl',-->
+<!--                  '1000 mg/dl',-->
+<!--                  '>=2000 mg/dl'-->
+<!--                  ],-->
+<!--                  <q-select v-model="form.citoquimico_glucosa" :options="['NO CONTIENE','TRAZAS','250 mg/dl','500 mg/dl','1000 mg/dl','>=2000 mg/dl']" dense outlined-->
+<!--                            placeholder="Seleccione el resultado de glucosa" />-->
+                </td>
+                <td>{{ rangoTexto('Glucosa') }}</td>
+                <td>{{ rangoUnidad('Glucosa') }}</td>
+              </tr>
+              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
+                <td>pH</td>
+                <td>
+<!--                  <q-input v-model.number="form.citoquimico_ph" dense outlined type="number" step="0.01"-->
+<!--                           :input-class="inputRangeClass('pH', form.citoquimico_ph)" />-->
+<!--                  :options="['pH 5.0 ácido', 'pH 5.5 ácido', 'pH 6.0 ácido', 'pH 6.5 neutro', 'pH 7.0 neutro', 'pH 7.5 neutro', 'pH 8.0 alcalino', 'pH 8.5 alcalino', 'pH 9.0 alcalino']"-->
+                  <q-select v-model="form.citoquimico_ph" :options="['pH 5.0 ácido', 'pH 5.5 ácido', 'pH 6.0 ácido', 'pH 6.5 neutro', 'pH 7.0 neutro', 'pH 7.5 neutro', 'pH 8.0 alcalino', 'pH 8.5 alcalino', 'pH 9.0 alcalino']" dense outlined
+                            placeholder="Seleccione el pH" />
+                </td>
+                <td>{{ rangoTexto('pH') }}</td>
+                <td>{{ rangoUnidad('pH') }}</td>
+              </tr>
+              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
+                <td>Proteínas totales</td>
+                <td>
+                  <q-input v-model.number="form.citoquimico_proteinas_totales" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('Proteínas totales', form.citoquimico_proteinas_totales)" />
+                </td>
+                <td>{{ rangoTexto('Proteínas totales') }}</td>
+                <td>{{ rangoUnidad('Proteínas totales') }}</td>
+              </tr>
+<!--              densidad-->
+              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
+                <td>Densidad</td>
+                <td>
+<!--                  <q-input v-model.number="form.citoquimico_densidad" dense outlined type="number" step="0.001"-->
+<!--                           :input-class="inputRangeClass('Densidad', form.citoquimico_densidad)" />-->
+<!--                  :options="[1.000, 1.005, 1.010, 1.015, 1.020, 1.025, 1.030]"-->
+                  <q-select v-model="form.citoquimico_densidad" :options="[1.000, 1.005, 1.010, 1.015, 1.020, 1.025, 1.030]" dense outlined
+                            placeholder="Seleccione la densidad" />
+
+                </td>
+                <td>{{ rangoTexto('Densidad') }}</td>
+                <td>{{ rangoUnidad('Densidad') }}</td>
+              </tr>
+              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
+                <td>Albumina</td>
+                <td>
+                  <q-input v-model.number="form.citoquimico_albumina" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('Albumina', form.citoquimico_albumina)" />
+                </td>
+                <td>{{ rangoTexto('Albumina') }}</td>
+                <td>{{ rangoUnidad('Albumina') }}</td>
+              </tr>
+              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
+                <td>LDH</td>
+                <td>
+                  <q-input v-model.number="form.citoquimico_ldh" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('LDH', form.citoquimico_ldh)" />
+                </td>
+                <td>{{ rangoTexto('LDH') }}</td>
+                <td>{{ rangoUnidad('LDH') }}</td>
+              </tr>
+              </tbody>
+              <div  class="section-title q-mb-xs">EXAMEN MICROSCOPICO</div>
+              <tbody>
+              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
+                <td>Glóbulos blancos</td>
+                <td>
+                  <q-input v-model.number="form.citoquimico_globulos_blancos" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('Glóbulos blancos', form.citoquimico_globulos_blancos)" />
+                </td>
+                <td>{{ rangoTexto('Glóbulos blancos') }}</td>
+                <td>{{ rangoUnidad('Glóbulos blancos') }}</td>
+              </tr>
+              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
+                <td>Polimorfonucleares (%)</td>
+                <td>
+                  <q-input v-model.number="form.citoquimico_polimorfonucleares" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('Polimorfonucleares (%)', form.citoquimico_polimorfonucleares)" />
+                </td>
+                <td>{{ rangoTexto('Polimorfonucleares (%)') }}</td>
+                <td>{{ rangoUnidad('Polimorfonucleares (%)') }}</td>
+              </tr>
+              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
+                <td>Mononucleares (%)</td>
+                <td>
+                  <q-input v-model.number="form.citoquimico_mononucleares" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('Mononucleares (%)', form.citoquimico_mononucleares)" />
+                </td>
+                <td>{{ rangoTexto('Mononucleares (%)') }}</td>
+                <td>{{ rangoUnidad('Mononucleares (%)') }}</td>
+              </tr>
+              </tbody>
+
+            </q-markup-table>
+          </div>
+
 
           <!-- BOTONES -->
           <div class="text-right q-mt-md">

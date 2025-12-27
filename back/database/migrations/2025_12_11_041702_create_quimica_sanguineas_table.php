@@ -92,6 +92,20 @@ return new class extends Migration
             $table->decimal('relacion_ag', 8, 2)->nullable();
 
 
+            $table->decimal('citoquimico_cantidad', 8, 2)->nullable();
+            $table->string('citoquimico_color', 50)->nullable();
+            $table->string('citoquimico_aspecto', 50)->nullable();
+            $table->decimal('citoquimico_glucosa', 8, 2)->nullable();
+            $table->string('citoquimico_ph', 8, 2)->nullable();
+            $table->decimal('citoquimico_proteinas_totales', 8, 2)->nullable();
+            $table->decimal('citoquimico_albumina', 8, 2)->nullable();
+            $table->decimal('citoquimico_ldh', 8, 2)->nullable();
+            $table->decimal('citoquimico_globulos_blancos', 8, 2)->nullable();
+            $table->decimal('citoquimico_polimorfonucleares', 8, 2)->nullable();
+            $table->decimal('citoquimico_mononucleares', 8, 2)->nullable();
+            $table->string('citoquimico_densidad', 8, 2)->nullable();
+
+
             $table->softDeletes();
             $table->timestamps();
         });

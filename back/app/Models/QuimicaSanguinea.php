@@ -79,7 +79,19 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'code',
         'globulina',
         'relacion_ag',
-        'lipasa'
+        'lipasa',
+        'citoquimico_cantidad',
+        'citoquimico_color',
+        'citoquimico_aspecto',
+        'citoquimico_glucosa',
+        'citoquimico_ph',
+        'citoquimico_proteinas_totales',
+        'citoquimico_albumina',
+        'citoquimico_ldh',
+        'citoquimico_globulos_blancos',
+        'citoquimico_polimorfonucleares',
+        'citoquimico_mononucleares',
+        'citoquimico_densidad',
     ];
 
     protected $hidden = [
