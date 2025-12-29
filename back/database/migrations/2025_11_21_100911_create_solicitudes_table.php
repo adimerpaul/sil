@@ -43,6 +43,7 @@ return new class extends Migration
             $table->dateTime('fecha_finalizacion')->nullable();
             $table->string('sala')->nullable();
             $table->string('cama')->nullable();
+            $table->string('numero_factura')->nullable();
 
             // Copia de datos del paciente
             $table->string('paciente_nombre')->nullable();

@@ -282,7 +282,7 @@ class SolicitudeController extends Controller
         }
 
         if (!empty($fecha)) {
-            $query->whereDate('fecha_creacion', $fecha);
+            $query->whereDate('fecha_solicitud', $fecha);
         }
 
         return $query->orderBy('id', 'desc')->get();
@@ -389,11 +389,21 @@ class SolicitudeController extends Controller
         $anio = date('Y', $timestamp);
         $mes = date('m', $timestamp);
 
-        $ultimoCodigo = Solicitude::where('tipo_atencion', $tipo)
-            ->whereYear('fecha_solicitud', $anio)
-            ->whereMonth('fecha_solicitud', $mes)
-            ->whereNotNull('codigo')
-            ->max('codigo');
+        if ($tipo === 'SI') {
+            $ultimoCodigo = Solicitude::where('tipo_atencion', $tipo)
+                ->whereYear('fecha_solicitud', $anio)
+                ->whereMonth('fecha_solicitud', $mes)
+                ->whereNotNull('codigo')
+                ->max('codigo');
+        }else{
+            $ultimoCodigo = Solicitude::where('tipo_atencion', $tipo)
+                ->whereYear('fecha_solicitud', $anio)
+                ->whereMonth('fecha_solicitud', $mes)
+                ->whereDate('fecha_solicitud', date('Y-m-d', $timestamp))
+                ->whereNotNull('codigo')
+                ->max('codigo');
+        }
+
 
         error_log("Último código para tipo $tipo en $anio-$mes: " . var_export($ultimoCodigo, true));
 
@@ -512,10 +522,10 @@ class SolicitudeController extends Controller
         $query = Solicitude::with(['paciente', 'doctor', 'servicios']);
 
         if ($request->filled('from')) {
-            $query->whereDate('fecha_creacion', '>=', $request->from);
+            $query->whereDate('fecha_solicitud', '>=', $request->from);
         }
         if ($request->filled('to')) {
-            $query->whereDate('fecha_creacion', '<=', $request->to);
+            $query->whereDate('fecha_solicitud', '<=', $request->to);
         }
 
         if ($request->filled('estado')) {

@@ -72,6 +72,7 @@ class Solicitude extends Model implements AuditableContract
 //$table->string('muestra_observacion')->nullable();
         'muestra_rechazada',
         'muestra_observacion',
+        'numero_factura',
     ];
 
     protected $hidden = [
