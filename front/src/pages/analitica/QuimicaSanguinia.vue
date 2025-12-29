@@ -758,20 +758,47 @@
           >
             <div class="section-title q-mb-xs">Observaciones / Método / Equipo</div>
 
-            <q-input
-              v-model="form.observaciones"
-              type="textarea"
-              dense outlined autogrow
-              class="bg-white q-mb-sm"
-              placeholder="Observaciones clínicas relevantes…"
-            />
+<!--            <q-input-->
+<!--              v-model="form.observaciones"-->
+<!--              type="textarea"-->
+<!--              dense outlined autogrow-->
+<!--              class="bg-white q-mb-sm"-->
+<!--              placeholder="Observaciones clínicas relevantes…"-->
+<!--            />-->
 
             <div class="row q-col-gutter-sm q-mb-md">
               <div class="col-12 col-sm-4">
-                <q-input v-model="form.metodo" dense outlined class="bg-white" label="Método" />
+                <q-select
+                  v-model="form.metodo"
+                  :options="['Automática', 'SemiAutomática', 'Manual']"
+                  dense
+                  outlined
+                  clearable
+                  class="bg-white"
+                  label="Método"
+                />
               </div>
               <div class="col-12 col-sm-8">
-                <q-input v-model="form.equipo" dense outlined class="bg-white" label="Equipo" />
+<!--                <q-input v-model="form.equipo" dense outlined class="bg-white" label="Equipo" />-->
+<!--                •	Mindray 240 –STAT FAX 4500-RADIOMETER-->
+                <q-select
+                  v-model="form.equipo"
+                  :options="[
+                    'Mindray 240 –STAT FAX 4500-RADIOMETER',
+                    'Otros'
+                  ]"
+                  dense outlined
+                  label="Equipo"
+                  clearable
+                />
+              </div>
+              <div class="col-12 col-md-4">
+                <q-input
+                  v-if="form.equipo === 'Otros'"
+                  v-model="form.equipo_otro"
+                  dense outlined
+                  label="Especifique otro equipo"
+                />
               </div>
               <div class="col-12 col-md-4">
                 <div class="section-title q-mb-xs">Muestra rechazada</div>

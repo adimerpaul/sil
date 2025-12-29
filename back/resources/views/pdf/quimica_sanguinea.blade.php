@@ -243,7 +243,8 @@
 
             <div class="center bold" style="font-size:8px; margin:2px 0;">QUÍMICA SANGUÍNEA</div>
             <div class="center small muted">
-                Método: {{ val($q,'metodo') ?: '—' }} &nbsp; • &nbsp; Equipo: {{ val($q,'equipo') ?: '—' }}
+                Método: {{ val($q,'metodo') ?: '—' }} &nbsp; • &nbsp;
+                Equipo: {{ $q->equipo == 'Otros' ? $q->equipo_otro : $q->equipo ?? '—' }}
             </div>
 
             <!-- ===================== 2 COLUMNAS PRINCIPALES ===================== -->

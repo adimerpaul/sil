@@ -12,6 +12,7 @@ use App\Http\Controllers\SolicitudeController;
 use App\Http\Controllers\AreaTipoMuestraController; // <-- NUEVO
 use App\Http\Controllers\SolicitudePropiedadController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ReporteServiciosController;
 
 Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
 
@@ -116,6 +117,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::put('/inmunologia/solicitude-formulario/{id}', [\App\Http\Controllers\InmunologiaController::class, 'update']);
     Route::delete('/inmunologia/solicitude-formulario/{id}', [\App\Http\Controllers\InmunologiaController::class, 'remove']);
+
+    Route::get('reportes/servicios-resumen', [ReporteServiciosController::class, 'index']);
+    Route::get('reportes/servicios-resumen/excel', [ReporteServiciosController::class, 'exportExcel']);
+    Route::get('reportes/servicios-resumen/pdf', [ReporteServiciosController::class, 'exportPdf']);
 
 });
 Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);

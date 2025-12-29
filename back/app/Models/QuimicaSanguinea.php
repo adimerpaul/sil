@@ -76,6 +76,7 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'observaciones',
         'metodo',
         'equipo',
+        'equipo_otro',
         'code',
         'globulina',
         'relacion_ag',

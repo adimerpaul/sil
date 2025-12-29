@@ -213,7 +213,7 @@
               </div>
             </q-card-section>
 
-            <q-card-section class="text-caption text-grey-7">
+            <q-card-section class=" text-grey-7">
               <div v-if="solicitud.tipo_atencion === 'SI' && currentEstablecimiento">
                 Mostrando solo servicios del establecimiento: <b>{{ currentEstablecimiento.nombre }}</b>
               </div>
@@ -233,6 +233,11 @@
                     {{ s.area }} - {{ s.servicio }} (Bs. {{ s.precio }})
                   </li>
                 </ul>
+<!--                mostrar cantidada de sericio selecionados y total-->
+                <div class="text-bold">
+                  Total de servicios seleccionados: <b>{{ selectedServicios.length }}</b>
+                  Monto total: <b>Bs. {{ selectedServicios.reduce((sum, s) => sum + parseFloat(s.precio), 0) }}</b>
+                </div>
               </div>
             </q-card-section>
           </q-card>

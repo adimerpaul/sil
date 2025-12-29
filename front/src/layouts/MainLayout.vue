@@ -16,7 +16,9 @@
           <!--          <q-badge color="green-8" text-color="white" class="text-bold">SIL</q-badge>-->
           <div class="text-subtitle1 text-weight-medium" style="line-height: 0.9">
             Dashboard de Gestión <br>
-            <q-badge color="warning" text-color="black" v-if="roleText" class="text-bold">{{ roleText }}</q-badge>
+            <q-badge color="warning" text-color="black" v-if="roleText" class="text-bold">
+              {{ $store.user.area ? $store.user.area.name : roleText }}
+            </q-badge>
           </div>
         </div>
 
@@ -196,6 +198,19 @@
               <span v-else>Área {{$store.user.area?.name}}</span>
 <!--              {{$store.user.area?.name}}-->
             </q-item-label>
+          </q-item-section>
+        </q-item>
+<!--        {-->
+<!--        path: '/reportes/servicios-resumen',-->
+<!--        component: () => import('pages/reportes/ReportesServiciosResumen.vue'),-->
+<!--        meta: {requiresAuth: true, perm: 'Reportes'}-->
+<!--        }-->
+        <q-item dense to="/reportes/servicios-resumen" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Usuarios')">
+          <q-item-section avatar>
+            <q-icon name="bar_chart" class="text-white"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-white">Servicios Resumen</q-item-label>
           </q-item-section>
         </q-item>
 <!--        {-->

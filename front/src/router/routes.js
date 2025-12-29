@@ -134,6 +134,12 @@ const routes = [
         path: '/formularios',
         component: () => import('pages/formularios/Formularios.vue'),
         meta: {requiresAuth: true, perm: 'Formularios'}
+      },
+      // ReportesServiciosResumen.vue
+      {
+        path: '/reportes/servicios-resumen',
+        component: () => import('pages/reportes/ReportesServiciosResumen.vue'),
+        meta: {requiresAuth: true, perm: 'Reportes'}
       }
     ]
   },
