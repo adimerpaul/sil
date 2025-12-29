@@ -60,6 +60,7 @@ class Hematologia extends Model implements AuditableContract
 
         'metodo',
         'equipo',
+        'equipo_otro',
         'code',
         'serie_roja',
         'serie_blanca',

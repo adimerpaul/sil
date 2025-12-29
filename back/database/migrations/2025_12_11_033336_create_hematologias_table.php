@@ -83,8 +83,9 @@ return new class extends Migration
             $table->string('factor_rh', 10)->nullable();                   // Positivo, Negativo
 
             // Información general del análisis
-            $table->string('metodo', 10)->nullable();      // A, M, M/SA...
+            $table->string('metodo')->nullable();      // A, M, M/SA...
             $table->string('equipo', 100)->nullable();
+            $table->string('equipo_otro', 100)->nullable();
             $table->string('code', 100)->nullable();
 
             $table->text('serie_roja')->nullable();

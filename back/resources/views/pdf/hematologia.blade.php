@@ -170,7 +170,7 @@
     </div>
 
     <div class="center muted small" style="margin-top:1px;">
-        Equipo: {{ $solicitud->muestra_equipo ?? '—' }} · Método: {{ $hematologia->metodo ?? '—' }}
+        Equipo: {{ $hematologia->equipo == 'Otro' ? $hematologia->equipo_otro : $hematologia->equipo }} · Método: {{ $hematologia->metodo ?? '—' }}
     </div>
 
     @if($showHemograma)
