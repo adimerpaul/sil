@@ -19,7 +19,14 @@
           <div class="row q-col-gutter-xs">
             <div class="col-6 col-sm-3">
               <q-input v-model="solicitud.paciente_ci" label="CI" dense outlined
-                       @update:model-value="onChangeCi" debounce="600" />
+                       @update:model-value="onChangeCi" debounce="600" >
+                <template v-slot:append>
+                  <q-spinner
+                    color="primary"
+                    v-if="loading"
+                  />
+                </template>
+              </q-input>
 <!--              <pre>{{solicitud}}</pre>-->
             </div>
             <div class="col-12 col-sm-6">
@@ -95,11 +102,18 @@
               </q-toggle>
             </div>
 
-            <div class="col-6 col-md-6">
-              <q-input v-if="solicitud.tipo_atencion === 'NO'" v-model="solicitud.tipo_otro"
-                       label="Especificar tipo de atención" dense outlined />
+            <template v-if="solicitud.tipo_atencion === 'NO'">
+              <div class="col-6 col-md-3" >
+                <q-input  v-model="solicitud.tipo_otro"
+                          label="Especificar tipo de atención" dense outlined />
+              </div>
+              <div class="col-6 col-md-3" >
+                <q-input v-model="solicitud.numero_factura"
+                         label="Número de factura" dense outlined />
+              </div>
+            </template>
+            <div class="col-6 col-md-6" v-else>
               <q-select
-                v-else
                 v-model="solicitud.establecimiento_salud"
                 :options="establecimientos"
                 option-label="nombre"
@@ -558,7 +572,7 @@ export default {
     },
 
     onTipoAtencionChange () {
-      this.resetServiciosSelection()
+      // this.resetServiciosSelection()
       if (this.solicitud.tipo_atencion === 'NO') this.solicitud.establecimiento_salud = ''
       else this.solicitud.tipo_otro = ''
     },

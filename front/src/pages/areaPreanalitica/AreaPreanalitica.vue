@@ -437,9 +437,13 @@
                   </div>
                   <div class="col-12">
                     <div class="text-caption text-grey-7 q-mt-sm">Diagnóstico clínico</div>
+                    <div class="text-body1">
+                      {{ consentimiento.diagnostico_select || '-' }}
+                    </div>
                     <div class="text-body2">
                       {{ consentimiento.diagnostico_clinico || '-' }}
                     </div>
+<!--                    <pre>{{ consentimiento.diagnostico_select}}</pre>-->
                   </div>
                 </div>
               </div>
