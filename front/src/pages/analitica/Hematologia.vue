@@ -658,6 +658,17 @@
               <td></td>
             </tr>
             </tbody>
+            <tfoot>
+            <tr>
+              <th class="text-left">Total</th>
+              <th class="text-right">
+                {{ totalDiferencial.toFixed(2) }}
+              </th>
+              <th></th>
+              <th></th>
+              <th></th>
+            </tr>
+            </tfoot>
           </q-markup-table>
 
           <!-- MORFOLOGÍA ERITROCITOS -->
@@ -947,9 +958,10 @@
                 label="Rh"
               />
             </div>
-
-            <div class="col-12 col-sm-4">
+            <div class="col-12">
               <div class="section-title q-mb-xs">Método / Equipo</div>
+            </div>
+            <div class="col-12 col-sm-4">
 <!--              <q-input v-model="form.metodo" dense outlined class="bg-white q-mb-xs" label="Método (A, M, M/SA, etc.)" />-->
 <!--              Automática SemiAutomática Manual-->
               <q-select
@@ -961,11 +973,11 @@
                 class="bg-white"
                 label="Método"
               />
-<!--              EQUIPO: Mindray 240 –STAT FAX 4500-RADIOMETER-->
-<!--              Mindray 3000-->
+            </div>
+            <div class="col-12 col-sm-4">
               <q-select
                 v-model="form.equipo"
-                :options="['Mindray BC 3000 Plus', 'Mindray BC 5130','Mindray 240 –STAT FAX 4500-RADIOMETER', 'Otro']"
+                :options="['Mindray C3510', 'Mindray 5000', 'Otro']"
                 dense
                 outlined
                 clearable
@@ -973,8 +985,31 @@
                 label="Equipo"
               />
             </div>
-            <div class="col-12 col-md-4">
+
+            <div class="col-12 col-sm-4">
+<!--              $table->string('equipo_otro', 100)->nullable();-->
+<!--              <q-select-->
+<!--                v-model="form.equipo"-->
+<!--                :options="['Mindray C3510', 'Mindray 5000', 'Otro']"-->
+<!--                dense-->
+<!--                outlined-->
+<!--                clearable-->
+<!--                class="bg-white"-->
+<!--                label="Equipo"-->
+<!--              />-->
+              <q-input
+                v-if="form.equipo === 'Otro'"
+                v-model="form.equipo_otro"
+                dense
+                outlined
+                class="bg-white q-mb-xs"
+                label="Especifique otro equipo"
+              />
+            </div>
+            <div class="col-12">
               <div class="section-title q-mb-xs">Muestra rechazada</div>
+            </div>
+            <div class="col-12 col-md-4">
 
               <q-toggle v-model="form.muestra_rechazada" label="¿Muestra rechazada?" true-value="Si" false-value="No"
                         @update:model-value="form.muestra_observacion = ''"
@@ -1144,6 +1179,24 @@ export default {
     }
   },
   computed: {
+    totalDiferencial () {
+      const n = (v) => {
+        const x = parseFloat(v)
+        return Number.isFinite(x) ? x : 0
+      }
+
+      return (
+        n(this.form.basofilos_porcentaje) +
+        n(this.form.eosinofilos_porcentaje) +
+        n(this.form.cayados_porcentaje) +
+        n(this.form.segmentados_porcentaje) +
+        n(this.form.linfocitos_porcentaje) +
+        n(this.form.monocitos_porcentaje) +
+        n(this.form.blastos_porcentaje) +
+        n(this.form.metamielocitos_porcentaje) +
+        n(this.form.eritroblastos_porcentaje)
+      )
+    },
     tiempoTranscurrido () {
       console.log(this.header.fecha_creacion)
       console.log(this.header.fecha_finalizacion)
