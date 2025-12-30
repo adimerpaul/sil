@@ -39,7 +39,10 @@
       <div class="col-12 col-md-4">
         <q-icon name="healing" class="q-mr-sm" color="blue" />
         <span class="text-bold">DX:</span>
-        <span class="line clip">{{ header.diagnostico_select || '-' }}</span>
+        <span class="line clip">
+          {{ header.diagnostico_select ? header.diagnostico_select : (header.diagnostico_clinico || '-') }}
+<!--          <pre>{{header.diagnostico_clinico}}</pre>-->
+        </span>
       </div>
       <div class="col-12 col-md-6">
         <q-icon name="local_hospital" class="q-mr-sm" color="blue" />

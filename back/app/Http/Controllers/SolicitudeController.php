@@ -22,6 +22,19 @@ use Illuminate\Support\Facades\Http;
 
 class SolicitudeController extends Controller
 {
+    function muestrasRechazadas(){
+        $solicitudes = Solicitude::with([
+            'paciente',
+            'doctor',
+            'servicios.area.areaTipoMuestras',
+            'userPreanalitica',
+            'user'
+        ])->where('muestra_rechazada', 'Si')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return response()->json($solicitudes);
+    }
     public function dashboard(Request $request)
     {
         $dateFrom = $request->get('date_from');
@@ -444,6 +457,10 @@ class SolicitudeController extends Controller
 
         $solicitud->fecha_envio_analitica = now();
         $solicitud->estado = 'ENVIADO_ANALITICA';
+//        'muestra_rechazada',
+//        'muestra_observacion',
+        $solicitud->muestra_rechazada = 'No';
+        $solicitud->muestra_observacion = null;
         $solicitud->save();
 
         return response()->json([
@@ -463,7 +480,7 @@ class SolicitudeController extends Controller
             'userPreanalitica',
             'user'
         ])
-            ->whereIn('estado', ['CREADO', 'ATENDIENDO']);
+            ->whereIn('estado', ['CREADO', 'ATENDIENDO','MUESTRA RECHAZADA']);
 
         if (!empty($filter)) {
             $query->whereHas('paciente', function ($q) use ($filter) {

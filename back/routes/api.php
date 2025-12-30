@@ -53,6 +53,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('areas-tipo-muestras', [AreaController::class, 'tipoMuestras']);
 
     Route::post('solicitudes/{id}/generar-codigo', [SolicitudeController::class, 'generarCodigo']);
+    Route::get('solicitudesMuestrasRechazadas', [SolicitudeController::class, 'muestrasRechazadas']);
 
 //    Route::get('solicitudes-area-analitica', [SolicitudeController::class, 'solicitudesAreaAnalitica']);
 //    Route::post('solicitudes/{id}/analitica', [SolicitudeController::class, 'guardarAnalitica']);

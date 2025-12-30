@@ -99,8 +99,8 @@
                   <q-input
                     v-model.number="form.albumina" dense outlined type="number" step="0.01"
                     @update:model-value="
-                    form.globulina = form.proteinas_totales - form.albumina;
-                    form.relacion_ag = form.albumina / form.globulina
+                    form.globulina = parseFloat(form.proteinas_totales - form.albumina).toFixed(2);
+                    form.relacion_ag = parseFloat(form.albumina / form.globulina).toFixed(2);
 "
                            :input-class="inputRangeClass('Albumina', form.albumina)" />
                 </td>
@@ -113,7 +113,7 @@
                 <td>
                   <q-input
                     v-model.number="form.proteinas_totales" dense outlined type="number" step="0.01"
-                    @update:model-value="form.globulina = form.proteinas_totales - form.albumina"
+                    @update:model-value="form.globulina = parseFloat(form.proteinas_totales - form.albumina).toFixed(2)"
                            :input-class="inputRangeClass('Proteinas totales', form.proteinas_totales)" />
                 </td>
                 <td>{{ rangoTexto('Proteinas totales') }}</td>
@@ -130,10 +130,11 @@
                 <td>{{ rangoUnidad('Glucosa') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['UREA','PERFIL RENAL (CREATININA SÉRICA, ÁCIDO ÚRICO, UREA)'])">
+              <tr v-if="canServicios(['UREA','PERFIL RENAL (CREATININA SÉRICA, ÁCIDO ÚRICO, UREA)','NITROGENO UREICO SERICO (NUS)'])">
                 <td>Urea</td>
                 <td>
                   <q-input v-model.number="form.urea" dense outlined type="number" step="0.01"
+                           @update:model-value="form.nus = parseFloat(form.urea / 2.14).toFixed(2)"
                            :input-class="inputRangeClass('Urea', form.urea)" />
                 </td>
                 <td>{{ rangoTexto('Urea') }}</td>
@@ -219,7 +220,7 @@
 <!--                  Bilirrubina Indirecta = Bilirrubina Total - Bilirrubina Directa-->
                   <q-input
                     v-model.number="form.bilirrubina_total" dense outlined type="number" step="0.01"
-                    @update:model-value="form.bilirrubina_indirecta = form.bilirrubina_total - form.bilirrubina_directa"
+                    @update:model-value="form.bilirrubina_indirecta = parseFloat(form.bilirrubina_total - form.bilirrubina_directa).toFixed(1)"
                            :input-class="inputRangeClass('Bilirrubina Total', form.bilirrubina_total)" />
                 </td>
                 <td>{{ rangoTexto('Bilirrubina Total') }}</td>
@@ -232,7 +233,7 @@
 <!--                  Bilirrubina Indirecta = Bilirrubina Total - Bilirrubina Directa-->
                   <q-input
                     v-model.number="form.bilirrubina_directa" dense outlined type="number" step="0.01"
-                    @update:model-value="form.bilirrubina_indirecta = form.bilirrubina_total - form.bilirrubina_directa"
+                    @update:model-value="form.bilirrubina_indirecta = parseFloat(form.bilirrubina_total - form.bilirrubina_directa).toFixed(1)"
                            :input-class="inputRangeClass('Bilirrubina Directa', form.bilirrubina_directa)" />
                 </td>
                 <td>{{ rangoTexto('Bilirrubina Directa') }}</td>
@@ -326,30 +327,33 @@
               </thead>
 
               <tbody>
-              <tr v-if="canServicios(['COLESTEROL','PERFIL LIPÍDICO O LIPIDOGRAMA (COLESTEROL, TRIGLICERIDOS, HDLc,LDLc,VLDLc)'])">
+              <tr v-if="canServicios(['HDLc, LDLc, VLDLc','TRIGLICÉRIDOS','PERFIL LIPÍDICO O LIPIDOGRAMA (COLESTEROL, TRIGLICERIDOS, HDLc,LDLc,VLDLc)'])">
+                <td>Triglicéridos</td>
+                <td>
+                  <q-input v-model.number="form.trigliceridos" dense outlined type="number" step="0.01"
+                           @update:model-value="form.vldl_colesterol = parseFloat(form.trigliceridos / 5).toFixed(2)"
+                           :input-class="inputRangeClass('Triglicéridos', form.trigliceridos)" />
+                </td>
+                <td>{{ rangoTexto('Triglicéridos') }}</td>
+                <td>{{ rangoUnidad('Triglicéridos') }}</td>
+              </tr>
+              <tr v-if="canServicios(['HDLc, LDLc, VLDLc','COLESTEROL','PERFIL LIPÍDICO O LIPIDOGRAMA (COLESTEROL, TRIGLICERIDOS, HDLc,LDLc,VLDLc)'])">
                 <td>Colesterol total</td>
                 <td>
                   <q-input v-model.number="form.colesterol_total" dense outlined type="number" step="0.01"
+                           @update:model-value="form.ldl_colesterol = parseFloat(form.colesterol_total - form.hdl_colesterol - form.vldl_colesterol).toFixed(2)"
                            :input-class="inputRangeClass('Colesterol total', form.colesterol_total)" />
                 </td>
                 <td>{{ rangoTexto('Colesterol total') }}</td>
                 <td>{{ rangoUnidad('Colesterol total') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['TRIGLICÉRIDOS','PERFIL LIPÍDICO O LIPIDOGRAMA (COLESTEROL, TRIGLICERIDOS, HDLc,LDLc,VLDLc)'])">
-                <td>Triglicéridos</td>
-                <td>
-                  <q-input v-model.number="form.trigliceridos" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('Triglicéridos', form.trigliceridos)" />
-                </td>
-                <td>{{ rangoTexto('Triglicéridos') }}</td>
-                <td>{{ rangoUnidad('Triglicéridos') }}</td>
-              </tr>
 
               <tr v-if="canServicios(['HDLc, LDLc, VLDLc','PERFIL LIPÍDICO O LIPIDOGRAMA (COLESTEROL, TRIGLICERIDOS, HDLc,LDLc,VLDLc)'])">
                 <td>HDL</td>
                 <td>
                   <q-input v-model.number="form.hdl_colesterol" dense outlined type="number" step="0.01"
+                           @update:model-value="form.ldl_colesterol = parseFloat(form.colesterol_total - form.hdl_colesterol - form.vldl_colesterol).toFixed(2)"
                            :input-class="inputRangeClass('HDL Colesterol', form.hdl_colesterol)" />
                 </td>
                 <td>{{ rangoTexto('HDL Colesterol') }}</td>
@@ -360,6 +364,7 @@
                 <td>LDL</td>
                 <td>
                   <q-input v-model.number="form.ldl_colesterol" dense outlined type="number" step="0.01"
+                           @update:model-value="form.ldl_colesterol = parseFloat(form.colesterol_total - form.hdl_colesterol - form.vldl_colesterol).toFixed(2)"
                            :input-class="inputRangeClass('LDL Colesterol', form.ldl_colesterol)" />
                 </td>
                 <td>{{ rangoTexto('LDL Colesterol') }}</td>
@@ -449,10 +454,10 @@
                 <td>Fósforo</td>
                 <td>
                   <q-input v-model.number="form.fosforo" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('Fósforo', form.fosforo)" />
+                           :input-class="inputRangeClass('Fosforo', form.fosforo)" />
                 </td>
-                <td>{{ rangoTexto('Fósforo') }}</td>
-                <td>{{ rangoUnidad('Fósforo') }}</td>
+                <td>{{ rangoTexto('Fosforo') }}</td>
+                <td>{{ rangoUnidad('Fosforo') }}</td>
               </tr>
 
               <tr v-if="canServicios(['MAGNESIO','IONOGRAMA (NA,K,CL,CA,Mg,P)'])">
@@ -500,7 +505,7 @@
               </thead>
 
               <tbody>
-              <tr v-if="canServicios('CREATININA EN ORINA (CREATINURIA)')">
+              <tr v-if="canServicios(['CREATININA EN ORINA (CREATINURIA)','CLEARENCE DE CREATININA'])">
                 <td>Creatinuria 24 hrs.</td>
                 <td>
                   <q-input v-model.number="form.creatinuria_24h" dense outlined type="number" step="0.01"

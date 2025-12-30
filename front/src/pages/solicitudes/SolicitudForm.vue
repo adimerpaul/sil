@@ -348,6 +348,7 @@ export default {
         'HOSPITALIZACION QUEMADOS',
         'HOSPITALIZACION UNIDAD DE CUIDADOS INTENSIVOS (UCI)',
         'HOSPITALIZACION UNIDAD DE TERAPIA NTENSIVA (UTI)',
+        'SOLICITUD EXTERNA'
       ],
 
       doctoresOptions: [],

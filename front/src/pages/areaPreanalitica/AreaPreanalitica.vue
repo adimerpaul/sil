@@ -28,6 +28,503 @@
         </div>
 
         <div class="col-12 col-sm-4 text-right">
+<!--          "data": [-->
+<!--          {-->
+<!--          "id": 51,-->
+<!--          "paciente_id": 2,-->
+<!--          "doctor_id": null,-->
+<!--          "codigo_solicitud": null,-->
+<!--          "tipo_atencion": "SI",-->
+<!--          "tipo_otro": null,-->
+<!--          "fecha_solicitud": "2025-12-30",-->
+<!--          "hora_solicitud": "04:32:00",-->
+<!--          "establecimiento_salud": "Hospital General",-->
+<!--          "zona_establecimiento": null,-->
+<!--          "diagnostico_clinico": null,-->
+<!--          "diagnostico_select": null,-->
+<!--          "estado": "CREADO",-->
+<!--          "codigo": null,-->
+<!--          "nro_registro": null,-->
+<!--          "fecha_creacion": "2025-12-30 04:32:58",-->
+<!--          "fecha_pre_analitica": null,-->
+<!--          "fecha_envio_analitica": null,-->
+<!--          "fecha_aceptacion_analitica": null,-->
+<!--          "fecha_finalizacion": null,-->
+<!--          "sala": null,-->
+<!--          "cama": null,-->
+<!--          "paciente_nombre": "Adimer Paul Chambi Ajata",-->
+<!--          "paciente_ci": "7336199",-->
+<!--          "paciente_telefono": "69603027",-->
+<!--          "paciente_direccion": "Av. Siempre Viva 742",-->
+<!--          "paciente_fecha_nac": "1989-04-02",-->
+<!--          "paciente_genero": "M",-->
+<!--          "paciente_edad": 36,-->
+<!--          "doctor_nombre": null,-->
+<!--          "doctor_especialidad": null,-->
+<!--          "doctor_ci": null,-->
+<!--          "doctor_telefono": null,-->
+<!--          "doctor_email": null,-->
+<!--          "doctor_registro": null,-->
+<!--          "establecimiento_id": 1,-->
+<!--          "user_id": 1,-->
+<!--          "user_preanalitica_id": null,-->
+<!--          "user_analitica_id": null,-->
+<!--          "muestra_sangre_entera": null,-->
+<!--          "muestra_coagulo": null,-->
+<!--          "muestra_volumen": null,-->
+<!--          "muestra_identificacion": null,-->
+<!--          "muestra_equipo": null,-->
+<!--          "muestra_rechazada": null,-->
+<!--          "muestra_observacion": null,-->
+<!--          "numero_factura": null,-->
+<!--          "paciente": {-->
+<!--          "id": 2,-->
+<!--          "fecha_recepcion": "2025-12-15",-->
+<!--          "hora_recepcion": "05:43:59",-->
+<!--          "nombre_completo": "Adimer Paul Chambi Ajata",-->
+<!--          "fecha_nac": "1989-04-02",-->
+<!--          "genero": "M",-->
+<!--          "edad": 36,-->
+<!--          "ci": "7336199",-->
+<!--          "telefono": "69603027",-->
+<!--          "direccion": "Av. Siempre Viva 742",-->
+<!--          "discapacidad": 0,-->
+<!--          "discapacidad_cual": null,-->
+<!--          "discapacidad_otro": null,-->
+<!--          "embarazo": 0,-->
+<!--          "fum": null,-->
+<!--          "sem_gest": null-->
+<!--          },-->
+<!--          "doctor": null,-->
+<!--          "servicios": [-->
+<!--          {-->
+<!--          "id": 1,-->
+<!--          "area_id": 1,-->
+<!--          "codigo": 1,-->
+<!--          "nombre": "COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)",-->
+<!--          "descripcion": null,-->
+<!--          "metodo": "M\/SA",-->
+<!--          "subarea": null,-->
+<!--          "precio": "55.00",-->
+<!--          "estado": "ACTIVO",-->
+<!--          "pivot": {-->
+<!--          "solicitude_id": 51,-->
+<!--          "servicio_id": 1,-->
+<!--          "precio": "55.00",-->
+<!--          "area_id": 1,-->
+<!--          "nombre": "COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)",-->
+<!--          "created_at": "2025-12-30T08:32:58.000000Z",-->
+<!--          "updated_at": "2025-12-30T08:32:58.000000Z"-->
+<!--          },-->
+<!--          "area": {-->
+<!--          "id": 1,-->
+<!--          "name": "HEMATOLOG\u00cdA (Area 2)",-->
+<!--          "descripcion": "HEMATOLOG\u00cdA (Area 2)",-->
+<!--          "title": "HEMATOLOG\u00cdA",-->
+<!--          "estado": "ACTIVO",-->
+<!--          "area_tipo_muestras": [-->
+<!--          {-->
+<!--          "id": 1,-->
+<!--          "area_id": 1,-->
+<!--          "tipo_muestra": "Hemograma (tapa lila)"-->
+<!--          },-->
+<!--          {-->
+<!--          "id": 2,-->
+<!--          "area_id": 1,-->
+<!--          "tipo_muestra": "TP plasma (tapa celeste 1:9)"-->
+<!--          },-->
+<!--          {-->
+<!--          "id": 3,-->
+<!--          "area_id": 1,-->
+<!--          "tipo_muestra": "VSG (tapa celeste 1:4)"-->
+<!--          }-->
+<!--          ]-->
+<!--          }-->
+<!--          },-->
+<!--          {-->
+<!--          "id": 15,-->
+<!--          "area_id": 2,-->
+<!--          "codigo": 15,-->
+<!--          "nombre": "ALBUMINA",-->
+<!--          "descripcion": null,-->
+<!--          "metodo": "M\/A",-->
+<!--          "subarea": "Qu\u00edmica Sangu\u00ednea",-->
+<!--          "precio": "20.00",-->
+<!--          "estado": "ACTIVO",-->
+<!--          "pivot": {-->
+<!--          "solicitude_id": 51,-->
+<!--          "servicio_id": 15,-->
+<!--          "precio": "20.00",-->
+<!--          "area_id": 2,-->
+<!--          "nombre": "ALBUMINA",-->
+<!--          "created_at": "2025-12-30T08:32:58.000000Z",-->
+<!--          "updated_at": "2025-12-30T08:32:58.000000Z"-->
+<!--          },-->
+<!--          "area": {-->
+<!--          "id": 2,-->
+<!--          "name": "QU\u00cdMICA SANGU\u00cdNEA Y SEROLOG\u00cdA (Area 3)",-->
+<!--          "descripcion": "QU\u00cdMICA SANGU\u00cdNEA Y SEROLOG\u00cdA (Area 3)",-->
+<!--          "title": "QU\u00cdMICA SANGU\u00cdNEA Y SEROLOG\u00cdA",-->
+<!--          "estado": "ACTIVO",-->
+<!--          "area_tipo_muestras": [-->
+<!--          {-->
+<!--          "id": 4,-->
+<!--          "area_id": 2,-->
+<!--          "tipo_muestra": "Suero"-->
+<!--          },-->
+<!--          {-->
+<!--          "id": 38,-->
+<!--          "area_id": 2,-->
+<!--          "tipo_muestra": "L\u00edquido Ascitico"-->
+<!--          }-->
+<!--          ]-->
+<!--          }-->
+<!--          }-->
+<!--          ],-->
+<!--          "user_preanalitica": null,-->
+<!--          "user": {-->
+<!--          "id": 1,-->
+<!--          "name": "Admin User",-->
+<!--          "username": "admin",-->
+<!--          "role": "Administrador",-->
+<!--          "area_id": 1,-->
+<!--          "avatar": "default.png",-->
+<!--          "email": "",-->
+<!--          "email_verified_at": null,-->
+<!--          "establecimiento_id": 1-->
+<!--          }-->
+<!--          },-->
+<!--          {-->
+<!--          "id": 44,-->
+<!--          "paciente_id": 5,-->
+<!--          "doctor_id": null,-->
+<!--          "codigo_solicitud": null,-->
+<!--          "tipo_atencion": "SI",-->
+<!--          "tipo_otro": null,-->
+<!--          "fecha_solicitud": "2025-12-28",-->
+<!--          "hora_solicitud": "04:48:00",-->
+<!--          "establecimiento_salud": "Hospital General",-->
+<!--          "zona_establecimiento": null,-->
+<!--          "diagnostico_clinico": null,-->
+<!--          "diagnostico_select": null,-->
+<!--          "estado": "ATENDIENDO",-->
+<!--          "codigo": 30,-->
+<!--          "nro_registro": "GQL100789",-->
+<!--          "fecha_creacion": "2025-12-29 04:48:47",-->
+<!--          "fecha_pre_analitica": "2025-12-29 04:48:54",-->
+<!--          "fecha_envio_analitica": null,-->
+<!--          "fecha_aceptacion_analitica": null,-->
+<!--          "fecha_finalizacion": null,-->
+<!--          "sala": null,-->
+<!--          "cama": null,-->
+<!--          "paciente_nombre": "Giovanna Maria Quispe Lopez",-->
+<!--          "paciente_ci": "3540043",-->
+<!--          "paciente_telefono": "72461667",-->
+<!--          "paciente_direccion": "Final America",-->
+<!--          "paciente_fecha_nac": "1989-07-10",-->
+<!--          "paciente_genero": "F",-->
+<!--          "paciente_edad": 36,-->
+<!--          "doctor_nombre": null,-->
+<!--          "doctor_especialidad": null,-->
+<!--          "doctor_ci": null,-->
+<!--          "doctor_telefono": null,-->
+<!--          "doctor_email": null,-->
+<!--          "doctor_registro": null,-->
+<!--          "establecimiento_id": 1,-->
+<!--          "user_id": 1,-->
+<!--          "user_preanalitica_id": 1,-->
+<!--          "user_analitica_id": null,-->
+<!--          "muestra_sangre_entera": null,-->
+<!--          "muestra_coagulo": null,-->
+<!--          "muestra_volumen": null,-->
+<!--          "muestra_identificacion": null,-->
+<!--          "muestra_equipo": null,-->
+<!--          "muestra_rechazada": null,-->
+<!--          "muestra_observacion": null,-->
+<!--          "numero_factura": null,-->
+<!--          "paciente": {-->
+<!--          "id": 5,-->
+<!--          "fecha_recepcion": null,-->
+<!--          "hora_recepcion": null,-->
+<!--          "nombre_completo": "Giovanna Maria Quispe Lopez",-->
+<!--          "fecha_nac": "1989-07-10",-->
+<!--          "genero": "F",-->
+<!--          "edad": 36,-->
+<!--          "ci": "3540043",-->
+<!--          "telefono": "69603027",-->
+<!--          "direccion": "Final America",-->
+<!--          "discapacidad": 0,-->
+<!--          "discapacidad_cual": null,-->
+<!--          "discapacidad_otro": null,-->
+<!--          "embarazo": 1,-->
+<!--          "fum": "2025-03-01",-->
+<!--          "sem_gest": 41-->
+<!--          },-->
+<!--          "doctor": null,-->
+<!--          "servicios": [-->
+<!--          {-->
+<!--          "id": 1,-->
+<!--          "area_id": 1,-->
+<!--          "codigo": 1,-->
+<!--          "nombre": "COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)",-->
+<!--          "descripcion": null,-->
+<!--          "metodo": "M\/SA",-->
+<!--          "subarea": null,-->
+<!--          "precio": "55.00",-->
+<!--          "estado": "ACTIVO",-->
+<!--          "pivot": {-->
+<!--          "solicitude_id": 44,-->
+<!--          "servicio_id": 1,-->
+<!--          "precio": "55.00",-->
+<!--          "area_id": 1,-->
+<!--          "nombre": "COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)",-->
+<!--          "created_at": "2025-12-29T08:48:47.000000Z",-->
+<!--          "updated_at": "2025-12-29T08:48:47.000000Z"-->
+<!--          },-->
+<!--          "area": {-->
+<!--          "id": 1,-->
+<!--          "name": "HEMATOLOG\u00cdA (Area 2)",-->
+<!--          "descripcion": "HEMATOLOG\u00cdA (Area 2)",-->
+<!--          "title": "HEMATOLOG\u00cdA",-->
+<!--          "estado": "ACTIVO",-->
+<!--          "area_tipo_muestras": [-->
+<!--          {-->
+<!--          "id": 1,-->
+<!--          "area_id": 1,-->
+<!--          "tipo_muestra": "Hemograma (tapa lila)"-->
+<!--          },-->
+<!--          {-->
+<!--          "id": 2,-->
+<!--          "area_id": 1,-->
+<!--          "tipo_muestra": "TP plasma (tapa celeste 1:9)"-->
+<!--          },-->
+<!--          {-->
+<!--          "id": 3,-->
+<!--          "area_id": 1,-->
+<!--          "tipo_muestra": "VSG (tapa celeste 1:4)"-->
+<!--          }-->
+<!--          ]-->
+<!--          }-->
+<!--          },-->
+<!--          {-->
+<!--          "id": 14,-->
+<!--          "area_id": 2,-->
+<!--          "codigo": 14,-->
+<!--          "nombre": "\u00c1CIDO \u00daRICO",-->
+<!--          "descripcion": null,-->
+<!--          "metodo": "M\/A",-->
+<!--          "subarea": "Qu\u00edmica Sangu\u00ednea",-->
+<!--          "precio": "20.00",-->
+<!--          "estado": "ACTIVO",-->
+<!--          "pivot": {-->
+<!--          "solicitude_id": 44,-->
+<!--          "servicio_id": 14,-->
+<!--          "precio": "20.00",-->
+<!--          "area_id": 2,-->
+<!--          "nombre": "\u00c1CIDO \u00daRICO",-->
+<!--          "created_at": "2025-12-29T08:48:47.000000Z",-->
+<!--          "updated_at": "2025-12-29T08:48:47.000000Z"-->
+<!--          },-->
+<!--          "area": {-->
+<!--          "id": 2,-->
+<!--          "name": "QU\u00cdMICA SANGU\u00cdNEA Y SEROLOG\u00cdA (Area 3)",-->
+<!--          "descripcion": "QU\u00cdMICA SANGU\u00cdNEA Y SEROLOG\u00cdA (Area 3)",-->
+<!--          "title": "QU\u00cdMICA SANGU\u00cdNEA Y SEROLOG\u00cdA",-->
+<!--          "estado": "ACTIVO",-->
+<!--          "area_tipo_muestras": [-->
+<!--          {-->
+<!--          "id": 4,-->
+<!--          "area_id": 2,-->
+<!--          "tipo_muestra": "Suero"-->
+<!--          },-->
+<!--          {-->
+<!--          "id": 38,-->
+<!--          "area_id": 2,-->
+<!--          "tipo_muestra": "L\u00edquido Ascitico"-->
+<!--          }-->
+<!--          ]-->
+<!--          }-->
+<!--          }-->
+<!--          ],-->
+<!--          "user_preanalitica": {-->
+<!--          "id": 1,-->
+<!--          "name": "Admin User",-->
+<!--          "username": "admin",-->
+<!--          "role": "Administrador",-->
+<!--          "area_id": 1,-->
+<!--          "avatar": "default.png",-->
+<!--          "email": "",-->
+<!--          "email_verified_at": null,-->
+<!--          "establecimiento_id": 1-->
+<!--          },-->
+<!--          "user": {-->
+<!--          "id": 1,-->
+<!--          "name": "Admin User",-->
+<!--          "username": "admin",-->
+<!--          "role": "Administrador",-->
+<!--          "area_id": 1,-->
+<!--          "avatar": "default.png",-->
+<!--          "email": "",-->
+<!--          "email_verified_at": null,-->
+<!--          "establecimiento_id": 1-->
+<!--          }-->
+<!--          },-->
+<!--          {-->
+<!--          "id": 34,-->
+<!--          "paciente_id": 2,-->
+<!--          "doctor_id": null,-->
+<!--          "codigo_solicitud": null,-->
+<!--          "tipo_atencion": "SI",-->
+<!--          "tipo_otro": null,-->
+<!--          "fecha_solicitud": "2025-12-22",-->
+<!--          "hora_solicitud": "06:28:00",-->
+<!--          "establecimiento_salud": "Hospital General",-->
+<!--          "zona_establecimiento": null,-->
+<!--          "diagnostico_clinico": null,-->
+<!--          "diagnostico_select": null,-->
+<!--          "estado": "MUESTRA RECHAZADA",-->
+<!--          "codigo": 23,-->
+<!--          "nro_registro": "ACA020489",-->
+<!--          "fecha_creacion": "2025-12-22 06:28:14",-->
+<!--          "fecha_pre_analitica": "2025-12-22 06:28:19",-->
+<!--          "fecha_envio_analitica": "2025-12-22 06:28:23",-->
+<!--          "fecha_aceptacion_analitica": null,-->
+<!--          "fecha_finalizacion": "2025-12-22 10:08:52",-->
+<!--          "sala": null,-->
+<!--          "cama": null,-->
+<!--          "paciente_nombre": "Adimer Paul Chambi Ajata",-->
+<!--          "paciente_ci": "7336199",-->
+<!--          "paciente_telefono": "69603027",-->
+<!--          "paciente_direccion": "Av. Siempre Viva 742",-->
+<!--          "paciente_fecha_nac": "1989-04-02",-->
+<!--          "paciente_genero": "M",-->
+<!--          "paciente_edad": 36,-->
+<!--          "doctor_nombre": null,-->
+<!--          "doctor_especialidad": null,-->
+<!--          "doctor_ci": null,-->
+<!--          "doctor_telefono": null,-->
+<!--          "doctor_email": null,-->
+<!--          "doctor_registro": null,-->
+<!--          "establecimiento_id": 1,-->
+<!--          "user_id": 1,-->
+<!--          "user_preanalitica_id": 1,-->
+<!--          "user_analitica_id": null,-->
+<!--          "muestra_sangre_entera": null,-->
+<!--          "muestra_coagulo": null,-->
+<!--          "muestra_volumen": null,-->
+<!--          "muestra_identificacion": null,-->
+<!--          "muestra_equipo": null,-->
+<!--          "muestra_rechazada": "Si",-->
+<!--          "muestra_observacion": "jejej",-->
+<!--          "numero_factura": null,-->
+<!--          "paciente": {-->
+<!--          "id": 2,-->
+<!--          "fecha_recepcion": "2025-12-15",-->
+<!--          "hora_recepcion": "05:43:59",-->
+<!--          "nombre_completo": "Adimer Paul Chambi Ajata",-->
+<!--          "fecha_nac": "1989-04-02",-->
+<!--          "genero": "M",-->
+<!--          "edad": 36,-->
+<!--          "ci": "7336199",-->
+<!--          "telefono": "69603027",-->
+<!--          "direccion": "Av. Siempre Viva 742",-->
+<!--          "discapacidad": 0,-->
+<!--          "discapacidad_cual": null,-->
+<!--          "discapacidad_otro": null,-->
+<!--          "embarazo": 0,-->
+<!--          "fum": null,-->
+<!--          "sem_gest": null-->
+<!--          },-->
+<!--          "doctor": null,-->
+<!--          "servicios": [-->
+<!--          {-->
+<!--          "id": 14,-->
+<!--          "area_id": 2,-->
+<!--          "codigo": 14,-->
+<!--          "nombre": "\u00c1CIDO \u00daRICO",-->
+<!--          "descripcion": null,-->
+<!--          "metodo": "M\/A",-->
+<!--          "subarea": "Qu\u00edmica Sangu\u00ednea",-->
+<!--          "precio": "20.00",-->
+<!--          "estado": "ACTIVO",-->
+<!--          "pivot": {-->
+<!--          "solicitude_id": 34,-->
+<!--          "servicio_id": 14,-->
+<!--          "precio": "20.00",-->
+<!--          "area_id": 2,-->
+<!--          "nombre": "\u00c1CIDO \u00daRICO",-->
+<!--          "created_at": "2025-12-22T10:28:14.000000Z",-->
+<!--          "updated_at": "2025-12-22T10:28:14.000000Z"-->
+<!--          },-->
+<!--          "area": {-->
+<!--          "id": 2,-->
+<!--          "name": "QU\u00cdMICA SANGU\u00cdNEA Y SEROLOG\u00cdA (Area 3)",-->
+<!--          "descripcion": "QU\u00cdMICA SANGU\u00cdNEA Y SEROLOG\u00cdA (Area 3)",-->
+<!--          "title": "QU\u00cdMICA SANGU\u00cdNEA Y SEROLOG\u00cdA",-->
+<!--          "estado": "ACTIVO",-->
+<!--          "area_tipo_muestras": [-->
+<!--          {-->
+<!--          "id": 4,-->
+<!--          "area_id": 2,-->
+<!--          "tipo_muestra": "Suero"-->
+<!--          },-->
+<!--          {-->
+<!--          "id": 38,-->
+<!--          "area_id": 2,-->
+<!--          "tipo_muestra": "L\u00edquido Ascitico"-->
+<!--          }-->
+<!--          ]-->
+<!--          }-->
+<!--          }-->
+<!--          ],-->
+<!--          "user_preanalitica": {-->
+<!--          "id": 1,-->
+<!--          "name": "Admin User",-->
+<!--          "username": "admin",-->
+<!--          "role": "Administrador",-->
+<!--          "area_id": 1,-->
+<!--          "avatar": "default.png",-->
+<!--          "email": "",-->
+<!--          "email_verified_at": null,-->
+<!--          "establecimiento_id": 1-->
+<!--          },-->
+<!--          "user": {-->
+<!--          "id": 1,-->
+<!--          "name": "Admin User",-->
+<!--          "username": "admin",-->
+<!--          "role": "Administrador",-->
+<!--          "area_id": 1,-->
+<!--          "avatar": "default.png",-->
+<!--          "email": "",-->
+<!--          "email_verified_at": null,-->
+<!--          "establecimiento_id": 1-->
+<!--          }-->
+<!--          }-->
+<!--          ],-->
+<!--          mostrar en texto cantidad CREADO ATENDIDO MUESTRA RECHAZADO-->
+          <div>
+            <div class="text-subtitle2">
+              Total Solicitudes:
+              <span class="text-bold">{{ rows.length }}</span>
+            </div>
+            <div class="text-caption text-grey-7">
+              Creadas:
+              <span class="text-bold text-blue-6">{{ rows.filter(r => r.estado === 'CREADO').length }}</span>
+              |
+              Atendidas:
+              <span class="text-bold text-grey-6">{{ rows.filter(r => r.estado === 'ATENDIENDO').length }}</span>
+              |
+              Muestra Rechazada:
+              <span class="text-bold text-red-6">{{ rows.filter(r => r.estado === 'MUESTRA RECHAZADA').length }}</span>
+            </div>
+          </div>
+          <q-btn
+            color="red"
+            icon="add"
+            label="Mostrar Rechazadas"
+            no-caps
+            @click="showRejected"
+          />
           <q-btn
             color="primary"
             icon="refresh"
@@ -104,7 +601,7 @@
           <q-td :props="props">
             <q-chip
               dense
-              :color="props.row.estado === 'CREADO' ? 'blue-6' : 'grey-6'"
+              :color="props.row.estado === 'CREADO' ? 'blue-6' : (props.row.estado === 'MUESTRA RECHAZADA'?'red-6':'grey-6')"
               text-color="white"
               icon="pending"
             >
@@ -604,6 +1101,117 @@
 
       </q-card>
     </q-dialog>
+<!--    dialogRechazado-->
+    <q-dialog
+      v-model="dialogRechazado"
+      persistent
+      transition-show="jump-down"
+      transition-hide="jump-up"
+    >
+      <q-card class="q-pa-md" style="max-width: 95vh;width: 650px">
+        <div class="text-h6 text-center bg-grey-8 text-white">
+          SOLICITUDES CON MUESTRAS RECHAZADAS
+        </div>
+        <q-card-section class="q-pa-xs">
+          <q-markup-table
+            :rows="rows.filter(r => r.estado === 'MUESTRA RECHAZADA')"
+            :columns="columns"
+            row-key="id"
+            dense
+            flat
+            bordered
+          >
+            <thead>
+              <tr>
+  <!--              <th>Acciones</th>-->
+                <th>Fecha Solicitud</th>
+                <th>Estado</th>
+                <th>Paciente</th>
+                <th>Código</th>
+                <th>Médico Solicitante</th>
+                <th>Prestaciones</th>
+                <th>Establecimiento</th>
+                <th>Tipo atención</th>
+                <th># Prestaciones</th>
+                <th>Responsable Preanalítica</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in rows.filter(r => r.estado === 'MUESTRA RECHAZADA')" :key="row.id">
+  <!--              <td>-->
+  <!--                <q-btn-->
+  <!--                  dense-->
+  <!--                  no-caps-->
+  <!--                  outline-->
+  <!--                  color="deep-purple-6"-->
+  <!--                  icon="confirmation_number"-->
+  <!--                  :label="row.codigo ? 'Ver código' : 'Generar código'"
+
+  <!--                  @click.stop="onGenerarCodigo(row)"-->
+  <!--                />-->
+  <!--              </td>-->
+                <td>{{ row.fecha_creacion ? moment(row.fecha_creacion).format('DD/MM/YYYY HH:mm') : '' }}</td>
+                <td>
+                  <q-chip
+                    dense
+                    :color="row.estado === 'CREADO' ? 'blue-6' : (row.estado === 'MUESTRA RECHAZADA'?'red-6':'grey-6')"
+                    text-color="white"
+                    icon="pending"
+                  >
+                    {{ row.estado }}
+                  </q-chip>
+                </td>
+                <td>
+                  <div class="text-weight-medium">
+                    {{ row.paciente_nombre || row.paciente?.nombre_completo }}
+                  </div>
+                  <div class="text-caption text-grey-7">
+                    CI: {{ row.paciente_ci || row.paciente?.ci || '-' }}
+                  </div>
+                </td>
+                <td>
+                  <div v-if="row.codigo">
+                    <span class="text-bold">
+                      {{ row.codigo }} -
+                      {{ row.nro_registro }}
+                    </span>
+                  </div>
+                  <div v-else class="text-negative text-caption">
+                    Sin código
+                  </div>
+                </td>
+                <td>{{ row.doctor_nombre || row.doctor?.name || '' }}</td>
+                <td>{{ row.servicios ? row.servicios.map(s => s.nombre).join(', ') : '' }}</td>
+                <td>{{ row.establecimiento_salud || '-' }}</td>
+                <td>
+                  <q-chip
+                    dense
+                    :color="row.tipo_atencion === 'SI' ? 'green-6' : 'orange-6'"
+                    text-color="white"
+                  >
+                    {{ row.tipo_atencion === 'SI' ? 'SUS' : row.tipo_otro || 'EXT' }}
+                  </q-chip>
+                </td>
+                <td class="text-center">
+                  <q-badge color="primary" :label="row.servicios ? row.servicios.length : 0" />
+                </td>
+                <td>{{ row.user_preanalitica ? row.user_preanalitica.name : 'No asignado' }}</td>
+              </tr>
+            </tbody>
+          </q-markup-table>
+        </q-card-section>
+        <q-card-actions align="center" class="bg-grey-1 q-mt-md">
+          <q-btn
+            flat
+            label="Cerrar"
+            color="primary"
+            icon="close"
+            v-close-popup
+            no-caps
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
   </q-page>
 </template>
@@ -619,8 +1227,10 @@ export default {
       dialogConsentimiento: false,
       rows: [],
       loading: false,
+      moment: moment,
       filter: '',
       loadingRowId: null,
+      dialogRechazado: false,
       savingPre: false,          // 👈 nuevo
       selectedMuestras: [],      // 👈 nuevo: ids de area_tipo_muestras
       consentimiento: null,
@@ -641,6 +1251,12 @@ export default {
           field: row => row.fecha_creacion,
           format: val => (val ? moment(val).format('DD/MM/YYYY HH:mm') : ''),
           sortable: true,
+          align: 'left'
+        },
+        {
+          name: 'estado',
+          label: 'Estado',
+          field: 'estado',
           align: 'left'
         },
         {
@@ -678,12 +1294,6 @@ export default {
           name: 'tipo_atencion',
           label: 'Tipo atención',
           field: 'tipo_atencion',
-          align: 'left'
-        },
-        {
-          name: 'estado',
-          label: 'Estado',
-          field: 'estado',
           align: 'left'
         },
         {
@@ -797,6 +1407,9 @@ export default {
       }
 
       return resultado.trim();
+    },
+    showRejected() {
+      this.dialogRechazado = true
     },
     openDialogSolicitud (action, row, index) {
       this.consentimiento = row
