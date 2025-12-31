@@ -1,5 +1,8 @@
 <template>
   <q-page class="q-pa-sm bg-grey-2">
+    <div :class="['calc-drawer', showCalculadora ? 'open' : '']">
+      <CalculadoraLab @close="showCalculadora = false" />
+    </div>
     <q-card flat bordered>
       <q-card-section class="row items-center">
         <div>
@@ -19,6 +22,16 @@
           no-caps
           :disable="!seleccionados.length"
           @click="printAll"
+        />
+<!--        btn calculadora-->
+        <q-btn
+          class="q-ml-sm"
+          outline
+          color="primary"
+          icon="calculate"
+          label="Calculadora"
+          no-caps
+          @click="showCalculadora = true"
         />
       </q-card-section>
 
@@ -197,12 +210,14 @@
 
 <script>
 import InfoServicio from "components/InfoServicio.vue";
+import CalculadoraLab from "components/CalculadoraLab.vue";
 
 export default {
   name: 'InmunologiaSolicitudPage',
-  components: {InfoServicio},
+  components: {CalculadoraLab, InfoServicio},
   data () {
     return {
+      showCalculadora: false,
       loading: false,
       saving: false,
 
@@ -367,3 +382,37 @@ export default {
   }
 }
 </script>
+<style scoped>
+.calc-backdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  z-index: 3000;
+}
+
+.calc-drawer{
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 360px;
+  max-width: 90vw;
+  height: 100vh;
+  background: #fff;
+  z-index: 3100;
+  transform: translateX(100%);
+  transition: transform .25s ease;
+  box-shadow: -10px 0 30px rgba(0,0,0,.2);
+}
+
+.calc-drawer.open{
+  transform: translateX(0);
+}
+
+.calc-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+</style>
