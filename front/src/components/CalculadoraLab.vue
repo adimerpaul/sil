@@ -4,7 +4,7 @@
     <q-card-section class="row items-center q-pb-sm">
       <div>
         <div class="text-subtitle1 text-weight-bold">Calculadora de Laboratorio</div>
-        <div class="text-caption text-grey-7">Chagas · Clamidia · ENA</div>
+<!--        <div class="text-caption text-grey-7">Chagas · Clamidia · ENA</div>-->
       </div>
       <q-space />
       <q-btn flat round dense icon="close" @click="$emit('close')" />
@@ -16,9 +16,10 @@
     <q-card-section class="q-pa-sm">
 
       <q-tabs v-model="tab" dense class="text-primary" active-color="primary" indicator-color="primary" align="justify">
-        <q-tab name="chagas" label="Chagas" />
-        <q-tab name="clamidia" label="Clamidia" />
-        <q-tab name="ena" label="ENA" />
+        <q-tab name="chagas" label="Chagas" no-caps/>
+        <q-tab name="clamidia" label="Clamidia" no-caps/>
+        <q-tab name="ena" label="ENA" no-caps/>
+        <q-tab name="toxo" label="Toxo" no-caps/>
       </q-tabs>
 
       <q-separator class="q-mt-sm q-mb-md" />
@@ -30,6 +31,15 @@
           <div class="text-subtitle2 text-weight-bold q-mb-sm">Chagas</div>
 
           <div class="row q-col-gutter-sm">
+            <div class="col-12 col-sm-6">
+              <q-input
+                v-model="chagas.posi"
+                dense outlined
+                label="Positivo"
+                hint="Ej: 1529"
+              />
+            </div>
+            <div class="col-12"></div>
             <div class="col-12 col-sm-6">
               <q-input
                 v-model="chagas.neg1"
@@ -52,24 +62,24 @@
             <q-card-section class="q-pa-sm">
               <div class="row q-col-gutter-sm">
                 <div class="col-12 col-sm-4">
-                  <div class="text-caption text-grey-7">Suma (neg1 + neg2)</div>
+                  <div class="text-caption text-grey-7">(neg1 + 0.1)</div>
                   <div class="text-body1 text-weight-bold">{{ fmt(chagasSum) }}</div>
                 </div>
                 <div class="col-12 col-sm-4">
-                  <div class="text-caption text-grey-7">Positivo (suma * 1.1)</div>
+                  <div class="text-caption text-grey-7">(neg1 + 10%)</div>
                   <div class="text-body1 text-weight-bold">{{ fmt(chagasPositivo) }}</div>
                 </div>
                 <div class="col-12 col-sm-4">
-                  <div class="text-caption text-grey-7">Control 2 (suma * 0.9)</div>
+                  <div class="text-caption text-grey-7">(neg1 - 10%)</div>
                   <div class="text-body1 text-weight-bold">{{ fmt(chagasControl2) }}</div>
                 </div>
               </div>
             </q-card-section>
           </q-card>
 
-          <div class="q-mt-sm text-caption text-grey-7">
-            Fórmulas: <b>suma=neg1+neg2</b>, <b>positivo=suma*1.1</b>, <b>control2=suma*0.9</b>
-          </div>
+<!--          <div class="q-mt-sm text-caption text-grey-7">-->
+<!--            Fórmulas: <b>suma=neg1+neg2</b>, <b>positivo=suma*1.1</b>, <b>control2=suma*0.9</b>-->
+<!--          </div>-->
         </q-tab-panel>
 
         <!-- ========================= CLAMIDIA ========================= -->
@@ -87,6 +97,22 @@
             </div>
             <div class="col-12 col-sm-6">
               <q-input
+                v-model="clamidia.posi"
+                dense outlined
+                label="Positivo (valor)"
+                hint="Ej: 2,43"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                v-model="clamidia.nega"
+                dense outlined
+                label="Negativo (valor)"
+                hint="Ej: 0,643"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
                 v-model="clamidia.sus"
                 dense outlined
                 label="6 sus (valor)"
@@ -98,7 +124,7 @@
           <q-card flat bordered class="q-mt-sm">
             <q-card-section class="q-pa-sm">
               <div class="text-caption text-grey-7">Índice (sus / cof)</div>
-              <div class="text-h6 text-weight-bold">{{ fmt(clamidiaIndice) }}</div>
+              <div class="text-h6 text-weight-bold">{{ fmt(clamidiaIndice*10) }}</div>
               <div class="text-caption text-grey-7 q-mt-xs">
                 Fórmula: <b>indice = sus / cof</b>
               </div>
@@ -181,6 +207,56 @@
             </q-card-section>
           </q-card>
         </q-tab-panel>
+        <!-- ========================= TOXO ========================= -->
+        <q-tab-panel name="toxo" class="q-pa-none">
+          <div class="text-subtitle2 text-weight-bold q-mb-sm">Toxo</div>
+          <div class="row q-col-gutter-sm">
+            <div class="col-12 col-sm-6">
+              <q-input
+                v-model="toxo.cof"
+                dense outlined
+                label="COF"
+                hint="Ej: 0,65"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                v-model="toxo.posi"
+                dense outlined
+                label="Positivo (valor)"
+                hint="Ej: 2,43"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                v-model="toxo.nega"
+                dense outlined
+                label="Negativo (valor)"
+                hint="Ej: 0,643"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                v-model="toxo.sus"
+                dense outlined
+                label="6 sus (valor)"
+                hint="Ej: 3,343"
+              />
+            </div>
+<!--            el resulado es sus/sobre cof-->
+            <div class="col-12 col-sm-12 q-mt-md">
+              <q-card flat bordered class="q-mt-sm">
+                <q-card-section class="q-pa-sm">
+                  <div class="text-caption text-grey-7">Índice (sus / cof)*10</div>
+                  <div class="text-h6 text-weight-bold">{{ fmt(toxo.sus / toxo.cof * 10) }}</div>
+                  <div class="text-caption text-grey-7 q-mt-xs">
+                    Fórmula: <b>indice = sus / cof</b>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
+          </div>
+        </q-tab-panel>
 
       </q-tab-panels>
 
@@ -206,25 +282,34 @@ export default {
       tab: 'chagas',
 
       chagas: {
-        neg1: '0,07',
-        neg2: '0,1'
+        posi: '1529',
+        neg1: '0.07',
+        neg2: '0.002'
       },
 
       clamidia: {
-        cof: '0,65',
-        sus: '3,343'
+        cof: '0.65',
+        sus: '3.343',
+        posi: '2.43',
+        nega: '0.643'
       },
 
       ena: {
-        blanco: '0,003',
-        cal_conc: '1,18',
-        cal_factor: '0,2',
-        d1: '0,056',
-        d2: '0,035',
-        d3: '0,011',
-        d4: '0,026',
-        d5: '0,038',
-        d6: '0,031'
+        blanco: '0.003',
+        cal_conc: '1.18',
+        cal_factor: '0.2',
+        d1: '0.056',
+        d2: '0.035',
+        d3: '0.011',
+        d4: '0.026',
+        d5: '0.038',
+        d6: '0.031'
+      },
+      toxo: {
+        cof: '0.788',
+        posi: '1.966',
+        nega: '0.482',
+        sus: '2.193'
       }
     }
   },
@@ -232,7 +317,7 @@ export default {
   computed: {
     // ---- CHAGAS
     chagasSum () {
-      return this.n(this.chagas.neg1) + this.n(this.chagas.neg2)
+      return this.n(this.chagas.neg1) + 0.1
     },
     chagasPositivo () {
       return this.chagasSum * 1.1
@@ -268,7 +353,8 @@ export default {
     fmt (num) {
       const n = Number(num || 0)
       // si es muy pequeño o muchos decimales: 6; sino 3
-      const dec = Math.abs(n) < 1 ? 6 : 3
+      const dec = Math.abs(n) < 1 ? 6 : 2
+      // return n.toFixed(dec).replace('.', ',') derondear a 2 decimales
       return n.toFixed(dec).replace('.', ',')
     },
 
