@@ -94,12 +94,11 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'citoquimico_mononucleares',
         'citoquimico_densidad',
 
+        'reaccion_widal_o',
+        'reaccion_widal_h',
+        'reaccion_widal_a',
+        'reaccion_widal_b',
 
-//        $table->string('prueba_rapida_hepatitis_b', 50)->nullable();    // No reactivo / Reactivo
-//$table->string('prueba_rapida_hepatitis_c', 50)->nullable();    // No reactivo / Reactivo
-//$table->string('prueba_rapida_chagas', 50)->nullable();         // No reactivo / Reactivo
-//$table->string('prueba_rapida_sifilis', 50)->nullable();         // No reactivo / Reactivo
-//$table->string('prueba_rapida_troponina', 50)->nullable();         // No reactivo / Reactivo
 
         'prueba_rapida_hepatitis_b',
         'prueba_rapida_hepatitis_c',

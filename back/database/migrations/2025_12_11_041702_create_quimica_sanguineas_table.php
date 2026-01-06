@@ -125,6 +125,11 @@ return new class extends Migration
             $table->string('prueba_rapida_sifilis', 50)->nullable();         // No reactivo / Reactivo
             $table->string('prueba_rapida_troponina', 50)->nullable();         // No reactivo / Reactivo
 
+            $table->string('reaccion_widal_o', 50)->nullable();
+            $table->string('reaccion_widal_h', 50)->nullable();
+            $table->string('reaccion_widal_a', 50)->nullable();
+            $table->string('reaccion_widal_b', 50)->nullable();
+
 
             $table->softDeletes();
             $table->timestamps();

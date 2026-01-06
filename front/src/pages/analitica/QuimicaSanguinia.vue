@@ -783,11 +783,51 @@
                 <td>{{ rangoUnidad('RPR / VDRL') }}</td>
               </tr>
 
+<!--              <tr v-if="canServicios('REACCIÓN DE WIDAL')">-->
+<!--                <td>Reacción de Widal</td>-->
+<!--                <td><q-input v-model="form.reaccion_widal" dense outlined placeholder="O-, H-, A-, B-" /></td>-->
+<!--                <td>{{ rangoTexto('Reacción de Widal') }}</td>-->
+<!--                <td>{{ rangoUnidad('Reacción de Widal') }}</td>-->
+<!--              </tr>-->
+<!--              $table->string('reaccion_widal_o', 50)->nullable();-->
+<!--              $table->string('reaccion_widal_h', 50)->nullable();-->
+<!--              $table->string('reaccion_widal_a', 50)->nullable();-->
+<!--              $table->string('reaccion_widal_b', 50)->nullable();-->
               <tr v-if="canServicios('REACCIÓN DE WIDAL')">
-                <td>Reacción de Widal</td>
-                <td><q-input v-model="form.reaccion_widal" dense outlined placeholder="O-, H-, A-, B-" /></td>
-                <td>{{ rangoTexto('Reacción de Widal') }}</td>
-                <td>{{ rangoUnidad('Reacción de Widal') }}</td>
+                <td>Reacción de Widal O</td>
+                <td>
+<!--                  <q-input v-model="form.reaccion_widal_o" dense outlined placeholder="Valor para O" />-->
+                  <q-select v-model="form.reaccion_widal_o" :options="['Negativo', 'Positivo']" dense outlined clearable />
+                </td>
+                <td>{{ rangoTexto('Reacción de Widal O') }}</td>
+                <td>{{ rangoUnidad('Reacción de Widal O') }}</td>
+              </tr>
+              <tr v-if="canServicios('REACCIÓN DE WIDAL')">
+                <td>Reacción de Widal H</td>
+                <td>
+<!--                  <q-input v-model="form.reaccion_widal_h" dense outlined placeholder="Valor para H" />-->
+                  <q-select v-model="form.reaccion_widal_h" :options="['Negativo', 'Positivo']" dense outlined clearable />
+                </td>
+                <td>{{ rangoTexto('Reacción de Widal H') }}</td>
+                <td>{{ rangoUnidad('Reacción de Widal H') }}</td>
+              </tr>
+              <tr v-if="canServicios('REACCIÓN DE WIDAL')">
+                <td>Reacción de Widal A</td>
+                <td>
+<!--                  <q-input v-model="form.reaccion_widal_a" dense outlined placeholder="Valor para A" />-->
+                  <q-select v-model="form.reaccion_widal_a" :options="['Negativo', 'Positivo']" dense outlined clearable />
+                </td>
+                <td>{{ rangoTexto('Reacción de Widal A') }}</td>
+                <td>{{ rangoUnidad('Reacción de Widal A') }}</td>
+              </tr>
+              <tr v-if="canServicios('REACCIÓN DE WIDAL')">
+                <td>Reacción de Widal B</td>
+                <td>
+<!--                  <q-input v-model="form.reaccion_widal_b" dense outlined placeholder="Valor para B" />-->
+                  <q-select v-model="form.reaccion_widal_b" :options="['Negativo', 'Positivo']" dense outlined clearable />
+                </td>
+                <td>{{ rangoTexto('Reacción de Widal B') }}</td>
+                <td>{{ rangoUnidad('Reacción de Widal B') }}</td>
               </tr>
               <tr v-if="canServicios('CLEARENCE DE CREATININA')">
                 <td>DCE</td>
