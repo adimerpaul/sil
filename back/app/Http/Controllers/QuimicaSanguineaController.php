@@ -11,6 +11,27 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class QuimicaSanguineaController extends Controller
 {
+    function pdfCitoQuimicoBySolicitude($code)
+    {
+        $solicitudeId = QuimicaSanguinea::where('code', $code)->value('solicitude_id');
+
+        $solicitud = Solicitude::with(['paciente', 'doctor', 'servicios.area'])->findOrFail($solicitudeId);
+        $quimica   = QuimicaSanguinea::where('solicitude_id', $solicitudeId)->first();
+
+        if (!$quimica) {
+            $quimica = new QuimicaSanguinea();
+            $quimica->solicitude_id = $solicitudeId;
+        }
+        $url = url("/api/quimica-sanguinea/solicitud/{$code}/pdf/citoquimico");
+        $qrSvgBase64 = base64_encode(QrCode::format('svg')->size(110)->margin(1)->generate($url));
+        $pdf = Pdf::loadView('pdf.quimica_sanguinea_citoquimico', [
+            'solicitud'     => $solicitud,
+            'quimica'       => $quimica,
+            'qrSvgBase64'   => $qrSvgBase64,
+            'url'           => $url,
+        ])->setPaper('letter');
+        return $pdf->stream('CITOQUIMICO_'.$solicitud->nro_registro.'.pdf');
+    }
     function pdfToleranciaBySolicitude($code)
     {
         $solicitudeId = QuimicaSanguinea::where('code', $code)->value('solicitude_id');

@@ -119,6 +119,12 @@ return new class extends Migration
             $table->string('tolerancia_hora_4h', 8, 2)->nullable();
             $table->string('tolerancia_hora_5h', 8, 2)->nullable();
 
+            $table->string('prueba_rapida_hepatitis_b', 50)->nullable();    // No reactivo / Reactivo
+            $table->string('prueba_rapida_hepatitis_c', 50)->nullable();    // No reactivo / Reactivo
+            $table->string('prueba_rapida_chagas', 50)->nullable();         // No reactivo / Reactivo
+            $table->string('prueba_rapida_sifilis', 50)->nullable();         // No reactivo / Reactivo
+            $table->string('prueba_rapida_troponina', 50)->nullable();         // No reactivo / Reactivo
+
 
             $table->softDeletes();
             $table->timestamps();
