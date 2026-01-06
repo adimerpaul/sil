@@ -109,21 +109,76 @@
 
                     <q-separator spaced />
 
+<!--                    &lt;!&ndash; QUÍMICA SANGUÍNEA &ndash;&gt;-->
+<!--                    <q-item clickable @click="$router.push({ name: 'analitica-quimica-sanguinia', params: { id: solicitud.id } })" v-close-popup dense>-->
+<!--                      <q-item-section avatar><q-icon name="science" /></q-item-section>-->
+<!--                      <q-item-section>Química Sanguínea</q-item-section>-->
+<!--                    </q-item>-->
+<!--                    <q-item clickable @click="printQuimica(solicitud)" v-close-popup dense v-if="solicitud.quimica_sanguinea?.code">-->
+<!--                      <q-item-section avatar><q-icon name="print" /></q-item-section>-->
+<!--                      <q-item-section>Imprimir Química Sanguínea</q-item-section>-->
+<!--                    </q-item>-->
+<!--&lt;!&ndash;                    imprimi curva de tolerancia&ndash;&gt;-->
+<!--                    <q-item clickable @click="printQuimicaTolerancia(solicitud)" v-close-popup dense v-if="solicitud.quimica_sanguinea?.code">-->
+<!--                      <q-item-section avatar><q-icon name="show_chart" /></q-item-section>-->
+<!--                      <q-item-section>Curva de Tolerancia</q-item-section>-->
+<!--                    </q-item>-->
+<!--&lt;!&ndash;                    imprecion de cito quimico&ndash;&gt;-->
+<!--                    <q-item clickable @click="printCitoQuimico(solicitud)" v-close-popup dense v-if="solicitud.quimica_sanguinea?.code">-->
+<!--                      <q-item-section avatar><q-icon name="biotech" /></q-item-section>-->
+<!--                      <q-item-section>Cito Químico</q-item-section>-->
+<!--                    </q-item>-->
+
+
                     <!-- QUÍMICA SANGUÍNEA -->
                     <q-item clickable @click="$router.push({ name: 'analitica-quimica-sanguinia', params: { id: solicitud.id } })" v-close-popup dense>
                       <q-item-section avatar><q-icon name="science" /></q-item-section>
                       <q-item-section>Química Sanguínea</q-item-section>
                     </q-item>
-                    <q-item clickable @click="printQuimica(solicitud)" v-close-popup dense v-if="solicitud.quimica_sanguinea?.code">
-                      <q-item-section avatar><q-icon name="print" /></q-item-section>
-                      <q-item-section>Imprimir Química Sanguínea</q-item-section>
-                    </q-item>
-<!--                    imprimi curva de tolerancia-->
-                    <q-item clickable @click="printQuimicaTolerancia(solicitud)" v-close-popup dense v-if="solicitud.quimica_sanguinea?.code">
-                      <q-item-section avatar><q-icon name="show_chart" /></q-item-section>
-                      <q-item-section>Curva de Tolerancia</q-item-section>
-                    </q-item>
 
+                    <!-- SUBMENÚ: IMPRESIÓN -->
+                    <q-item dense v-if="solicitud.quimica_sanguinea?.code">
+                      <q-item-section avatar>
+                        <q-icon name="print" />
+                      </q-item-section>
+
+                      <q-item-section>
+                        Impresión
+                      </q-item-section>
+
+                      <q-item-section side>
+                        <q-icon name="chevron_right" />
+                      </q-item-section>
+
+                      <q-menu anchor="top end" self="top start">
+                        <q-list dense style="min-width: 220px">
+
+                          <q-item clickable v-close-popup dense @click="printQuimica(solicitud)">
+                            <q-item-section avatar><q-icon name="science" /></q-item-section>
+                            <q-item-section>Imprimir Química</q-item-section>
+                          </q-item>
+
+                          <q-item clickable v-close-popup dense @click="printQuimicaTolerancia(solicitud)">
+                            <q-item-section avatar><q-icon name="show_chart" /></q-item-section>
+                            <q-item-section>Curva de Tolerancia</q-item-section>
+                          </q-item>
+
+                          <q-item clickable v-close-popup dense @click="printCitoQuimico(solicitud)">
+                            <q-item-section avatar><q-icon name="biotech" /></q-item-section>
+                            <q-item-section>Citoquímico</q-item-section>
+                          </q-item>
+
+                          <!-- FUTURO: aquí vas agregando más items de impresión -->
+                          <!--
+                          <q-item clickable v-close-popup dense @click="printOtroFormulario(solicitud)">
+                            <q-item-section avatar><q-icon name="description" /></q-item-section>
+                            <q-item-section>Otro Formulario</q-item-section>
+                          </q-item>
+                          -->
+
+                        </q-list>
+                      </q-menu>
+                    </q-item>
                     <!-- WhatsApp Química -->
                     <q-item clickable @click="enviarWhatsApp(solicitud,'QuimicaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.quimica_sanguinea?.code">
                       <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
@@ -345,6 +400,11 @@ export default {
     },
     printQuimicaTolerancia(solicitud) {
       const url = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${solicitud.quimica_sanguinea?.code}/pdf-tolerancia`
+      window.open(url, '_blank')
+    },
+
+    printCitoQuimico(solicitud) {
+      const url = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${solicitud.quimica_sanguinea?.code}/pdf-cito-quimico`
       window.open(url, '_blank')
     },
 

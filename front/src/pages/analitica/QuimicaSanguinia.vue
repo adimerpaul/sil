@@ -714,12 +714,66 @@
                 <td>{{ rangoTexto('PCR') }}</td>
                 <td>{{ rangoUnidad('PCR') }}</td>
               </tr>
+<!--              PRUEBA RAPIDA PARA HEPATITIS B-->
+<!--              PRUEBA RAPIDA PARA HEPATITIS C-->
+<!--              PRUEBA RAPIDA PARA CHAGAS-->
+<!--              PRUEBA RAPIDA PARA VIH-->
+<!--              PRUEBA RAPIDA PARA SIFILIS-->
+<!--              PRUEBA RAPIDA PARA TROPONINA-->
+              <tr v-if="canServicios('PRUEBA RAPIDA PARA HEPATITIS B')">
+                <td>Prueba rápida Hepatitis B</td>
+                <td style="width: 250px;">
+<!--                  <q-input v-model="form.prueba_rapida_hepatitis_b" dense outlined placeholder="Reactivo / No reactivo" />-->
+                  <q-select v-model="form.prueba_rapida_hepatitis_b" :options="['Reactivo', 'No reactivo']" dense outlined clearable />
+                </td>
+                <td>{{ rangoTexto('Prueba rápida Hepatitis B') }}</td>
+                <td>{{ rangoUnidad('Prueba rápida Hepatitis B') }}</td>
+              </tr>
+              <tr v-if="canServicios('PRUEBA RAPIDA PARA HEPATITIS C')">
+                <td>Prueba rápida Hepatitis C</td>
+                <td style="width: 250px;">
+<!--                  <q-input v-model="form.prueba_rapida_hepatitis_c" dense outlined placeholder="Reactivo / No reactivo" />-->
+                  <q-select v-model="form.prueba_rapida_hepatitis_c" :options="['Reactivo', 'No reactivo']" dense outlined clearable />
+                </td>
+                <td>{{ rangoTexto('Prueba rápida Hepatitis C') }}</td>
+                <td>{{ rangoUnidad('Prueba rápida Hepatitis C') }}</td>
+              </tr>
+              <tr v-if="canServicios('PRUEBA RAPIDA PARA CHAGAS')">
+                <td>Prueba rápida Chagas</td>
+                <td style="width: 250px;">
+<!--                  <q-input v-model="form.prueba_rapida_chagas" dense outlined placeholder="Reactivo / No reactivo" />-->
+                  <q-select v-model="form.prueba_rapida_chagas" :options="['Reactivo', 'No reactivo']" dense outlined clearable />
+                </td>
+                <td>{{ rangoTexto('Prueba rápida Chagas') }}</td>
+                <td>{{ rangoUnidad('Prueba rápida Chagas') }}</td>
+              </tr>
 
               <tr v-if="canServicios('PRUEBA RAPIDA PARA VIH')">
                 <td>Prueba rápida VIH</td>
-                <td><q-input v-model="form.prueba_rapida_vih" dense outlined placeholder="Reactivo / No reactivo" /></td>
+                <td style="width: 250px;">
+<!--                  <q-input v-model="form.prueba_rapida_vih" dense outlined placeholder="Reactivo / No reactivo" />-->
+                  <q-select v-model="form.prueba_rapida_vih" :options="['Reactivo', 'No reactivo']" dense outlined clearable />
+                </td>
                 <td>{{ rangoTexto('Prueba rápida VIH') }}</td>
                 <td>{{ rangoUnidad('Prueba rápida VIH') }}</td>
+              </tr>
+              <tr v-if="canServicios('PRUEBA RAPIDA PARA SIFILIS')">
+                <td>Prueba rápida Sífilis</td>
+                <td style="width: 250px;">
+<!--                  <q-input v-model="form.prueba_rapida_sifilis" dense outlined placeholder="Reactivo / No reactivo" />-->
+                  <q-select v-model="form.prueba_rapida_sifilis" :options="['Reactivo', 'No reactivo']" dense outlined clearable />
+                </td>
+                <td>{{ rangoTexto('Prueba rápida Sífilis') }}</td>
+                <td>{{ rangoUnidad('Prueba rápida Sífilis') }}</td>
+              </tr>
+              <tr v-if="canServicios('PRUEBA RAPIDA PARA TROPONINA')">
+                <td>Prueba rápida Troponina</td>
+                <td style="width: 250px;">
+<!--                  <q-input v-model="form.prueba_rapida_troponina" dense outlined placeholder="Reactivo / No reactivo" />-->
+                  <q-select v-model="form.prueba_rapida_troponina" :options="['Reactivo', 'No reactivo']" dense outlined clearable />
+                </td>
+                <td>{{ rangoTexto('Prueba rápida Troponina') }}</td>
+                <td>{{ rangoUnidad('Prueba rápida Troponina') }}</td>
               </tr>
 
               <tr v-if="canServicios('RPR- VDRL')">
