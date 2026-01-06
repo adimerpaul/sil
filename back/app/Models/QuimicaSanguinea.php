@@ -93,6 +93,16 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'citoquimico_polimorfonucleares',
         'citoquimico_mononucleares',
         'citoquimico_densidad',
+        'tolerancia_glucosa_1h',
+        'tolerancia_glucosa_2h',
+        'tolerancia_glucosa_3h',
+        'tolerancia_glucosa_4h',
+        'tolerancia_glucosa_5h',
+        'tolerancia_hora_1h',
+        'tolerancia_hora_2h',
+        'tolerancia_hora_3h',
+        'tolerancia_hora_4h',
+        'tolerancia_hora_5h',
     ];
 
     protected $hidden = [

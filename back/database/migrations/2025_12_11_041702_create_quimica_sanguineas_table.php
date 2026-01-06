@@ -106,6 +106,19 @@ return new class extends Migration
             $table->decimal('citoquimico_mononucleares', 8, 2)->nullable();
             $table->string('citoquimico_densidad', 8, 2)->nullable();
 
+//            tolerancia de glucosa del 1 al 6
+            $table->decimal('tolerancia_glucosa_1h', 8, 2)->nullable();
+            $table->decimal('tolerancia_glucosa_2h', 8, 2)->nullable();
+            $table->decimal('tolerancia_glucosa_3h', 8, 2)->nullable();
+            $table->decimal('tolerancia_glucosa_4h', 8, 2)->nullable();
+            $table->decimal('tolerancia_glucosa_5h', 8, 2)->nullable();
+            //            tolerancia de glucosa del 1 al 6 horas
+            $table->string('tolerancia_hora_1h', 8, 2)->nullable();
+            $table->string('tolerancia_hora_2h', 8, 2)->nullable();
+            $table->string('tolerancia_hora_3h', 8, 2)->nullable();
+            $table->string('tolerancia_hora_4h', 8, 2)->nullable();
+            $table->string('tolerancia_hora_5h', 8, 2)->nullable();
+
 
             $table->softDeletes();
             $table->timestamps();

@@ -8,8 +8,7 @@ use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 class ServicioSolicitude extends Model implements AuditableContract
 {
-    use AuditableTrait, SoftDeletes
-        ;
+    use AuditableTrait, SoftDeletes;
 
     protected $fillable = [
         'solicitud_id',

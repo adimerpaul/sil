@@ -45,10 +45,10 @@ class SolicitudeController extends Controller
             ->whereNull('deleted_at');
 
         if ($dateFrom) {
-            $query->whereDate('fecha_solicitud', '>=', $dateFrom);
+            $query->whereDate('fecha_creacion', '>=', $dateFrom);
         }
         if ($dateTo) {
-            $query->whereDate('fecha_solicitud', '<=', $dateTo);
+            $query->whereDate('fecha_creacion', '<=', $dateTo);
         }
 
         // 1) KPIs de SOLICITUDES
@@ -74,10 +74,10 @@ class SolicitudeController extends Controller
             ->whereNull('s.deleted_at');
 
         if ($dateFrom) {
-            $serviciosQuery->whereDate('s.fecha_solicitud', '>=', $dateFrom);
+            $serviciosQuery->whereDate('s.fecha_creacion', '>=', $dateFrom);
         }
         if ($dateTo) {
-            $serviciosQuery->whereDate('s.fecha_solicitud', '<=', $dateTo);
+            $serviciosQuery->whereDate('s.fecha_creacion', '<=', $dateTo);
         }
 
         $totalServicios = (clone $serviciosQuery)->count(); // filas en servicio_solicitudes
@@ -92,10 +92,10 @@ class SolicitudeController extends Controller
             ->whereNull('s.deleted_at');
 
         if ($dateFrom) {
-            $preQuery->whereDate('s.fecha_solicitud', '>=', $dateFrom);
+            $preQuery->whereDate('s.fecha_creacion', '>=', $dateFrom);
         }
         if ($dateTo) {
-            $preQuery->whereDate('s.fecha_solicitud', '<=', $dateTo);
+            $preQuery->whereDate('s.fecha_creacion', '<=', $dateTo);
         }
 
         $totalMuestrasPre = (clone $preQuery)->count();
@@ -106,10 +106,10 @@ class SolicitudeController extends Controller
             ->join('solicitudes as s', 's.id', '=', 'ss.solicitude_id')
             ->whereNull('s.deleted_at')
             ->when($dateFrom, function ($q) use ($dateFrom) {
-                $q->whereDate('s.fecha_solicitud', '>=', $dateFrom);
+                $q->whereDate('s.fecha_creacion', '>=', $dateFrom);
             })
             ->when($dateTo, function ($q) use ($dateTo) {
-                $q->whereDate('s.fecha_solicitud', '<=', $dateTo);
+                $q->whereDate('s.fecha_creacion', '<=', $dateTo);
             })
             ->groupBy('ss.area_id', 'a.name')
             ->select(
@@ -127,10 +127,10 @@ class SolicitudeController extends Controller
             ->join('solicitudes as s', 's.id', '=', 'ss.solicitude_id')
             ->whereNull('s.deleted_at')
             ->when($dateFrom, function ($q) use ($dateFrom) {
-                $q->whereDate('s.fecha_solicitud', '>=', $dateFrom);
+                $q->whereDate('s.fecha_creacion', '>=', $dateFrom);
             })
             ->when($dateTo, function ($q) use ($dateTo) {
-                $q->whereDate('s.fecha_solicitud', '<=', $dateTo);
+                $q->whereDate('s.fecha_creacion', '<=', $dateTo);
             })
             ->groupBy('ss.servicio_id', 'se.nombre')
             ->select(
@@ -149,10 +149,10 @@ class SolicitudeController extends Controller
             ->join('solicitudes as s', 's.id', '=', 'spa.solicitude_id')
             ->whereNull('s.deleted_at')
             ->when($dateFrom, function ($q) use ($dateFrom) {
-                $q->whereDate('s.fecha_solicitud', '>=', $dateFrom);
+                $q->whereDate('s.fecha_creacion', '>=', $dateFrom);
             })
             ->when($dateTo, function ($q) use ($dateTo) {
-                $q->whereDate('s.fecha_solicitud', '<=', $dateTo);
+                $q->whereDate('s.fecha_creacion', '<=', $dateTo);
             })
             ->groupBy('atm.id', 'atm.tipo_muestra', 'a.name')
             ->select(
@@ -167,8 +167,8 @@ class SolicitudeController extends Controller
 
         // 7) SERIE POR FECHA (SOLICITUDES/DÍA)
         $serieFechas = (clone $query)
-            ->select(DB::raw('DATE(fecha_solicitud) as fecha'), DB::raw('COUNT(*) as total'))
-            ->groupBy(DB::raw('DATE(fecha_solicitud)'))
+            ->select(DB::raw('DATE(fecha_creacion) as fecha'), DB::raw('COUNT(*) as total'))
+            ->groupBy(DB::raw('DATE(fecha_creacion)'))
             ->orderBy('fecha')
             ->get();
 
@@ -182,7 +182,7 @@ class SolicitudeController extends Controller
                 'solicitudes.doctor_nombre',
                 'solicitudes.tipo_atencion',
                 'solicitudes.estado',
-                'solicitudes.fecha_solicitud',
+                'solicitudes.fecha_creacion',
                 'solicitudes.hora_solicitud',
                 DB::raw('(
                 SELECT COUNT(*)
@@ -196,7 +196,7 @@ class SolicitudeController extends Controller
                 WHERE ss.solicitude_id = solicitudes.id
             ) as areas')
             )
-            ->orderByDesc('solicitudes.fecha_solicitud')
+            ->orderByDesc('solicitudes.fecha_creacion')
             ->orderByDesc('solicitudes.id')
             ->limit(20)
             ->get();
@@ -295,7 +295,7 @@ class SolicitudeController extends Controller
         }
 
         if (!empty($fecha)) {
-            $query->whereDate('fecha_solicitud', $fecha);
+            $query->whereDate('fecha_creacion', $fecha);
         }
 
         return $query->orderBy('id', 'desc')->get();
@@ -372,8 +372,8 @@ class SolicitudeController extends Controller
             $solicitud->tipo_atencion = 'SI';
         }
 
-        if (empty($solicitud->fecha_solicitud)) {
-            $solicitud->fecha_solicitud = now()->toDateString();
+        if (empty($solicitud->fecha_creacion)) {
+            $solicitud->fecha_creacion = now()->toDateString();
         }
 
         $paciente = Paciente::find($solicitud->paciente_id);
@@ -396,7 +396,7 @@ class SolicitudeController extends Controller
     {
         $tipo = $solicitud->tipo_atencion ?? 'SI';
 
-        $fechaBase = $solicitud->fecha_solicitud ?: now()->toDateString();
+        $fechaBase = $solicitud->fecha_creacion ?: now()->toDateString();
         $timestamp = strtotime($fechaBase);
 
         $anio = date('Y', $timestamp);
@@ -404,15 +404,15 @@ class SolicitudeController extends Controller
 
         if ($tipo === 'SI') {
             $ultimoCodigo = Solicitude::where('tipo_atencion', $tipo)
-                ->whereYear('fecha_solicitud', $anio)
-                ->whereMonth('fecha_solicitud', $mes)
+                ->whereYear('fecha_creacion', $anio)
+                ->whereMonth('fecha_creacion', $mes)
                 ->whereNotNull('codigo')
                 ->max('codigo');
         }else{
             $ultimoCodigo = Solicitude::where('tipo_atencion', $tipo)
-                ->whereYear('fecha_solicitud', $anio)
-                ->whereMonth('fecha_solicitud', $mes)
-                ->whereDate('fecha_solicitud', date('Y-m-d', $timestamp))
+                ->whereYear('fecha_creacion', $anio)
+                ->whereMonth('fecha_creacion', $mes)
+                ->whereDate('fecha_creacion', date('Y-m-d', $timestamp))
                 ->whereNotNull('codigo')
                 ->max('codigo');
         }
@@ -539,10 +539,10 @@ class SolicitudeController extends Controller
         $query = Solicitude::with(['paciente', 'doctor', 'servicios']);
 
         if ($request->filled('from')) {
-            $query->whereDate('fecha_solicitud', '>=', $request->from);
+            $query->whereDate('fecha_creacion', '>=', $request->from);
         }
         if ($request->filled('to')) {
-            $query->whereDate('fecha_solicitud', '<=', $request->to);
+            $query->whereDate('fecha_creacion', '<=', $request->to);
         }
 
         if ($request->filled('estado')) {
@@ -682,6 +682,8 @@ class SolicitudeController extends Controller
         }
 
         $servicios = $request->input('servicios', []);
+//        delted servicos antguos
+        ServicioSolicitude::where('solicitude_id', $solicitud->id)->delete();
         foreach ($servicios as $servicio) {
 //            $servicioSolicitud = Servicio::find($servicio['id']);
             $newServicioSolicitud = new ServicioSolicitude();

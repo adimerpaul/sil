@@ -135,6 +135,8 @@ Route::get('/hematologia/solicitud/{id}/pdf', [\App\Http\Controllers\Hematologia
 Route::get('parasitologia/solicitud/{id}/pdf', [\App\Http\Controllers\ParasitologiaController::class, 'pdfBySolicitude']);
 Route::get('uroanalisis/solicitud/{id}/pdf', [\App\Http\Controllers\UroanalisisController::class, 'pdfBySolicitude']);
 Route::get('/quimica-sanguinea/solicitud/{id}/pdf', [\App\Http\Controllers\QuimicaSanguineaController::class, 'pdfBySolicitude']);
+//const url = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${solicitud.quimica_sanguinea?.code}/pdf-tolerancia`
+Route::get('/quimica-sanguinea/solicitud/{id}/pdf-tolerancia', [\App\Http\Controllers\QuimicaSanguineaController::class, 'pdfToleranciaBySolicitude']);
 Route::get('papiloma-humano/solicitud/{id}/pdf', [\App\Http\Controllers\PapilomaHumanoController::class, 'pdfBySolicitude']);
 Route::get('/panel-respiratorio/solicitud/{id}/pdf', [\App\Http\Controllers\PanelRespiratorioController::class, 'pdfBySolicitude']);
 Route::get('/panel-sexual/solicitud/{id}/pdf', [\App\Http\Controllers\PanelSexualController::class, 'pdfBySolicitude']);

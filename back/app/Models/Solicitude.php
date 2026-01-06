@@ -104,10 +104,11 @@ class Solicitude extends Model implements AuditableContract
         return $this->belongsToMany(
             \App\Models\Servicio::class,
             'servicio_solicitudes',
-            'solicitude_id',   // cuidado con el nombre en tu BD
+            'solicitude_id',
             'servicio_id'
         )
-            ->withPivot('precio', 'area_id', 'nombre')
+            ->wherePivotNull('deleted_at')   // 👈 respeta soft delete del pivot
+            ->withPivot('precio', 'area_id', 'nombre', 'deleted_at')
             ->withTimestamps();
     }
 
