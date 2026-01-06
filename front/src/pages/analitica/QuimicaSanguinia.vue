@@ -1092,6 +1092,76 @@
             </q-markup-table>
           </div>
 
+<!--          CURVA DE TOLERANCIA A LA GLUCOSA-->
+<!--          1	98	07:00-->
+<!--          2	203,1	08:40-->
+<!--          3	190,9	09:18-->
+<!--          4	175,4	09:50-->
+<!--          5	115	10:20-->
+<!--          variables-->
+<!--          'tolerancia_glucosa_1h',-->
+<!--          'tolerancia_glucosa_2h',-->
+<!--          'tolerancia_glucosa_3h',-->
+<!--          'tolerancia_glucosa_4h',-->
+<!--          'tolerancia_glucosa_5h',-->
+<!--          'tolerancia_hora_1h',-->
+<!--          'tolerancia_hora_2h',-->
+<!--          'tolerancia_hora_3h',-->
+<!--          'tolerancia_hora_4h',-->
+<!--          'tolerancia_hora_5h',-->
+
+          <!--          PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG) ,PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)-->
+          <div
+            v-if="hasAnyServicios([
+              'PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)',
+              'PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)'
+            ])">
+            <div class="section-title q-mb-xs">Prueba de tolerancia a la glucosa</div>
+            <q-markup-table dense flat bordered square class="bg-white q-mb-md">
+              <thead>
+              <tr>
+                <th class="text-left">Medición</th>
+                <th class="text-left">Resultado (mg/dL)</th>
+                <th class="text-left">Hora</th>
+              </tr>
+              </thead>
+              <tbody>
+<!--              <tr v-if="canServicios(['PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)',-->
+<!--              'PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)'])">-->
+<!--                <td>1</td>-->
+<!--                <td>-->
+<!--                  <q-input v-model.number="form.tolerancia_glucosa_1h" dense outlined type="number" step="0.01"/>-->
+<!--                </td>-->
+<!--                <td>-->
+<!--                  <q-input v-model="form.tolerancia_hora_1h" dense outlined placeholder="HH:MM" />-->
+<!--                </td>-->
+<!--              </tr>-->
+<!--              foreach del 1 al 5-->
+<!--              <tr v-for="n in (canServicios('PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)') ? 4 : 3)" :key="n">-->
+<!--                <td>{{ n }}</td>-->
+<!--                <td>-->
+<!--                  <q-input v-model.number="form['tolerancia_glucosa_' + n + 'h']" dense outlined type="number" step="0.01"/>-->
+<!--                </td>-->
+<!--                <td>-->
+<!--                  <q-input v-model="form['tolerancia_hora_' + n + 'h']" dense outlined placeholder="HH:MM" />-->
+<!--                </td>-->
+<!--              </tr>-->
+              <template v-if="canServicios(['PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)','PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)'])">
+                <tr v-for="n in 5" :key="n">
+                  <td>{{ n }}</td>
+                  <td>
+                    <q-input v-model.number="form['tolerancia_glucosa_' + n + 'h']" dense outlined type="number" step="0.01"/>
+                  </td>
+                  <td>
+                    <q-input v-model="form['tolerancia_hora_' + n + 'h']" dense outlined placeholder="HH:MM" type="time" />
+                  </td>
+                </tr>
+              </template>
+              </tbody>
+            </q-markup-table>
+          </div>
+
+
 
           <!-- BOTONES -->
           <div class="text-right q-mt-md">

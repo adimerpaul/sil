@@ -118,6 +118,11 @@
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Química Sanguínea</q-item-section>
                     </q-item>
+<!--                    imprimi curva de tolerancia-->
+                    <q-item clickable @click="printQuimicaTolerancia(solicitud)" v-close-popup dense v-if="solicitud.quimica_sanguinea?.code">
+                      <q-item-section avatar><q-icon name="show_chart" /></q-item-section>
+                      <q-item-section>Curva de Tolerancia</q-item-section>
+                    </q-item>
 
                     <!-- WhatsApp Química -->
                     <q-item clickable @click="enviarWhatsApp(solicitud,'QuimicaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.quimica_sanguinea?.code">
@@ -336,6 +341,10 @@ export default {
   methods: {
     printQuimica (solicitud) {
       const url = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${solicitud.quimica_sanguinea?.code}/pdf`
+      window.open(url, '_blank')
+    },
+    printQuimicaTolerancia(solicitud) {
+      const url = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${solicitud.quimica_sanguinea?.code}/pdf-tolerancia`
       window.open(url, '_blank')
     },
 
