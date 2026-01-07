@@ -169,12 +169,17 @@
         HEMATOLOGÍA
     </div>
 
-    <div class="center muted small" style="margin-top:1px;">
-        Equipo: {{ $hematologia->equipo == 'Otro' ? $hematologia->equipo_otro : $hematologia->equipo }} · Método: {{ $hematologia->metodo ?? '—' }}
-    </div>
+{{--    <div class="center muted small" style="margin-top:1px;">--}}
+{{--        Equipo: {{ $hematologia->equipo == 'Otro' ? $hematologia->equipo_otro : $hematologia->equipo }} · Método: {{ $hematologia->metodo ?? '—' }}--}}
+{{--    </div>--}}
 
     @if($showHemograma)
-        <div class="section-title">Hemograma</div>
+        <div class="section-title">
+            Hemograma
+            <div class="center muted small" style="margin-top:1px;">
+                Equipo: {{ $hematologia->hemograma_metodo?? '-' }} · Método: {{ $hematologia->hemograma_equipo ?? '—' }}
+            </div>
+        </div>
         <table>
             <thead>
             <tr>
@@ -346,7 +351,12 @@
     @endif
 
     @if($showCoagulograma)
-        <div class="section-title">Coagulograma</div>
+        <div class="section-title">
+            Coagulograma
+            <div class="center muted small" style="margin-top:1px;">
+                Equipo: {{ $hematologia->coagulograma_metodo?? '-' }} · Método: {{ $hematologia->coagulograma_equipo ?? '—' }}
+            </div>
+        </div>
         <table>
             <thead>
             <tr>
@@ -423,6 +433,11 @@
             </tbody>
         </table>
     @endif
+{{--    observaciones--}}
+    <div class="section-title">Observaciones</div>
+    <div class="box" style="min-height:20px; font-size:7.5px;">
+        {!! nl2br(e($hematologia->observaciones ?? '')) !!}
+    </div>
 
     <table class="no-border" style="margin-top:6px;">
         <tr>

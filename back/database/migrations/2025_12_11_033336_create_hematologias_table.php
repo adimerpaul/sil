@@ -92,6 +92,13 @@ return new class extends Migration
             $table->text('serie_blanca')->nullable();
             $table->text('serie_plaqueta')->nullable();
 
+            $table->string('hemograma_metodo')->nullable();
+            $table->string('hemograma_equipo')->nullable();
+            $table->string('coagulograma_metodo')->nullable();
+            $table->string('coagulograma_equipo')->nullable();
+
+            $table->text('observaciones')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
 

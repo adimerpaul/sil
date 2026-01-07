@@ -101,7 +101,32 @@
       <q-card-section class="q-pa-sm">
         <q-form @submit.prevent="onSubmit">
           <!-- HEMOGRAMA BÁSICO -->
-          <div class="section-title q-mb-xs">Hemograma</div>
+          <div class="section-title q-mb-xs">
+            <div class="row">
+              <div class="col-12 col-md-3">
+                Hemograma
+              </div>
+              <div class="col-12 col-md-3">
+                <q-select
+                  v-model="form.hemograma_metodo"
+                  dense
+                  outlined
+                  label="Método"
+                  :options="['Automática', 'SemiAutomática', 'Manual']"
+                />
+              </div>
+              <div class="col-12 col-md-3">
+                <q-select
+                  v-model="form.hemograma_equipo"
+                  dense
+                  outlined
+                  label="Equipo"
+                  :options="['Mindray C3510', 'Mindray 3000', 'Otro']"
+                />
+              </div>
+            </div>
+<!--            methodo equipo-->
+          </div>
 
           <q-markup-table dense flat bordered square class="bg-white q-mb-md">
             <thead>
@@ -127,8 +152,9 @@
                       'text-right',
                       isOutOfRange('Globulos Rojos', form.globulos_rojos) ? 'text-negative text-weight-bold' : ''
                     ]"
-                  @update:model-value="calculateHematimetricos"
+
                 />
+<!--                @update:model-value="calculateHematimetricos"-->
               </td>
               <td>{{ rangoTexto('Globulos Rojos') }}</td>
               <td>{{ rangoUnidad('Globulos Rojos') }}</td>
@@ -185,8 +211,9 @@
                       'text-right',
                       isOutOfRange('Hemoglobina', form.hemoglobina) ? 'text-negative text-weight-bold' : ''
                     ]"
-                  @update:model-value="calculateHematimetricos"
+
                 />
+<!--                @update:model-value="calculateHematimetricos"-->
               </td>
               <td>{{ rangoTexto('Hemoglobina') }}</td>
               <td>{{ rangoUnidad('Hemoglobina') }}</td>
@@ -205,8 +232,9 @@
                       'text-right',
                       isOutOfRange('Hematocrito', form.hematocrito) ? 'text-negative text-weight-bold' : ''
                     ]"
-                  @update:model-value="calculateHematimetricos"
+
                 />
+<!--                @update:model-value="calculateHematimetricos"-->
               </td>
               <td>{{ rangoTexto('Hematocrito') }}</td>
               <td>{{ rangoUnidad('Hematocrito') }}</td>
@@ -496,7 +524,7 @@
                 <q-input v-model.number="form.basofilos_porcentaje" dense outlined type="number" step="0.01"
                          :input-class="['text-right', isOutOfRange('Basofilos', form.basofilos_porcentaje) ? 'text-negative text-weight-bold' : '']"
                          @update:model-value="
-                            form.basofilos_absoluto = ((form.basofilos_porcentaje || 0) / 100) * (form.globulos_blancos || 0);
+                            form.basofilos_absoluto = (((form.basofilos_porcentaje || 0) / 100) * (form.globulos_blancos || 0)).toFixed(2);
                          "
                 />
               </td>
@@ -518,7 +546,7 @@
                 <q-input v-model.number="form.eosinofilos_porcentaje" dense outlined type="number" step="0.01"
                          :input-class="['text-right', isOutOfRange('Eosinofilos', form.eosinofilos_porcentaje) ? 'text-negative text-weight-bold' : '']"
                          @update:model-value="
-                            form.eosinofilos_absoluto = ((form.eosinofilos_porcentaje || 0) / 100) * (form.globulos_blancos || 0);
+                            form.eosinofilos_absoluto = (((form.eosinofilos_porcentaje || 0) / 100) * (form.globulos_blancos || 0)).toFixed(2);
                           "
                 />
               </td>
@@ -537,7 +565,7 @@
                 <q-input v-model.number="form.cayados_porcentaje" dense outlined type="number" step="0.01"
                          :input-class="['text-right', isOutOfRange('Cayados', form.cayados_porcentaje) ? 'text-negative text-weight-bold' : '']"
                           @update:model-value="
-                              form.cayados_absoluto = ((form.cayados_porcentaje || 0) / 100) * (form.globulos_blancos || 0);
+                              form.cayados_absoluto = (((form.cayados_porcentaje || 0) / 100) * (form.globulos_blancos || 0)).toFixed(2);
                             "
                 />
               </td>
@@ -556,7 +584,7 @@
                 <q-input v-model.number="form.segmentados_porcentaje" dense outlined type="number" step="0.01"
                          :input-class="['text-right', isOutOfRange('Segmentados', form.segmentados_porcentaje) ? 'text-negative text-weight-bold' : '']"
                          @update:model-value="
-                            form.segmentados_absoluto = ((form.segmentados_porcentaje || 0) / 100) * (form.globulos_blancos || 0);
+                            form.segmentados_absoluto = (((form.segmentados_porcentaje || 0) / 100) * (form.globulos_blancos || 0)).toFixed(2);
                           "
                 />
               </td>
@@ -575,7 +603,7 @@
                 <q-input v-model.number="form.linfocitos_porcentaje" dense outlined type="number" step="0.01"
                          :input-class="['text-right', isOutOfRange('Linfocitos', form.linfocitos_porcentaje) ? 'text-negative text-weight-bold' : '']"
                          @update:model-value="
-                            form.linfocitos_absoluto = ((form.linfocitos_porcentaje || 0) / 100) * (form.globulos_blancos || 0);
+                            form.linfocitos_absoluto = (((form.linfocitos_porcentaje || 0) / 100) * (form.globulos_blancos || 0)).toFixed(2);
                           "
                 />
               </td>
@@ -594,7 +622,7 @@
                 <q-input v-model.number="form.monocitos_porcentaje" dense outlined type="number" step="0.01"
                          :input-class="['text-right', isOutOfRange('Monocitos', form.monocitos_porcentaje) ? 'text-negative text-weight-bold' : '']"
                           @update:model-value="
-                              form.monocitos_absoluto = ((form.monocitos_porcentaje || 0) / 100) * (form.globulos_blancos || 0);
+                              form.monocitos_absoluto = (((form.monocitos_porcentaje || 0) / 100) * (form.globulos_blancos || 0)).toFixed(2);
                             "
                 />
               </td>
@@ -613,7 +641,7 @@
                 <q-input v-model.number="form.blastos_porcentaje" dense outlined type="number" step="0.01"
                          :input-class="['text-right', isOutOfRange('BLASTOS', form.blastos_porcentaje) ? 'text-negative text-weight-bold' : '']"
                          @update:model-value="
-                            form.blastos_absoluto = ((form.blastos_porcentaje || 0) / 100) * (form.globulos_blancos || 0);
+                            form.blastos_absoluto = (((form.blastos_porcentaje || 0) / 100) * (form.globulos_blancos || 0)).toFixed(2);
                           "
                 />
               </td>
@@ -630,7 +658,7 @@
                 <q-input v-model.number="form.metamielocitos_porcentaje" dense outlined type="number" step="0.01"
                          :input-class="['text-right', isOutOfRange('METAMIELOCITO', form.metamielocitos_porcentaje) ? 'text-negative text-weight-bold' : '']"
                          @update:model-value="
-                            form.metamielocitos_absoluto = ((form.metamielocitos_porcentaje || 0) / 100) * (form.globulos_blancos || 0);
+                            form.metamielocitos_absoluto = (((form.metamielocitos_porcentaje || 0) / 100) * (form.globulos_blancos || 0)).toFixed(2);
                           "
                 />
               </td>
@@ -647,7 +675,7 @@
                 <q-input v-model.number="form.eritroblastos_porcentaje" dense outlined type="number" step="0.01"
                          :input-class="['text-right', isOutOfRange('ERITROBLASTOS', form.eritroblastos_porcentaje) ? 'text-negative text-weight-bold' : '']"
                          @update:model-value="
-                            form.eritroblastos_absoluto = ((form.eritroblastos_porcentaje || 0) / 100) * (form.globulos_blancos || 0);
+                            form.eritroblastos_absoluto = (((form.eritroblastos_porcentaje || 0) / 100) * (form.globulos_blancos || 0)).toFixed(2);
                           "
                 />
               </td>
@@ -684,7 +712,32 @@
 <!--          />-->
 
           <!-- COAGULOGRAMA -->
-          <div class="section-title q-mb-xs">Coagulograma</div>
+          <div class="section-title q-mb-xs">
+            <div class="row">
+              <div class="col-12 col-md-3">
+                Coagulograma
+              </div>
+              <div class="col-12 col-md-3">
+                <q-select
+                  v-model="form.coagulograma_metodo"
+                  dense
+                  outlined
+                  label="Método"
+                  :options="['Automática', 'SemiAutomática', 'Manual']"
+                />
+              </div>
+              <div class="col-12 col-md-3">
+                <q-select
+                  v-model="form.coagulograma_equipo"
+                  dense
+                  outlined
+                  label="Equipo"
+                  :options="['Mindray C3510', 'Mindray 3000', 'Otro']"
+                />
+              </div>
+            </div>
+            <!--            methodo equipo-->
+          </div>
 
           <q-markup-table dense flat bordered square class="bg-white q-mb-md">
             <thead>
@@ -962,29 +1015,39 @@
               <div class="section-title q-mb-xs">Método / Equipo</div>
             </div>
             <div class="col-12 col-sm-4">
-<!--              <q-input v-model="form.metodo" dense outlined class="bg-white q-mb-xs" label="Método (A, M, M/SA, etc.)" />-->
-<!--              Automática SemiAutomática Manual-->
-              <q-select
-                v-model="form.metodo"
-                :options="['Automática', 'SemiAutomática', 'Manual']"
+              <q-input
+                v-model="form.observaciones"
+                type="textarea"
                 dense
                 outlined
-                clearable
-                class="bg-white"
-                label="Método"
+                class="bg-white q-mb-xs"
+                label="Observaciones"
               />
             </div>
-            <div class="col-12 col-sm-4">
-              <q-select
-                v-model="form.equipo"
-                :options="['Mindray C3510', 'Mindray 5000', 'Otro']"
-                dense
-                outlined
-                clearable
-                class="bg-white"
-                label="Equipo"
-              />
-            </div>
+<!--            <div class="col-12 col-sm-4">-->
+<!--&lt;!&ndash;              <q-input v-model="form.metodo" dense outlined class="bg-white q-mb-xs" label="Método (A, M, M/SA, etc.)" />&ndash;&gt;-->
+<!--&lt;!&ndash;              Automática SemiAutomática Manual&ndash;&gt;-->
+<!--              <q-select-->
+<!--                v-model="form.metodo"-->
+<!--                :options="['Automática', 'SemiAutomática', 'Manual']"-->
+<!--                dense-->
+<!--                outlined-->
+<!--                clearable-->
+<!--                class="bg-white"-->
+<!--                label="Método"-->
+<!--              />-->
+<!--            </div>-->
+<!--            <div class="col-12 col-sm-4">-->
+<!--              <q-select-->
+<!--                v-model="form.equipo"-->
+<!--                :options="['Mindray C3510', 'Mindray 3000', 'Otro']"-->
+<!--                dense-->
+<!--                outlined-->
+<!--                clearable-->
+<!--                class="bg-white"-->
+<!--                label="Equipo"-->
+<!--              />-->
+<!--            </div>-->
 
             <div class="col-12 col-sm-4">
 <!--              $table->string('equipo_otro', 100)->nullable();-->

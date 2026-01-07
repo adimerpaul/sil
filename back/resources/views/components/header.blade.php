@@ -105,9 +105,11 @@
 
     <tr>
         <td colspan="2"><span class="label">CODIGO MUESTRA:</span></td>
-        <td colspan="6" class="line clip">
+        <td colspan="2" class="line clip">
             {{ ($solicitud->codigo ?? '-') . '-' . ($solicitud->nro_registro ?? '-') }}
         </td>
+        <td><span class="label">SALA/CAMA:</span></td>
+        <td colspan="2"><div class="line clip">{{ $solicitud->sala ?? '-' }} / {{ $solicitud->cama ?? '-' }}</div></td>
     </tr>
 
     <tr>
