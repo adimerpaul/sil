@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <style>
-        @page { size: letter landscape; margin: 10px 12px; }
+        @page { size: legal; margin: 10px 12px; }
         * { box-sizing: border-box; }
         body{ margin:0; padding:0; font-family: DejaVu Sans, sans-serif; font-size: 10px; color:#111; line-height: 1; }
 
@@ -46,9 +46,9 @@
     $tipo = $p->tipo ?? 'SIMPLE';
 @endphp
 
-<div class="sheet clearfix">
-    @foreach(['left','right'] as $side)
-        <div class="half half-{{ $side }}" style="margin: 10px 6px;">
+<div >
+    @foreach(['left'] as $side)
+        <div  style="margin: 10px 6px;height: 49%">
 
             {!! view('components.header', ['solicitud' => $solicitud])->render() !!}
 
@@ -128,16 +128,18 @@
                     <thead>
                     <tr>
                         <th style="width:20%;">SANGRE OCULTA</th>
-                        <th style="width:26%;">PRUEBA RÁPIDA ROTAVIRUS</th>
-                        <th style="width:18%;">MOCO FECAL</th>
-                        <th style="width:18%;">TEST BENEDICT</th>
-                        <th style="width:18%;">REACCIÓN</th>
+                        <th style="width:20%;">PRUEBA RÁPIDA ROTAVIRUS</th>
+                        <th style="width:20%;">MOCO FECAL</th>
+                        <th style="width:20%;">MOCO FECAL DESCRIPCION</th>
+                        <th style="width:20%;">TEST BENEDICT</th>
+                        <th style="width:20%;">REACCIÓN</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
                         <td class="center">{{ $p->sangre_oculta ?? '' }}</td>
                         <td class="center">{{ $p->prueba_rapida_rotavirus ?? '' }}</td>
+                        <td class="center">{{ $p->moco_fecal_positivo ?? '' }}</td>
                         <td class="center">{{ $p->moco_fecal ?? '' }}</td>
                         <td class="center">{{ $p->test_benedict ?? '' }}</td>
                         <td class="center">{{ $p->reaccion ?? '' }}</td>

@@ -85,7 +85,7 @@ class ParasitologiaController extends Controller
             'parasitologia' => $parasitologia,
             'qrSvgBase64'   => $qrSvgBase64,
             'url'           => $url,
-        ])->setPaper('letter', 'landscape');
+        ])->setPaper('legal');
 
         return $pdf->stream('PARASITOLOGIA_'.$solicitud->nro_registro.'.pdf');
     }
