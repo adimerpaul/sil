@@ -49,6 +49,8 @@ class Uroanalisis extends Model implements AuditableContract{
         'valor_cristales',
         'otros',
         'code',
+        'morfologia_eritrocitaria2',
+        'valor_morfologia2',
     ];
 
     public function solicitude()

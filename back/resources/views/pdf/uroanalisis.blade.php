@@ -4,14 +4,14 @@
 <head>
     <meta charset="utf-8">
     <style>
-        @page { size: letter landscape; margin: 8px 10px; }
+        @page { size: legal; margin: 8px 10px; }
         * { box-sizing: border-box; }
         body{
             margin:0; padding:0;
             font-family: DejaVu Sans, sans-serif;
             font-size: 7px;
             color:#111;
-            line-height: 1.05;
+            line-height: 0.9;
         }
 
         /* Layout 2 columnas estable (DOMPDF friendly) */
@@ -104,102 +104,119 @@
                     </tbody>
                 </table>
             </div>
+            <table>
+                <tr>
+                    <td valign="top">
+                        {{-- EXAMEN FÍSICO --}}
+                        <div class="section">
+                            <h3>Examen físico</h3>
+                            <table class="inner">
+                                <thead>
+                                <tr>
+                                    <th style="width:30%;">EXAMEN</th>
+                                    <th style="width:30%;">RES.</th>
+                                    <th style="width:20%;">UNIDADES</th>
+                                    <th style="width:20%;">RANGO</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr><td>Cantidad</td><td class="center">{{ $u->cantidad ?? '' }}</td><td class="center">ml</td><td class="center">*</td></tr>
+                                <tr><td>Color</td><td class="center">{{ $u->color ?? '' }}</td><td class="center">*</td><td class="center">Amarillo</td></tr>
+                                <tr><td>Olor</td><td class="center">{{ $u->olor ?? '' }}</td><td class="center">*</td><td class="center">Sui-generis</td></tr>
+                                <tr><td>Aspecto</td><td class="center">{{ $u->aspecto ?? '' }}</td><td class="center">*</td><td class="center">Límpido</td></tr>
+                                <tr><td>Reacción (pH)</td><td class="center">{{ $u->reaccion ?? '' }}</td><td class="center">*</td><td class="center">pH 6.0 ácido</td></tr>
+                                <tr><td>Densidad</td><td class="center">{{ $u->densidad ?? '' }}</td><td class="center">*</td><td class="center">1.025</td></tr>
+                                <tr><td>Espuma</td><td class="center">{{ $u->espuma ?? '' }}</td><td class="center">*</td><td class="center">Blanco fugaz</td></tr>
+                                <tr><td>Sedimento</td><td class="center">{{ $u->sedimento ?? '' }}</td><td class="center">*</td><td class="center">Escaso</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                    <td>
+                        {{-- MICROSCÓPICO --}}
+                        <div class="section">
+                            <h3>Examen microscópico (sedimento)</h3>
+                            <table class="inner">
+                                <thead>
+                                <tr>
+                                    <th style="width:30%;">EXAMEN</th>
+                                    <th style="width:30%;">SEDIMENTO</th>
+                                    <th style="width:20%;">UNIDADES</th>
+                                    <th style="width:20%;">RANGO</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr><td>Leucocitos</td><td class="center">{{ $u->leucocitos ?? '' }}</td><td class="center">xcampo/uL</td><td class="center">0-1</td></tr>
+                                <tr><td>Hematies</td><td class="center">{{ $u->hematies ?? '' }}</td><td class="center">xcampo/uL</td><td class="center">0-1</td></tr>
 
-            {{-- EXAMEN FÍSICO --}}
-            <div class="section">
-                <h3>Examen físico</h3>
-                <table class="inner">
-                    <thead>
-                    <tr>
-                        <th style="width:30%;">EXAMEN</th>
-                        <th style="width:30%;">RES.</th>
-                        <th style="width:20%;">UNIDADES</th>
-                        <th style="width:20%;">RANGO</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr><td>Cantidad</td><td class="center">{{ $u->cantidad ?? '' }}</td><td class="center">ml</td><td class="center">*</td></tr>
-                    <tr><td>Color</td><td class="center">{{ $u->color ?? '' }}</td><td class="center">*</td><td class="center">Amarillo</td></tr>
-                    <tr><td>Olor</td><td class="center">{{ $u->olor ?? '' }}</td><td class="center">*</td><td class="center">Sui-generis</td></tr>
-                    <tr><td>Aspecto</td><td class="center">{{ $u->aspecto ?? '' }}</td><td class="center">*</td><td class="center">Límpido</td></tr>
-                    <tr><td>Reacción (pH)</td><td class="center">{{ $u->reaccion ?? '' }}</td><td class="center">*</td><td class="center">pH 6.0 ácido</td></tr>
-                    <tr><td>Densidad</td><td class="center">{{ $u->densidad ?? '' }}</td><td class="center">*</td><td class="center">1.025</td></tr>
-                    <tr><td>Espuma</td><td class="center">{{ $u->espuma ?? '' }}</td><td class="center">*</td><td class="center">Blanco fugaz</td></tr>
-                    <tr><td>Sedimento</td><td class="center">{{ $u->sedimento ?? '' }}</td><td class="center">*</td><td class="center">Escaso</td></tr>
-                    </tbody>
-                </table>
-            </div>
+                                <tr>
+                                    <td>Morfología eritrocitaria</td>
+                                    <td class="center">
+                                        {{ $u->morfologia_eritrocitaria ?? '' }}
+                                        @if(!empty($u->valor_morfologia)) ({{ $u->valor_morfologia }}) @endif
+                                    </td>
+                                    <td class="center">*</td>
+                                    <td class="center">*</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td class="center">
+                                        {{ $u->morfologia_eritrocitaria2 ?? '' }}
+                                        @if(!empty($u->valor_morfologia2)) ({{ $u->valor_morfologia2 }}) @endif
+                                    </td>
+                                    <td class="center">*</td>
+                                    <td class="center">*</td>
+                                </tr>
 
-            {{-- MICROSCÓPICO --}}
-            <div class="section">
-                <h3>Examen microscópico (sedimento)</h3>
-                <table class="inner">
-                    <thead>
-                    <tr>
-                        <th style="width:30%;">EXAMEN</th>
-                        <th style="width:30%;">SEDIMENTO</th>
-                        <th style="width:20%;">UNIDADES</th>
-                        <th style="width:20%;">RANGO</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr><td>Leucocitos</td><td class="center">{{ $u->leucocitos ?? '' }}</td><td class="center">xcampo/uL</td><td class="center">0-1</td></tr>
-                    <tr><td>Hematies</td><td class="center">{{ $u->hematies ?? '' }}</td><td class="center">xcampo/uL</td><td class="center">0-1</td></tr>
+                                <tr><td>Bacterias</td><td class="center">{{ $u->bacterias ?? '' }}</td><td class="center">*</td><td class="center">Escaso</td></tr>
+                                <tr><td>Filamento mucoide</td><td class="center">{{ $u->filamento_mucoide ?? '' }}</td><td class="center">*</td><td class="center">*</td></tr>
 
-                    <tr>
-                        <td>Morfología eritrocitaria</td>
-                        <td class="center">
-                            {{ $u->morfologia_eritrocitaria ?? '' }}
-                            @if(!empty($u->valor_morfologia)) ({{ $u->valor_morfologia }}) @endif
-                        </td>
-                        <td class="center">*</td>
-                        <td class="center">*</td>
-                    </tr>
+                                <tr>
+                                    <td>Cilindros</td>
+                                    <td class="center">
+                                        {{ $u->cilindros ?? '' }}
+                                        @if(!empty($u->valor_cilindros)) ({{ $u->valor_cilindros }}) @endif
+                                    </td>
+                                    <td class="center">*</td>
+                                    <td class="center">#</td>
+                                </tr>
 
-                    <tr><td>Bacterias</td><td class="center">{{ $u->bacterias ?? '' }}</td><td class="center">*</td><td class="center">Escaso</td></tr>
-                    <tr><td>Filamento mucoide</td><td class="center">{{ $u->filamento_mucoide ?? '' }}</td><td class="center">*</td><td class="center">*</td></tr>
+                                <tr>
+                                    <td>Células epiteliales</td>
+                                    <td class="center">
+                                        {{ $u->celulas ?? '' }}
+                                        @if(!empty($u->valor_celulas)) ({{ $u->valor_celulas }}) @endif
+                                    </td>
+                                    <td class="center">*</td>
+                                    <td class="center">#</td>
+                                </tr>
 
-                    <tr>
-                        <td>Cilindros</td>
-                        <td class="center">
-                            {{ $u->cilindros ?? '' }}
-                            @if(!empty($u->valor_cilindros)) ({{ $u->valor_cilindros }}) @endif
-                        </td>
-                        <td class="center">*</td>
-                        <td class="center">#</td>
-                    </tr>
+                                <tr>
+                                    <td>Cristales</td>
+                                    <td class="center">
+                                        {{ $u->cristales ?? '' }}
+                                        @if(!empty($u->valor_cristales)) ({{ $u->valor_cristales }}) @endif
+                                    </td>
+                                    <td class="center">*</td>
+                                    <td class="center">#</td>
+                                </tr>
 
-                    <tr>
-                        <td>Células epiteliales</td>
-                        <td class="center">
-                            {{ $u->celulas ?? '' }}
-                            @if(!empty($u->valor_celulas)) ({{ $u->valor_celulas }}) @endif
-                        </td>
-                        <td class="center">*</td>
-                        <td class="center">#</td>
-                    </tr>
+                                @if(!empty($u->otros))
+                                    <tr>
+                                        <td>Otros</td>
+                                        <td class="center">{{ $u->otros }}</td>
+                                        <td class="center">*</td>
+                                        <td class="center">*</td>
+                                    </tr>
+                                @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </table>
 
-                    <tr>
-                        <td>Cristales</td>
-                        <td class="center">
-                            {{ $u->cristales ?? '' }}
-                            @if(!empty($u->valor_cristales)) ({{ $u->valor_cristales }}) @endif
-                        </td>
-                        <td class="center">*</td>
-                        <td class="center">#</td>
-                    </tr>
 
-                    @if(!empty($u->otros))
-                        <tr>
-                            <td>Otros</td>
-                            <td class="center">{{ $u->otros }}</td>
-                            <td class="center">*</td>
-                            <td class="center">*</td>
-                        </tr>
-                    @endif
-                    </tbody>
-                </table>
-            </div>
 
             {{-- QUÍMICO --}}
             <div class="section">
@@ -253,230 +270,230 @@
         </td>
 
         {{-- COLUMNA DERECHA (MISMO CONTENIDO DUPLICADO) --}}
-        <td class="col">
-            @php $side = 'right'; @endphp
+{{--        <td class="col">--}}
+{{--            @php $side = 'right'; @endphp--}}
 
-            <table class="no-border" style="width:100%;">
-                <tr>
-                    <td style="width:15%;">
-                        <img src="{{ public_path('img/logo-hospital.png') }}" style="width:58px;">
-                    </td>
+{{--            <table class="no-border" style="width:100%;">--}}
+{{--                <tr>--}}
+{{--                    <td style="width:15%;">--}}
+{{--                        <img src="{{ public_path('img/logo-hospital.png') }}" style="width:58px;">--}}
+{{--                    </td>--}}
 
-                    <td>
-                        <div class="title">HOSPITAL GENERAL SAN JUAN DE DIOS ORURO BLOQUE CENTRAL</div>
-                        <div class="subtitle muted">LABORATORIO DE ANÁLISIS CLÍNICO - MICROBIOLÓGICO</div>
-                        <div class="subtitle muted small">Dirección: San Felipe entre 6 de Octubre y Tarija</div>
-                        <div class="subtitle muted small">REGISTRO CONALAB: 001 &nbsp;&nbsp; REGISTRO CODELAB: 000004</div>
-                    </td>
+{{--                    <td>--}}
+{{--                        <div class="title">HOSPITAL GENERAL SAN JUAN DE DIOS ORURO BLOQUE CENTRAL</div>--}}
+{{--                        <div class="subtitle muted">LABORATORIO DE ANÁLISIS CLÍNICO - MICROBIOLÓGICO</div>--}}
+{{--                        <div class="subtitle muted small">Dirección: San Felipe entre 6 de Octubre y Tarija</div>--}}
+{{--                        <div class="subtitle muted small">REGISTRO CONALAB: 001 &nbsp;&nbsp; REGISTRO CODELAB: 000004</div>--}}
+{{--                    </td>--}}
 
-                    <td style="width:15%;" class="right">
-                        <img src="{{ public_path('img/logo-labo.png') }}" style="width:58px;">
-                    </td>
-                </tr>
-            </table>
+{{--                    <td style="width:15%;" class="right">--}}
+{{--                        <img src="{{ public_path('img/logo-labo.png') }}" style="width:58px;">--}}
+{{--                    </td>--}}
+{{--                </tr>--}}
+{{--            </table>--}}
 
-            <div class="hr"></div>
+{{--            <div class="hr"></div>--}}
 
-            <table class="grid" style="margin-top:2px;">
-                <tr>
-                    <td style="width:18%"><span class="label">CÓDIGO:</span></td>
-                    <td style="width:32%"><div class="line">{{ $solicitud->codigo ?? $solicitud->id }}</div></td>
-                    <td style="width:20%"><span class="label">NRO. REGISTRO:</span></td>
-                    <td style="width:30%"><div class="line">{{ $solicitud->nro_registro ?? '-' }}</div></td>
-                </tr>
+{{--            <table class="grid" style="margin-top:2px;">--}}
+{{--                <tr>--}}
+{{--                    <td style="width:18%"><span class="label">CÓDIGO:</span></td>--}}
+{{--                    <td style="width:32%"><div class="line">{{ $solicitud->codigo ?? $solicitud->id }}</div></td>--}}
+{{--                    <td style="width:20%"><span class="label">NRO. REGISTRO:</span></td>--}}
+{{--                    <td style="width:30%"><div class="line">{{ $solicitud->nro_registro ?? '-' }}</div></td>--}}
+{{--                </tr>--}}
 
-                <tr>
-                    <td><span class="label">PACIENTE:</span></td>
-                    <td><div class="line">{{ $solicitud->paciente_nombre ?? '-' }}</div></td>
-                    <td><span class="label">EDAD:</span></td>
-                    <td><div class="line">{{ $solicitud->paciente_edad ?? '-' }}</div></td>
-                </tr>
+{{--                <tr>--}}
+{{--                    <td><span class="label">PACIENTE:</span></td>--}}
+{{--                    <td><div class="line">{{ $solicitud->paciente_nombre ?? '-' }}</div></td>--}}
+{{--                    <td><span class="label">EDAD:</span></td>--}}
+{{--                    <td><div class="line">{{ $solicitud->paciente_edad ?? '-' }}</div></td>--}}
+{{--                </tr>--}}
 
-                <tr>
-                    <td><span class="label">MEDICO SOL.:</span></td>
-                    <td><div class="line">{{ $solicitud->doctor_nombre ?? '-' }}</div></td>
-                    <td><span class="label">SEXO:</span></td>
-                    <td><div class="line">{{ $solicitud->paciente_genero ?? '-' }}</div></td>
-                </tr>
+{{--                <tr>--}}
+{{--                    <td><span class="label">MEDICO SOL.:</span></td>--}}
+{{--                    <td><div class="line">{{ $solicitud->doctor_nombre ?? '-' }}</div></td>--}}
+{{--                    <td><span class="label">SEXO:</span></td>--}}
+{{--                    <td><div class="line">{{ $solicitud->paciente_genero ?? '-' }}</div></td>--}}
+{{--                </tr>--}}
 
-                <tr>
-                    <td><span class="label">FECHA SOL. MEDICO:</span></td>
-                    <td><div class="line">{{ $solicitud->fecha_solicitud ?? '-' }}</div></td>
-                    <td><span class="label">TIPO MUESTRA:</span></td>
-                    <td><div class="line">ORINA</div></td>
-                </tr>
+{{--                <tr>--}}
+{{--                    <td><span class="label">FECHA SOL. MEDICO:</span></td>--}}
+{{--                    <td><div class="line">{{ $solicitud->fecha_solicitud ?? '-' }}</div></td>--}}
+{{--                    <td><span class="label">TIPO MUESTRA:</span></td>--}}
+{{--                    <td><div class="line">ORINA</div></td>--}}
+{{--                </tr>--}}
 
-                <tr>
-                    <td><span class="label">EST. DE SALUD:</span></td>
-                    <td><div class="line">{{ $solicitud->establecimiento_salud ?? '-' }}</div></td>
-                    <td><span class="label">CI:</span></td>
-                    <td><div class="line">{{ $solicitud->paciente_ci ?? '-' }}</div></td>
-                </tr>
-            </table>
+{{--                <tr>--}}
+{{--                    <td><span class="label">EST. DE SALUD:</span></td>--}}
+{{--                    <td><div class="line">{{ $solicitud->establecimiento_salud ?? '-' }}</div></td>--}}
+{{--                    <td><span class="label">CI:</span></td>--}}
+{{--                    <td><div class="line">{{ $solicitud->paciente_ci ?? '-' }}</div></td>--}}
+{{--                </tr>--}}
+{{--            </table>--}}
 
-            <div class="section center" style="margin-top:4px; font-weight:700; font-size:9px;">
-                UROANÁLISIS
-            </div>
+{{--            <div class="section center" style="margin-top:4px; font-weight:700; font-size:9px;">--}}
+{{--                UROANÁLISIS--}}
+{{--            </div>--}}
 
-            <div class="section">
-                <table class="inner">
-                    <thead>
-                    <tr>
-                        <th style="width:30%;">MATERIAL DE ENSAYO</th>
-                        <th style="width:70%;">MÉTODO</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td class="center">{{ $u->material_ensayo ?? 'ORINA' }}</td>
-                        <td class="center">{{ $u->metodo ?? '' }}</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+{{--            <div class="section">--}}
+{{--                <table class="inner">--}}
+{{--                    <thead>--}}
+{{--                    <tr>--}}
+{{--                        <th style="width:30%;">MATERIAL DE ENSAYO</th>--}}
+{{--                        <th style="width:70%;">MÉTODO</th>--}}
+{{--                    </tr>--}}
+{{--                    </thead>--}}
+{{--                    <tbody>--}}
+{{--                    <tr>--}}
+{{--                        <td class="center">{{ $u->material_ensayo ?? 'ORINA' }}</td>--}}
+{{--                        <td class="center">{{ $u->metodo ?? '' }}</td>--}}
+{{--                    </tr>--}}
+{{--                    </tbody>--}}
+{{--                </table>--}}
+{{--            </div>--}}
 
-            <div class="section">
-                <h3>Examen físico</h3>
-                <table class="inner">
-                    <thead>
-                    <tr>
-                        <th style="width:30%;">EXAMEN</th>
-                        <th style="width:30%;">RES.</th>
-                        <th style="width:20%;">UNIDADES</th>
-                        <th style="width:20%;">RANGO</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr><td>Cantidad</td><td class="center">{{ $u->cantidad ?? '' }}</td><td class="center">ml</td><td class="center">*</td></tr>
-                    <tr><td>Color</td><td class="center">{{ $u->color ?? '' }}</td><td class="center">*</td><td class="center">Amarillo</td></tr>
-                    <tr><td>Olor</td><td class="center">{{ $u->olor ?? '' }}</td><td class="center">*</td><td class="center">Sui-generis</td></tr>
-                    <tr><td>Aspecto</td><td class="center">{{ $u->aspecto ?? '' }}</td><td class="center">*</td><td class="center">Límpido</td></tr>
-                    <tr><td>Reacción (pH)</td><td class="center">{{ $u->reaccion ?? '' }}</td><td class="center">*</td><td class="center">pH 6.0 ácido</td></tr>
-                    <tr><td>Densidad</td><td class="center">{{ $u->densidad ?? '' }}</td><td class="center">*</td><td class="center">1.025</td></tr>
-                    <tr><td>Espuma</td><td class="center">{{ $u->espuma ?? '' }}</td><td class="center">*</td><td class="center">Blanco fugaz</td></tr>
-                    <tr><td>Sedimento</td><td class="center">{{ $u->sedimento ?? '' }}</td><td class="center">*</td><td class="center">Escaso</td></tr>
-                    </tbody>
-                </table>
-            </div>
+{{--            <div class="section">--}}
+{{--                <h3>Examen físico</h3>--}}
+{{--                <table class="inner">--}}
+{{--                    <thead>--}}
+{{--                    <tr>--}}
+{{--                        <th style="width:30%;">EXAMEN</th>--}}
+{{--                        <th style="width:30%;">RES.</th>--}}
+{{--                        <th style="width:20%;">UNIDADES</th>--}}
+{{--                        <th style="width:20%;">RANGO</th>--}}
+{{--                    </tr>--}}
+{{--                    </thead>--}}
+{{--                    <tbody>--}}
+{{--                    <tr><td>Cantidad</td><td class="center">{{ $u->cantidad ?? '' }}</td><td class="center">ml</td><td class="center">*</td></tr>--}}
+{{--                    <tr><td>Color</td><td class="center">{{ $u->color ?? '' }}</td><td class="center">*</td><td class="center">Amarillo</td></tr>--}}
+{{--                    <tr><td>Olor</td><td class="center">{{ $u->olor ?? '' }}</td><td class="center">*</td><td class="center">Sui-generis</td></tr>--}}
+{{--                    <tr><td>Aspecto</td><td class="center">{{ $u->aspecto ?? '' }}</td><td class="center">*</td><td class="center">Límpido</td></tr>--}}
+{{--                    <tr><td>Reacción (pH)</td><td class="center">{{ $u->reaccion ?? '' }}</td><td class="center">*</td><td class="center">pH 6.0 ácido</td></tr>--}}
+{{--                    <tr><td>Densidad</td><td class="center">{{ $u->densidad ?? '' }}</td><td class="center">*</td><td class="center">1.025</td></tr>--}}
+{{--                    <tr><td>Espuma</td><td class="center">{{ $u->espuma ?? '' }}</td><td class="center">*</td><td class="center">Blanco fugaz</td></tr>--}}
+{{--                    <tr><td>Sedimento</td><td class="center">{{ $u->sedimento ?? '' }}</td><td class="center">*</td><td class="center">Escaso</td></tr>--}}
+{{--                    </tbody>--}}
+{{--                </table>--}}
+{{--            </div>--}}
 
-            <div class="section">
-                <h3>Examen microscópico (sedimento)</h3>
-                <table class="inner">
-                    <thead>
-                    <tr>
-                        <th style="width:30%;">EXAMEN</th>
-                        <th style="width:30%;">SEDIMENTO</th>
-                        <th style="width:20%;">UNIDADES</th>
-                        <th style="width:20%;">RANGO</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr><td>Leucocitos</td><td class="center">{{ $u->leucocitos ?? '' }}</td><td class="center">xcampo/uL</td><td class="center">0-1</td></tr>
-                    <tr><td>Hematies</td><td class="center">{{ $u->hematies ?? '' }}</td><td class="center">xcampo/uL</td><td class="center">0-1</td></tr>
+{{--            <div class="section">--}}
+{{--                <h3>Examen microscópico (sedimento)</h3>--}}
+{{--                <table class="inner">--}}
+{{--                    <thead>--}}
+{{--                    <tr>--}}
+{{--                        <th style="width:30%;">EXAMEN</th>--}}
+{{--                        <th style="width:30%;">SEDIMENTO</th>--}}
+{{--                        <th style="width:20%;">UNIDADES</th>--}}
+{{--                        <th style="width:20%;">RANGO</th>--}}
+{{--                    </tr>--}}
+{{--                    </thead>--}}
+{{--                    <tbody>--}}
+{{--                    <tr><td>Leucocitos</td><td class="center">{{ $u->leucocitos ?? '' }}</td><td class="center">xcampo/uL</td><td class="center">0-1</td></tr>--}}
+{{--                    <tr><td>Hematies</td><td class="center">{{ $u->hematies ?? '' }}</td><td class="center">xcampo/uL</td><td class="center">0-1</td></tr>--}}
 
-                    <tr>
-                        <td>Morfología eritrocitaria</td>
-                        <td class="center">
-                            {{ $u->morfologia_eritrocitaria ?? '' }}
-                            @if(!empty($u->valor_morfologia)) ({{ $u->valor_morfologia }}) @endif
-                        </td>
-                        <td class="center">*</td>
-                        <td class="center">*</td>
-                    </tr>
+{{--                    <tr>--}}
+{{--                        <td>Morfología eritrocitaria</td>--}}
+{{--                        <td class="center">--}}
+{{--                            {{ $u->morfologia_eritrocitaria ?? '' }}--}}
+{{--                            @if(!empty($u->valor_morfologia)) ({{ $u->valor_morfologia }}) @endif--}}
+{{--                        </td>--}}
+{{--                        <td class="center">*</td>--}}
+{{--                        <td class="center">*</td>--}}
+{{--                    </tr>--}}
 
-                    <tr><td>Bacterias</td><td class="center">{{ $u->bacterias ?? '' }}</td><td class="center">*</td><td class="center">Escaso</td></tr>
-                    <tr><td>Filamento mucoide</td><td class="center">{{ $u->filamento_mucoide ?? '' }}</td><td class="center">*</td><td class="center">*</td></tr>
+{{--                    <tr><td>Bacterias</td><td class="center">{{ $u->bacterias ?? '' }}</td><td class="center">*</td><td class="center">Escaso</td></tr>--}}
+{{--                    <tr><td>Filamento mucoide</td><td class="center">{{ $u->filamento_mucoide ?? '' }}</td><td class="center">*</td><td class="center">*</td></tr>--}}
 
-                    <tr>
-                        <td>Cilindros</td>
-                        <td class="center">
-                            {{ $u->cilindros ?? '' }}
-                            @if(!empty($u->valor_cilindros)) ({{ $u->valor_cilindros }}) @endif
-                        </td>
-                        <td class="center">*</td>
-                        <td class="center">#</td>
-                    </tr>
+{{--                    <tr>--}}
+{{--                        <td>Cilindros</td>--}}
+{{--                        <td class="center">--}}
+{{--                            {{ $u->cilindros ?? '' }}--}}
+{{--                            @if(!empty($u->valor_cilindros)) ({{ $u->valor_cilindros }}) @endif--}}
+{{--                        </td>--}}
+{{--                        <td class="center">*</td>--}}
+{{--                        <td class="center">#</td>--}}
+{{--                    </tr>--}}
 
-                    <tr>
-                        <td>Células epiteliales</td>
-                        <td class="center">
-                            {{ $u->celulas ?? '' }}
-                            @if(!empty($u->valor_celulas)) ({{ $u->valor_celulas }}) @endif
-                        </td>
-                        <td class="center">*</td>
-                        <td class="center">#</td>
-                    </tr>
+{{--                    <tr>--}}
+{{--                        <td>Células epiteliales</td>--}}
+{{--                        <td class="center">--}}
+{{--                            {{ $u->celulas ?? '' }}--}}
+{{--                            @if(!empty($u->valor_celulas)) ({{ $u->valor_celulas }}) @endif--}}
+{{--                        </td>--}}
+{{--                        <td class="center">*</td>--}}
+{{--                        <td class="center">#</td>--}}
+{{--                    </tr>--}}
 
-                    <tr>
-                        <td>Cristales</td>
-                        <td class="center">
-                            {{ $u->cristales ?? '' }}
-                            @if(!empty($u->valor_cristales)) ({{ $u->valor_cristales }}) @endif
-                        </td>
-                        <td class="center">*</td>
-                        <td class="center">#</td>
-                    </tr>
+{{--                    <tr>--}}
+{{--                        <td>Cristales</td>--}}
+{{--                        <td class="center">--}}
+{{--                            {{ $u->cristales ?? '' }}--}}
+{{--                            @if(!empty($u->valor_cristales)) ({{ $u->valor_cristales }}) @endif--}}
+{{--                        </td>--}}
+{{--                        <td class="center">*</td>--}}
+{{--                        <td class="center">#</td>--}}
+{{--                    </tr>--}}
 
-                    @if(!empty($u->otros))
-                        <tr>
-                            <td>Otros</td>
-                            <td class="center">{{ $u->otros }}</td>
-                            <td class="center">*</td>
-                            <td class="center">*</td>
-                        </tr>
-                    @endif
-                    </tbody>
-                </table>
-            </div>
+{{--                    @if(!empty($u->otros))--}}
+{{--                        <tr>--}}
+{{--                            <td>Otros</td>--}}
+{{--                            <td class="center">{{ $u->otros }}</td>--}}
+{{--                            <td class="center">*</td>--}}
+{{--                            <td class="center">*</td>--}}
+{{--                        </tr>--}}
+{{--                    @endif--}}
+{{--                    </tbody>--}}
+{{--                </table>--}}
+{{--            </div>--}}
 
-            <div class="section">
-                <h3>Examen químico</h3>
-                <table class="inner">
-                    <thead>
-                    <tr>
-                        <th style="width:50%;">EXAMEN</th>
-                        <th style="width:50%;">RES.</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr><td>Proteínas</td><td class="center">{{ $u->proteinas ?? '' }}</td></tr>
-                    <tr><td>Glucosa</td><td class="center">{{ $u->glucosa ?? '' }}</td></tr>
-                    <tr><td>Sangre</td><td class="center">{{ $u->sangre ?? '' }}</td></tr>
-                    <tr><td>Cetonas</td><td class="center">{{ $u->cetonas ?? '' }}</td></tr>
-                    <tr><td>Bilirrubina</td><td class="center">{{ $u->bilirrubina ?? '' }}</td></tr>
-                    <tr><td>Urobilinógeno</td><td class="center">{{ $u->urobilinogeno ?? '' }}</td></tr>
-                    <tr><td>Nitritos</td><td class="center">{{ $u->nitritos ?? '' }}</td></tr>
-                    </tbody>
-                </table>
-            </div>
+{{--            <div class="section">--}}
+{{--                <h3>Examen químico</h3>--}}
+{{--                <table class="inner">--}}
+{{--                    <thead>--}}
+{{--                    <tr>--}}
+{{--                        <th style="width:50%;">EXAMEN</th>--}}
+{{--                        <th style="width:50%;">RES.</th>--}}
+{{--                    </tr>--}}
+{{--                    </thead>--}}
+{{--                    <tbody>--}}
+{{--                    <tr><td>Proteínas</td><td class="center">{{ $u->proteinas ?? '' }}</td></tr>--}}
+{{--                    <tr><td>Glucosa</td><td class="center">{{ $u->glucosa ?? '' }}</td></tr>--}}
+{{--                    <tr><td>Sangre</td><td class="center">{{ $u->sangre ?? '' }}</td></tr>--}}
+{{--                    <tr><td>Cetonas</td><td class="center">{{ $u->cetonas ?? '' }}</td></tr>--}}
+{{--                    <tr><td>Bilirrubina</td><td class="center">{{ $u->bilirrubina ?? '' }}</td></tr>--}}
+{{--                    <tr><td>Urobilinógeno</td><td class="center">{{ $u->urobilinogeno ?? '' }}</td></tr>--}}
+{{--                    <tr><td>Nitritos</td><td class="center">{{ $u->nitritos ?? '' }}</td></tr>--}}
+{{--                    </tbody>--}}
+{{--                </table>--}}
+{{--            </div>--}}
 
-            <div class="section">
-                <h3>Observaciones</h3>
-                <div class="box">{{ $u->observaciones ?? '' }}</div>
-            </div>
+{{--            <div class="section">--}}
+{{--                <h3>Observaciones</h3>--}}
+{{--                <div class="box">{{ $u->observaciones ?? '' }}</div>--}}
+{{--            </div>--}}
 
-            <table class="no-border" style="width:100%; margin-top:6px;">
-                <tr>
-                    <td class="center" style="width:33%;">
-                        ___________________________<br>
-                        <span class="muted small">Firma / Sello</span>
-                    </td>
-                    <td class="center" style="width:33%;">
-                        ___________________________<br>
-                        <span class="muted small">Bioquímico(a) / Responsable</span>
-                    </td>
-                    <td class="center" style="width:34%;">
-                        @if(!empty($qrSvgBase64))
-                            <img
-                                src="data:image/svg+xml;base64,{{ $qrSvgBase64 }}"
-                                style="width:55px; height:55px;"
-                                alt="QR"
-                            >
-                        @endif
-                    </td>
-                </tr>
-            </table>
-        </td>
+{{--            <table class="no-border" style="width:100%; margin-top:6px;">--}}
+{{--                <tr>--}}
+{{--                    <td class="center" style="width:33%;">--}}
+{{--                        ___________________________<br>--}}
+{{--                        <span class="muted small">Firma / Sello</span>--}}
+{{--                    </td>--}}
+{{--                    <td class="center" style="width:33%;">--}}
+{{--                        ___________________________<br>--}}
+{{--                        <span class="muted small">Bioquímico(a) / Responsable</span>--}}
+{{--                    </td>--}}
+{{--                    <td class="center" style="width:34%;">--}}
+{{--                        @if(!empty($qrSvgBase64))--}}
+{{--                            <img--}}
+{{--                                src="data:image/svg+xml;base64,{{ $qrSvgBase64 }}"--}}
+{{--                                style="width:55px; height:55px;"--}}
+{{--                                alt="QR"--}}
+{{--                            >--}}
+{{--                        @endif--}}
+{{--                    </td>--}}
+{{--                </tr>--}}
+{{--            </table>--}}
+{{--        </td>--}}
     </tr>
 </table>
 

@@ -23,9 +23,12 @@ return new class extends Migration
             $table->string('olor')->nullable();
             $table->string('aspecto')->nullable();
             $table->string('reaccion')->nullable();        // pH 6.0 ácido, etc.
-            $table->decimal('densidad', 5, 3)->nullable(); // 1.020
+            $table->string('densidad')->nullable(); // 1.020
             $table->string('espuma')->nullable();
             $table->string('sedimento')->nullable();
+
+            $table->string('morfologia_eritrocitaria2')->nullable();
+            $table->string('valor_morfologia2')->nullable();
 
             // EXAMEN MICROSCÓPICO (SEDIMENTO)
             $table->string('celulas_epiteliales')->nullable();
