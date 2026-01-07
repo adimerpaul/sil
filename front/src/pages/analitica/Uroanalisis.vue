@@ -250,8 +250,8 @@
 <!--                    />-->
 <!--                    <select class="w-full bg-transparent border-b border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0 text-center text-[10px]"><option value="1.000">1.000</option><option value="1.005">1.005</option><option value="1.010">1.010</option><option value="1.015">1.015</option><option value="1.020">1.020</option><option value="1.025">1.025</option></select>-->
                     <q-select
-                      v-model.number="form.densidad"
-                      :options="[1.000, 1.005, 1.010, 1.015, 1.020, 1.025, 1.030]"
+                      v-model="form.densidad"
+                      :options="['1.000', '1.005', '1.010', '1.015', '1.020', '1.025', '1.030']"
                       dense
                       outlined
                       emit-value
@@ -376,13 +376,6 @@
                 <tr>
                   <td>Morfología eritrocitaria</td>
                   <td>
-<!--                    <q-input-->
-<!--                      v-model="form.morfologia_eritrocitaria"-->
-<!--                      dense-->
-<!--                      outlined-->
-<!--                      placeholder="NORMAL / Alteraciones..."-->
-<!--                    />-->
-<!--                    <select class="w-full bg-transparent border-b border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0 text-center text-[10px]"><option value="NORMAL">NORMAL</option><option value="DISMORFICO">DISMORFICO</option><option value="ISOMORFICO">ISOMORFICO</option><option value="ESTRELLADO (CRENADOS)">ESTRELLADO (CRENADOS)</option><option value="FANTASMA">FANTASMA</option><option value="SEPTADOS">SEPTADOS</option><option value="POLIDIVERTICULADOS">POLIDIVERTICULADOS</option><option value="ESPICULADOS">ESPICULADOS</option><option value="ANULARES">ANULARES</option><option value="MONODIVERTICULARES">MONODIVERTICULARES</option><option value="MIXTOS">MIXTOS</option><option value="VACIOS">VACIOS</option></select>-->
                     <div class="row">
                       <div class="col-6">
                         <q-select
@@ -397,6 +390,33 @@
                       <div class="col-6">
                         <q-input
                           v-model="form.valor_morfologia"
+                          dense
+                          outlined
+                          placeholder="valor"
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  <td>xcampo/uL</td>
+                  <td>*</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>
+                    <div class="row">
+                      <div class="col-6">
+                        <q-select
+                          v-model="form.morfologia_eritrocitaria2"
+                          :options="['NORMAL', 'DISMORFICO', 'ISOMORFICO', 'ESTRELLADO (CRENADOS)', 'FANTASMA', 'SEPTADOS', 'POLIDIVERTICULADOS', 'ESPICULADOS', 'ANULARES', 'MONODIVERTICULARES', 'MIXTOS', 'VACIOS','ESQUISTOCITOS']"
+                          dense
+                          outlined
+                          emit-value
+                          map-options
+                        />
+                      </div>
+                      <div class="col-6">
+                        <q-input
+                          v-model="form.valor_morfologia2"
                           dense
                           outlined
                           placeholder="valor"
