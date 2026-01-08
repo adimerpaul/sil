@@ -12,7 +12,7 @@ class PapilomaHumanoController extends Controller
 {
     public function showBySolicitude($id)
     {
-        $solicitud = Solicitude::with(['paciente', 'doctor','servicios'])
+        $solicitud = Solicitude::with(['paciente', 'doctor','servicios.area'])
             ->findOrFail($id);
 
         $papiloma = PapilomaHumano::firstOrNew([
@@ -29,6 +29,10 @@ class PapilomaHumanoController extends Controller
     {
         $data = $request->all();
         $data['solicitude_id'] = $id;
+        $existente = PapilomaHumano::where('solicitude_id', $id)->first();
+        if (!$existente) {
+            $data['numeracion'] = (new PapilomaHumano())->generateNumeracion();
+        }
 
         $registro = PapilomaHumano::updateOrCreate(
             ['solicitude_id' => $id],

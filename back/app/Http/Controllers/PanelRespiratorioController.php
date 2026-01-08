@@ -55,6 +55,11 @@ class PanelRespiratorioController extends Controller
     {
         $data = $request->all();
         $data['solicitude_id'] = $id;
+        $existente = PanelRespiratorio::where('solicitude_id', $id)->first();
+        if (!$existente) {
+            $data['numeracion'] = (new PanelRespiratorio())->generateNumeracion();
+            error_log('Generando numeracion: '.$data['numeracion']);
+        }
 
         $registro = PanelRespiratorio::updateOrCreate(
             ['solicitude_id' => $id],

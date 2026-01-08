@@ -29,7 +29,11 @@ class PanelSexual extends Model implements AuditableContract
         'candida_albicans',
         'gardnerella_vaginalis',
         'observaciones',
-        'code'
+        'code',
+        'metodo',
+        'equipo',
+        'numeracion',
+        'codigo_muestra',
     ];
 
     protected $hidden = ['deleted_at', 'created_at', 'updated_at'];
@@ -42,5 +46,15 @@ class PanelSexual extends Model implements AuditableContract
                 $model->code = str_replace('-', '', $model->code);
             }
         });
+    }
+    function generateNumeracion(){
+        $maxNumeracion = PanelSexual::max('numeracion');
+        if ($maxNumeracion) {
+            $number = intval(substr($maxNumeracion, 0, strpos($maxNumeracion, 'PS'))) + 1;
+        } else {
+            $number = 1;
+        }
+        $year = date('y');
+        return str_pad($number, 4, '0', STR_PAD_LEFT) . 'PS-' . $year;
     }
 }

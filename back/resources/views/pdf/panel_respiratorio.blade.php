@@ -115,7 +115,7 @@
     $isPos = fn($v) => $norm($v) === 'DETECTADO';
 
     $areaTitulo = 'BIOLOGÍA MOLECULAR';
-    $metodo = 'QPCR - RT EN TIEMPO REAL';
+//    $metodo = 'QPCR - RT EN TIEMPO REAL';
 
     $tipoMuestra = $solicitud->muestra_identificacion ?? 'HISOPADO COMBINADO';
 
@@ -156,7 +156,7 @@
             </div>
 
             <div class="center muted small" style="margin-top:1px;">
-                Método: {{ $metodo }}
+                Método: Reacción en Cadena de la Polimerasa en Tiempo Real
             </div>
 
             <!-- ===== TABLA RESULTADOS (lista como imagen) ===== -->

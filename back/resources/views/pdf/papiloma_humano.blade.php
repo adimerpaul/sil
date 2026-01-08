@@ -135,6 +135,9 @@
             <div class="section center" style="margin-top:6px; font-weight:700; font-size:9px;">
                 RESULTADOS DE VIRUS DE PAPILOMA HUMANO POR PCR
             </div>
+            <div class="center muted small" style="margin-top:1px;">
+                Método: Reacción en Cadena de la Polimerasa en Tiempo Real
+            </div>
 
             <!-- ===== TABLA RESULTADOS ===== -->
             <div class="section" style="margin-top:4px;">
@@ -152,21 +155,179 @@
                         <td class="center {{ $classRes($papiloma->hpv_alto_riesgo ?? null) }}">{{ $norm($papiloma->hpv_alto_riesgo ?? 'NO DETECTADO') }}</td>
                         <td class="center">NO DETECTADO</td>
                     </tr>
+                    @if($papiloma->hpv_16 !== null)
                     <tr>
                         <td>Determinación de HPV 16</td>
                         <td class="center {{ $classRes($papiloma->hpv_16 ?? null) }}">{{ $norm($papiloma->hpv_16 ?? 'NO DETECTADO') }}</td>
                         <td class="center">NO DETECTADO</td>
                     </tr>
+                    @endif
+                    @if($papiloma->hpv_18 !== null)
                     <tr>
                         <td>Determinación de HPV 18</td>
                         <td class="center {{ $classRes($papiloma->hpv_18 ?? null) }}">{{ $norm($papiloma->hpv_18 ?? 'NO DETECTADO') }}</td>
                         <td class="center">NO DETECTADO</td>
                     </tr>
+                    @endif
+{{--                    $table->string('hpv_26')->nullable();--}}
+{{--                    $table->string('hpv_31')->nullable();--}}
+{{--                    $table->string('hpv_33')->nullable();--}}
+{{--                    $table->string('hpv_35')->nullable();--}}
+{{--                    $table->string('hpv_39')->nullable();--}}
+{{--                    $table->string('hpv_51')->nullable();--}}
+{{--                    $table->string('hpv_52')->nullable();--}}
+{{--                    $table->string('hpv_53')->nullable();--}}
+{{--                    $table->string('hpv_56')->nullable();--}}
+{{--                    $table->string('hpv_58')->nullable();--}}
+{{--                    $table->string('hpv_59')->nullable();--}}
+{{--                    $table->string('hpv_66')->nullable();--}}
+{{--                    $table->string('hpv_67')->nullable();--}}
+{{--                    $table->string('hpv_68')->nullable();--}}
+{{--                    $table->string('hpv_69')->nullable();--}}
+{{--                    $table->string('hpv_70')->nullable();--}}
+{{--                    $table->string('hpv_73')->nullable();--}}
+{{--                    $table->string('hpv_82')->nullable();--}}
+{{--                    $table->string('hpv_97')->nullable();--}}
+                    @if($papiloma->hpv_26 !== null)
                     <tr>
-                        <td>Determinación de HPV 45</td>
-                        <td class="center {{ $classRes($papiloma->hpv_45 ?? null) }}">{{ $norm($papiloma->hpv_45 ?? 'NO DETECTADO') }}</td>
+                        <td>Determinación de HPV 26</td>
+                        <td class="center {{ $classRes($papiloma->hpv_26 ?? null) }}">{{ $norm($papiloma->hpv_26 ?? 'NO DETECTADO') }}</td>
                         <td class="center">NO DETECTADO</td>
                     </tr>
+                    @endif
+                    @if($papiloma->hpv_31 !== null)
+                    <tr>
+                        <td>Determinación de HPV 31</td>
+                        <td class="center {{ $classRes($papiloma->hpv_31 ?? null) }}">{{ $norm($papiloma->hpv_31 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_33 !== null)
+                    <tr>
+                        <td>Determinación de HPV 33</td>
+                        <td class="center {{ $classRes($papiloma->hpv_33 ?? null) }}">{{ $norm($papiloma->hpv_33 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_35 !== null)
+                    <tr>
+                        <td>Determinación de HPV 35</td>
+                        <td class="center {{ $classRes($papiloma->hpv_35 ?? null) }}">{{ $norm($papiloma->hpv_35 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_39 !== null)
+                    <tr>
+                        <td>Determinación de HPV 39</td>
+                        <td class="center {{ $classRes($papiloma->hpv_39 ?? null) }}">{{ $norm($papiloma->hpv_39 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_45 !== null)
+                        <tr>
+                            <td>Determinación de HPV 45</td>
+                            <td class="center {{ $classRes($papiloma->hpv_45 ?? null) }}">{{ $norm($papiloma->hpv_45 ?? 'NO DETECTADO') }}</td>
+                            <td class="center">NO DETECTADO</td>
+                        </tr>
+                    @endif
+                    @if($papiloma->hpv_51 !== null)
+                    <tr>
+                        <td>Determinación de HPV 51</td>
+                        <td class="center {{ $classRes($papiloma->hpv_51 ?? null) }}">{{ $norm($papiloma->hpv_51 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_52 !== null)
+                    <tr>
+                        <td>Determinación de HPV 52</td>
+                        <td class="center {{ $classRes($papiloma->hpv_52 ?? null) }}">{{ $norm($papiloma->hpv_52 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_53 !== null)
+                    <tr>
+                        <td>Determinación de HPV 53</td>
+                        <td class="center {{ $classRes($papiloma->hpv_53 ?? null) }}">{{ $norm($papiloma->hpv_53 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_56 !== null)
+                    <tr>
+                        <td>Determinación de HPV 56</td>
+                        <td class="center {{ $classRes($papiloma->hpv_56 ?? null) }}">{{ $norm($papiloma->hpv_56 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_58 !== null)
+                    <tr>
+                        <td>Determinación de HPV 58</td>
+                        <td class="center {{ $classRes($papiloma->hpv_58 ?? null) }}">{{ $norm($papiloma->hpv_58 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_59 !== null)
+                    <tr>
+                        <td>Determinación de HPV 59</td>
+                        <td class="center {{ $classRes($papiloma->hpv_59 ?? null) }}">{{ $norm($papiloma->hpv_59 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_66 !== null)
+                    <tr>
+                        <td>Determinación de HPV 66</td>
+                        <td class="center {{ $classRes($papiloma->hpv_66 ?? null) }}">{{ $norm($papiloma->hpv_66 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_67 !== null)
+                    <tr>
+                        <td>Determinación de HPV 67</td>
+                        <td class="center {{ $classRes($papiloma->hpv_67 ?? null) }}">{{ $norm($papiloma->hpv_67 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_68 !== null)
+                    <tr>
+                        <td>Determinación de HPV 68</td>
+                        <td class="center {{ $classRes($papiloma->hpv_68 ?? null) }}">{{ $norm($papiloma->hpv_68 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_69 !== null)
+                    <tr>
+                        <td>Determinación de HPV 69</td>
+                        <td class="center {{ $classRes($papiloma->hpv_69 ?? null) }}">{{ $norm($papiloma->hpv_69 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_70 !== null)
+                    <tr>
+                        <td>Determinación de HPV 70</td>
+                        <td class="center {{ $classRes($papiloma->hpv_70 ?? null) }}">{{ $norm($papiloma->hpv_70 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_73 !== null)
+                    <tr>
+                        <td>Determinación de HPV 73</td>
+                        <td class="center {{ $classRes($papiloma->hpv_73 ?? null) }}">{{ $norm($papiloma->hpv_73 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_82 !== null)
+                    <tr>
+                        <td>Determinación de HPV 82</td>
+                        <td class="center {{ $classRes($papiloma->hpv_82 ?? null) }}">{{ $norm($papiloma->hpv_82 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
+                    @if($papiloma->hpv_97 !== null)
+                    <tr>
+                        <td>Determinación de HPV 97</td>
+                        <td class="center {{ $classRes($papiloma->hpv_97 ?? null) }}">{{ $norm($papiloma->hpv_97 ?? 'NO DETECTADO') }}</td>
+                        <td class="center">NO DETECTADO</td>
+                    </tr>
+                    @endif
                     </tbody>
                 </table>
             </div>

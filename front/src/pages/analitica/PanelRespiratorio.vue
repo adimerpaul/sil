@@ -53,6 +53,10 @@
 <!--        </div>-->
 <!--      </q-card-section>-->
       <InfoServicio :header="solicitud" />
+      <div class="q-pa-xs">
+        <div class="text-h6">Codigo interno:</div>
+        <q-input v-model="form.numeracion" outlined dense label="Código interno" />
+      </div>
 
       <q-card-section>
         <q-markup-table dense bordered>

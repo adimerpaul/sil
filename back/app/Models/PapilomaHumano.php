@@ -18,6 +18,29 @@ class PapilomaHumano extends Model implements AuditableContract
         'hpv_16',
         'hpv_18',
         'hpv_45',
+        'hpv_26',
+        'hpv_31',
+        'hpv_33',
+        'hpv_35',
+        'hpv_39',
+        'hpv_51',
+        'hpv_52',
+        'hpv_53',
+        'hpv_56',
+        'hpv_58',
+        'hpv_59',
+        'hpv_66',
+        'hpv_67',
+        'hpv_68',
+        'hpv_69',
+        'hpv_70',
+        'hpv_73',
+        'hpv_82',
+        'hpv_97',
+        'metodo',
+        'equipo',
+        'numeracion',
+        'codigo_muestra',
         'observaciones',
         'code',
     ];
@@ -41,5 +64,17 @@ class PapilomaHumano extends Model implements AuditableContract
                 $model->code = str_replace('-', '', $model->code);
             }
         });
+    }
+//generateNumeracion
+    function generateNumeracion()
+    {
+        $maxNumeracion = PapilomaHumano::max('numeracion');
+        if ($maxNumeracion) {
+            $number = intval(substr($maxNumeracion, 0, strpos($maxNumeracion, 'P'))) + 1;
+        } else {
+            $number = 1;
+        }
+        $year = date('y');
+        return str_pad($number, 4, '0', STR_PAD_LEFT) . 'P-' . $year;
     }
 }

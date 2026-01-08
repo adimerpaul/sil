@@ -137,7 +137,7 @@
                     </q-item>
 
                     <!-- SUBMENÚ: IMPRESIÓN -->
-                    <q-item dense v-if="solicitud.quimica_sanguinea?.code">
+                    <q-item dense v-if="solicitud.quimica_sanguinea?.code" class="cursor-pointer">
                       <q-item-section avatar>
                         <q-icon name="print" />
                       </q-item-section>
@@ -241,61 +241,127 @@
                     <q-separator spaced />
 
                     <!-- PAPILOMA HUMANO -->
-                    <q-item clickable @click="$router.push({ name: 'analitica-papiloma-humano', params: { id: solicitud.id } })" v-close-popup dense>
-                      <q-item-section avatar><q-icon name="health_and_safety" /></q-item-section>
-                      <q-item-section>
-                        Papiloma Humano
-                        <!--                        <pre>{{solicitud}}</pre>-->
+<!--                    <q-item clickable @click="$router.push({ name: 'analitica-papiloma-humano', params: { id: solicitud.id } })" v-close-popup dense>-->
+<!--                      <q-item-section avatar><q-icon name="health_and_safety" /></q-item-section>-->
+<!--                      <q-item-section>-->
+<!--                        Papiloma Humano-->
+<!--                        &lt;!&ndash;                        <pre>{{solicitud}}</pre>&ndash;&gt;-->
+<!--                      </q-item-section>-->
+<!--                    </q-item>-->
+<!--                    <q-item clickable @click="printPapilomaHumano(solicitud)" v-close-popup dense v-if="solicitud.papiloma_humano?.code">-->
+<!--                      <q-item-section avatar><q-icon name="print" /></q-item-section>-->
+<!--                      <q-item-section>Imprimir Papiloma Humano</q-item-section>-->
+<!--                    </q-item>-->
+<!--                    &lt;!&ndash; WhatsApp Papiloma Humano &ndash;&gt;-->
+<!--                    <q-item clickable @click="enviarWhatsApp(solicitud,'PapilomaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.papiloma_humano?.code">-->
+<!--                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>-->
+<!--                      <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>-->
+<!--                    </q-item>-->
+<!--                    <q-item clickable @click="enviarWhatsApp(solicitud,'PapilomaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.papiloma_humano?.code">-->
+<!--                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>-->
+<!--                      <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>-->
+<!--                    </q-item>-->
+<!--                    <q-separator spaced />-->
+<!--                    &lt;!&ndash; PANEL RESPIRATORIO &ndash;&gt;-->
+<!--                    <q-item clickable @click="$router.push({ name: 'analitica-panel-respiratorio', params: { id: solicitud.id } })" v-close-popup dense>-->
+<!--                      <q-item-section avatar><q-icon name="air" /></q-item-section>-->
+<!--                      <q-item-section>Panel Respiratorio</q-item-section>-->
+<!--                    </q-item>-->
+<!--                    <q-item clickable @click="printPanelRespiratorio(solicitud)" v-close-popup dense v-if="solicitud.panel_respiratorio?.code">-->
+<!--                      <q-item-section avatar><q-icon name="print" /></q-item-section>-->
+<!--                      <q-item-section>Imprimir Panel Respiratorio</q-item-section>-->
+<!--                    </q-item>-->
+<!--                    &lt;!&ndash; WhatsApp Panel Respiratorio &ndash;&gt;-->
+<!--                    <q-item clickable @click="enviarWhatsApp(solicitud,'PanelRespiratorioDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.panel_respiratorio?.code">-->
+<!--                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>-->
+<!--                      <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>-->
+<!--                    </q-item>-->
+<!--                    <q-item clickable @click="enviarWhatsApp(solicitud,'PanelRespiratorioPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.panel_respiratorio?.code">-->
+<!--                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>-->
+<!--                      <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>-->
+<!--                    </q-item>-->
+<!--                    <q-separator spaced />-->
+<!--                    &lt;!&ndash; PANEL SEXUAL &ndash;&gt;-->
+<!--                    <q-item clickable @click="$router.push({ name: 'analitica-panel-sexual', params: { id: solicitud.id } })" v-close-popup dense>-->
+<!--                      <q-item-section avatar><q-icon name="favorite" /></q-item-section>-->
+<!--                      <q-item-section>Panel Sexual</q-item-section>-->
+<!--                    </q-item>-->
+<!--                    <q-item clickable @click="printPanelSexual(solicitud)" v-close-popup dense v-if="solicitud.panel_sexual?.code">-->
+<!--                      <q-item-section avatar><q-icon name="print" /></q-item-section>-->
+<!--                      <q-item-section>Imprimir Panel Sexual</q-item-section>-->
+<!--                    </q-item>-->
+
+<!--                    en biologia molecular debe ir los 3 papilomas en su menu-->
+                    <q-item dense class="cursor-pointer">
+                      <q-item-section avatar>
+                        <q-icon name="print" />
                       </q-item-section>
-                    </q-item>
-                    <q-item clickable @click="printPapilomaHumano(solicitud)" v-close-popup dense v-if="solicitud.papiloma_humano?.code">
-                      <q-item-section avatar><q-icon name="print" /></q-item-section>
-                      <q-item-section>Imprimir Papiloma Humano</q-item-section>
-                    </q-item>
 
-                    <!-- WhatsApp Papiloma Humano -->
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'PapilomaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.papiloma_humano?.code">
-                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
-                      <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
-                    </q-item>
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'PapilomaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.papiloma_humano?.code">
-                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
-                      <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
-                    </q-item>
+                      <q-item-section>
+                        Biologia molecular
+                      </q-item-section>
 
-                    <q-separator spaced />
+                      <q-item-section side>
+                        <q-icon name="chevron_right" />
+                      </q-item-section>
 
-                    <!-- PANEL RESPIRATORIO -->
-                    <q-item clickable @click="$router.push({ name: 'analitica-panel-respiratorio', params: { id: solicitud.id } })" v-close-popup dense>
-                      <q-item-section avatar><q-icon name="air" /></q-item-section>
-                      <q-item-section>Panel Respiratorio</q-item-section>
-                    </q-item>
-                    <q-item clickable @click="printPanelRespiratorio(solicitud)" v-close-popup dense v-if="solicitud.panel_respiratorio?.code">
-                      <q-item-section avatar><q-icon name="print" /></q-item-section>
-                      <q-item-section>Imprimir Panel Respiratorio</q-item-section>
-                    </q-item>
+                      <q-menu anchor="top end" self="top start">
+                        <q-list dense style="min-width: 220px">
 
-                    <!-- WhatsApp Panel Respiratorio -->
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'PanelRespiratorioDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.panel_respiratorio?.code">
-                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
-                      <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
+                          <q-item clickable v-close-popup dense @click="$router.push({ name: 'analitica-papiloma-humano', params: { id: solicitud.id } })" >
+                            <q-item-section  avatar><q-icon name="health_and_safety" /></q-item-section>
+                            <q-item-section>Papiloma Humano</q-item-section>
+                          </q-item>
+                          <q-item clickable v-close-popup dense @click="printPapilomaHumano(solicitud)" v-if="solicitud.papiloma_humano?.code">
+                            <q-item-section avatar><q-icon name="print" /></q-item-section>
+                            <q-item-section>Imprimir Papiloma Humano</q-item-section>
+                          </q-item>
+                          <q-item clickable @click="enviarWhatsApp(solicitud,'PapilomaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.papiloma_humano?.code">
+                            <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                            <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
+                          </q-item>
+                          <q-item clickable @click="enviarWhatsApp(solicitud,'PapilomaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.papiloma_humano?.code">
+                            <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                            <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
+                          </q-item>
+                          <q-separator spaced />
+                          <q-item clickable v-close-popup dense @click="$router.push({ name: 'analitica-panel-respiratorio', params: { id: solicitud.id } })" >
+                            <q-item-section  avatar><q-icon name="air" /></q-item-section>
+                            <q-item-section>Panel Respiratorio</q-item-section>
+                          </q-item>
+                          <q-item clickable v-close-popup dense @click="printPanelRespiratorio(solicitud)" v-if="solicitud.panel_respiratorio?.code">
+                            <q-item-section avatar><q-icon name="print" /></q-item-section>
+                            <q-item-section>Imprimir Panel Respiratorio</q-item-section>
+                          </q-item>
+                          <q-item clickable @click="enviarWhatsApp(solicitud,'PanelRespiratorioDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.panel_respiratorio?.code">
+                            <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                            <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
+                          </q-item>
+                          <q-item clickable @click="enviarWhatsApp(solicitud,'PanelRespiratorioPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.panel_respiratorio?.code">
+                            <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                            <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
+                          </q-item>
+                          <q-separator spaced />
+                          <q-item clickable v-close-popup dense @click="$router.push({ name: 'analitica-panel-sexual', params: { id: solicitud.id } })" >
+                            <q-item-section  avatar><q-icon name="favorite" /></q-item-section>
+                            <q-item-section>Panel Sexual</q-item-section>
+                          </q-item>
+                          <q-item clickable v-close-popup dense @click="printPanelSexual(solicitud)" v-if="solicitud.panel_sexual?.code">
+                            <q-item-section avatar><q-icon name="print" /></q-item-section>
+                            <q-item-section>Imprimir Panel Sexual</q-item-section>
+                          </q-item>
+                          <q-item clickable @click="enviarWhatsApp(solicitud,'PanelSexualDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.panel_sexual?.code">
+                            <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                            <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
+                          </q-item>
+                          <q-item clickable @click="enviarWhatsApp(solicitud,'PanelSexualPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.panel_sexual?.code">
+                            <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                            <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
+                          </q-item>
+                        </q-list>
+                      </q-menu>
                     </q-item>
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'PanelRespiratorioPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.panel_respiratorio?.code">
-                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
-                      <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
-                    </q-item>
-
-                    <q-separator spaced />
-
-                    <!-- PANEL SEXUAL -->
-                    <q-item clickable @click="$router.push({ name: 'analitica-panel-sexual', params: { id: solicitud.id } })" v-close-popup dense>
-                      <q-item-section avatar><q-icon name="favorite" /></q-item-section>
-                      <q-item-section>Panel Sexual</q-item-section>
-                    </q-item>
-                    <q-item clickable @click="printPanelSexual(solicitud)" v-close-popup dense v-if="solicitud.panel_sexual?.code">
-                      <q-item-section avatar><q-icon name="print" /></q-item-section>
-                      <q-item-section>Imprimir Panel Sexual</q-item-section>
-                    </q-item>
+<!--                    <q-item dense v-if="solicitud.quimica_sanguinea?.code" class="cursor-pointer">-->
 
                     <!-- WhatsApp Panel Sexual -->
                     <q-item clickable @click="enviarWhatsApp(solicitud,'PanelSexualDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.panel_sexual?.code">

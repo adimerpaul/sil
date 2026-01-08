@@ -79,9 +79,10 @@
       >
         {{ servicio.nombre }}
         <span>
-              ({{servicio.subarea}})
-            </span>
+          ({{servicio.area?.name}})
+        </span>
       </q-chip>
+<!--      <pre>{{header?.servicios}}</pre>-->
     </div>
   </q-card-section>
 </template>

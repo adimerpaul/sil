@@ -34,7 +34,11 @@ class PanelRespiratorio extends Model implements AuditableContract
         'enterovirus',
         'legionella_pneumophila',
         'observaciones',
-        'code'
+        'code',
+        'metodo',
+        'equipo',
+        'numeracion',
+        'codigo_muestra',
     ];
 
     protected $hidden = ['deleted_at', 'created_at', 'updated_at'];
@@ -47,5 +51,15 @@ class PanelRespiratorio extends Model implements AuditableContract
                 $model->code = str_replace('-', '', $model->code);
             }
         });
+    }
+    function generateNumeracion(){
+        $maxNumeracion = PanelRespiratorio::max('numeracion');
+        if ($maxNumeracion) {
+            $number = intval(substr($maxNumeracion, 0, strpos($maxNumeracion, 'VR'))) + 1;
+        } else {
+            $number = 1;
+        }
+        $year = date('y');
+        return str_pad($number, 4, '0', STR_PAD_LEFT) . 'VR-' . $year;
     }
 }

@@ -105,8 +105,8 @@
                 PANEL INFECCIONES DE TRANSMISIÓN SEXUAL (ITS) POR PCR
             </div>
 
-            <div class="center muted small">
-                Método: QPCR - RT EN TIEMPO REAL
+            <div class="center muted small" style="margin-top:1px;">
+                Método: Reacción en Cadena de la Polimerasa en Tiempo Real
             </div>
 
             <!-- TABLA RESULTADOS (MISMO ESTILO HEMATOLOGÍA) -->

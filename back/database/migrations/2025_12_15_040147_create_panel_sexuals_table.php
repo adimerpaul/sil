@@ -28,6 +28,11 @@ return new class extends Migration {
             $table->text('observaciones')->nullable();
             $table->string('code', 100)->nullable();
 
+            $table->string('metodo')->nullable();
+            $table->string('equipo')->nullable();
+            $table->string('numeracion')->nullable();
+            $table->string('codigo_muestra')->nullable();
+
             $table->foreign('solicitude_id')->references('id')->on('solicitudes')->onDelete('cascade');
 
             $table->softDeletes();
