@@ -114,7 +114,7 @@ class InmunologiaController extends Controller
         $pdf = Pdf::loadView('pdf.inmunologia_formulario', [
             'solicitud' => $solicitud,
             'row'       => $row,
-        ])->setPaper('letter', 'landscape');
+        ])->setPaper('legal', 'landscape');
 
         return $pdf->stream('INMUNOLOGIA_'.$solicitud->nro_registro.'_F'.$row->id.'.pdf');
     }

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
 
     <style>
-        @page { size: letter landscape; margin: 10px 12px; }
+        @page { size: letter ; margin: 20px 20px; }
         * { box-sizing: border-box; }
 
         body{
@@ -94,19 +94,42 @@
     ];
 @endphp
 
-<div class="sheet clearfix">
+<div>
 
-    @foreach(['left','right'] as $side)
-        <div class="half half-{{ $side }}" style="margin:10px 6px;">
+    @foreach(['left'] as $side)
+{{--        class="half half-{{ $side }}"--}}
+        <div  style="margin:10px 6px;">
 
-            {!! view('components.header', ['solicitud' => $solicitud])->render() !!}
+            {!! view('components.headerSinCabecera', ['solicitud' => $solicitud])->render() !!}
+            <table class="no-border section" style="margin-top:4px;">
+                <tr>
+                    <td>
+                        <b>Fecha de muestra:</b>
+                        {{ $solicitud->fecha_envio_analitica ? \Carbon\Carbon::parse($solicitud->fecha_envio_analitica)->format('d/m/Y') : '-' }}
+                    </td>
+                    <td>
+                        <b>Tipo de muestra:</b>
+                        @for($i = 0; $i < count($solicitud->preAnaliticaMuestras); $i++)
+                            @if($solicitud->preAnaliticaMuestras[$i]->selected)
+                                {{ $solicitud->preAnaliticaMuestras[$i]->nombre }},
+                            @endif
+                        @endfor
+                    </td>
+                    <td style="text-align: right">
+                        <b>Código Interno:</b>
+                        {{ $panel->numeracion ?? '-' }}
+                    </td>
+                </tr>
+            </table>
             <!-- TITULO -->
-            <div class="center" style="margin-top:6px; font-weight:700; font-size:9px;">
+            <div class="center" style="margin-top:20px; font-weight:700; font-size:12px;">
                 PANEL INFECCIONES DE TRANSMISIÓN SEXUAL (ITS) POR PCR
             </div>
 
-            <div class="center muted small" style="margin-top:1px;">
-                Método: Reacción en Cadena de la Polimerasa en Tiempo Real
+            <div class="center muted small" style="margin-top:5px;">
+                <b>Método:</b> Reacción en Cadena de la Polimerasa en Tiempo Real
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <b>Equipo:</b> {{ $panel->equipo ?? '-' }}
             </div>
 
             <!-- TABLA RESULTADOS (MISMO ESTILO HEMATOLOGÍA) -->
@@ -114,9 +137,9 @@
                 <table>
                     <thead>
                     <tr>
-                        <th style="width:45%">PRUEBA</th>
-                        <th style="width:25%" class="center">RESULTADO</th>
-                        <th style="width:30%" class="center">VALORES DE REFERENCIA</th>
+                        <th style="width:45%;font-size: 12px">PRUEBA</th>
+                        <th style="width:25%;font-size: 12px" class="center">RESULTADO</th>
+                        <th style="width:30%;font-size: 12px" class="center">VALORES DE REFERENCIA</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -125,11 +148,11 @@
                             $value = $norm($panel?->{$r[1]} ?? null);
                         @endphp
                         <tr>
-                            <td>{{ $r[0] }}</td>
-                            <td class="center {{ $value === 'DETECTADO' ? 'res-pos' : 'res-neg' }}">
+                            <td style="font-size: 12px">{{ $r[0] }}</td>
+                            <td class="center {{ $value === 'DETECTADO' ? 'res-pos' : 'res-neg' }}" style="font-size: 12px">
                                 {{ $value }}
                             </td>
-                            <td class="center">NO DETECTADO</td>
+                            <td class="center" style="font-size: 12px">NO DETECTADO</td>
                         </tr>
                     @endforeach
                     </tbody>

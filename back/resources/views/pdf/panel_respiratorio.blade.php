@@ -4,7 +4,7 @@
     <meta charset="utf-8">
 
     <style>
-        @page { size: letter landscape; margin: 10px 12px; }
+        @page { size: letter ; margin: 10px 12px; }
         * { box-sizing: border-box; }
 
         body{
@@ -143,20 +143,39 @@
     ];
 @endphp
 
-<div class="sheet clearfix">
+<div >
+{{--    class="sheet clearfix"--}}
+    @foreach(['left'] as $side)
+{{--        class="half half-{{ $side }}"--}}
+        <div  style="margin: 20px 20px;">
 
-    @foreach(['left', 'right'] as $side)
-        <div class="half half-{{ $side }}" style="margin: 10px 6px;">
-
-            {!! view('components.header', ['solicitud' => $solicitud])->render() !!}
+            {!! view('components.headerSinCabecera', ['solicitud' => $solicitud])->render() !!}
+            <table class="no-border section" style="margin-top:4px;">
+                <tr>
+                    <td>
+                        <b>Fecha de muestra:</b>
+                        {{ $solicitud->fecha_envio_analitica ? \Carbon\Carbon::parse($solicitud->fecha_envio_analitica)->format('d/m/Y') : '-' }}
+                    </td>
+                    <td>
+                        <b>Tipo de muestra:</b>
+                        {{ $tipoMuestra }}
+                    </td>
+                    <td style="text-align: right">
+                        <b>Código Interno:</b>
+                        {{ $panel->numeracion ?? '-' }}
+                    </td>
+                </tr>
+            </table>
 
             <!-- ===== TITULO ===== -->
-            <div class="center" style="margin-top:6px; font-weight:700; font-size:9px;">
+            <div class="center" style="margin-top:10px; font-weight:700; font-size:12px;">
                 RESULTADOS PANEL RESPIRATORIO POR PCR
             </div>
 
-            <div class="center muted small" style="margin-top:1px;">
-                Método: Reacción en Cadena de la Polimerasa en Tiempo Real
+            <div class="center muted small" style="margin-top:5px;">
+                <b>Método:</b> Reacción en Cadena de la Polimerasa en Tiempo Real
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <b>Equipo:</b> {{ $panel->equipo ?? '-' }}
             </div>
 
             <!-- ===== TABLA RESULTADOS (lista como imagen) ===== -->
@@ -164,9 +183,9 @@
                 <table class="list">
                     <thead>
                     <tr>
-                        <th class="col-path" style="text-align:left;">PATÓGENO</th>
-                        <th class="col-res center">RESULTADO</th>
-                        <th class="col-ref right">VALORES DE REFERENCIA</th>
+                        <th class="col-path" style="text-align:left;font-size: 11px">PATÓGENO</th>
+                        <th class="col-res center" style="font-size: 11px">RESULTADO</th>
+                        <th class="col-ref right" style="font-size: 11px">VALORES DE REFERENCIA</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -177,9 +196,9 @@
                             $value = $norm($panel?->{$key} ?? 'NO DETECTADO');
                         @endphp
                         <tr>
-                            <td class="col-path">{{ $label }}</td>
-                            <td class="col-res {{ $isPos($value) ? 'res-pos' : 'res-neg' }}">{{ $value }}</td>
-                            <td class="col-ref">NO DETECTADO</td>
+                            <td class="col-path" style="font-size: 11px">{{ $label }}</td>
+                            <td class="col-res {{ $isPos($value) ? 'res-pos' : 'res-neg' }}" style="font-size: 11px">{{ $value }}</td>
+                            <td class="col-ref" style="font-size: 11px">NO DETECTADO</td>
                         </tr>
                     @endforeach
                     </tbody>
@@ -213,7 +232,7 @@
                         @if(!empty($qrSvgBase64))
                             <img
                                 src="data:image/svg+xml;base64,{{ $qrSvgBase64 }}"
-                                style="width:50px; height:50px;"
+                                style="width:80px; height:80px;"
                                 alt="QR"
                             >
                         @endif

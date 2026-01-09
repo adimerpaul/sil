@@ -239,9 +239,9 @@
 {{--        @endforeach--}}
         <td style="width:50%; vertical-align:top; padding:0 4px;">
 
-            {!! view('components.header', ['solicitud' => $solicitud])->render() !!}
+            {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud])->render() !!}
 
-            <div class="center bold" style="font-size:8px; margin:2px 0;">QUÍMICA SANGUÍNEA</div>
+            <div class="center bold" style="font-size:12px; margin:2px 0; margin-top: 5px">QUÍMICA SANGUÍNEA</div>
             <div class="center small muted">
                 Método: {{ val($q,'metodo') ?: '—' }} &nbsp; • &nbsp;
                 Equipo: {{ $q->equipo == 'Otros' ? $q->equipo_otro : $q->equipo ?? '—' }}

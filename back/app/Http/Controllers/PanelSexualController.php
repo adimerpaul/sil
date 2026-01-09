@@ -90,7 +90,7 @@ class PanelSexualController extends Controller
             'solicitud' => $solicitud,
             'panel' => $panel,
             'qrSvgBase64' => $qrSvgBase64,
-        ])->setPaper('letter', 'landscape');
+        ])->setPaper('letter');
 
         return $pdf->stream('PANEL_ITS_'.$solicitud->nro_registro.'.pdf');
     }

@@ -224,10 +224,19 @@
           </tbody>
         </q-markup-table>
 
-        <div class="q-mt-md">
-          <div class="text-subtitle2 q-mb-xs">Observaciones</div>
-          <q-input v-model="form.observaciones" type="textarea" outlined autogrow />
+        <div class="row">
+          <div class="col-12 col-md-6">
+            <div class="text-subtitle2 q-mb-xs">Observaciones</div>
+            <q-input v-model="form.observaciones" type="textarea" outlined autogrow dense />
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="text-subtitle2 q-mb-xs">Equipo utilizado</div>
+<!--            Mic Cycler y Quant Studio 5-->
+            <q-select v-model="form.equipo" :options="['Mic Cycler','Quant Studio 5']" label="Equipo utilizado" outlined dense />
+          </div>
         </div>
+<!--        <div class="q-mt-md">-->
+<!--        </div>-->
       </q-card-section>
     </q-card>
   </q-page>

@@ -4,13 +4,13 @@
     <meta charset="utf-8">
 
     <style>
-        @page { size: letter landscape; margin: 10px 12px; }
+        @page { size: letter; margin: 10px 12px; }
         * { box-sizing: border-box; }
 
         body{
             margin:0; padding:0;
             font-family: DejaVu Sans, sans-serif;
-            font-size: 10px;
+            font-size: 12px;
             color:#111;
             line-height: 1.15;
         }
@@ -123,20 +123,54 @@
     $metodo = 'PCR EN TIEMPO REAL';
     $areaTitulo = 'BIOLOGÍA MOLECULAR';
 @endphp
+{{--sheet clearfix--}}
+<div class="">
 
-<div class="sheet clearfix">
+    @foreach(['left'] as $side)
+{{--        half half-{{ $side }}--}}
+        <div class="" style="margin: 20px 20px;">
 
-    @foreach(['left', 'right'] as $side)
-        <div class="half half-{{ $side }}" style="margin: 10px 6px;">
-
-            {!! view('components.header', ['solicitud' => $solicitud])->render() !!}
+            {!! view('components.headerSinCabecera', ['solicitud' => $solicitud])->render() !!}
+{{--            <div class="section " style="margin-top:4px;">--}}
+{{--                <b>Fecha de muestra:</b>--}}
+{{--                {{ $solicitud->fecha_envio_analitica ? \Carbon\Carbon::parse($solicitud->fecha_envio_analitica)->format('d/m/Y') : '-' }}--}}
+{{--                <b>Tipo de muestra</b>--}}
+{{--                @for($i = 0; $i < count($solicitud->preAnaliticaMuestras); $i++)--}}
+{{--                    @if($solicitud->preAnaliticaMuestras[$i]->selected)--}}
+{{--                        {{ $solicitud->preAnaliticaMuestras[$i]->nombre }},--}}
+{{--                    @endif--}}
+{{--                @endfor--}}
+{{--                <b>Codigo Interno</b>--}}
+{{--                {{ $papiloma->numeracion ?? '-' }}--}}
+{{--            </div>--}}
+            <table class="no-border section" style="margin-top:4px;">
+                <tr>
+                    <td>
+                        <b>Fecha de muestra:</b>
+                        {{ $solicitud->fecha_envio_analitica ? \Carbon\Carbon::parse($solicitud->fecha_envio_analitica)->format('d/m/Y') : '-' }}
+                    </td>
+                    <td>
+                        <b>Tipo de muestra:</b>
+                        {{--                @for($i = 0; $i < count($solicitud->preAnaliticaMuestras); $i++)--}}
+                        {{--                    @if($solicitud->preAnaliticaMuestras[$i]->selected)--}}
+                        {{--                        {{ $solicitud->preAnaliticaMuestras[$i]->nombre }},--}}
+                        {{--                    @endif--}}
+                        {{--                @endfor--}}
+                    </td>
+                    <td style="text-align: right">
+                        <b>Código Interno:</b>
+                        {{ $papiloma->numeracion ?? '-' }}
+                    </td>
+                </tr>
+            </table>
 
             <!-- ===== TÍTULO ESTUDIO ===== -->
-            <div class="section center" style="margin-top:6px; font-weight:700; font-size:9px;">
+            <div class="section center" style="margin-top:10px; font-weight:700; font-size:12px;">
                 RESULTADOS DE VIRUS DE PAPILOMA HUMANO POR PCR
             </div>
-            <div class="center muted small" style="margin-top:1px;">
+            <div class="center muted small" style="margin-top:5px;">
                 Método: Reacción en Cadena de la Polimerasa en Tiempo Real
+                Equipo: {{ $papiloma->equipo ?? '-' }}
             </div>
 
             <!-- ===== TABLA RESULTADOS ===== -->
@@ -169,25 +203,6 @@
                         <td class="center">NO DETECTADO</td>
                     </tr>
                     @endif
-{{--                    $table->string('hpv_26')->nullable();--}}
-{{--                    $table->string('hpv_31')->nullable();--}}
-{{--                    $table->string('hpv_33')->nullable();--}}
-{{--                    $table->string('hpv_35')->nullable();--}}
-{{--                    $table->string('hpv_39')->nullable();--}}
-{{--                    $table->string('hpv_51')->nullable();--}}
-{{--                    $table->string('hpv_52')->nullable();--}}
-{{--                    $table->string('hpv_53')->nullable();--}}
-{{--                    $table->string('hpv_56')->nullable();--}}
-{{--                    $table->string('hpv_58')->nullable();--}}
-{{--                    $table->string('hpv_59')->nullable();--}}
-{{--                    $table->string('hpv_66')->nullable();--}}
-{{--                    $table->string('hpv_67')->nullable();--}}
-{{--                    $table->string('hpv_68')->nullable();--}}
-{{--                    $table->string('hpv_69')->nullable();--}}
-{{--                    $table->string('hpv_70')->nullable();--}}
-{{--                    $table->string('hpv_73')->nullable();--}}
-{{--                    $table->string('hpv_82')->nullable();--}}
-{{--                    $table->string('hpv_97')->nullable();--}}
                     @if($papiloma->hpv_26 !== null)
                     <tr>
                         <td>Determinación de HPV 26</td>
@@ -382,15 +397,15 @@
                             >
                         @endif
                     </td>
-                    <td class="center" style="width:34%;">
-                        @if(!empty($qrSvgBase64))
-                            <img
-                                src="data:image/svg+xml;base64,{{ $qrSvgBase64 }}"
-                                style="width:80px; height:80px;"
-                                alt="QR"
-                            >
-                        @endif
-                    </td>
+{{--                    <td class="center" style="width:34%;">--}}
+{{--                        @if(!empty($qrSvgBase64))--}}
+{{--                            <img--}}
+{{--                                src="data:image/svg+xml;base64,{{ $qrSvgBase64 }}"--}}
+{{--                                style="width:80px; height:80px;"--}}
+{{--                                alt="QR"--}}
+{{--                            >--}}
+{{--                        @endif--}}
+{{--                    </td>--}}
                 </tr>
             </table>
 

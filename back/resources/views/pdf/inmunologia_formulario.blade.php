@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <style>
-        @page { size: letter landscape; margin: 10px 12px; }
+        @page { size: legal landscape; margin: 10px 12px; }
         * { box-sizing: border-box; }
         body{ margin:0; padding:0; font-family: DejaVu Sans, sans-serif; font-size: 10px; color:#111; line-height: 1; }
 
@@ -64,7 +64,7 @@
     @foreach(['left','right'] as $side)
         <div class="half half-{{ $side }}" style="margin: 10px 6px;">
 
-            {!! view('components.header', ['solicitud' => $solicitud])->render() !!}
+            {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud])->render() !!}
 
             <div class="center" style="margin-top:6px; font-weight:700; font-size:10px;">
                 INMUNOLOGÍA · {{ $row->nombre ?? 'FORMULARIO' }}

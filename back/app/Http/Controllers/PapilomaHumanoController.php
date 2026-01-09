@@ -65,13 +65,14 @@ class PapilomaHumanoController extends Controller
         $qrSvgBase64 = base64_encode(
             QrCode::format('svg')->size(110)->margin(1)->generate($url)
         );
+//        return $solicitud->preAnaliticaMuestras;
 
         $pdf = Pdf::loadView('pdf.papiloma_humano', [
             'solicitud' => $solicitud,
             'papiloma'  => $papiloma,
             'qrSvgBase64' => $qrSvgBase64,
             'url' => $url,
-        ])->setPaper('letter', 'landscape');
+        ])->setPaper('letter');
 
         return $pdf->stream('VPH_'.$solicitud->nro_registro.'.pdf');
     }

@@ -620,6 +620,7 @@
                 {{ props.row.nro_registro }}
                 </span>
 <!--              </q-chip>-->
+<!--              <pre>{{props.row}}</pre>-->
             </div>
             <div v-else class="text-negative text-caption">
               Sin código

@@ -65,6 +65,7 @@ class HematologiaController extends Controller
         $soliditude = Solicitude::find($solicitudeId);
         $soliditude->estado = 'ANALIZADO';
         $soliditude->fecha_finalizacion = now();
+//        $soliditude->user_analitica_id = $request->user()->id;
 
 //        error_log('Muestra rechazada: ' . $request->muestra_rechazada);
         if ($request->muestra_rechazada === 'Si') {
@@ -132,7 +133,7 @@ class HematologiaController extends Controller
             'rangos'      => $rangos,
             'qrSvgBase64' => $qrSvgBase64,
             'qrUrl'       => $url,
-        ])->setPaper('letter', 'landscape');
+        ])->setPaper('legal');
 
         $nro = $solicitud->nro_registro ?? $solicitud->id;
         return $pdf->stream('HEMATOLOGIA_'.$nro.'.pdf');

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <style>
-        @page { size: letter landscape; margin: 10px 12px; }
+        @page { size: legal; margin: 20px 20px; }
         * { box-sizing: border-box; }
 
         body{
@@ -162,10 +162,10 @@
 
 <div class="block">
 {{--    @include('components.header', ['solicitud' => $solicitud])--}}
-    {!! view('components.header', ['solicitud' => $solicitud])->render() !!}
+    {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud])->render() !!}
 
 
-    <div class="center" style="margin-top:4px; font-weight:700; font-size:9px;">
+    <div class="center" style="margin-top:20px; font-weight:700; font-size:12px;">
         HEMATOLOGÍA
     </div>
 
@@ -463,12 +463,13 @@
 };
 @endphp
 
-<table class="sheet-table">
-    <tr>
-        <td class="half-cell">{!! $renderHalf() !!}</td>
-        <td class="half-cell">{!! $renderHalf() !!}</td>
-    </tr>
-</table>
+{{--<table class="sheet-table">--}}
+{{--    <tr>--}}
+{{--        <td class="half-cell">{!! $renderHalf() !!}</td>--}}
+{{--        <td class="half-cell">{!! $renderHalf() !!}</td>--}}
+{{--    </tr>--}}
+{{--</table>--}}
 
+{!! $renderHalf() !!}
 </body>
 </html>
