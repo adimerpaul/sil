@@ -108,7 +108,7 @@
         <td colspan="2" class="line clip">
             {{ ($solicitud->codigo ?? '-') . '-' . ($solicitud->nro_registro ?? '-') }}
         </td>
-        <td><span class="label">SALA/CAMA:</span></td>
+        <td><span class="label">SERVICIO/SERVICIO/SALA/CAMA:</span></td>
         <td colspan="2"><div class="line clip">{{ $solicitud->sala ?? '-' }} / {{ $solicitud->cama ?? '-' }}</div></td>
     </tr>
 

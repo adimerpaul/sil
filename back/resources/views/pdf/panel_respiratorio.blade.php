@@ -158,7 +158,11 @@
                     </td>
                     <td>
                         <b>Tipo de muestra:</b>
-                        {{ $tipoMuestra }}
+                        @for($i = 0; $i < count($solicitud->preAnaliticaMuestras); $i++)
+                            @if($solicitud->preAnaliticaMuestras[$i]->selected && $solicitud->preAnaliticaMuestras[$i]->areaTipoMuestra->area_id == 7)
+                                {{ $solicitud->preAnaliticaMuestras[$i]->nombre }},
+                            @endif
+                        @endfor
                     </td>
                     <td style="text-align: right">
                         <b>Código Interno:</b>

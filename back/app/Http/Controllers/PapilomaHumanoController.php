@@ -61,7 +61,7 @@ class PapilomaHumanoController extends Controller
     {
         $id = PapilomaHumano::where('code', $code)
             ->value('solicitude_id');
-        $solicitud = Solicitude::with(['paciente', 'doctor'])->findOrFail($id);
+        $solicitud = Solicitude::with(['paciente', 'doctor','preAnaliticaMuestras.areaTipoMuestra'])->findOrFail($id);
         $papiloma = PapilomaHumano::where('solicitude_id', $id)->first();
 
         $url = url("/api/papiloma-humano/solicitud/{$code}/pdf");

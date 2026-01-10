@@ -110,7 +110,7 @@
                     <td>
                         <b>Tipo de muestra:</b>
                         @for($i = 0; $i < count($solicitud->preAnaliticaMuestras); $i++)
-                            @if($solicitud->preAnaliticaMuestras[$i]->selected)
+                            @if($solicitud->preAnaliticaMuestras[$i]->selected && $solicitud->preAnaliticaMuestras[$i]->areaTipoMuestra->area_id == 7)
                                 {{ $solicitud->preAnaliticaMuestras[$i]->nombre }},
                             @endif
                         @endfor
