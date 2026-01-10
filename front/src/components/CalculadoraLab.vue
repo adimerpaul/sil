@@ -20,6 +20,7 @@
         <q-tab name="clamidia" label="Clamidia" no-caps/>
         <q-tab name="ena" label="ENA" no-caps/>
         <q-tab name="toxo" label="Toxo" no-caps/>
+        <q-tab name="cmv" label="CMV Lg G" no-caps />
       </q-tabs>
 
       <q-separator class="q-mt-sm q-mb-md" />
@@ -257,6 +258,120 @@
             </div>
           </div>
         </q-tab-panel>
+<!--        cmv-->
+        <q-tab-panel name="cmv" class="q-pa-none">
+          <div class="text-subtitle2 text-weight-bold q-mb-sm">CMV Lg G</div>
+          <div class="text-body2">
+<!--            CAL	20		VALOR EQUIPO	28,1		0,711743772-->
+<!--            POS-->
+<!--            NEG-->
+<!--            VALOR PAC	103,5		73,66548043-->
+<!--            100,8		71,74377224-->
+<!--            115		81,85053381-->
+<!--            81		57,65124555-->
+<!--            49,8		35,44483986-->
+<!--            cmv: {-->
+<!--            cal: '20',-->
+<!--            valorEquipo: '28.1',-->
+<!--            valorPac1: '103.5',-->
+<!--            valorPac2: '100.8',-->
+<!--            valorPac3: '115',-->
+<!--            valorPac4: '81',-->
+<!--            valorPac5: '49.8'-->
+<!--            }-->
+            <div class="row q-col-gutter-sm">
+              <div class="col-12 col-md-4">
+                <q-input
+                  v-model="cmv.cal"
+                  dense outlined
+                  label="CAL"
+                  hint="Ej: 20"
+                />
+              </div>
+              <div class="col-12 col-md-4">
+                <q-input
+                  v-model="cmv.valorEquipo"
+                  dense outlined
+                  label="Valor Equipo"
+                  hint="Ej: 28,1"
+                />
+              </div>
+              <div class="col-12 col-md-4">
+<!--                CAL	*		VALOR EQUIPO-->
+<!--                <label class="text-subtitle2"  >CAL * Valor Equipo</label>-->
+                <div class="text-caption text-grey-7">CAL / Valor Equipo</div>
+                <div class="text-body1 text-weight-bold">{{ fmt( (cmv.cal / cmv.valorEquipo) ) }}</div>
+              </div>
+              <div class="col-12 col-md-4 q-mt-md">
+                <q-input
+                  v-model="cmv.valorPac1"
+                  dense outlined
+                  label="Valor Pac 1"
+                  hint="Ej: 103,5"
+                />
+              </div>
+              <div class="col-12 col-md-4 q-mt-md">
+                <q-input
+                  v-model="cmv.valorPac2"
+                  dense outlined
+                  label="Valor Pac 2"
+                  hint="Ej: 100,8"
+                />
+              </div>
+              <div class="col-12 col-md-4 q-mt-md">
+                <q-input
+                  v-model="cmv.valorPac3"
+                  dense outlined
+                  label="Valor Pac 3"
+                  hint="Ej: 115"
+                />
+              </div>
+              <div class="col-12 col-md-4 q-mt-md">
+                <q-input
+                  v-model="cmv.valorPac4"
+                  dense outlined
+                  label="Valor Pac 4"
+                  hint="Ej: 81"
+                />
+              </div>
+              <div class="col-12 col-md-4 q-mt-md">
+                <q-input
+                  v-model="cmv.valorPac5"
+                  dense outlined
+                  label="Valor Pac 5"
+                  hint="Ej: 49,8"
+                />
+              </div>
+              <div class="col-12 col-md-4 q-mt-md">
+                <q-input
+                  v-model="cmv.valorPac6"
+                  dense outlined
+                  label="Valor Pac 6"
+                  hint="Ej: 0"
+                />
+              </div>
+              <q-card flat bordered class="q-mt-sm">
+                <q-card-section class="q-pa-sm">
+                  <div class="text-caption text-grey-7 q-mb-sm">
+                    Cálculo: <b>valor / (CAL / Valor Equipo)</b>
+                  </div>
+
+                  <div class="row q-col-gutter-sm">
+                    <div class="col-6 col-sm-4" v-for="k in ['1','2','3','4','5','6']" :key="'r-'+k">
+                      <div class="text-caption text-grey-7">
+                        Valor Pac {{k}}
+                      </div>
+                      <div class="text-body1 text-weight-bold">
+                        {{ (cmv['valorPac'+k] * (cmv.cal / cmv.valorEquipo)).toFixed(2) }}
+<!--                        {{ fmt(enaRatio(k)) }}-->
+                      </div>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
+          </div>
+        </q-tab-panel>
 
       </q-tab-panels>
 
@@ -310,6 +425,16 @@ export default {
         posi: '1.966',
         nega: '0.482',
         sus: '2.193'
+      },
+      cmv: {
+        cal: '20',
+        valorEquipo: '28.1',
+        valorPac1: '103.5',
+        valorPac2: '100.8',
+        valorPac3: '115',
+        valorPac4: '81',
+        valorPac5: '49.8',
+        valorPac6: '0'
       }
     }
   },
