@@ -82,7 +82,12 @@
                 dense outlined clearable
                 label="Doctor (opcional)"
                 @update:model-value="onSelectDoctor"
-              />
+              >
+<!--                <template agregra boton para agregar nuevo doctor>-->
+                <template #after>
+                  <q-btn flat dense icon="person_add" color="positive" @click="dialogDoctorNew=true" />
+                </template>
+              </q-select>
             </div>
           </div>
 
@@ -290,6 +295,101 @@
         </q-form>
       </q-card-section>
     </q-card>
+  <q-dialog v-model="dialogDoctorNew">
+    <q-card style="min-width: 400px; max-width: 600px;">
+      <q-card-section class="row items-center">
+        <div class="text-h6">
+          Nuevo doctor
+        </div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-section>
+        <q-form @submit.prevent="guardarDoctor">
+          <div class="row q-col-gutter-sm">
+            <div class="col-12">
+              <q-input
+                v-model="doctor.nombre"
+                label="Nombre"
+                dense outlined
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                v-model="doctor.especialidad"
+                label="Especialidad"
+                dense outlined
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                v-model="doctor.ci"
+                label="CI"
+                dense outlined
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                v-model="doctor.telefono"
+                label="Teléfono"
+                dense outlined
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                v-model="doctor.email"
+                label="Email"
+                dense outlined
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                v-model="doctor.registro"
+                label="Registro profesional"
+                dense outlined
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-select
+                v-model="doctor.establecimiento_id"
+                :options="establecimientos"
+                option-label="nombre"
+                option-value="id"
+                emit-value
+                map-options
+                label="Establecimiento de salud"
+                dense outlined
+              />
+              <!--                <pre>{{establecimientos}}</pre>-->
+            </div>
+<!--            <div class="col-12 col-sm-6">-->
+<!--              <q-select-->
+<!--                v-model="doctor.estado"-->
+<!--                :options="['ACTIVO', 'INACTIVO']"-->
+<!--                label="Estado"-->
+<!--                dense outlined-->
+<!--                clearable-->
+<!--              />-->
+<!--            </div>-->
+          </div>
+
+          <div class="text-right q-mt-md">
+            <q-btn flat label="Cancelar" v-close-popup :loading="loading" />
+            <q-btn
+              color="primary"
+              label="Guardar"
+              type="submit"
+              class="q-ml-sm"
+              :loading="loading"
+            />
+          </div>
+        </q-form>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script>
@@ -305,6 +405,10 @@ export default {
   },
   data () {
     return {
+      dialogDoctorNew: false,
+      doctor: {
+        estado: 'ACTIVO'
+      },
       loading: false,
       solicitud: {},
       salas:[
@@ -417,6 +521,26 @@ export default {
     })
   },
   methods: {
+    guardarDoctor() {
+      this.loading = true
+      this.$axios.post('doctores', this.doctor)
+        .then(res => {
+          this.$alert?.success ? this.$alert.success('Doctor guardado correctamente') : console.log('Doctor guardado correctamente')
+          this.dialogDoctorNew = false
+          this.loadDoctores()
+          this.solicitud.doctor_id = res.data.id
+          this.onSelectDoctor(res.data.id)
+          // reset doctor form
+          this.doctor = {
+            estado: 'ACTIVO'
+          }
+        })
+        .catch(e => {
+          const msg = e.response?.data?.message || e.message
+          this.$alert?.error ? this.$alert.error('Error al guardar doctor: ' + msg) : console.error(msg)
+        })
+        .finally(() => { this.loading = false })
+    },
     filterDoctores(val, update) {
       update(() => {
         const text = (val || '').toLowerCase().trim()
