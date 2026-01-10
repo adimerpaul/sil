@@ -33,10 +33,13 @@ class PapilomaHumanoController extends Controller
         if (!$existente) {
             $data['numeracion'] = (new PapilomaHumano())->generateNumeracion();
         }
+        error_log('user id: ' . $request->user()->id);
 
         $registro = PapilomaHumano::updateOrCreate(
-            ['solicitude_id' => $id],
-            $data
+            [
+                'solicitude_id' => $id,
+            ],
+            array_merge($data, ['user_id' => $request->user()->id])
         );
         $soliditude = Solicitude::find($id);
         $soliditude->estado = 'ANALIZADO';

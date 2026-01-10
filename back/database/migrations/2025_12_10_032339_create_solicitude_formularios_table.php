@@ -23,6 +23,8 @@ return new class extends Migration
 
             $table->string('nombre')->nullable();
             $table->text('html')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users');
             $table->softDeletes();
             $table->timestamps();
         });

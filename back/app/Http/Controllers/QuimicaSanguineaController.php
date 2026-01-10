@@ -259,8 +259,11 @@ class QuimicaSanguineaController extends Controller
         $data['solicitude_id'] = $solicitudeId;
 
         $quimica = QuimicaSanguinea::updateOrCreate(
-            ['solicitude_id' => $solicitudeId],
-            $data
+            [
+                'solicitude_id' => $solicitudeId
+            ],
+//            $data'user_id' => $request->user()->id
+            array_merge($data, ['user_id' => $request->user()->id])
         );
         $soliditude = Solicitude::find($solicitudeId);
         $soliditude->estado = 'ANALIZADO';

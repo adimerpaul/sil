@@ -130,6 +130,9 @@ return new class extends Migration
             $table->string('reaccion_widal_a', 50)->nullable();
             $table->string('reaccion_widal_b', 50)->nullable();
 
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users');
+
 
             $table->softDeletes();
             $table->timestamps();

@@ -62,8 +62,10 @@ class PanelRespiratorioController extends Controller
         }
 
         $registro = PanelRespiratorio::updateOrCreate(
-            ['solicitude_id' => $id],
-            $data
+            [
+                'solicitude_id' => $id,
+            ],
+            array_merge($data, ['user_id' => $request->user()->id])
         );
         $soliditude = Solicitude::find($id);
         $soliditude->estado = 'ANALIZADO';

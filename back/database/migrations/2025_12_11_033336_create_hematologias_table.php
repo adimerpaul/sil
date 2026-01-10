@@ -102,6 +102,9 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users');
+
             $table->foreign('solicitude_id')
                 ->references('id')->on('solicitudes')
                 ->onDelete('cascade');

@@ -70,6 +70,7 @@ class Hematologia extends Model implements AuditableContract
         'coagulograma_metodo',
         'coagulograma_equipo',
         'observaciones',
+        'user_id',
     ];
 
     protected $hidden = [
@@ -91,5 +92,9 @@ class Hematologia extends Model implements AuditableContract
                 $model->code = str_replace('-', '', $model->code);
             }
         });
+    }
+    function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

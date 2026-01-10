@@ -57,10 +57,13 @@ class HematologiaController extends Controller
     {
         $data = $request->all();
         $data['solicitude_id'] = $solicitudeId;
+        $user = $request->user();
 
         $hematologia = Hematologia::updateOrCreate(
-            ['solicitude_id' => $solicitudeId],
-            $data
+            [
+                'solicitude_id' => $solicitudeId,
+            ],
+            array_merge($data, ['user_id' => $user->id])
         );
         $soliditude = Solicitude::find($solicitudeId);
         $soliditude->estado = 'ANALIZADO';

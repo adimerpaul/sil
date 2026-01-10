@@ -44,8 +44,10 @@ class UroanalisisController extends Controller
 
 
         $uro = Uroanalisis::updateOrCreate(
-            ['solicitude_id' => $solicitudeId],
-            $data
+            [
+                'solicitude_id' => $solicitudeId,
+            ],
+            array_merge($data, ['user_id' => $request->user()->id])
         );
 
         $soliditude = Solicitude::find($solicitudeId);

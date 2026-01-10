@@ -116,6 +116,7 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'tolerancia_hora_3h',
         'tolerancia_hora_4h',
         'tolerancia_hora_5h',
+        'user_id'
     ];
 
     protected $hidden = [
@@ -137,5 +138,9 @@ class QuimicaSanguinea extends Model implements AuditableContract
                 $model->code = str_replace('-', '', $model->code);
             }
         });
+    }
+    function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

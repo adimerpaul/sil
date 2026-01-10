@@ -168,7 +168,10 @@
                     </td>
                     <td class="center" style="width:33%;">
                         ___________________________<br>
-                        <span class="muted small">Bioquímico(a) / Responsable</span>
+                        <span class="muted small">
+                            {{$p->user? $p->user->name:'---'}} <br>
+                            Bioquímico(a) / Responsable
+                        </span>
                     </td>
                     <td class="center" style="width:34%;">
                         @if(!empty($qrSvgBase64))

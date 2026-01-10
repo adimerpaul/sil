@@ -82,7 +82,10 @@
                     </td>
                     <td class="center" style="width:33%;">
                         ___________________________<br>
-                        <span class="muted small">Bioquímico(a) / Responsable</span>
+                        <span class="muted small">
+                            {{ $row->user ? $row->user->name : '________________' }}<br>
+                            Bioquímico(a) / Responsable
+                        </span>
                     </td>
                     <td class="center" style="width:33%;">
                         {{-- QR CODE --}}

@@ -69,6 +69,7 @@ class InmunologiaController extends Controller
             [
                 'nombre' => $formulario->nombre,
                 'html'   => $formulario->html,
+                'user_id' => $request->user()->id
             ]
         );
 
@@ -86,6 +87,8 @@ class InmunologiaController extends Controller
             'nombre' => 'nullable|string|max:255',
             'html'   => 'nullable|string',
         ]);
+//        user_id
+        $data['user_id'] = $request->user()->id;
 
         $row->update($data);
 

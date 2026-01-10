@@ -151,11 +151,15 @@
                     </td>
                     <td>
                         <b>Tipo de muestra:</b>
-                        {{--                @for($i = 0; $i < count($solicitud->preAnaliticaMuestras); $i++)--}}
-                        {{--                    @if($solicitud->preAnaliticaMuestras[$i]->selected)--}}
-                        {{--                        {{ $solicitud->preAnaliticaMuestras[$i]->nombre }},--}}
-                        {{--                    @endif--}}
-                        {{--                @endfor--}}
+{{--                        <pre>{{$solicitud->preAnaliticaMuestras}}</pre>--}}
+                        <pre>
+                            {{$solicitud->preAnaliticaMuestras}}
+                        </pre>
+                        @for($i = 0; $i < count($solicitud->preAnaliticaMuestras); $i++)
+                            @if($solicitud->preAnaliticaMuestras[$i]->selected)
+                                {{ $solicitud->preAnaliticaMuestras[$i]->nombre }},
+                            @endif
+                        @endfor
                     </td>
                     <td style="text-align: right">
                         <b>Código Interno:</b>
@@ -386,7 +390,10 @@
                     </td>
                     <td class="center" style="width:33%;">
                         ___________________________<br>
-                        <span class="muted small">Bioquímico(a) / Responsable</span>
+                        <span class="muted small">
+                            {{$papiloma->user? $papiloma->user->name:'---'}} <br>
+                            Bioquímico(a) / Responsable
+                        </span>
                     </td>
                     <td class="center" style="width:34%;">
                         @if(!empty($qrSvgBase64))

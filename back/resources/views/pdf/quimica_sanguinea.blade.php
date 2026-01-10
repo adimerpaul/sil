@@ -969,7 +969,11 @@
                                     _____________________<br><span class="small muted">Firma</span>
                                 </td>
                                 <td class="center" style="width:33%">
-                                    _____________________<br><span class="small muted">Bioquímico(a)</span>
+                                    _____________________<br>
+                                    <span class="small muted">
+                                        {{$q->user? $q->user->name:'---'}} <br>
+                                        Bioquímico(a)
+                                    </span>
                                 </td>
                                 <td class="center" style="width:34%">
                                     @if(!empty($qrSvgBase64))

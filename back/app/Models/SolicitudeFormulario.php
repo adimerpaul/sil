@@ -19,6 +19,7 @@ class SolicitudeFormulario extends Model implements AuditableContract
         'area_id',
         'nombre',
         'html',
+        'user_id',
     ];
 
     protected $hidden = ['deleted_at', 'created_at', 'updated_at'];
@@ -36,5 +37,9 @@ class SolicitudeFormulario extends Model implements AuditableContract
     public function area()
     {
         return $this->belongsTo(Area::class, 'area_id');
+    }
+    function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

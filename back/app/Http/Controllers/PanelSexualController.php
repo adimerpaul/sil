@@ -58,8 +58,10 @@ class PanelSexualController extends Controller
         }
 
         $registro = PanelSexual::updateOrCreate(
-            ['solicitude_id' => $id],
-            $data
+            [
+                'solicitude_id' => $id,
+            ],
+            array_merge($data, ['user_id' => $request->user()->id])
         );
 
         return response()->json($registro);

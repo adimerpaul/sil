@@ -43,6 +43,7 @@ class PapilomaHumano extends Model implements AuditableContract
         'codigo_muestra',
         'observaciones',
         'code',
+        'user_id',
     ];
 
     protected $hidden = [
@@ -76,5 +77,9 @@ class PapilomaHumano extends Model implements AuditableContract
         }
         $year = date('y');
         return str_pad($number, 4, '0', STR_PAD_LEFT) . 'P-' . $year;
+    }
+    function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

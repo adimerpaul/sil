@@ -39,9 +39,14 @@ class PanelRespiratorio extends Model implements AuditableContract
         'equipo',
         'numeracion',
         'codigo_muestra',
+        'user_id'
     ];
 
     protected $hidden = ['deleted_at', 'created_at', 'updated_at'];
+    function  user()
+    {
+        return $this->belongsTo(User::class);
+    }
     protected static function booted()
     {
         static::creating(function ($model) {

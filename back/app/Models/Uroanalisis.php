@@ -51,6 +51,7 @@ class Uroanalisis extends Model implements AuditableContract{
         'code',
         'morfologia_eritrocitaria2',
         'valor_morfologia2',
+        'user_id',
     ];
 
     public function solicitude()
@@ -66,5 +67,9 @@ class Uroanalisis extends Model implements AuditableContract{
                 $model->code = str_replace('-', '', $model->code);
             }
         });
+    }
+    function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

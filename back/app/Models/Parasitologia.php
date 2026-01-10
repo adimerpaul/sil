@@ -35,7 +35,8 @@ class Parasitologia extends Model implements AuditableContract
         'otros_examenes',
         'otros_examenes_otros',
         'code',
-        'moco_fecal_positivo'
+        'moco_fecal_positivo',
+        'user_id'
     ];
 
     protected $hidden = [
@@ -52,5 +53,9 @@ class Parasitologia extends Model implements AuditableContract
                 $model->code = str_replace('-', '', $model->code);
             }
         });
+    }
+    function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

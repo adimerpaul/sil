@@ -43,8 +43,10 @@ class ParasitologiaController extends Controller
         }
 
         $parasitologia = Parasitologia::updateOrCreate(
-            ['solicitude_id' => $solicitudeId],
-            $data
+            [
+                'solicitude_id' => $solicitudeId,
+            ],
+            array_merge($data, ['user_id' => $request->user()->id])
         );
 
         $soliditude = Solicitude::find($solicitudeId);
