@@ -76,18 +76,11 @@ class HematologiaController extends Controller
             $soliditude->estado = 'MUESTRA RECHAZADA';
             $soliditude->muestra_observacion = $request->muestra_observacion;
 
-//            protected $fillable = [
-//                'solicitude_id',
-//                'motivo',
-//                'fecha_hora',
-//                'area_id',
-//                'user_id',
-//            ];
             $solicitudRechazada = new \App\Models\SolicitudRechazada();
             $solicitudRechazada->solicitude_id = $solicitudeId;
             $solicitudRechazada->motivo = $request->muestra_observacion;
             $solicitudRechazada->fecha_hora = now();
-            $solicitudRechazada->area_id = $soliditude->servicios()->first()->area_id ?? null;
+            $solicitudRechazada->area_id = $request->user()->area_id;
             $solicitudRechazada->user_id = $request->user()->id;
             $solicitudRechazada->save();
         }

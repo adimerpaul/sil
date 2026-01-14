@@ -478,7 +478,9 @@ class SolicitudeController extends Controller
             'doctor',
             'servicios.area.areaTipoMuestras',
             'userPreanalitica',
-            'user'
+            'user',
+            'solicitudRechazadas.user',
+            'solicitudRechazadas.area',
         ])
             ->whereIn('estado', ['CREADO', 'ATENDIENDO','MUESTRA RECHAZADA']);
 
