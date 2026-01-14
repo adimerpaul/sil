@@ -386,6 +386,7 @@ class SolicitudeController extends Controller
         $solicitud->estado = 'ATENDIENDO';
         $solicitud->fecha_pre_analitica = now();
         $solicitud->user_preanalitica_id = $request->user() ? $request->user()->id : null;
+        $solicitud->iniciales = $solicitud->user && $solicitud->user->establecimiento ? $solicitud->user->establecimiento->inicial : '';
 
         $solicitud->save();
 
@@ -401,12 +402,14 @@ class SolicitudeController extends Controller
 
         $anio = date('Y', $timestamp);
         $mes = date('m', $timestamp);
+        $establecimiento = $solicitud->user->establecimiento;
 
         if ($tipo === 'SI') {
             $ultimoCodigo = Solicitude::where('tipo_atencion', $tipo)
                 ->whereYear('fecha_creacion', $anio)
                 ->whereMonth('fecha_creacion', $mes)
                 ->whereNotNull('codigo')
+                ->where('iniciales',$establecimiento->inicial)
                 ->max('codigo');
         }else{
             $ultimoCodigo = Solicitude::where('tipo_atencion', $tipo)
@@ -414,6 +417,7 @@ class SolicitudeController extends Controller
                 ->whereMonth('fecha_creacion', $mes)
                 ->whereDate('fecha_creacion', date('Y-m-d', $timestamp))
                 ->whereNotNull('codigo')
+                ->where('iniciales',$establecimiento->inicial)
                 ->max('codigo');
         }
 
@@ -593,6 +597,7 @@ class SolicitudeController extends Controller
         }
 
         $data['fecha_creacion'] = now();
+        $data['establecimiento_origen_id'] = $request->user() && $request->user()->establecimiento ? $request->user()->establecimiento->id : null;
 
         if ($request->filled('doctor_id')) {
             $d = Doctor::find($request->doctor_id);

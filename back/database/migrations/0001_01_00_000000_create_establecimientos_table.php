@@ -25,6 +25,7 @@ return new class extends Migration
 
             // Dirección y contactos
             $table->string('direccion')->nullable();
+            $table->string('inicial')->nullable();
             $table->string('telefono_contacto', 100)->nullable();
 
             // Responsable de laboratorio

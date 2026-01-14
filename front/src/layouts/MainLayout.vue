@@ -37,9 +37,9 @@
                   <div class="ellipsis" style="max-width: 130px;">
                     {{ $store.user.username }}
                   </div>
-                  <!--                  <q-chip dense size="10px" :color="$filters.color($store.user.role)" text-color="white">-->
-                  <!--                    {{ $store.user.role }}-->
-                  <!--                  </q-chip>-->
+                  <q-chip dense size="10px" :color="$filters.color($store.user.role)" text-color="white">
+                    {{ $store.user.role }}
+                  </q-chip>
                 </div>
               </div>
             </template>

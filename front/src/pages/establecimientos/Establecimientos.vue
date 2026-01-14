@@ -117,7 +117,7 @@
 
     <!-- Diálogo -->
     <q-dialog v-model="dialog">
-      <q-card style="min-width: 480px; max-width: 900px;">
+      <q-card style="min-width: 520px; max-width: 980px;">
         <q-card-section class="row items-center">
           <div class="text-h6">
             {{ editando ? 'Editar establecimiento' : 'Nuevo establecimiento' }}
@@ -206,6 +206,19 @@
 
               <div class="col-12 col-sm-6">
                 <q-input
+                  v-model="establecimiento.inicial"
+                  label="Código iniciales"
+                  dense
+                  outlined
+                >
+                  <template #prepend>
+                    <q-icon name="badge" />
+                  </template>
+                </q-input>
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <q-input
                   v-model="establecimiento.responsable_laboratorio"
                   label="Responsable de laboratorio"
                   dense
@@ -241,36 +254,123 @@
                 />
               </div>
 
-              <!-- NUEVO: selección de servicios -->
+              <!-- ✅ NUEVO UI: servicios con lista + check -->
               <div class="col-12">
-                <q-select
-                  v-model="establecimiento.servicio_ids"
-                  :options="serviciosOptions"
-                  option-value="id"
-                  :option-label="servicioLabel"
-                  emit-value
-                  map-options
-                  multiple
-                  use-chips
-                  dense
-                  outlined
-                  label="Servicios que ofrece el establecimiento"
-                  popup-content-class="q-pa-none"
-                >
-                  <!-- opción personalizada con código y área -->
-                  <template #option="scope">
-                    <q-item v-bind="scope.itemProps">
-                      <q-item-section>
-                        <q-item-label>
-                          {{ servicioLabel(scope.opt) }}
-                        </q-item-label>
-                        <q-item-label caption v-if="scope.opt.area">
-                          Área: {{ scope.opt.area.name }}
-                        </q-item-label>
-                      </q-item-section>
-                    </q-item>
-                  </template>
-                </q-select>
+                <q-card flat bordered class="q-pa-sm">
+                  <div class="row items-center q-col-gutter-sm">
+                    <div class="col-12 col-md-6">
+                      <div class="text-subtitle2">
+                        Servicios del establecimiento
+                      </div>
+                      <div class="text-caption text-grey-7">
+                        Marca con un click. Puedes buscar por nombre o código.
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                      <q-input
+                        dense outlined
+                        v-model="servicioSearch"
+                        placeholder="Buscar servicio…"
+                        debounce="250"
+                      >
+                        <template #append><q-icon name="search" /></template>
+                      </q-input>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="row items-center q-gutter-sm">
+                        <q-btn
+                          dense outline no-caps
+                          icon="done_all"
+                          label="Marcar todos (filtrados)"
+                          @click="marcarTodosFiltrados"
+                          :disable="serviciosFiltrados.length === 0"
+                        />
+                        <q-btn
+                          dense outline no-caps
+                          icon="clear_all"
+                          label="Limpiar"
+                          @click="establecimiento.servicio_ids = []"
+                          :disable="(establecimiento.servicio_ids || []).length === 0"
+                        />
+                        <q-space />
+                        <q-chip dense color="primary" text-color="white" icon="checklist">
+                          Seleccionados: {{ (establecimiento.servicio_ids || []).length }}
+                        </q-chip>
+                      </div>
+                    </div>
+                  </div>
+
+                  <q-separator class="q-my-sm" />
+
+                  <!-- Lista agrupada -->
+                  <q-scroll-area style="height: 320px;">
+                    <q-list bordered separator>
+
+                      <!-- si no hay servicios -->
+                      <q-item v-if="loadingServicios">
+                        <q-item-section>
+                          <q-skeleton type="text" />
+                          <q-skeleton type="text" />
+                        </q-item-section>
+                      </q-item>
+
+                      <q-item v-else-if="serviciosFiltrados.length === 0">
+                        <q-item-section>
+                          <q-item-label>No hay servicios para mostrar</q-item-label>
+                          <q-item-label caption>Prueba con otro texto de búsqueda.</q-item-label>
+                        </q-item-section>
+                      </q-item>
+
+                      <!-- grupos por área -->
+                      <q-expansion-item
+                        v-for="(items, areaName) in serviciosAgrupados"
+                        :key="areaName"
+                        expand-separator
+                        default-opened
+                        icon="category"
+                        :label="areaName"
+                        header-class="bg-grey-1"
+                      >
+                        <q-item
+                          v-for="serv in items"
+                          :key="serv.id"
+                          clickable
+                          @click="toggleServicio(serv.id)"
+                        >
+                          <q-item-section avatar>
+                            <q-checkbox
+                              :model-value="isServicioMarcado(serv.id)"
+                              @update:model-value="toggleServicio(serv.id)"
+                              dense
+                            />
+                          </q-item-section>
+
+                          <q-item-section>
+                            <q-item-label>
+                              <span class="text-weight-medium">
+                                {{ serv.nombre }}
+                              </span>
+                            </q-item-label>
+                            <q-item-label caption>
+                              <span v-if="serv.codigo">Código: {{ serv.codigo }}</span>
+                              <span v-if="serv.codigo"> · </span>
+                              ID: {{ serv.id }}
+                            </q-item-label>
+                          </q-item-section>
+
+                          <q-item-section side>
+                            <q-chip v-if="serv.estado" dense :color="serv.estado === 'ACTIVO' ? 'positive' : 'grey-6'" text-color="white">
+                              {{ serv.estado }}
+                            </q-chip>
+                          </q-item-section>
+                        </q-item>
+                      </q-expansion-item>
+
+                    </q-list>
+                  </q-scroll-area>
+                </q-card>
               </div>
             </div>
 
@@ -327,22 +427,47 @@ export default {
       dialog: false,
       editando: false,
       loading: false,
+
       establecimiento: {},
-      // lista de servicios para el select
-      serviciosOptions: []
+
+      // servicios
+      serviciosOptions: [],
+      loadingServicios: false,
+      servicioSearch: ''
     };
   },
+
+  computed: {
+    serviciosFiltrados () {
+      const s = (this.servicioSearch || '').trim().toLowerCase();
+      if (!s) return this.serviciosOptions || [];
+
+      return (this.serviciosOptions || []).filter(x => {
+        const nombre = (x.nombre || '').toLowerCase();
+        const codigo = (x.codigo || '').toLowerCase();
+        const area = (x.area?.name || '').toLowerCase();
+        return nombre.includes(s) || codigo.includes(s) || area.includes(s);
+      });
+    },
+
+    serviciosAgrupados () {
+      // agrupamos los filtrados por nombre de área
+      const grouped = {};
+      for (const serv of this.serviciosFiltrados) {
+        const areaName = serv.area?.name || 'Sin área';
+        if (!grouped[areaName]) grouped[areaName] = [];
+        grouped[areaName].push(serv);
+      }
+      return grouped;
+    }
+  },
+
   mounted () {
     this.getEstablecimientos();
     this.getServicios();
   },
-  methods: {
-    servicioLabel (serv) {
-      if (!serv) return '';
-      const codigo = serv.codigo ? serv.codigo + ' - ' : '';
-      return codigo + serv.nombre;
-    },
 
+  methods: {
     getEstablecimientos () {
       this.loading = true;
       this.$axios.get('establecimientos', {
@@ -361,10 +486,13 @@ export default {
     },
 
     getServicios () {
-      // si quieres solo activos, puedes pasar estado=ACTIVO
+      this.loadingServicios = true;
       this.$axios.get('servicios', { params: { estado: 'ACTIVO' } })
         .then(res => {
-          this.serviciosOptions = res.data;
+          this.serviciosOptions = res.data || [];
+        })
+        .finally(() => {
+          this.loadingServicios = false;
         });
     },
 
@@ -375,11 +503,13 @@ export default {
         nivel: 'NIVEL I',
         direccion: '',
         telefono_contacto: '',
+        inicial: '',
         responsable_laboratorio: '',
         telefono_responsable: '',
         estado: 'ACTIVO',
-        servicio_ids: [] // 👈 importante
+        servicio_ids: []
       };
+      this.servicioSearch = '';
       this.editando = false;
       this.dialog = true;
     },
@@ -389,15 +519,38 @@ export default {
         ...row,
         servicio_ids: (row.servicio_ids || []).slice()
       };
+      this.servicioSearch = '';
       this.editando = true;
       this.dialog = true;
     },
 
+    isServicioMarcado (id) {
+      return (this.establecimiento.servicio_ids || []).includes(id);
+    },
+
+    toggleServicio (id) {
+      const ids = (this.establecimiento.servicio_ids || []).slice();
+      const i = ids.indexOf(id);
+      if (i >= 0) ids.splice(i, 1);
+      else ids.push(id);
+      this.establecimiento.servicio_ids = ids;
+    },
+
+    marcarTodosFiltrados () {
+      const current = new Set(this.establecimiento.servicio_ids || []);
+      for (const s of this.serviciosFiltrados) current.add(s.id);
+      this.establecimiento.servicio_ids = Array.from(current);
+    },
+
     guardar () {
       this.loading = true;
+
+      const payload = { ...this.establecimiento };
+      payload.servicio_ids = (payload.servicio_ids || []).map(Number);
+
       const req = this.editando
-        ? this.$axios.put(`establecimientos/${this.establecimiento.id}`, this.establecimiento)
-        : this.$axios.post('establecimientos', this.establecimiento);
+        ? this.$axios.put(`establecimientos/${payload.id}`, payload)
+        : this.$axios.post('establecimientos', payload);
 
       req.then(() => {
         this.$alert && this.$alert.success

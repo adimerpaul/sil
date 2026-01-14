@@ -20,6 +20,7 @@ class Establecimiento extends Model implements AuditableContract
         'responsable_laboratorio',
         'telefono_responsable',
         'estado',
+        'inicial'
     ];
 
     protected $hidden = [

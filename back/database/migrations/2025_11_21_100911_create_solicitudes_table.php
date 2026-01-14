@@ -25,6 +25,7 @@ return new class extends Migration
 
             // Cabecera
             $table->string('codigo_solicitud')->nullable();
+            $table->string('iniciales')->nullable();
             $table->string('tipo_atencion')->nullable();
             $table->string('tipo_otro')->nullable();
             $table->date('fecha_solicitud')->nullable();
@@ -90,6 +91,10 @@ return new class extends Migration
 
             // Equipo (Mindray C3510 / Mindray 5000, etc.)
             $table->string('muestra_equipo')->nullable();
+            $table->unsignedBigInteger('establecimiento_origen_id')->nullable();
+            $table->foreign('establecimiento_origen_id')
+                ->references('id')
+                ->on('establecimientos');
 
             $table->softDeletes();
             $table->timestamps();
