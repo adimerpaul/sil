@@ -244,6 +244,16 @@
                         label="Descripción otros exámenes"
                       />
                     </div>
+                    <div class="col-12 col-md-12" v-if="form.otros_examenes === 'OTROS'">
+                      <!--                      otros_examenes_descripcion-->
+                      <q-input
+                        v-model="form.otros_resultados"
+                        dense
+                        outlined
+                        type="textarea"
+                        label="Resultados otros exámenes"
+                      />
+                    </div>
                   </div>
 
                 </q-card-section>

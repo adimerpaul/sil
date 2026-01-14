@@ -41,6 +41,7 @@ return new class extends Migration {
             $table->text('otros_examenes_otros')->nullable();
             $table->string('code', 100)->nullable();
             $table->string('moco_fecal_positivo')->nullable();
+            $table->text('otros_resultados')->nullable();
 
             $table->foreign('solicitude_id')->references('id')->on('solicitudes')->onDelete('cascade');
 
