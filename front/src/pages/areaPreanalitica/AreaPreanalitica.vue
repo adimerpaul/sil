@@ -1130,11 +1130,11 @@
                 <th>Paciente</th>
                 <th>Código</th>
                 <th>Médico Solicitante</th>
-                <th>Prestaciones</th>
-                <th>Establecimiento</th>
-                <th>Tipo atención</th>
-                <th># Prestaciones</th>
-                <th>Responsable Preanalítica</th>
+<!--                <th>Prestaciones</th>-->
+<!--                <th>Establecimiento</th>-->
+<!--                <th>Tipo atención</th>-->
+<!--                <th># Prestaciones</th>-->
+<!--                <th>Responsable Preanalítica</th>-->
               </tr>
             </thead>
             <tbody>
@@ -1181,22 +1181,66 @@
                     Sin código
                   </div>
                 </td>
-                <td>{{ row.doctor_nombre || row.doctor?.name || '' }}</td>
-                <td>{{ row.servicios ? row.servicios.map(s => s.nombre).join(', ') : '' }}</td>
-                <td>{{ row.establecimiento_salud || '-' }}</td>
                 <td>
-                  <q-chip
-                    dense
-                    :color="row.tipo_atencion === 'SI' ? 'green-6' : 'orange-6'"
-                    text-color="white"
-                  >
-                    {{ row.tipo_atencion === 'SI' ? 'SUS' : row.tipo_otro || 'EXT' }}
-                  </q-chip>
+                  <!-- mostrar array de solicitudes rechazadas en formato json bonita -->
+                  <div>
+                    <div class="text-weight-medium">
+                      {{row.solicitud_rechazadas.length}} motivos de rechazo <br>
+                      <small class="text-grey-7">
+<!--                        {{ row.solicitud_rechazadas.map(r => r.motivo).join('; ') }}-->
+<!--                        mostrar medico ara motivo-->
+                        {{ row.solicitud_rechazadas.map(r => r.motivo + ' (por: ' + (r.user?.name || 'Desconocido') + ')').join('; ') }}
+                        <br>
+                        {{ row.solicitud_rechazadas.map(r => 'Área: ' + (r.area?.title || 'Desconocida')).join('; ') }}
+                      </small>
+                    </div>
+                  </div>
+<!--                  <pre>{{row.solicitud_rechazadas}}</pre>-->
+<!--                  [-->
+<!--                  {-->
+<!--                  "id": 1,-->
+<!--                  "solicitude_id": 75,-->
+<!--                  "motivo": "aas",-->
+<!--                  "fecha_hora": "2026-01-14 05:41:26",-->
+<!--                  "area_id": 1,-->
+<!--                  "user_id": 1,-->
+<!--                  "user": {-->
+<!--                  "id": 1,-->
+<!--                  "name": "Admin User",-->
+<!--                  "username": "admin",-->
+<!--                  "role": "Administrador",-->
+<!--                  "area_id": 1,-->
+<!--                  "avatar": "default.png",-->
+<!--                  "email": "",-->
+<!--                  "email_verified_at": null,-->
+<!--                  "establecimiento_id": 1-->
+<!--                  },-->
+<!--                  "area": {-->
+<!--                  "id": 1,-->
+<!--                  "name": "HEMATOLOGÍA (Area 2)",-->
+<!--                  "descripcion": "HEMATOLOGÍA (Area 2)",-->
+<!--                  "title": "HEMATOLOGÍA",-->
+<!--                  "estado": "ACTIVO"-->
+<!--                  }-->
+<!--                  }-->
+<!--                  ]-->
+                  <!--                  {{ row.doctor_nombre || row.doctor?.name || '' }}-->
                 </td>
-                <td class="text-center">
-                  <q-badge color="primary" :label="row.servicios ? row.servicios.length : 0" />
-                </td>
-                <td>{{ row.user_preanalitica ? row.user_preanalitica.name : 'No asignado' }}</td>
+<!--                <td>{{ row.servicios ? row.servicios.map(s => s.nombre).join(', ') : '' }}</td>-->
+<!--                <td>{{ row.establecimiento_salud || '-' }}</td>-->
+<!--                <td>-->
+<!--                  <q-chip-->
+<!--                    dense-->
+<!--                    :color="row.tipo_atencion === 'SI' ? 'green-6' : 'orange-6'"-->
+<!--                    text-color="white"-->
+<!--                  >-->
+<!--                    {{ row.tipo_atencion === 'SI' ? 'SUS' : row.tipo_otro || 'EXT' }}-->
+<!--                  </q-chip>-->
+<!--                </td>-->
+<!--                <td class="text-center">-->
+<!--                  <q-badge color="primary" :label="row.servicios ? row.servicios.length : 0" />-->
+<!--                </td>-->
+<!--                <td>{{ row.user_preanalitica ? row.user_preanalitica.name : 'No asignado' }}</td>-->
               </tr>
             </tbody>
           </q-markup-table>

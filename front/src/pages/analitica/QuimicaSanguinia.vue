@@ -842,19 +842,7 @@
           <!-- =======================
                OBSERVACIONES / MÉTODO / EQUIPO
                ======================= -->
-          <div
-            v-if="hasAnyServicios([
-              'PERFIL RENAL (CREATININA SÉRICA, ÁCIDO ÚRICO, UREA)',
-              'PERFIL HEPÁTICO O HEPATOGRAMA (BILIRRUBINAS TOTALES Y FRACCIONADAS, FOSFATASA ALCALINA, GOT, GPT, GGT, TP)',
-              'PERFIL LIPÍDICO O LIPIDOGRAMA (COLESTEROL, TRIGLICERIDOS, HDLc,LDLc,VLDLc)',
-              'IONOGRAMA (NA,K,CL,CA,Mg,P)',
-              'ELECTROLITOS (SODIO, POTASIO, CLORO) (NA,K,CL)',
-              'ÁCIDO ÚRICO','ALBUMINA','PROTEINAS TOTALES','GLICEMIA','UREA','NITROGENO UREICO SERICO (NUS)','CREATININA SÉRICA',
-              'BILIRRUBINAS TOTALES Y FRACCIONADAS','TRANSAMINASAS GOT','TRANSAMINASAS GPT','FOSFATASA ALCALINA','GAMA GLUTAMIL TRANSFERASA (GGT)','AMILASA',
-              'COLESTEROL','TRIGLICÉRIDOS','HDLc, LDLc, VLDLc','HEMOGLOBINA GLICOSILADA A1c',
-              'ASTO O ASO','FACTOR REUMATOIDEO (FR)','PCR CUALITATIVO (PROTEÍNA C REACTIVA)','PRUEBA RAPIDA PARA VIH','RPR- VDRL','REACCIÓN DE WIDAL'
-            ])"
-          >
+          <div>
             <div class="section-title q-mb-xs">Observaciones / Método / Equipo</div>
 
 <!--            <q-input-->
