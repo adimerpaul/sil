@@ -52,10 +52,11 @@ class PanelSexualController extends Controller
         $data = $request->all();
         $data['solicitude_id'] = $id;
 
-        $existente = PanelSexual::where('solicitude_id', $id)->first();
-        if (!$existente) {
-            $data['numeracion'] = (new PanelSexual())->generateNumeracion();
-        }
+//        $existente = PanelSexual::where('solicitude_id', $id)->first();
+//        if (!$existente) {
+//            $data['numeracion'] = (new PanelSexual())->generateNumeracion();
+//        }
+        $data['numeracion'] = $request->input('numeracion', (new PanelSexual())->generateNumeracion());
 
         $registro = PanelSexual::updateOrCreate(
             [

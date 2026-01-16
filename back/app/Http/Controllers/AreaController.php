@@ -13,6 +13,20 @@ class AreaController extends Controller
         // si quieres incluir servicios: ->with('servicios')
         return Area::orderBy('id', 'asc')->with('servicios')->get();
     }
+    function areasCreateSolicitud(Request $request){
+        $user = $request->user();
+        if ($user->role == 'Administrador') {
+            return Area::orderBy('id', 'asc')->with('servicios')->get();
+        }
+        $area = $user->area;
+        $idBiologiaMolecular = 7;
+        error_log('area id: '.$area->id);
+        if($area->id == $idBiologiaMolecular){
+            return Area::where('id',$idBiologiaMolecular)->with('servicios')->get();
+        }else{
+            return Area::where('id','<>',$idBiologiaMolecular)->with('servicios')->get();
+        }
+    }
 
     public function show($id)
     {

@@ -29,11 +29,12 @@ class PapilomaHumanoController extends Controller
     {
         $data = $request->all();
         $data['solicitude_id'] = $id;
-        $existente = PapilomaHumano::where('solicitude_id', $id)->first();
-        if (!$existente) {
-            $data['numeracion'] = (new PapilomaHumano())->generateNumeracion();
-        }
-        error_log('user id: ' . $request->user()->id);
+//        $existente = PapilomaHumano::where('solicitude_id', $id)->first();
+//        if (!$existente) {
+//            $data['numeracion'] = (new PapilomaHumano())->generateNumeracion();
+//        }
+        $data['numeracion'] = $request->input('numeracion', (new PapilomaHumano())->generateNumeracion());
+//        error_log('user id: ' . $request->user()->id);
 
         $registro = PapilomaHumano::updateOrCreate(
             [

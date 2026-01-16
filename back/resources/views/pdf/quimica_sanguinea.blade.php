@@ -781,7 +781,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios('PCR CUALITATIVO (PROTEÍNA C REACTIVA)'))
+                                        @if($canServicios(['PCR CUALITATIVO (PROTEÍNA C REACTIVA)','TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)']))
                                             <tr>
                                                 <td>PCR</td>
                                                 <td class="center">{{ val($q,'pcr') }}</td>
@@ -790,7 +790,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios('PRUEBA RAPIDA PARA VIH'))
+                                        @if($canServicios(['PRUEBA RAPIDA PARA VIH','TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)']))
                                             <tr>
                                                 <td>Prueba rápida VIH</td>
                                                 <td class="center">{{ val($q,'prueba_rapida_vih') }}</td>
@@ -799,7 +799,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios('RPR- VDRL'))
+                                        @if($canServicios(['RPR- VDRL','TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)']))
                                             <tr>
                                                 <td>RPR / VDRL</td>
                                                 <td class="center">{{ val($q,'rpr') }}</td>
@@ -854,112 +854,112 @@
                                 </div>
                             </div>
                         @endif
-                        @if($showCito)
-                            <div class="block">
-                                <div class="title">Citoquímico</div>
-                                <div class="body">
-                                    <table class="tbl">
-                                        <thead>
-                                        <tr>
-                                            <th style="width: 10px">Parámetro</th>
-                                            <th class="w-res">Res</th>
-                                            <th class="w-rango">Rango</th>
-                                            <th class="w-unid">Unid</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
+{{--                        @if($showCito)--}}
+{{--                            <div class="block">--}}
+{{--                                <div class="title">Citoquímico</div>--}}
+{{--                                <div class="body">--}}
+{{--                                    <table class="tbl">--}}
+{{--                                        <thead>--}}
+{{--                                        <tr>--}}
+{{--                                            <th style="width: 10px">Parámetro</th>--}}
+{{--                                            <th class="w-res">Res</th>--}}
+{{--                                            <th class="w-rango">Rango</th>--}}
+{{--                                            <th class="w-unid">Unid</th>--}}
+{{--                                        </tr>--}}
+{{--                                        </thead>--}}
+{{--                                        <tbody>--}}
 
-                                        @if($canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS'))
-                                            <tr>
-                                                <td>Cantidad (ml)</td>
-                                                <td class="center">{{ val($q,'citoquimico_cantidad') }}</td>
-                                                <td class="center">{{ rangoTexto('Cantidad (ml)',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('Cantidad (ml)',$rangosMap) }}</td>
-                                            </tr>
+{{--                                        @if($canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS'))--}}
+{{--                                            <tr>--}}
+{{--                                                <td>Cantidad (ml)</td>--}}
+{{--                                                <td class="center">{{ val($q,'citoquimico_cantidad') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('Cantidad (ml)',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('Cantidad (ml)',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
 
-                                            <tr>
-                                                <td>Color</td>
-                                                <td class="center">{{ val($q,'citoquimico_color') }}</td>
-                                                <td class="center">{{ rangoTexto('Color',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('Color',$rangosMap) }}</td>
-                                            </tr>
+{{--                                            <tr>--}}
+{{--                                                <td>Color</td>--}}
+{{--                                                <td class="center">{{ val($q,'citoquimico_color') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('Color',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('Color',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
 
-                                            <tr>
-                                                <td>Aspecto</td>
-                                                <td class="center">{{ val($q,'citoquimico_aspecto') }}</td>
-                                                <td class="center">{{ rangoTexto('Aspecto',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('Aspecto',$rangosMap) }}</td>
-                                            </tr>
+{{--                                            <tr>--}}
+{{--                                                <td>Aspecto</td>--}}
+{{--                                                <td class="center">{{ val($q,'citoquimico_aspecto') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('Aspecto',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('Aspecto',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
 
-                                            <tr>
-                                                <td>Glucosa</td>
-                                                <td class="center">{{ val($q,'citoquimico_glucosa') }}</td>
-                                                <td class="center">{{ rangoTexto('Glucosa',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('Glucosa',$rangosMap) }}</td>
-                                            </tr>
+{{--                                            <tr>--}}
+{{--                                                <td>Glucosa</td>--}}
+{{--                                                <td class="center">{{ val($q,'citoquimico_glucosa') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('Glucosa',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('Glucosa',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
 
-                                            <tr>
-                                                <td>pH</td>
-                                                <td class="center">{{ val($q,'citoquimico_ph') }}</td>
-                                                <td class="center">{{ rangoTexto('pH',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('pH',$rangosMap) }}</td>
-                                            </tr>
+{{--                                            <tr>--}}
+{{--                                                <td>pH</td>--}}
+{{--                                                <td class="center">{{ val($q,'citoquimico_ph') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('pH',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('pH',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
 
-                                            <tr>
-                                                <td>Proteínas totales</td>
-                                                <td class="center">{{ val($q,'citoquimico_proteinas_totales') }}</td>
-                                                <td class="center">{{ rangoTexto('Proteínas totales',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('Proteínas totales',$rangosMap) }}</td>
-                                            </tr>
-                                            <tr>
+{{--                                            <tr>--}}
+{{--                                                <td>Proteínas totales</td>--}}
+{{--                                                <td class="center">{{ val($q,'citoquimico_proteinas_totales') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('Proteínas totales',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('Proteínas totales',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
+{{--                                            <tr>--}}
 {{--                                                densidad--}}
-                                                <td>Densidad</td>
-                                                <td class="center">{{ val($q,'citoquimico_densidad') }}</td>
-                                                <td class="center">{{ rangoTexto('Densidad',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('Densidad',$rangosMap) }}</td>
-                                            </tr>
+{{--                                                <td>Densidad</td>--}}
+{{--                                                <td class="center">{{ val($q,'citoquimico_densidad') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('Densidad',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('Densidad',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
 
-                                            <tr>
-                                                <td>Albúmina</td>
-                                                <td class="center">{{ val($q,'citoquimico_albumina') }}</td>
-                                                <td class="center">{{ rangoTexto('Albumina',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('Albumina',$rangosMap) }}</td>
-                                            </tr>
+{{--                                            <tr>--}}
+{{--                                                <td>Albúmina</td>--}}
+{{--                                                <td class="center">{{ val($q,'citoquimico_albumina') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('Albumina',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('Albumina',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
 
-                                            <tr>
-                                                <td>LDH</td>
-                                                <td class="center">{{ val($q,'citoquimico_ldh') }}</td>
-                                                <td class="center">{{ rangoTexto('LDH',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('LDH',$rangosMap) }}</td>
-                                            </tr>
+{{--                                            <tr>--}}
+{{--                                                <td>LDH</td>--}}
+{{--                                                <td class="center">{{ val($q,'citoquimico_ldh') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('LDH',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('LDH',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
 
-                                            <tr>
-                                                <td>Glóbulos blancos</td>
-                                                <td class="center">{{ val($q,'citoquimico_globulos_blancos') }}</td>
-                                                <td class="center">{{ rangoTexto('Glóbulos blancos',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('Glóbulos blancos',$rangosMap) }}</td>
-                                            </tr>
+{{--                                            <tr>--}}
+{{--                                                <td>Glóbulos blancos</td>--}}
+{{--                                                <td class="center">{{ val($q,'citoquimico_globulos_blancos') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('Glóbulos blancos',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('Glóbulos blancos',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
 
-                                            <tr>
-                                                <td>Polimorfonucleares (%)</td>
-                                                <td class="center">{{ val($q,'citoquimico_polimorfonucleares') }}</td>
-                                                <td class="center">{{ rangoTexto('Polimorfonucleares (%)',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('Polimorfonucleares (%)',$rangosMap) }}</td>
-                                            </tr>
+{{--                                            <tr>--}}
+{{--                                                <td>Polimorfonucleares (%)</td>--}}
+{{--                                                <td class="center">{{ val($q,'citoquimico_polimorfonucleares') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('Polimorfonucleares (%)',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('Polimorfonucleares (%)',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
 
-                                            <tr>
-                                                <td>Mononucleares (%)</td>
-                                                <td class="center">{{ val($q,'citoquimico_mononucleares') }}</td>
-                                                <td class="center">{{ rangoTexto('Mononucleares (%)',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('Mononucleares (%)',$rangosMap) }}</td>
-                                            </tr>
-                                        @endif
+{{--                                            <tr>--}}
+{{--                                                <td>Mononucleares (%)</td>--}}
+{{--                                                <td class="center">{{ val($q,'citoquimico_mononucleares') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('Mononucleares (%)',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('Mononucleares (%)',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
+{{--                                        @endif--}}
 
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        @endif
+{{--                                        </tbody>--}}
+{{--                                    </table>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                        @endif--}}
 
 
                         {{-- ===================== FIRMAS + QR ===================== --}}
