@@ -705,7 +705,7 @@
                 <td>{{ rangoUnidad('FR') }}</td>
               </tr>
 
-              <tr v-if="canServicios('PCR CUALITATIVO (PROTEÍNA C REACTIVA)')">
+              <tr v-if="canServicios(['PCR CUALITATIVO (PROTEÍNA C REACTIVA)','TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)'])">
                 <td>PCR</td>
                 <td>
                   <q-input v-model.number="form.pcr" dense outlined type="number" step="0.01"
@@ -748,7 +748,7 @@
                 <td>{{ rangoUnidad('Prueba rápida Chagas') }}</td>
               </tr>
 
-              <tr v-if="canServicios('PRUEBA RAPIDA PARA VIH')">
+              <tr v-if="canServicios(['PRUEBA RAPIDA PARA VIH','TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)'])">
                 <td>Prueba rápida VIH</td>
                 <td style="width: 250px;">
 <!--                  <q-input v-model="form.prueba_rapida_vih" dense outlined placeholder="Reactivo / No reactivo" />-->
@@ -776,7 +776,7 @@
                 <td>{{ rangoUnidad('Prueba rápida Troponina') }}</td>
               </tr>
 
-              <tr v-if="canServicios('RPR- VDRL')">
+              <tr v-if="canServicios(['RPR- VDRL','TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)'])">
                 <td>RPR / VDRL</td>
                 <td><q-input v-model="form.rpr" dense outlined placeholder="Reactivo / No reactivo" /></td>
                 <td>{{ rangoTexto('RPR / VDRL') }}</td>

@@ -498,7 +498,7 @@ export default {
     this.loadDoctores()
     this.diagnosticosGet()
     this.$axios.get('establecimientos').then(res => { this.establecimientos = res.data })
-    this.$axios.get('areas').then(res => {
+    this.$axios.get('areasCreateSolicitud').then(res => {
       this.areas = res.data
       console.log('SolicitudForm mounted with solicitudProp:', this.solicitudProp)
       if (this.solicitudProp) {
