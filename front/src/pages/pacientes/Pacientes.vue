@@ -33,7 +33,7 @@
           class="q-mr-sm"
           :loading="loading"
         />
-        <q-input dense outlined v-model="filter" label="Buscar">
+        <q-input dense outlined v-model="filter" label="Buscar" debounce="500">
           <template #append><q-icon name="search" /></template>
         </q-input>
       </template>

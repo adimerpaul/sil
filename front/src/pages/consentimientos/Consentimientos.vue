@@ -306,6 +306,15 @@
                   :readonly="soloVer"
                 />
               </div>
+              <div class="col-12 col-sm-4">
+                <q-input
+                  v-model="consentimiento.fecha_solicitud"
+                  type="date"
+                  label="Fecha Medico Solicitante"
+                  dense outlined
+                  :readonly="soloVer"
+                />
+              </div>
 
               <div class="col-12 col-sm-4">
                 <q-select

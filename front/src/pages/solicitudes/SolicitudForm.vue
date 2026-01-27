@@ -18,7 +18,7 @@
           </div>
           <div class="row q-col-gutter-xs">
             <div class="col-6 col-sm-3">
-              <q-input v-model="solicitud.paciente_ci" label="CI" dense outlined
+              <q-input v-model="solicitud.paciente_ci" label="CI" dense outlined clearable
                        @update:model-value="onChangeCi" debounce="600" >
                 <template v-slot:append>
                   <q-spinner
@@ -30,14 +30,18 @@
 <!--              <pre>{{solicitud}}</pre>-->
             </div>
             <div class="col-12 col-sm-6">
-              <q-input v-model="solicitud.paciente_nombre" label="Nombre" dense outlined />
+              <q-input v-model="solicitud.paciente_nombre" label="Nombre" dense outlined clearable>
+                <template v-slot:append>
+                  <q-btn flat dense icon="search" @click="clickDialogPaciente" />
+                </template>
+              </q-input>
             </div>
             <div class="col-6 col-sm-3">
-              <q-input v-model="solicitud.paciente_telefono" label="Celular" dense outlined />
+              <q-input v-model="solicitud.paciente_telefono" label="Celular" dense outlined clearable/>
             </div>
 
             <div class="col-12">
-              <q-input v-model="solicitud.paciente_direccion" label="Dirección" dense outlined />
+              <q-input v-model="solicitud.paciente_direccion" label="Dirección" dense outlined clearable/>
             </div>
 
             <div class="col-6 col-sm-4">
@@ -390,6 +394,74 @@
       </q-card-section>
     </q-card>
   </q-dialog>
+  <q-dialog v-model="dialogPaciente" persistent max-width="600px">
+    <q-card style="min-width: 400px; max-width: 90vh;">
+      <q-card-section class="row items-center q-pa-md">
+        <div class="text-subtitle2">
+          Buscar Paciente
+        </div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup @click="dialogPaciente = false" />
+      </q-card-section>
+      <q-card-section class="q-pt-none">
+        <!-- Aquí puedes agregar el contenido para buscar y seleccionar un paciente -->
+        <div class="">
+<!--          pacienteNameSearch-->
+          <q-input
+            v-model="pacienteNameSearch"
+            label="Buscar por nombre"
+            dense
+            outlined
+            debounce="300"
+            clearable
+            @update:model-value="buscarpacientes"
+          >
+            <template #append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+          <div class="q-mt-sm">
+<!--            <pre>{{pacientes}}</pre>-->
+<!--            [-->
+<!--            {-->
+<!--            "id": 2,-->
+<!--            "fecha_recepcion": "2025-12-15",-->
+<!--            "hora_recepcion": "05:43:59",-->
+<!--            "nombre_completo": "Adimer Paul Chambi Ajata",-->
+<!--            "fecha_nac": "1989-04-02",-->
+<!--            "genero": "M",-->
+<!--            "edad": 36,-->
+<!--            "ci": "7336199",-->
+<!--            "telefono": "69603027",-->
+<!--            "direccion": "Av. Siempre Viva 742",-->
+<!--            "discapacidad": 0,-->
+<!--            "discapacidad_cual": null,-->
+<!--            "discapacidad_otro": null,-->
+<!--            "embarazo": 0,-->
+<!--            "fum": null,-->
+<!--            "sem_gest": null-->
+<!--            }-->
+<!--            ]-->
+            <q-list bordered separator>
+              <q-item v-for="paciente in pacientes" :key="paciente.id" clickable @click="onSelectPaciente(paciente); dialogPaciente = false">
+                <q-item-section>
+                  <q-item-label>{{ paciente.nombre_completo }}</q-item-label>
+                  <q-item-label caption>CI: {{ paciente.ci }} • Tel: {{ paciente.telefono || 'N/A' }}
+                    • F. Nac: {{ paciente.fecha_nac || 'N/A' }}
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item v-if="pacientes.length === 0">
+                <q-item-section>
+                  <q-item-label>No se encontraron pacientes.</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+        </div>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script>
@@ -464,6 +536,9 @@ export default {
       serviciosAreaId: null,
       diagnosticos: [],
       diagnosticosAll: [],
+      dialogPaciente: false,
+      pacienteNameSearch: '',
+      pacientes: []
     }
   },
   computed: {
@@ -521,6 +596,20 @@ export default {
     })
   },
   methods: {
+    buscarpacientes(){
+      this.$axios.get('pacientes', {
+        params: {
+          page: 1,
+          per_page: 10,
+          search: this.pacienteNameSearch
+        }
+      }).then(res => {
+        this.pacientes = res.data.data
+      })
+    },
+    clickDialogPaciente(){
+      this.dialogPaciente = true
+    },
     guardarDoctor() {
       this.loading = true
       this.$axios.post('doctores', this.doctor)
@@ -755,10 +844,10 @@ export default {
         this.$alert?.error ? this.$alert.error('Seleccione al menos un servicio') : alert('Seleccione al menos un servicio')
         return
       }
-      if (!this.solicitud.paciente_ci) {
-        this.$alert?.error ? this.$alert.error('Coloque la CI del paciente') : alert('Coloque la CI del paciente')
-        return
-      }
+      // if (!this.solicitud.paciente_ci) {
+      //   this.$alert?.error ? this.$alert.error('Coloque la CI del paciente') : alert('Coloque la CI del paciente')
+      //   return
+      // }
 
 
       if (this.solicitud.id) {
