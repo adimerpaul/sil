@@ -178,7 +178,7 @@
     <tr>
         <td class="centrado">
             ..............................................................<br>
-            FIRMA DEL DECLARANTE
+            FIRMA DEL DECLARANTE O HUELLA
         </td>
         <td class="centrado">
             FECHA: {{ $c->fecha_consentimiento }}

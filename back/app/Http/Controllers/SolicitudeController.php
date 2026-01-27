@@ -378,11 +378,11 @@ class SolicitudeController extends Controller
 
         $paciente = Paciente::find($solicitud->paciente_id);
 //        $nombreCompleto = $paciente ? $paciente->nombre_completo : 'Desconocido';
-        $nombreCompleto = $solicitud->paciente_nombre ?? ($paciente ? $paciente->nombre_completo : 'Desconocido');
-        $nro_registro = $this->nroRegistro($nombreCompleto, $paciente->fecha_nac ?? null);
-
-        $solicitud->codigo = $this->generarCodigoPorTipoYMes($solicitud);
-        $solicitud->nro_registro = $nro_registro;
+//        $nombreCompleto = $solicitud->paciente_nombre ?? ($paciente ? $paciente->nombre_completo : 'Desconocido');
+//        $nro_registro = $this->nroRegistro($nombreCompleto, $paciente->fecha_nac ?? null);
+//
+//        $solicitud->codigo = $this->generarCodigoPorTipoYMes($solicitud);
+//        $solicitud->nro_registro = $nro_registro;
         $solicitud->estado = 'ATENDIENDO';
         $solicitud->fecha_pre_analitica = now();
         $solicitud->user_preanalitica_id = $request->user() ? $request->user()->id : null;
@@ -580,11 +580,11 @@ class SolicitudeController extends Controller
             $data['user_id'] = $request->user()->id;
         }
 
-        error_log('establecimiento_salud: ' . $request->establecimiento_salud);
+//        error_log('establecimiento_salud: ' . $request->establecimiento_salud);
         $establecimientoSalud = \App\Models\Establecimiento::where('nombre', $request->establecimiento_salud)->first();
-        error_log('EstablecimientoSalud: ' . json_encode($establecimientoSalud));
+//        error_log('EstablecimientoSalud: ' . json_encode($establecimientoSalud));
         if ($establecimientoSalud) {
-            error_log('entro');
+//            error_log('entro');
             $data['establecimiento_id'] = $establecimientoSalud->id;
         }else{
             error_log('no entro');
@@ -611,7 +611,14 @@ class SolicitudeController extends Controller
             }
         }
 
+
         $solicitud = Solicitude::create($data);
+        $nombreCompleto = $solicitud->paciente_nombre ?? ($paciente ? $paciente->nombre_completo : 'Desconocido');
+        $nro_registro = $this->nroRegistro($nombreCompleto, $paciente->fecha_nac ?? null);
+
+        $solicitud->codigo = $this->generarCodigoPorTipoYMes($solicitud);
+        $solicitud->nro_registro = $nro_registro;
+        $solicitud->save();
 
 //        $this->syncServicios($solicitud, $request->input('servicios', []));
         $servicios = $request->input('servicios', []);
@@ -631,8 +638,18 @@ class SolicitudeController extends Controller
 
     protected function pacienteUpsert($ci, &$data)
     {
-        if (empty($ci)) {
-            return null;
+        if (empty($ci) || $ci === '') {
+            $p = Paciente::create([
+                'nombre_completo' => $data['paciente_nombre'],
+                'ci' => $ci,
+                'telefono' => $data['paciente_telefono'] ?? null,
+                'direccion' => $data['paciente_direccion'] ?? null,
+                'fecha_nac' => $data['paciente_fecha_nac'] ?? null,
+                'genero' => $data['paciente_genero'] ?? null,
+                'edad' => $data['paciente_edad'] ?? null,
+            ]);
+            $data['paciente_id'] = $p->id;
+            return $p;
         }
 
         $p = Paciente::where('ci', $ci)->first();
