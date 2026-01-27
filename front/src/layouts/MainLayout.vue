@@ -152,7 +152,7 @@
             <q-icon name="room_service" class="text-white"/>
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-white">Servicios</q-item-label>
+            <q-item-label class="text-white">Prestaciones</q-item-label>
           </q-item-section>
         </q-item>
         <q-item dense to="/formularios" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Formularios')">
@@ -213,6 +213,18 @@
             <q-item-label class="text-white">Servicios Resumen</q-item-label>
           </q-item-section>
         </q-item>
+        <q-expansion-item dense expand-separator icon="insert_chart" label="Reportes" active-class="menu-active" >
+          <q-list>
+            <q-item :inset-level="0.3" dense to="/reporte/consentimiento" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+              <q-item-section avatar>
+                <q-icon name="assignment" class="text-white"/>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-white">Reporte de Consentimientos</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-expansion-item>
 <!--        {-->
 <!--        path: '/formularios',-->
 <!--        component: () => import('pages/formularios/Formularios.vue'),-->
