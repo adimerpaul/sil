@@ -11,11 +11,12 @@ class ServicioSolicitude extends Model implements AuditableContract
     use AuditableTrait, SoftDeletes;
 
     protected $fillable = [
-        'solicitud_id',
+        'solicitude_id',
         'servicio_id',
         'area_id',
         'precio',
         'nombre',
+        'realizado',
     ];
 
     protected $hidden = [

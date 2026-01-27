@@ -103,15 +103,9 @@ class Solicitude extends Model implements AuditableContract
 
     public function servicios()
     {
-        return $this->belongsToMany(
-            \App\Models\Servicio::class,
-            'servicio_solicitudes',
-            'solicitude_id',
-            'servicio_id'
-        )
-            ->wherePivotNull('deleted_at')   // 👈 respeta soft delete del pivot
-            ->withPivot('precio', 'area_id', 'nombre', 'deleted_at')
-            ->withTimestamps();
+        return $this->belongsToMany(\App\Models\Servicio::class, 'servicio_solicitudes', 'solicitude_id', 'servicio_id')
+            ->withPivot(['id', 'area_id', 'precio', 'nombre', 'realizado']) // <-- aquí
+            ->wherePivotNull('deleted_at'); // por SoftDeletes en pivot
     }
 
     public function preAnaliticaMuestras()

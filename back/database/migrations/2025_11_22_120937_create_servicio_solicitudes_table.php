@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreign('solicitude_id')->references('id')->on('solicitudes')->onDelete('cascade');
             $table->foreign('servicio_id')->references('id')->on('servicios')->onDelete('cascade');
             $table->foreign('area_id')->references('id')->on('areas')->onDelete('cascade');
+            $table->string('realizado')->default('PENDIENTE');
             $table->softDeletes();
             $table->timestamps();
         });

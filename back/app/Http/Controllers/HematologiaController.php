@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Hematologia;
+use App\Models\ServicioSolicitude;
 use App\Models\Solicitude;
 use App\Models\Area;
 use Illuminate\Http\Request;
@@ -65,6 +66,17 @@ class HematologiaController extends Controller
             ],
             array_merge($data, ['user_id' => $user->id])
         );
+
+        $areaIdHemato = 1;
+//        ServicioSolicitude::where('solicitude_id', $solicitudeId)
+//            ->where('area_id', $areaIdHemato)
+//            ->update(['realizado' => 'REALIZADO']);
+        $servicioSolicitudes = ServicioSolicitude::where('solicitude_id', $solicitudeId)
+            ->where('area_id', $areaIdHemato)
+            ->get();
+        error_log(json_encode($servicioSolicitudes));
+
+
         $soliditude = Solicitude::find($solicitudeId);
         $soliditude->estado = 'ANALIZADO';
         $soliditude->fecha_finalizacion = now();

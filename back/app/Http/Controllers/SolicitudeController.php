@@ -22,6 +22,178 @@ use Illuminate\Support\Facades\Http;
 
 class SolicitudeController extends Controller
 {
+    public function reporteSolicitudesServicios(Request $request)
+    {
+        $dateFrom = $request->get('date_from');
+        $dateTo   = $request->get('date_to');
+        $userId   = $request->get('user_id');
+        $group    = $request->get('group', 'day');
+
+        // servicio_id puede venir como: servicio_id=3 o servicio_id[]=3&servicio_id[]=5
+        $servicioIds = $request->get('servicio_id', null);
+        if ($servicioIds !== null && !is_array($servicioIds)) {
+            $servicioIds = [$servicioIds];
+        }
+        $servicioIds = array_values(array_filter((array)$servicioIds, fn($x) => $x !== null && $x !== ''));
+        $servicioIds = !empty($servicioIds) ? array_map('intval', $servicioIds) : [];
+
+        // ---- query base: solicitudes (soft delete)
+        $solQuery = DB::table('solicitudes as s')
+            ->whereNull('s.deleted_at');
+
+        if ($dateFrom) $solQuery->whereDate('s.fecha_creacion', '>=', $dateFrom);
+        if ($dateTo)   $solQuery->whereDate('s.fecha_creacion', '<=', $dateTo);
+        if ($userId)   $solQuery->where('s.user_id', $userId);
+
+        // ---- base pivot servicio_solicitudes (soft delete pivot + solicitudes + servicios)
+        $ssQuery = DB::table('servicio_solicitudes as ss')
+            ->join('solicitudes as s', 's.id', '=', 'ss.solicitude_id')
+            ->join('servicios as se', 'se.id', '=', 'ss.servicio_id')
+            ->whereNull('s.deleted_at')
+            ->whereNull('ss.deleted_at')
+            ->whereNull('se.deleted_at');
+
+        if ($dateFrom) $ssQuery->whereDate('s.fecha_creacion', '>=', $dateFrom);
+        if ($dateTo)   $ssQuery->whereDate('s.fecha_creacion', '<=', $dateTo);
+        if ($userId)   $ssQuery->where('s.user_id', $userId);
+        if (!empty($servicioIds)) $ssQuery->whereIn('ss.servicio_id', $servicioIds);
+
+        // ---- KPIs
+        $totalSolicitudes  = (clone $solQuery)->count();
+        $totalPrestaciones = (clone $ssQuery)->count();
+
+        $promedioPrestaciones = $totalSolicitudes > 0
+            ? round($totalPrestaciones / $totalSolicitudes, 1)
+            : 0;
+
+        // ---- expresiones de agrupación
+        if ($group === 'month') {
+            $keyExpr   = "DATE_FORMAT(s.fecha_creacion, '%Y-%m')";
+            $labelExpr = "DATE_FORMAT(s.fecha_creacion, '%Y-%m')";
+        } elseif ($group === 'week') {
+            $keyExpr   = "YEARWEEK(s.fecha_creacion, 1)";
+            $labelExpr = "CONCAT(YEAR(s.fecha_creacion), '-W', LPAD(WEEK(s.fecha_creacion, 1), 2, '0'))";
+        } else { // day
+            $keyExpr   = "DATE(s.fecha_creacion)";
+            $labelExpr = "DATE(s.fecha_creacion)";
+        }
+
+        // ---- SERIE: solicitudes vs prestaciones (FIX ONLY_FULL_GROUP_BY)
+        $serie = DB::table('solicitudes as s')
+            ->leftJoin('servicio_solicitudes as ss', function ($join) {
+                $join->on('ss.solicitude_id', '=', 's.id')
+                    ->whereNull('ss.deleted_at');
+            })
+            ->whereNull('s.deleted_at')
+            ->when($dateFrom, fn($q) => $q->whereDate('s.fecha_creacion', '>=', $dateFrom))
+            ->when($dateTo,   fn($q) => $q->whereDate('s.fecha_creacion', '<=', $dateTo))
+            ->when($userId,   fn($q) => $q->where('s.user_id', $userId))
+            ->when(!empty($servicioIds), fn($q) => $q->whereIn('ss.servicio_id', $servicioIds))
+            ->selectRaw("$keyExpr as group_key")
+            ->selectRaw("$labelExpr as label")
+            ->selectRaw("COUNT(DISTINCT s.id) as solicitudes")
+            ->selectRaw("COUNT(ss.id) as prestaciones")
+            ->groupBy('group_key', 'label')
+            ->orderBy('group_key', 'asc')
+            ->get();
+
+        // ---- TABLA POR USUARIO (solicitudes + prestaciones)
+        $porUsuario = DB::table('users as u')
+            ->join('solicitudes as s', 's.user_id', '=', 'u.id')
+            ->leftJoin('servicio_solicitudes as ss', function ($join) {
+                $join->on('ss.solicitude_id', '=', 's.id')
+                    ->whereNull('ss.deleted_at');
+            })
+            ->whereNull('u.deleted_at')
+            ->whereNull('s.deleted_at')
+            ->when($dateFrom, fn($q) => $q->whereDate('s.fecha_creacion', '>=', $dateFrom))
+            ->when($dateTo, fn($q) => $q->whereDate('s.fecha_creacion', '<=', $dateTo))
+            ->when($userId, fn($q) => $q->where('u.id', $userId))
+            ->when(!empty($servicioIds), fn($q) => $q->whereIn('ss.servicio_id', $servicioIds))
+            ->groupBy('u.id', 'u.name', 'u.username')
+            ->select(
+                'u.id as user_id',
+                'u.name as user_name',
+                'u.username',
+                DB::raw('COUNT(DISTINCT s.id) as solicitudes'),
+                DB::raw('COUNT(ss.id) as prestaciones')
+            )
+            ->orderByDesc('prestaciones')
+            ->get();
+
+        // ---- TOP PRESTACIONES (servicios) (histograma)
+        $topPrestaciones = DB::table('servicio_solicitudes as ss')
+            ->join('solicitudes as s', 's.id', '=', 'ss.solicitude_id')
+            ->join('servicios as se', 'se.id', '=', 'ss.servicio_id')
+            ->whereNull('s.deleted_at')
+            ->whereNull('ss.deleted_at')
+            ->whereNull('se.deleted_at')
+            ->when($dateFrom, fn($q) => $q->whereDate('s.fecha_creacion', '>=', $dateFrom))
+            ->when($dateTo, fn($q) => $q->whereDate('s.fecha_creacion', '<=', $dateTo))
+            ->when($userId, fn($q) => $q->where('s.user_id', $userId))
+            ->when(!empty($servicioIds), fn($q) => $q->whereIn('ss.servicio_id', $servicioIds))
+            ->groupBy('se.id', 'se.nombre')
+            ->select(
+                'se.id as prestacion_id',
+                'se.nombre as prestacion_nombre',
+                DB::raw('COUNT(*) as total'),
+                DB::raw('COUNT(DISTINCT s.id) as solicitudes')
+            )
+            ->orderByDesc('total')
+            ->limit(12)
+            ->get();
+
+        // ---- ÚLTIMAS SOLICITUDES con conteo prestaciones
+        $ultimas = DB::table('solicitudes as s')
+            ->leftJoin('users as u', 'u.id', '=', 's.user_id')
+            ->whereNull('s.deleted_at')
+            ->when($dateFrom, fn($q) => $q->whereDate('s.fecha_creacion', '>=', $dateFrom))
+            ->when($dateTo, fn($q) => $q->whereDate('s.fecha_creacion', '<=', $dateTo))
+            ->when($userId, fn($q) => $q->where('s.user_id', $userId))
+            ->when(!empty($servicioIds), function ($q) use ($servicioIds) {
+                $q->whereExists(function ($sub) use ($servicioIds) {
+                    $sub->select(DB::raw(1))
+                        ->from('servicio_solicitudes as ssf')
+                        ->whereColumn('ssf.solicitude_id', 's.id')
+                        ->whereNull('ssf.deleted_at')
+                        ->whereIn('ssf.servicio_id', $servicioIds);
+                });
+            })
+            ->select(
+                's.id',
+                's.nro_registro',
+                's.codigo_solicitud',
+                's.paciente_nombre',
+                's.doctor_nombre',
+                's.estado',
+                's.fecha_creacion',
+                's.hora_solicitud',
+                'u.name as user_name',
+                DB::raw('(
+                SELECT COUNT(*)
+                FROM servicio_solicitudes ss2
+                WHERE ss2.solicitude_id = s.id
+                  AND ss2.deleted_at IS NULL
+            ) as cant_prestaciones')
+            )
+            ->orderByDesc('s.fecha_creacion')
+            ->orderByDesc('s.id')
+            ->limit(20)
+            ->get();
+
+        return response()->json([
+            'resumen' => [
+                'total_solicitudes' => $totalSolicitudes,
+                'total_prestaciones' => $totalPrestaciones,
+                'promedio_prestaciones' => $promedioPrestaciones,
+            ],
+            'por_usuario' => $porUsuario,
+            'top_prestaciones' => $topPrestaciones,
+            'serie' => $serie,
+            'ultimas' => $ultimas,
+        ]);
+    }
+
     function muestrasRechazadas(){
         $solicitudes = Solicitude::with([
             'paciente',
@@ -260,7 +432,7 @@ class SolicitudeController extends Controller
 //        return $this->hasOne(CultivoAntibiograma::class);
 //    }
         $query = Solicitude::with([
-            'paciente', 'doctor', 'servicios.area.rangos', 'resultados',
+            'paciente', 'doctor', 'servicios.area', 'resultados',
             'hematologia',
             'quimicaSanguinea',
             'uroanalisis',
