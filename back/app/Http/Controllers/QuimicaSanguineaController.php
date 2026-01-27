@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\QuimicaSanguinea;
+use App\Models\ServicioSolicitude;
 use App\Models\Solicitude;
 use App\Models\Area;
 use Illuminate\Http\Request;
@@ -268,6 +269,11 @@ class QuimicaSanguineaController extends Controller
         $soliditude = Solicitude::find($solicitudeId);
         $soliditude->estado = 'ANALIZADO';
         $soliditude->fecha_finalizacion = now();
+
+        $areaIdQuimica = 2;
+        ServicioSolicitude::where('solicitude_id', $solicitudeId)
+            ->where('area_id', $areaIdQuimica)
+            ->update(['realizado' => 'REALIZADO']);
 
         if ($request->muestra_rechazada === 'Si') {
             $soliditude->muestra_rechazada = 'Si';

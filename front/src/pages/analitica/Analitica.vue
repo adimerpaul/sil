@@ -68,7 +68,7 @@
               <th>CI</th>
               <th>Establecimiento</th>
               <th>Fecha Solicitud</th>
-              <th>Estado</th>
+<!--              <th>Estado</th>-->
               <th>Servicios</th>
             </tr>
             </thead>
@@ -415,22 +415,32 @@
               <td>{{ solicitud.paciente_ci }}</td>
               <td>{{ solicitud.establecimiento_salud }}</td>
               <td>{{ solicitud.fecha_envio_analitica }}</td>
+<!--              <td>-->
+<!--                <q-chip v-if="solicitud.estado === 'ANALIZADO'" color="green" text-color="white" dense>-->
+<!--                  Finalizado-->
+<!--                </q-chip>-->
+<!--                <q-chip v-else-if="solicitud.estado === 'ENVIADO_ANALITICA'" color="red" text-color="white" dense>-->
+<!--                  Recibido-->
+<!--                </q-chip>-->
+<!--&lt;!&ndash;                MUESTRA RECHAZADA&ndash;&gt;-->
+<!--                <q-chip v-else-if="solicitud.estado === 'MUESTRA RECHAZADA'" color="orange" text-color="white" dense>-->
+<!--                  Muestra Rechazada-->
+<!--                </q-chip>-->
+<!--              </td>-->
               <td>
-                <q-chip v-if="solicitud.estado === 'ANALIZADO'" color="green" text-color="white" dense>
-                  Finalizado
-                </q-chip>
-                <q-chip v-else-if="solicitud.estado === 'ENVIADO_ANALITICA'" color="red" text-color="white" dense>
-                  Recibido
-                </q-chip>
-<!--                MUESTRA RECHAZADA-->
-                <q-chip v-else-if="solicitud.estado === 'MUESTRA RECHAZADA'" color="orange" text-color="white" dense>
-                  Muestra Rechazada
-                </q-chip>
-              </td>
-              <td>
-                <ul style="padding-left: 1em; margin: 0;">
-                  <li v-for="servicio in solicitud.servicios" :key="servicio.id">
-                    {{ servicio.nombre }} - {{ servicio.precio }}
+                <ul style="padding-left: 1em; margin: 0;list-style: none">
+                  <li v-for="servicio in solicitud.servicios" :key="servicio.id" style="text-decoration: none">
+<!--                    icono verde de epntinte pque;o-->
+<!--                    <q-icon name="check_circle" color="green" size="12px" class="q-mr-xs" />-->
+<!--                    rojo-->
+<!--                    <q-icon name="cancel" color="orange" size="12px" class="q-mr-xs"/>-->
+<!--                    <pre>{{servicio.pivot.realizado}}</pre>-->
+                    <q-icon name="cancel" color="orange" size="12px" class="q-mr-xs" v-if="servicio.pivot.realizado === 'PENDIENTE'"/>
+                    <q-icon name="check_circle" color="green" size="12px" class="q-mr-xs" v-else/>
+                    {{ $filters.textCapitalize(servicio.nombre) }} - {{ $filters.textCapitalize(servicio.precio) }} -
+                    <span class="text-grey" style="font-size: 0.8em;">
+                      {{$filters.textCapitalize(servicio.area.name)}}
+                    </span>
                   </li>
                 </ul>
               </td>

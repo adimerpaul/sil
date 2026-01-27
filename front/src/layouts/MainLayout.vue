@@ -200,11 +200,6 @@
             </q-item-label>
           </q-item-section>
         </q-item>
-<!--        {-->
-<!--        path: '/reportes/servicios-resumen',-->
-<!--        component: () => import('pages/reportes/ReportesServiciosResumen.vue'),-->
-<!--        meta: {requiresAuth: true, perm: 'Reportes'}-->
-<!--        }-->
         <q-item dense to="/reportes/servicios-resumen" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Usuarios')">
           <q-item-section avatar>
             <q-icon name="bar_chart" class="text-white"/>
@@ -221,6 +216,19 @@
               </q-item-section>
               <q-item-section>
                 <q-item-label class="text-white">Reporte de Consentimientos</q-item-label>
+              </q-item-section>
+            </q-item>
+<!--            {-->
+<!--            path: '/reporte/solicitudes',-->
+<!--            component: () => import('pages/solicitudes/SolicitudesReporte.vue'),-->
+<!--            meta: {requiresAuth: true, perm: 'Consentimientos'}-->
+<!--            },-->
+            <q-item :inset-level="0.3" dense to="/reporte/solicitudes" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
+              <q-item-section avatar>
+                <q-icon name="request_page" class="text-white"/>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="text-white">Reporte de Solicitudes</q-item-label>
               </q-item-section>
             </q-item>
           </q-list>

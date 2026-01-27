@@ -19,10 +19,14 @@ const routes = [
         component: () => import('pages/consentimientos/Consentimientos.vue'),
         meta: {requiresAuth: true, perm: 'Consentimientos'}
       },
-      // http://localhost:9000/reporte/consentimiento
       {
         path: '/reporte/consentimiento',
         component: () => import('pages/consentimientos/ConsentimientoReporte.vue'),
+        meta: {requiresAuth: true, perm: 'Consentimientos'}
+      },
+      {
+        path: '/reporte/solicitudes',
+        component: () => import('pages/solicitudes/SolicitudesReporte.vue'),
         meta: {requiresAuth: true, perm: 'Consentimientos'}
       },
       {

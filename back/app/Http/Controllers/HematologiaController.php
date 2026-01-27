@@ -68,13 +68,9 @@ class HematologiaController extends Controller
         );
 
         $areaIdHemato = 1;
-//        ServicioSolicitude::where('solicitude_id', $solicitudeId)
-//            ->where('area_id', $areaIdHemato)
-//            ->update(['realizado' => 'REALIZADO']);
-        $servicioSolicitudes = ServicioSolicitude::where('solicitude_id', $solicitudeId)
+        ServicioSolicitude::where('solicitude_id', $solicitudeId)
             ->where('area_id', $areaIdHemato)
-            ->get();
-        error_log(json_encode($servicioSolicitudes));
+            ->update(['realizado' => 'REALIZADO']);
 
 
         $soliditude = Solicitude::find($solicitudeId);
