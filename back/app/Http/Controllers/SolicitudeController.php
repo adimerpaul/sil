@@ -22,6 +22,18 @@ use Illuminate\Support\Facades\Http;
 
 class SolicitudeController extends Controller
 {
+    function marcarMuestraNoTomada(Request $request, $id)
+    {
+        $solicitud = Solicitude::findOrFail($id);
+//        $solicitud->muestra_rechazada = 'Si';
+        $solicitud->motivo_rechazo = $request->input('motivo_rechazo', 'No especificado');
+//        $solicitud->fecha_rechazo_muestra = now();
+        $solicitud->user_preanalitica_id = $request->user() ? $request->user()->id : null;
+        $solicitud->estado = 'MUESTRA NO TOMADA';
+        $solicitud->save();
+
+        return response()->json($solicitud->fresh());
+    }
     public function reporteSolicitudesServicios(Request $request)
     {
         $dateFrom = $request->get('date_from');
@@ -604,9 +616,9 @@ class SolicitudeController extends Controller
         $solicitud = Solicitude::findOrFail($id);
         $area_tipo_muestras = $request->input('area_tipo_muestras', []);
 
-        $urlSocket = env('URL_SOCKET_IO', null);
-        //return response()->json(['message' => 'URL_SOCKET_IO no está configurada', 'url' => $urlSocket], 500);
-        $response = Http::get($urlSocket . '/silSolicitud');
+//        $urlSocket = env('URL_SOCKET_IO', null);
+//        //return response()->json(['message' => 'URL_SOCKET_IO no está configurada', 'url' => $urlSocket], 500);
+//        $response = Http::get($urlSocket . '/silSolicitud');
 
 
         foreach ($area_tipo_muestras as $area) {
@@ -648,6 +660,7 @@ class SolicitudeController extends Controller
     public function solicitudesAreaPreanalitica(Request $request)
     {
         $filter = $request->input('filter', '');
+        $fecha = $request->input('fecha', '');
 
         $query = Solicitude::with([
             'paciente',
@@ -658,6 +671,7 @@ class SolicitudeController extends Controller
             'solicitudRechazadas.user',
             'solicitudRechazadas.area',
         ])
+            ->whereDate('fecha_creacion', $fecha)
             ->whereIn('estado', ['CREADO', 'ATENDIENDO','MUESTRA RECHAZADA']);
 
         if (!empty($filter)) {

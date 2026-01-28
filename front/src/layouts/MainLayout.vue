@@ -184,9 +184,18 @@
             <q-icon name="science" class="text-white"/>
           </q-item-section>
           <q-item-section>
-            <q-item-label class="text-white">Área Preanalítica</q-item-label>
+            <q-item-label class="text-white">Preanalítica</q-item-label>
           </q-item-section>
         </q-item>
+<!--        Preanalitca terminadoas-->
+<!--        <q-item dense to="/area-preanalitica-procesadas" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Area preanalitica')">-->
+<!--          <q-item-section avatar>-->
+<!--            <q-icon name="analytics" class="text-white"/>-->
+<!--          </q-item-section>-->
+<!--          <q-item-section>-->
+<!--            <q-item-label class="text-white">Preanalítica estados</q-item-label>-->
+<!--          </q-item-section>-->
+<!--        </q-item>-->
         <q-item dense to="/analitica" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Analitica')">
           <q-item-section avatar>
             <q-icon name="biotech" class="text-white"/>
@@ -194,9 +203,18 @@
           <q-item-section>
             <q-item-label class="text-white">
 <!--              si el susatio role es adminsitrador colcaor Analitica-->
-              <span v-if="$store.user.role === 'Administrador'">Analítica</span>
-              <span v-else>Área {{$store.user.area?.name}}</span>
-<!--              {{$store.user.area?.name}}-->
+<!--              <span v-if="$store.user.role === 'Administrador'">Analítica</span>-->
+<!--              <template v-else>-->
+<!--                <div v-if="hasPermission('HEMATOLOGÍA')">Hematología</div>-->
+<!--                <div v-if="hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA')">Química Sanguínea y Serología</div>-->
+<!--                <div v-if="hasPermission('UROANÁLISIS')">Uroanálisis</div>-->
+<!--                <div v-if="hasPermission('MICROBIOLOGÍA')">Microbiología</div>-->
+<!--                <div v-if="hasPermission('INMUNOLOGÍA / INFECCIOSOS')">Inmunología / Infecciosos</div>-->
+<!--                <div v-if="hasPermission('BIOLOGÍA MOLECULAR')">Biología Molecular</div>-->
+<!--              </template>-->
+<!--              <span v-else>{{$store.user.area?.title}}</span>-->
+              Analítica
+<!--              <pre>{{$store.user.area}}</pre>-->
             </q-item-label>
           </q-item-section>
         </q-item>

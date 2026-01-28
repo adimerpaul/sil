@@ -3,14 +3,24 @@
     <!-- HEADER / FILTROS -->
     <q-card flat bordered class="q-mb-sm">
       <q-card-section class="row items-center q-col-gutter-xs">
-        <div class="col-12 col-sm-4">
+        <div class="col-12 col-sm-3">
           <div class="text-h6">Área Preanalítica</div>
           <div class="text-caption text-grey-7">
             Solicitudes pendientes de procesamiento
           </div>
         </div>
+        <div class="col-12 col-sm-2">
+<!--          fecha-->
+          <q-input
+            v-model="fecha"
+            dense
+            outlined
+            label="Fecha de Solicitud"
+            type="date"
+          />
+        </div>
 
-        <div class="col-12 col-sm-4">
+        <div class="col-12 col-sm-2">
           <q-input
             v-model="filter"
             dense
@@ -648,6 +658,7 @@
         <!-- ACCIONES -->
         <template #body-cell-actions="props">
           <q-td :props="props" class="text-right">
+<!--            @click.stop="onGenerarCodigo(props.row)"-->
             <q-btn
               v-if="props.row.estado === 'CREADO'"
               dense
@@ -657,7 +668,6 @@
               icon="confirmation_number"
               :label="props.row.codigo ? 'Ver código' : 'Generar código'"
               :loading="loadingRowId === props.row.id"
-              @click.stop="onGenerarCodigo(props.row)"
             />
             <span v-else class="text-red text-bold">
               Sin Enviar Muestra
@@ -1074,11 +1084,21 @@
             </div>
           </div>
         </q-card-section>
-
+<!--        btn muestar no tomada en colcoa rojo-->
         <q-separator />
 
         <!-- ACCIONES -->
-        <q-card-actions align="right" class="bg-grey-1">
+        <q-card-actions class="bg-grey-1 row items-center">
+          <q-btn
+            class="q-ma-md"
+          color="red"
+          icon="warning"
+          no-caps
+          @click="marcarMuestraNoTomada"
+          >
+            Muestra <br>No Tomada
+          </q-btn>
+          <q-space />
           <q-btn
             flat
             label="Cerrar"
@@ -1087,7 +1107,6 @@
             v-close-popup
             no-caps
           />
-<!--          label="Guardar y Enviar a Distribucción"-->
           <q-btn
             unelevated
             color="primary"
@@ -1271,6 +1290,7 @@ export default {
     return {
       dialogConsentimiento: false,
       rows: [],
+      fecha: moment().format('YYYY-MM-DD'),
       loading: false,
       moment: moment,
       filter: '',
@@ -1383,6 +1403,38 @@ export default {
             ? this.$alert.error('Error al cargar tipos de muestras')
             : null
         })
+    },
+    marcarMuestraNoTomada() {
+      if (!this.consentimiento) return
+      // $q. dalog motivo_rechazo
+      this.$q.dialog({
+        title: 'Motivo de rechazo',
+        message: 'Por favor, ingrese el motivo por el cual la muestra no fue tomada:',
+        prompt: {
+          model: '',
+          type: 'text',
+          isValid: val => val.length > 0
+        },
+        cancel: true,
+        persistent: true
+      }).onOk(motivo => {
+        // enviar motivo al backend
+        this.$axios.post(`solicitudes/${this.consentimiento.id}/marcar-muestra-no-tomada`, {
+          motivo_rechazo: motivo
+        })
+          .then(res => {
+            this.$alert.success('La muestra ha sido marcada como no tomada.')
+            this.dialogConsentimiento = false
+            this.reloadTable()
+          })
+          .catch(err => {
+            console.error(err)
+            const msg = err.response?.data?.message || err.message
+            if (this.$alert && this.$alert.error) {
+              this.$alert.error('Error al marcar muestra como no tomada: ' + msg)
+            }
+          })
+      })
     },
     guardarPreAnalitica () {
       if (!this.consentimiento) return
@@ -1527,6 +1579,7 @@ export default {
       this.loading = true
       this.$axios.get('solicitudes-area-preanalitica', {
         params: {
+          fecha: this.fecha,
           page: pagination.page,
           per_page: pagination.rowsPerPage,
           filter: filter || ''

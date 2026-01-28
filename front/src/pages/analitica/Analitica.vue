@@ -73,22 +73,22 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="solicitud in solicitudes" :key="solicitud.id" style="cursor: pointer;">
+            <tr v-for="solicitud in solicitudes" :key="solicitud.id" style="cursor: pointer;" >
               <td>
-                <q-btn-dropdown dense color="primary" no-caps label="Opciones" size="10px">
+              <q-btn-dropdown dense color="primary" no-caps label="Opciones" size="10px">
                   <q-list>
                     <!-- HEMATOLOGÍA -->
-                    <q-item clickable @click="selectHematologia(solicitud)" v-close-popup dense v-if="$store.user.role === 'Administrador' || $store.user.area_id === 1">
+                    <q-item clickable @click="selectHematologia(solicitud)" v-close-popup dense v-if="$store.user.role === 'Administrador' || hasPermission('HEMATOLOGÍA')">
                       <q-item-section avatar><q-icon name="bloodtype" /></q-item-section>
                       <q-item-section>Hematología</q-item-section>
                     </q-item>
 
-                    <q-item clickable @click="printHematologia(solicitud)" v-close-popup dense v-if="solicitud.hematologia?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 1)">
+                    <q-item clickable @click="printHematologia(solicitud)" v-close-popup dense v-if="solicitud.hematologia?.code && ($store.user.role === 'Administrador' || hasPermission('HEMATOLOGÍA'))">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Hematología</q-item-section>
                     </q-item>
                     <!--                    enviar whatsapp dcotor y paciente-->
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'HematologiaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.hematologia?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 1)">
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'HematologiaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.hematologia?.code && ($store.user.role === 'Administrador' || hasPermission('HEMATOLOGÍA'))">
                       <q-item-section avatar>
                         <q-icon name="fa-brands fa-whatsapp" />
                       </q-item-section>
@@ -97,7 +97,7 @@
                         <!--                        <pre>{{solicitud.doctor_telefono}}</pre>-->
                       </q-item-section>
                     </q-item>
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'HematologiaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.hematologia?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 1)">
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'HematologiaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.hematologia?.code && ($store.user.role === 'Administrador' || hasPermission('HEMATOLOGÍA'))">
                       <q-item-section avatar>
                         <q-icon name="fa-brands fa-whatsapp" />
                       </q-item-section>
@@ -107,7 +107,7 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-separator spaced v-if="$store.user.role === 'Administrador' || $store.user.area_id === 1" />
+                    <q-separator spaced v-if="$store.user.role === 'Administrador' || hasPermission('HEMATOLOGÍA')" />
 
 <!--                    &lt;!&ndash; QUÍMICA SANGUÍNEA &ndash;&gt;-->
 <!--                    <q-item clickable @click="$router.push({ name: 'analitica-quimica-sanguinia', params: { id: solicitud.id } })" v-close-popup dense>-->
@@ -131,7 +131,7 @@
 
 
                     <!-- QUÍMICA SANGUÍNEA -->
-                    <q-item clickable @click="$router.push({ name: 'analitica-quimica-sanguinia', params: { id: solicitud.id } })" v-close-popup dense v-if="$store.user.role === 'Administrador' || $store.user.area_id === 2">
+                    <q-item clickable @click="$router.push({ name: 'analitica-quimica-sanguinia', params: { id: solicitud.id } })" v-close-popup dense v-if="$store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA')">
                       <q-item-section avatar><q-icon name="science" /></q-item-section>
                       <q-item-section>Química Sanguínea</q-item-section>
                     </q-item>
@@ -140,7 +140,7 @@
 <!--                    </q-item>-->
 
                     <!-- SUBMENÚ: IMPRESIÓN -->
-                    <q-item dense  class="cursor-pointer" v-if="solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 2)">
+                    <q-item dense  class="cursor-pointer" v-if="solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
                       <q-item-section avatar>
                         <q-icon name="print" />
                       </q-item-section>
@@ -183,19 +183,19 @@
                       </q-menu>
                     </q-item>
                     <!-- WhatsApp Química -->
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'QuimicaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 2)">
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'QuimicaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
                       <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
                       <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
                     </q-item>
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'QuimicaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 2)">
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'QuimicaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
                       <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
                       <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
                     </q-item>
 
-                    <q-separator spaced v-if="$store.user.role === 'Administrador' || $store.user.area_id === 2" />
+                    <q-separator spaced v-if="$store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA')" />
 
                     <!-- UROANÁLISIS -->
-                    <q-item clickable @click="$router.push({ name: 'analitica-uroanalisis', params: { id: solicitud.id } })" v-close-popup dense v-if="$store.user.role === 'Administrador' || $store.user.area_id === 3">
+                    <q-item clickable @click="$router.push({ name: 'analitica-uroanalisis', params: { id: solicitud.id } })" v-close-popup dense v-if="$store.user.role === 'Administrador' || hasPermission('UROANÁLISIS')">
                       <q-item-section avatar><q-icon name="water_drop" /></q-item-section>
                       <q-item-section>
                         Uroanálisis
@@ -203,45 +203,45 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable @click="printUroanalisis(solicitud)" v-close-popup dense v-if="solicitud.uroanalisis?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 3)">
+                    <q-item clickable @click="printUroanalisis(solicitud)" v-close-popup dense v-if="solicitud.uroanalisis?.code && ($store.user.role === 'Administrador' || hasPermission('UROANÁLISIS'))">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Uroanálisis</q-item-section>
                     </q-item>
 
                     <!-- WhatsApp Uroanálisis -->
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'UroanalisisDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.uroanalisis?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 3)">
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'UroanalisisDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.uroanalisis?.code && ($store.user.role === 'Administrador' || hasPermission('UROANÁLISIS'))">
                       <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
                       <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
                     </q-item>
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'UroanalisisPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.uroanalisis?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 3)">
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'UroanalisisPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.uroanalisis?.code && ($store.user.role === 'Administrador' || hasPermission('UROANÁLISIS'))">
                       <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
                       <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
                     </q-item>
 
-                    <q-separator spaced v-if="$store.user.role === 'Administrador' || $store.user.area_id === 3" />
+                    <q-separator spaced v-if="$store.user.role === 'Administrador' || hasPermission('UROANÁLISIS')" />
 
                     <!-- PARASITOLOGÍA -->
-                    <q-item clickable @click="$router.push({ name: 'analitica-parasitologia', params: { id: solicitud.id } })" v-close-popup dense v-if="$store.user.role === 'Administrador' || $store.user.area_id === 3">
+                    <q-item clickable @click="$router.push({ name: 'analitica-parasitologia', params: { id: solicitud.id } })" v-close-popup dense v-if="$store.user.role === 'Administrador' || hasPermission('UROANÁLISIS')">
                       <q-item-section avatar><q-icon name="bug_report" /></q-item-section>
                       <q-item-section>Parasitología</q-item-section>
                     </q-item>
 
-                    <q-item clickable @click="printParasitologia(solicitud)" v-close-popup dense v-if="solicitud.parasitologia?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 3)">
+                    <q-item clickable @click="printParasitologia(solicitud)" v-close-popup dense v-if="solicitud.parasitologia?.code && ($store.user.role === 'Administrador' || hasPermission('UROANÁLISIS'))">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Parasitología</q-item-section>
                     </q-item>
 
                     <!-- WhatsApp Parasitología -->
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'ParasitologiaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.parasitologia?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 3)">
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'ParasitologiaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.parasitologia?.code && ($store.user.role === 'Administrador' || hasPermission('UROANÁLISIS'))">
                       <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
                       <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
                     </q-item>
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'ParasitologiaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.parasitologia?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 3)">
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'ParasitologiaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.parasitologia?.code && ($store.user.role === 'Administrador' || hasPermission('UROANÁLISIS'))">
                       <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
                       <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
                     </q-item>
 
-                    <q-separator spaced  v-if="$store.user.role === 'Administrador' || $store.user.area_id === 3" />
+                    <q-separator spaced  v-if="$store.user.role === 'Administrador' || hasPermission('UROANÁLISIS')" />
 
                     <!-- PAPILOMA HUMANO -->
 <!--                    <q-item clickable @click="$router.push({ name: 'analitica-papiloma-humano', params: { id: solicitud.id } })" v-close-popup dense>-->
@@ -299,24 +299,24 @@
 <!--                    <q-item>-->
 <!--                      <pre>{{$store.user}}</pre>-->
 <!--                    </q-item>-->
-                    <q-item clickable @click="$router.push({ name: 'analitica-inmunologia', params: { id: solicitud.id } })" v-close-popup dense v-if="$store.user.role === 'Administrador' || $store.user.area_id === 6">
+                    <q-item clickable @click="$router.push({ name: 'analitica-inmunologia', params: { id: solicitud.id } })" v-close-popup dense v-if="$store.user.role === 'Administrador' || hasPermission('INMUNOLOGÍA')">
                       <q-item-section avatar><q-icon name="shield" /></q-item-section>
                       <q-item-section>
                         Inmunología
                         <!--                        <pre>{{solicitud}}</pre>-->
                       </q-item-section>
                     </q-item>
-                    <q-item clickable @click="printInmunologia(solicitud)" v-close-popup dense v-if="solicitud.inmunologia?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 6)">
+                    <q-item clickable @click="printInmunologia(solicitud)" v-close-popup dense v-if="solicitud.inmunologia?.code && ($store.user.role === 'Administrador' || hasPermission('INMUNOLOGÍA'))">
                       <q-item-section avatar><q-icon name="print" /></q-item-section>
                       <q-item-section>Imprimir Inmunología</q-item-section>
                     </q-item>
 
                     <!-- WhatsApp Inmunología (solo si hay "code"; si tu backend no usa code, ajusta aquí) -->
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'InmunologiaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.inmunologia?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 6)">
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'InmunologiaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.inmunologia?.code && ($store.user.role === 'Administrador' || hasPermission('INMUNOLOGÍA'))">
                       <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
                       <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
                     </q-item>
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'InmunologiaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.inmunologia?.code && ($store.user.role === 'Administrador' || $store.user.area_id === 6)">
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'InmunologiaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.inmunologia?.code && ($store.user.role === 'Administrador' || hasPermission('INMUNOLOGÍA'))">
                       <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
                       <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
                     </q-item>
@@ -324,7 +324,7 @@
 <!--                      <pre>{{$store.user}}</pre>-->
 <!--                    </q-item>-->
 
-                    <q-item dense class="cursor-pointer" v-if="($store.user.role === 'Administrador' || $store.user.area_id === 7)">
+                    <q-item dense class="cursor-pointer" v-if="($store.user.role === 'Administrador' || hasPermission('BIOLOGÍA MOLECULAR'))">
                       <q-item-section avatar>
                         <q-icon name="print" />
                       </q-item-section>
@@ -427,22 +427,24 @@
 <!--                  Muestra Rechazada-->
 <!--                </q-chip>-->
 <!--              </td>-->
-              <td>
-                <ul style="padding-left: 1em; margin: 0;list-style: none">
-                  <li v-for="servicio in solicitud.servicios" :key="servicio.id" style="text-decoration: none">
-<!--                    icono verde de epntinte pque;o-->
-<!--                    <q-icon name="check_circle" color="green" size="12px" class="q-mr-xs" />-->
-<!--                    rojo-->
-<!--                    <q-icon name="cancel" color="orange" size="12px" class="q-mr-xs"/>-->
-<!--                    <pre>{{servicio.pivot.realizado}}</pre>-->
-                    <q-icon name="cancel" color="orange" size="12px" class="q-mr-xs" v-if="servicio.pivot.realizado === 'PENDIENTE'"/>
-                    <q-icon name="check_circle" color="green" size="12px" class="q-mr-xs" v-else/>
-                    {{ $filters.textCapitalize(servicio.nombre) }} - {{ $filters.textCapitalize(servicio.precio) }} -
-                    <span class="text-grey" style="font-size: 0.8em;">
+              <td >
+                <div style="border: 1px solid rgba(34,103,182,0.62); border-radius: 4px; padding: 2px;">
+                  <ul style="padding-left: 1em; margin: 0;list-style: none">
+                    <li v-for="servicio in solicitud.servicios" :key="servicio.id" style="text-decoration: none">
+                      <!--                    icono verde de epntinte pque;o-->
+                      <!--                    <q-icon name="check_circle" color="green" size="12px" class="q-mr-xs" />-->
+                      <!--                    rojo-->
+                      <!--                    <q-icon name="cancel" color="orange" size="12px" class="q-mr-xs"/>-->
+                      <!--                    <pre>{{servicio.pivot.realizado}}</pre>-->
+                      <q-icon name="cancel" color="orange" size="12px" class="q-mr-xs" v-if="servicio.pivot.realizado === 'PENDIENTE'"/>
+                      <q-icon name="check_circle" color="green" size="12px" class="q-mr-xs" v-else/>
+                      {{ $filters.textCapitalize(servicio.nombre) }} - {{ $filters.textCapitalize(servicio.precio) }} -
+                      <span class="text-grey" style="font-size: 0.8em;">
                       {{$filters.textCapitalize(servicio.area.name)}}
                     </span>
-                  </li>
-                </ul>
+                    </li>
+                  </ul>
+                </div>
               </td>
             </tr>
             </tbody>
@@ -479,6 +481,9 @@ export default {
     // }
   },
   methods: {
+    hasPermission(perm) {
+        return this.$store.permissions.includes(perm)
+    },
     printQuimica (solicitud) {
       const url = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${solicitud.quimica_sanguinea?.code}/pdf`
       window.open(url, '_blank')

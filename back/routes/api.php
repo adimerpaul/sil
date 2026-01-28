@@ -127,7 +127,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('reportes/consentimientos', [ConsentimientoController::class, 'reporte']);
     Route::get('reportes/solicitudes-servicios', [SolicitudeController::class, 'reporteSolicitudesServicios']);
 
-
+    Route::post('solicitudes/{id}/marcar-muestra-no-tomada', [SolicitudeController::class, 'marcarMuestraNoTomada']);
 
 });
 Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);

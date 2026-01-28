@@ -87,7 +87,8 @@ return new class extends Migration
             $table->string('muestra_sangre_entera')->nullable();      // ACEPTADA / RECHAZADA
             $table->string('muestra_coagulo')->nullable();            // SI / NO
             $table->string('muestra_volumen')->nullable();            // SI / NO
-            $table->string('muestra_identificacion')->nullable();     // ADECUADA / INADECUADA
+            $table->string('muestra_identificacion')->nullable();
+            $table->string('motivo_rechazo')->nullable();
 
             // Equipo (Mindray C3510 / Mindray 5000, etc.)
             $table->string('muestra_equipo')->nullable();

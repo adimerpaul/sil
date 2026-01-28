@@ -74,7 +74,8 @@ class Solicitude extends Model implements AuditableContract
         'muestra_observacion',
         'numero_factura',
         'iniciales',
-        'establecimiento_origen_id'
+        'establecimiento_origen_id',
+        'motivo_rechazo'
     ];
 
     protected $hidden = [
