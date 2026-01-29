@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Formularios;
+use App\Models\ServicioSolicitude;
 use App\Models\Solicitude;
 use App\Models\SolicitudeFormulario;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -72,6 +73,10 @@ class InmunologiaController extends Controller
                 'user_id' => $request->user()->id
             ]
         );
+        $areaIdHemato = 6;
+        ServicioSolicitude::where('solicitude_id', $solicitudeId)
+            ->where('area_id', $areaIdHemato)
+            ->update(['realizado' => 'REALIZADO']);
 
         return response()->json($row->load(['formulario', 'area']));
     }

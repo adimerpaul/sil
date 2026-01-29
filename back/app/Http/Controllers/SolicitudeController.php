@@ -30,6 +30,7 @@ class SolicitudeController extends Controller
 //        $solicitud->fecha_rechazo_muestra = now();
         $solicitud->user_preanalitica_id = $request->user() ? $request->user()->id : null;
         $solicitud->estado = 'MUESTRA NO TOMADA';
+        $solicitud->fecha_envio_analitica = now();
         $solicitud->save();
 
         return response()->json($solicitud->fresh());
@@ -408,41 +409,6 @@ class SolicitudeController extends Controller
     {
         $filter = $request->input('filter', '');
         $fecha = $request->input('fecha', '');
-
-//        public function hematologia()
-//    {
-//        return $this->hasOne(Hematologia::class);
-//    }
-//
-//        public function quimicaSanguinea()
-//    {
-//        return $this->hasOne(QuimicaSanguinea::class);
-//    }
-//
-//        public function uroanalisis()
-//    {
-//        return $this->hasOne(Uroanalisis::class);
-//    }
-//        function parasitologia()
-//        {
-//            return $this->hasOne(Parasitologia::class);
-//        }
-//        public function papilomaHumano()
-//    {
-//        return $this->hasOne(PapilomaHumano::class);
-//    }
-//        public function panelRespiratorio()
-//    {
-//        return $this->hasOne(PanelRespiratorio::class);
-//    }
-//        public function panelSexual()
-//    {
-//        return $this->hasOne(PanelSexual::class);
-//    }
-//        public function cultivoAntibiograma()
-//    {
-//        return $this->hasOne(CultivoAntibiograma::class);
-//    }
         $query = Solicitude::with([
             'paciente', 'doctor', 'servicios.area', 'resultados',
             'hematologia',
@@ -649,12 +615,44 @@ class SolicitudeController extends Controller
 //        'muestra_observacion',
         $solicitud->muestra_rechazada = 'No';
         $solicitud->muestra_observacion = null;
+        $solicitud->user_preanalitica_id = $request->user() ? $request->user()->id : null;
         $solicitud->save();
 
         return response()->json([
             'message' => 'Muestras preanalíticas actualizadas',
             'area_tipo_muestras' => $solicitud,
         ]);
+    }
+    function solicitudesAreaPreanaliticaEstado(Request $request){
+        $filter = $request->input('filter', '');
+        $fecha = $request->input('fecha', '');
+
+        $query = Solicitude::with([
+            'paciente',
+            'doctor',
+            'servicios.area.areaTipoMuestras',
+            'userPreanalitica',
+            'user',
+            'solicitudRechazadas.user',
+            'solicitudRechazadas.area',
+        ])
+            ->whereDate('fecha_creacion', $fecha)
+            ->whereIn('estado', ['ATENDIENDO','MUESTRA RECHAZADA','ENVIADO_ANALITICA','ANALIZADO','MUESTRA NO TOMADA']);
+
+
+        $query->orderByRaw("FIELD(estado, 'ATENDIENDO', 'ENVIADO_ANALITICA', 'ANALIZADO', 'MUESTRA RECHAZADA', 'MUESTRA NO TOMADA') ASC");
+
+        if (!empty($filter)) {
+            $query->whereHas('paciente', function ($q) use ($filter) {
+                $q->where('nombre_completo', 'like', "%$filter%")
+                    ->orWhere('ci', 'like', "%$filter%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 10);
+        $solicitudes = $query->orderBy('id', 'desc')->paginate($perPage);
+
+        return response()->json($solicitudes);
     }
 
     public function solicitudesAreaPreanalitica(Request $request)

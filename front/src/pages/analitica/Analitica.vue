@@ -67,6 +67,7 @@
               <th>Paciente</th>
               <th>CI</th>
               <th>Establecimiento</th>
+              <th>Estado</th>
               <th>Fecha Solicitud</th>
 <!--              <th>Estado</th>-->
               <th>Servicios</th>
@@ -414,6 +415,13 @@
               <td>{{ solicitud.paciente_nombre }}</td>
               <td>{{ solicitud.paciente_ci }}</td>
               <td>{{ solicitud.establecimiento_salud }}</td>
+              <td>
+<!--                {{ // solicitud.estado }}-->
+                <q-chip v-if="solicitud.estado === 'MUESTRA NO TOMADA'" color="red" text-color="white" dense>
+                  Muestra no tomada
+                </q-chip>
+                <div>{{solicitud.motivo_rechazo}}</div>
+              </td>
               <td>{{ solicitud.fecha_envio_analitica }}</td>
 <!--              <td>-->
 <!--                <q-chip v-if="solicitud.estado === 'ANALIZADO'" color="green" text-color="white" dense>-->

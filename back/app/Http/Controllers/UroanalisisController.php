@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ServicioSolicitude;
 use App\Models\Uroanalisis;
 use App\Models\Solicitude;
 use Illuminate\Http\Request;
@@ -49,6 +50,10 @@ class UroanalisisController extends Controller
             ],
             array_merge($data, ['user_id' => $request->user()->id])
         );
+        $areaIdHemato = 3;
+        ServicioSolicitude::where('solicitude_id', $solicitudeId)
+            ->where('area_id', $areaIdHemato)
+            ->update(['realizado' => 'REALIZADO']);
 
         $soliditude = Solicitude::find($solicitudeId);
         $soliditude->estado = 'ANALIZADO';

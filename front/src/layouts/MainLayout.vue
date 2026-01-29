@@ -188,14 +188,14 @@
           </q-item-section>
         </q-item>
 <!--        Preanalitca terminadoas-->
-<!--        <q-item dense to="/area-preanalitica-procesadas" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Area preanalitica')">-->
-<!--          <q-item-section avatar>-->
-<!--            <q-icon name="analytics" class="text-white"/>-->
-<!--          </q-item-section>-->
-<!--          <q-item-section>-->
-<!--            <q-item-label class="text-white">Preanalítica estados</q-item-label>-->
-<!--          </q-item-section>-->
-<!--        </q-item>-->
+        <q-item dense to="/area-preanalitica-procesadas" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Area preanalitica')">
+          <q-item-section avatar>
+            <q-icon name="analytics" class="text-white"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-white">Preanalítica estados</q-item-label>
+          </q-item-section>
+        </q-item>
         <q-item dense to="/analitica" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Analitica')">
           <q-item-section avatar>
             <q-icon name="biotech" class="text-white"/>

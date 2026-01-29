@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PanelSexual;
+use App\Models\ServicioSolicitude;
 use App\Models\Solicitude;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -64,6 +65,12 @@ class PanelSexualController extends Controller
             ],
             array_merge($data, ['user_id' => $request->user()->id])
         );
+
+        $solicitudeId = $id;
+        $areaIdHemato = 7;
+        ServicioSolicitude::where('solicitude_id', $solicitudeId)
+            ->where('area_id', $areaIdHemato)
+            ->update(['realizado' => 'REALIZADO']);
 
         return response()->json($registro);
     }

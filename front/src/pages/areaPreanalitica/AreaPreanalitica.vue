@@ -725,7 +725,6 @@
 <!--    dialogConsentimiento-->
     <q-dialog
       v-model="dialogConsentimiento"
-      persistent
       transition-show="jump-down"
       transition-hide="jump-up"
     >

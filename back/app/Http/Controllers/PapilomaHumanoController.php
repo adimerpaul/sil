@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PapilomaHumano;
+use App\Models\ServicioSolicitude;
 use App\Models\Solicitude;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -42,6 +43,11 @@ class PapilomaHumanoController extends Controller
             ],
             array_merge($data, ['user_id' => $request->user()->id])
         );
+        $solicitudeId = $id;
+        $areaIdHemato = 7;
+        ServicioSolicitude::where('solicitude_id', $solicitudeId)
+            ->where('area_id', $areaIdHemato)
+            ->update(['realizado' => 'REALIZADO']);
         $soliditude = Solicitude::find($id);
         $soliditude->estado = 'ANALIZADO';
         $soliditude->fecha_finalizacion = now();

@@ -121,7 +121,7 @@
                   dense
                   outlined
                   label="Equipo"
-                  :options="['Mindray C3510', 'Mindray 3000', 'Otro']"
+                  :options="['Mindray BC C3510', 'Mindray BC 3000 Plus', 'Otro']"
                 />
               </div>
             </div>

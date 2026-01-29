@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PanelRespiratorio;
+use App\Models\ServicioSolicitude;
 use App\Models\Solicitude;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -72,6 +73,11 @@ class PanelRespiratorioController extends Controller
         $soliditude->estado = 'ANALIZADO';
         $soliditude->fecha_finalizacion = now();
         $soliditude->save();
+        $solicitudeId = $id;
+        $areaIdHemato = 7;
+        ServicioSolicitude::where('solicitude_id', $solicitudeId)
+            ->where('area_id', $areaIdHemato)
+            ->update(['realizado' => 'REALIZADO']);
 
         return response()->json($registro);
     }

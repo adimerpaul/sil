@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Parasitologia;
+use App\Models\ServicioSolicitude;
 use App\Models\Solicitude;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -48,7 +49,10 @@ class ParasitologiaController extends Controller
             ],
             array_merge($data, ['user_id' => $request->user()->id])
         );
-
+        $areaIdHemato = 4;
+        ServicioSolicitude::where('solicitude_id', $solicitudeId)
+            ->where('area_id', $areaIdHemato)
+            ->update(['realizado' => 'REALIZADO']);
         $soliditude = Solicitude::find($solicitudeId);
         $soliditude->estado = 'ANALIZADO';
         $soliditude->fecha_finalizacion = now();
