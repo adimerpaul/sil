@@ -42,7 +42,7 @@ class Parasitologia extends Model implements AuditableContract
 
     protected $hidden = [
         'deleted_at',
-        'created_at',
+//        'created_at',
         'updated_at',
     ];
     protected static function booted()

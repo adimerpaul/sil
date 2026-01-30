@@ -53,6 +53,11 @@ class Uroanalisis extends Model implements AuditableContract{
         'valor_morfologia2',
         'user_id',
     ];
+    protected $hidden = [
+//        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
 
     public function solicitude()
     {

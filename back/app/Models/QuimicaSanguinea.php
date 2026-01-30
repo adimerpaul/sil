@@ -121,7 +121,7 @@ class QuimicaSanguinea extends Model implements AuditableContract
 
     protected $hidden = [
         'deleted_at',
-        'created_at',
+//        'created_at',
         'updated_at',
     ];
 
