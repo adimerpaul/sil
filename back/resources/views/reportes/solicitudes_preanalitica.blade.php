@@ -38,6 +38,10 @@
         .w-estab { width: 12%; }
         .w-tipo { width: 4%; }
         .w-n { width: 3%; }
+        .head-blue {
+            background-color: #1b62a9;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -55,18 +59,18 @@
 <table>
     <thead>
     <tr>
-        <th class="w-fecha">F. Solicitud</th>
-        <th class="w-fecha">F. Envío</th>
-        <th class="w-estado">Estado</th>
-        <th class="w-paciente">Paciente</th>
-        <th class="w-ci">CI</th>
-        <th class="w-codigo">Código</th>
-        <th class="w-reg">Nro Registro</th>
-        <th class="w-medico">Médico</th>
-        <th class="w-prest">Prestaciones</th>
-        <th class="w-estab">Establecimiento</th>
-        <th class="w-tipo">Tipo</th>
-        <th class="w-n">#</th>
+        <th class="w-fecha head-blue">F. Solicitud</th>
+        <th class="w-fecha head-blue">F. Envío</th>
+        <th class="w-estado head-blue">Estado</th>
+        <th class="w-paciente head-blue">Paciente</th>
+        <th class="w-ci head-blue">CI</th>
+        <th class="w-codigo head-blue">Código</th>
+        <th class="w-reg head-blue">Nro Registro</th>
+        <th class="w-medico head-blue">Médico</th>
+        <th class="w-prest head-blue">Prestaciones</th>
+        <th class="w-estab head-blue">Establecimiento</th>
+        <th class="w-tipo head-blue">Tipo</th>
+        <th class="w-n head-blue">#</th>
     </tr>
     </thead>
 
