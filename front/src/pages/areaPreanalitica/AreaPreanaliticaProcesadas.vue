@@ -256,6 +256,9 @@
           </div>
         </template>
       </q-table>
+      <pre>
+        {{ rows }}
+      </pre>
     </q-card>
     <!--    dialogConsentimiento-->
     <q-dialog
@@ -714,6 +717,9 @@
 import moment from 'moment'
 import consentimientos from "pages/consentimientos/Consentimientos.vue";
 import { printSolicitudPreanalitica } from 'src/utils/printSolicitudPreanalitica'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+
 
 export default {
   name: 'AreaPreanaliticaPage',
@@ -839,15 +845,15 @@ export default {
     this.areasTipoMuestrasGet()
   },
   methods: {
-    imprimirSolicitud() {
-      console.log(this.rows)
-      // if (!this.rows) return
-      // printSolicitudPreanalitica({
-      //   solicitud: this.rows,
-      //   areasTipoMuestras: this.areas_tipo_muestras,
-      //   establecimientoNombre: this.consentimiento.establecimiento_salud || 'Hospital General',
-      //   areaNombre: 'Área Preanalítica'
-      // })
+    imprimirSolicitud () {
+      const base = this.$axios.defaults.baseURL // ej: http://tuapi/api
+      const qs = new URLSearchParams({
+        fecha: this.fecha || '',
+        filter: this.filter || ''
+      }).toString()
+
+      // abre en otra pestaña (stream del PDF)
+      window.open(`${base}/solicitudes-area-preanalitica/pdf?${qs}`, '_blank')
     },
     areasTipoMuestrasGet(){
       this.$axios.get('areas-tipo-muestras')

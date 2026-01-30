@@ -22,6 +22,50 @@ use Illuminate\Support\Facades\Http;
 
 class SolicitudeController extends Controller
 {
+    public function pdfPreanalitica(Request $request)
+    {
+        $fecha  = $request->query('fecha');          // YYYY-MM-DD
+        $filter = $request->query('filter', '');
+
+        // si no mandan fecha, usa hoy
+        if (!$fecha) {
+            $fecha = now()->toDateString();
+        }
+
+        $query = Solicitude::with([
+            'paciente',
+            'doctor',
+            'servicios',
+            'userPreanalitica',
+        ])
+            ->whereDate('fecha_creacion', $fecha)
+            ->whereIn('estado', ['ATENDIENDO','MUESTRA RECHAZADA','ENVIADO_ANALITICA','ANALIZADO','MUESTRA NO TOMADA'])
+            ->orderByRaw("FIELD(estado, 'ATENDIENDO', 'ENVIADO_ANALITICA', 'ANALIZADO', 'MUESTRA RECHAZADA', 'MUESTRA NO TOMADA') ASC")
+            ->orderBy('id', 'desc');
+
+        if (!empty($filter)) {
+            $query->where(function ($q) use ($filter) {
+                $q->where('paciente_nombre', 'like', "%$filter%")
+                    ->orWhereHas('paciente', function ($q2) use ($filter) {
+                        $q2->where('nombre_completo', 'like', "%$filter%")
+                            ->orWhere('ci', 'like', "%$filter%");
+                    })
+                    ->orWhere('establecimiento_salud', 'like', "%$filter%")
+                    ->orWhere('doctor_nombre', 'like', "%$filter%");
+            });
+        }
+
+        $rows = $query->get();
+
+        $pdf = Pdf::loadView('reportes.solicitudes_preanalitica', [
+            'fecha' => $fecha,
+            'filter' => $filter,
+            'rows' => $rows,
+            'generado' => now(),
+        ])->setPaper('letter', 'landscape'); // igual que tu jsPDF landscape letter
+
+        return $pdf->stream("solicitudes_preanalitica_{$fecha}.pdf");
+    }
     function marcarMuestraNoTomada(Request $request, $id)
     {
         $solicitud = Solicitude::findOrFail($id);

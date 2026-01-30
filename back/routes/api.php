@@ -131,6 +131,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('solicitudes/{id}/marcar-muestra-no-tomada', [SolicitudeController::class, 'marcarMuestraNoTomada']);
 
 });
+Route::get('solicitudes-area-preanalitica/pdf', [SolicitudeController::class, 'pdfPreanalitica']);
 Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);
 Route::get('public/reportes/{codigo}', [SolicitudeController::class, 'imprimirAnaliticaPublica'])
     ->name('solicitudes.analitica.publica');
