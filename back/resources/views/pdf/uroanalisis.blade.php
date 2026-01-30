@@ -81,7 +81,7 @@
         <td class="col">
             @includeWhen(false, 'noop') {{-- solo para evitar warnings en algunos editores --}}
             @php $side = 'left'; @endphp
-            {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud])->render() !!}
+            {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud, 'fecha_solicitud'=>$u->created_at])->render() !!}
 
             <div class="section center" style="margin-top:4px; font-weight:700; font-size:9px;">
                 UROANÁLISIS

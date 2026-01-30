@@ -50,7 +50,7 @@
     @foreach(['left'] as $side)
         <div  style="margin: 10px 6px;height: 49%">
 
-            {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud])->render() !!}
+            {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud, 'fecha_solicitud'=>$p->created_at])->render() !!}
 
             <div class="section center" style="margin-top:20px; font-weight:700; font-size:12px;">
                 PARASITOLOGÍA

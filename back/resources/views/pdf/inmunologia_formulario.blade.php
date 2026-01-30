@@ -64,7 +64,7 @@
     @foreach(['left','right'] as $side)
         <div class="half half-{{ $side }}" style="margin: 10px 6px;">
 
-            {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud])->render() !!}
+            {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud, 'fecha_solicitud'=>$row->created_at])->render() !!}
 
             <div class="center" style="margin-top:6px; font-weight:700; font-size:10px;">
                 INMUNOLOGÍA · {{ $row->nombre ?? 'FORMULARIO' }}

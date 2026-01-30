@@ -116,6 +116,6 @@
         <td><span class="label">EST. DE SALUD:</span></td>
         <td colspan="3"><div class="line clip">{{ $solicitud->establecimiento_salud ?? '-' }}</div></td>
         <td colspan="2"><span class="label">FECHA DE RESULTADO:</span></td>
-        <td colspan="2"><div class="line clip">{{ $solicitud->fecha_finalizacion ?? '-' }}</div></td>
+        <td colspan="2"><div class="line clip">{{ $fecha_solicitud ?? '-' }}</div></td>
     </tr>
 </table>

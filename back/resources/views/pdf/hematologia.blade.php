@@ -162,7 +162,7 @@
 
 <div class="block">
 {{--    @include('components.header', ['solicitud' => $solicitud])--}}
-    {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud])->render() !!}
+    {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud, 'fecha_solicitud'=>$hematologia->created_at])->render() !!}
 
 
     <div class="center" style="margin-top:20px; font-weight:700; font-size:12px;">
