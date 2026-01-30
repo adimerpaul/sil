@@ -62,6 +62,7 @@
         <q-chip class="line clip" color="blue" text-color="white" size="xs">
           {{ tiempoTranscurrido }}
         </q-chip>
+<!--        {{fecha_fin}}-->
       </div>
     </div>
   </q-card-section>
@@ -96,14 +97,22 @@ export default {
       required: false,
       default: null,
     },
+    fecha_fin: {
+      type: String,
+      required: false,
+      default: null,
+    },
+  },
+  mounted() {
+    // console.log('fecha_fin', this.fecha_fin);
   },
   computed: {
     tiempoTranscurrido() {
       if (!this.header || !this.header.fecha_solicitud) {
         return '-';
       }
-      const fechaSolicitud = moment(this.header.fecha_solicitud);
-      const ahora = moment();
+      const fechaSolicitud = moment(this.header.fecha_creacion);
+      const ahora = moment(this.fecha_fin || new Date());
       const duracion = moment.duration(ahora.diff(fechaSolicitud));
 
       const dias = duracion.days();

@@ -42,7 +42,8 @@
 
       <q-separator />
 
-      <InfoServicio :header="header" />
+      <InfoServicio :header="header" :fecha_fin="form.created_at" />
+<!--      <pre>{{form}}</pre>-->
       <q-inner-loading :showing="loading && !formLoaded">
         <q-spinner size="42px" />
       </q-inner-loading>
@@ -52,6 +53,71 @@
     <q-card flat bordered>
       <q-card-section class="q-pa-sm">
         <q-form @submit.prevent="onSubmit">
+          <div>
+            <div class="section-title q-mb-xs">Observaciones / Método / Equipo</div>
+
+            <!--            <q-input-->
+            <!--              v-model="form.observaciones"-->
+            <!--              type="textarea"-->
+            <!--              dense outlined autogrow-->
+            <!--              class="bg-white q-mb-sm"-->
+            <!--              placeholder="Observaciones clínicas relevantes…"-->
+            <!--            />-->
+
+            <div class="row q-col-gutter-sm q-mb-md">
+              <div class="col-12 col-md-4">
+                <div class="section-title q-mb-xs">Muestra rechazada</div>
+
+                <q-toggle v-model="form.muestra_rechazada" label="¿Muestra rechazada?" true-value="Si" false-value="No"
+                          @update:model-value="form.muestra_observacion = ''"
+                />
+              </div>
+              <div class="col-12 col-md-4" v-if="form.muestra_rechazada === 'Si'">
+                <div class="section-title q-mb-xs">Observación</div>
+                <q-input
+                  v-model="form.muestra_observacion"
+                  type="textarea"
+                  dense
+                  outlined
+                  label="Observación de la muestra"
+                />
+              </div>
+              <div class="col-12"></div>
+              <div class="col-12 col-sm-4">
+                <q-select
+                  v-model="form.metodo"
+                  :options="['Automática', 'SemiAutomática', 'Manual']"
+                  dense
+                  outlined
+                  clearable
+                  class="bg-white"
+                  label="Método"
+                />
+              </div>
+              <div class="col-12 col-sm-8">
+                <!--                <q-input v-model="form.equipo" dense outlined class="bg-white" label="Equipo" />-->
+                <!--                •	Mindray 240 –STAT FAX 4500-RADIOMETER-->
+                <q-select
+                  v-model="form.equipo"
+                  :options="[
+                    'Mindray 240 –STAT FAX 4500-RADIOMETER',
+                    'Otros'
+                  ]"
+                  dense outlined
+                  label="Equipo"
+                  clearable
+                />
+              </div>
+              <div class="col-12 col-md-4">
+                <q-input
+                  v-if="form.equipo === 'Otros'"
+                  v-model="form.equipo_otro"
+                  dense outlined
+                  label="Especifique otro equipo"
+                />
+              </div>
+            </div>
+          </div>
 
           <!-- =======================
                QUÍMICA BÁSICA / RENAL
@@ -838,74 +904,6 @@
               </tbody>
             </q-markup-table>
           </div>
-
-          <!-- =======================
-               OBSERVACIONES / MÉTODO / EQUIPO
-               ======================= -->
-          <div>
-            <div class="section-title q-mb-xs">Observaciones / Método / Equipo</div>
-
-<!--            <q-input-->
-<!--              v-model="form.observaciones"-->
-<!--              type="textarea"-->
-<!--              dense outlined autogrow-->
-<!--              class="bg-white q-mb-sm"-->
-<!--              placeholder="Observaciones clínicas relevantes…"-->
-<!--            />-->
-
-            <div class="row q-col-gutter-sm q-mb-md">
-              <div class="col-12 col-sm-4">
-                <q-select
-                  v-model="form.metodo"
-                  :options="['Automática', 'SemiAutomática', 'Manual']"
-                  dense
-                  outlined
-                  clearable
-                  class="bg-white"
-                  label="Método"
-                />
-              </div>
-              <div class="col-12 col-sm-8">
-<!--                <q-input v-model="form.equipo" dense outlined class="bg-white" label="Equipo" />-->
-<!--                •	Mindray 240 –STAT FAX 4500-RADIOMETER-->
-                <q-select
-                  v-model="form.equipo"
-                  :options="[
-                    'Mindray 240 –STAT FAX 4500-RADIOMETER',
-                    'Otros'
-                  ]"
-                  dense outlined
-                  label="Equipo"
-                  clearable
-                />
-              </div>
-              <div class="col-12 col-md-4">
-                <q-input
-                  v-if="form.equipo === 'Otros'"
-                  v-model="form.equipo_otro"
-                  dense outlined
-                  label="Especifique otro equipo"
-                />
-              </div>
-              <div class="col-12 col-md-4">
-                <div class="section-title q-mb-xs">Muestra rechazada</div>
-
-                <q-toggle v-model="form.muestra_rechazada" label="¿Muestra rechazada?" true-value="Si" false-value="No"
-                          @update:model-value="form.muestra_observacion = ''"
-                />
-              </div>
-              <div class="col-12 col-md-4" v-if="form.muestra_rechazada === 'Si'">
-                <div class="section-title q-mb-xs">Observación</div>
-                <q-input
-                  v-model="form.muestra_observacion"
-                  type="textarea"
-                  dense
-                  outlined
-                  label="Observación de la muestra"
-                />
-              </div>
-            </div>
-          </div>
 <!--          CITOQUIMICO-->
 
 <!--          CANTIDAD: 4  ml-->
@@ -930,7 +928,10 @@
               'CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS'
             ])"
           >
-            <div class="section-title q-mb-xs">Citoquímico</div>
+            <div class="section-title q-mb-xs">
+              Citoquímico
+<!--              <q-input v-model="form.citoquimico_observaciones" dense outlined placeholder="Observaciones" class="q-ml-md" style="width: 300px;" />-->
+            </div>
 <!--            EXAMEN FISICO-->
 <!--            CANTIDAD: 4  ml-->
 <!--            COLOR: AMARILLO-->
@@ -992,81 +993,34 @@
                 <td>{{ rangoTexto('Aspecto') }}</td>
                 <td>{{ rangoUnidad('Aspecto') }}</td>
               </tr>
-<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
-<!--                <td>Glucosa</td>-->
-<!--                <td>-->
-<!--                  <q-input v-model.number="form.citoquimico_glucosa" dense outlined type="number" step="0.01"-->
-<!--                           :input-class="inputRangeClass('Glucosa', form.citoquimico_glucosa)" />-->
-<!--                </td>-->
-<!--                <td>{{ rangoTexto('Glucosa') }}</td>-->
-<!--                <td>{{ rangoUnidad('Glucosa') }}</td>-->
-<!--              </tr>-->
-<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
-<!--                <td>pH</td>-->
-<!--                <td>-->
-<!--                  <q-input v-model.number="form.citoquimico_ph" dense outlined type="number" step="0.01"-->
-<!--                           :input-class="inputRangeClass('pH', form.citoquimico_ph)" />-->
-<!--                </td>-->
-<!--                <td>{{ rangoTexto('pH') }}</td>-->
-<!--                <td>{{ rangoUnidad('pH') }}</td>-->
-<!--              </tr>-->
-<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
-<!--                <td>Proteínas totales</td>-->
-<!--                <td>-->
-<!--                  <q-input v-model.number="form.citoquimico_proteinas_totales" dense outlined type="number" step="0.01"-->
-<!--                           :input-class="inputRangeClass('Proteínas totales', form.citoquimico_proteinas_totales)" />-->
-<!--                </td>-->
-<!--                <td>{{ rangoTexto('Proteínas totales') }}</td>-->
-<!--                <td>{{ rangoUnidad('Proteínas totales') }}</td>-->
-<!--              </tr>-->
-<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
-<!--                <td>Albumina</td>-->
-<!--                <td>-->
-<!--                  <q-input v-model.number="form.citoquimico_albumina" dense outlined type="number" step="0.01"-->
-<!--                           :input-class="inputRangeClass('Albumina', form.citoquimico_albumina)" />-->
-<!--                </td>-->
-<!--                <td>{{ rangoTexto('Albumina') }}</td>-->
-<!--                <td>{{ rangoUnidad('Albumina') }}</td>-->
-<!--              </tr>-->
-<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
-<!--                <td>LDH</td>-->
-<!--                <td>-->
-<!--                  <q-input v-model.number="form.citoquimico_ldh" dense outlined type="number" step="0.01"-->
-<!--                           :input-class="inputRangeClass('LDH', form.citoquimico_ldh)" />-->
-<!--                </td>-->
-<!--                <td>{{ rangoTexto('LDH') }}</td>-->
-<!--                <td>{{ rangoUnidad('LDH') }}</td>-->
-<!--              </tr>-->
-<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
-<!--                <td>Glóbulos blancos</td>-->
-<!--                <td>-->
-<!--                  <q-input v-model.number="form.citoquimico_globulos_blancos" dense outlined type="number" step="0.01"-->
-<!--                           :input-class="inputRangeClass('Glóbulos blancos', form.citoquimico_globulos_blancos)" />-->
-<!--                </td>-->
-<!--                <td>{{ rangoTexto('Glóbulos blancos') }}</td>-->
-<!--                <td>{{ rangoUnidad('Glóbulos blancos') }}</td>-->
-<!--              </tr>-->
-<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
-<!--                <td>Polimorfonucleares (%)</td>-->
-<!--                <td>-->
-<!--                  <q-input v-model.number="form.citoquimico_polimorfonucleares" dense outlined type="number" step="0.01"-->
-<!--                           :input-class="inputRangeClass('Polimorfonucleares (%)', form.citoquimico_polimorfonucleares)" />-->
-<!--                </td>-->
-<!--                <td>{{ rangoTexto('Polimorfonucleares (%)') }}</td>-->
-<!--                <td>{{ rangoUnidad('Polimorfonucleares (%)') }}</td>-->
-<!--              </tr>-->
-<!--              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">-->
-<!--                <td>Mononucleares (%)</td>-->
-<!--                <td>-->
-<!--                  <q-input v-model.number="form.citoquimico_mononucleares" dense outlined type="number" step="0.01"-->
-<!--                           :input-class="inputRangeClass('Mononucleares (%)', form.citoquimico_mononucleares)" />-->
-<!--                </td>-->
-<!--                <td>{{ rangoTexto('Mononucleares (%)') }}</td>-->
-<!--                <td>{{ rangoUnidad('Mononucleares (%)') }}</td>-->
-<!--              </tr>-->
               </tbody>
               <div  class="section-title q-mb-xs">EXAMEN QUIMICO</div>
               <tbody>
+              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
+                <td>pH</td>
+                <td>
+                  <!--                  <q-input v-model.number="form.citoquimico_ph" dense outlined type="number" step="0.01"-->
+                  <!--                           :input-class="inputRangeClass('pH', form.citoquimico_ph)" />-->
+                  <!--                  :options="['pH 5.0 ácido', 'pH 5.5 ácido', 'pH 6.0 ácido', 'pH 6.5 neutro', 'pH 7.0 neutro', 'pH 7.5 neutro', 'pH 8.0 alcalino', 'pH 8.5 alcalino', 'pH 9.0 alcalino']"-->
+                  <q-select v-model="form.citoquimico_ph" :options="['pH 5.0 ácido', 'pH 5.5 ácido', 'pH 6.0 ácido', 'pH 6.5 ácido', 'pH 7.0 neutro', 'pH 7.5 alcalino', 'pH 8.0 alcalino', 'pH 8.5 alcalino', 'pH 9.0 alcalino']" dense outlined
+                            placeholder="Seleccione el pH" />
+                </td>
+                <td>{{ rangoTexto('pH') }}</td>
+                <td>{{ rangoUnidad('pH') }}</td>
+              </tr>
+              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
+                <td>Densidad</td>
+                <td>
+                  <!--                  <q-input v-model.number="form.citoquimico_densidad" dense outlined type="number" step="0.001"-->
+                  <!--                           :input-class="inputRangeClass('Densidad', form.citoquimico_densidad)" />-->
+                  <!--                  :options="[1.000, 1.005, 1.010, 1.015, 1.020, 1.025, 1.030]"-->
+                  <q-select v-model="form.citoquimico_densidad" :options="['1.005', '1.010', '1.015', '1.020', '1.025', '1.030']" dense outlined
+                            placeholder="Seleccione la densidad" />
+
+                </td>
+                <td>{{ rangoTexto('Densidad') }}</td>
+                <td>{{ rangoUnidad('Densidad') }}</td>
+              </tr>
               <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
                 <td>Glucosa</td>
                 <td>
@@ -1087,18 +1041,6 @@
                 <td>{{ rangoUnidad('Glucosa') }}</td>
               </tr>
               <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
-                <td>pH</td>
-                <td>
-<!--                  <q-input v-model.number="form.citoquimico_ph" dense outlined type="number" step="0.01"-->
-<!--                           :input-class="inputRangeClass('pH', form.citoquimico_ph)" />-->
-<!--                  :options="['pH 5.0 ácido', 'pH 5.5 ácido', 'pH 6.0 ácido', 'pH 6.5 neutro', 'pH 7.0 neutro', 'pH 7.5 neutro', 'pH 8.0 alcalino', 'pH 8.5 alcalino', 'pH 9.0 alcalino']"-->
-                  <q-select v-model="form.citoquimico_ph" :options="['pH 5.0 ácido', 'pH 5.5 ácido', 'pH 6.0 ácido', 'pH 6.5 neutro', 'pH 7.0 neutro', 'pH 7.5 neutro', 'pH 8.0 alcalino', 'pH 8.5 alcalino', 'pH 9.0 alcalino']" dense outlined
-                            placeholder="Seleccione el pH" />
-                </td>
-                <td>{{ rangoTexto('pH') }}</td>
-                <td>{{ rangoUnidad('pH') }}</td>
-              </tr>
-              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
                 <td>Proteínas totales</td>
                 <td>
                   <q-input v-model.number="form.citoquimico_proteinas_totales" dense outlined type="number" step="0.01"
@@ -1108,19 +1050,6 @@
                 <td>{{ rangoUnidad('Proteínas totales') }}</td>
               </tr>
 <!--              densidad-->
-              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
-                <td>Densidad</td>
-                <td>
-<!--                  <q-input v-model.number="form.citoquimico_densidad" dense outlined type="number" step="0.001"-->
-<!--                           :input-class="inputRangeClass('Densidad', form.citoquimico_densidad)" />-->
-<!--                  :options="[1.000, 1.005, 1.010, 1.015, 1.020, 1.025, 1.030]"-->
-                  <q-select v-model="form.citoquimico_densidad" :options="[1.000, 1.005, 1.010, 1.015, 1.020, 1.025, 1.030]" dense outlined
-                            placeholder="Seleccione la densidad" />
-
-                </td>
-                <td>{{ rangoTexto('Densidad') }}</td>
-                <td>{{ rangoUnidad('Densidad') }}</td>
-              </tr>
               <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
                 <td>Albumina</td>
                 <td>

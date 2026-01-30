@@ -87,7 +87,7 @@
 <!--          </div>-->
 <!--        </div>-->
 <!--      </q-card-section>-->
-      <InfoServicio :header="header" />
+      <InfoServicio :header="header" :fecha_fin="form.created_at" />
 
       <q-inner-loading :showing="loading && !formLoaded">
         <q-spinner size="42px" />

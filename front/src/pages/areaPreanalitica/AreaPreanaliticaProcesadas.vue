@@ -342,7 +342,7 @@
                       Fecha recepción preanalítica
                     </div>
                     <div class="text-body2">
-                      {{ consentimiento.fecha_pre_analitica || '-' }}
+                      {{ consentimiento.fecha_envio_analitica || '-' }}
                     </div>
 
                     <div class="text-caption text-grey-7 q-mt-sm">
@@ -358,7 +358,7 @@
                         {{
                           tiempoAtencion(
                             consentimiento.fecha_creacion,
-                            consentimiento.fecha_pre_analitica
+                            consentimiento.fecha_envio_analitica
                           ) || 'No registrado'
                         }}
                       </q-chip>
@@ -552,160 +552,160 @@
       </q-card>
     </q-dialog>
     <!--    dialogRechazado-->
-    <q-dialog
-      v-model="dialogRechazado"
-      persistent
-      transition-show="jump-down"
-      transition-hide="jump-up"
-    >
-      <q-card class="q-pa-md" style="max-width: 95vh;width: 650px">
-        <div class="text-h6 text-center bg-grey-8 text-white">
-          SOLICITUDES CON MUESTRAS RECHAZADAS
-        </div>
-        <q-card-section class="q-pa-xs">
-          <q-markup-table
-            :rows="rows.filter(r => r.estado === 'MUESTRA RECHAZADA')"
-            :columns="columns"
-            row-key="id"
-            dense
-            flat
-            bordered
-          >
-            <thead>
-            <tr>
-              <!--              <th>Acciones</th>-->
-              <th>Fecha Solicitud</th>
-              <th>Estado</th>
-              <th>Paciente</th>
-              <th>Código</th>
-              <th>Médico Solicitante</th>
-              <!--                <th>Prestaciones</th>-->
-              <!--                <th>Establecimiento</th>-->
-              <!--                <th>Tipo atención</th>-->
-              <!--                <th># Prestaciones</th>-->
-              <!--                <th>Responsable Preanalítica</th>-->
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="row in rows.filter(r => r.estado === 'MUESTRA RECHAZADA')" :key="row.id">
-              <!--              <td>-->
-              <!--                <q-btn-->
-              <!--                  dense-->
-              <!--                  no-caps-->
-              <!--                  outline-->
-              <!--                  color="deep-purple-6"-->
-              <!--                  icon="confirmation_number"-->
-              <!--                  :label="row.codigo ? 'Ver código' : 'Generar código'"
+<!--    <q-dialog-->
+<!--      v-model="dialogRechazado"-->
+<!--      persistent-->
+<!--      transition-show="jump-down"-->
+<!--      transition-hide="jump-up"-->
+<!--    >-->
+<!--      <q-card class="q-pa-md" style="max-width: 95vh;width: 650px">-->
+<!--        <div class="text-h6 text-center bg-grey-8 text-white">-->
+<!--          SOLICITUDES CON MUESTRAS RECHAZADAS-->
+<!--        </div>-->
+<!--        <q-card-section class="q-pa-xs">-->
+<!--          <q-markup-table-->
+<!--            :rows="rows.filter(r => r.estado === 'MUESTRA RECHAZADA')"-->
+<!--            :columns="columns"-->
+<!--            row-key="id"-->
+<!--            dense-->
+<!--            flat-->
+<!--            bordered-->
+<!--          >-->
+<!--            <thead>-->
+<!--            <tr>-->
+<!--              &lt;!&ndash;              <th>Acciones</th>&ndash;&gt;-->
+<!--              <th>Fecha Solicitud</th>-->
+<!--              <th>Estado</th>-->
+<!--              <th>Paciente</th>-->
+<!--              <th>Código</th>-->
+<!--              <th>Médico Solicitante</th>-->
+<!--              &lt;!&ndash;                <th>Prestaciones</th>&ndash;&gt;-->
+<!--              &lt;!&ndash;                <th>Establecimiento</th>&ndash;&gt;-->
+<!--              &lt;!&ndash;                <th>Tipo atención</th>&ndash;&gt;-->
+<!--              &lt;!&ndash;                <th># Prestaciones</th>&ndash;&gt;-->
+<!--              &lt;!&ndash;                <th>Responsable Preanalítica</th>&ndash;&gt;-->
+<!--            </tr>-->
+<!--            </thead>-->
+<!--            <tbody>-->
+<!--            <tr v-for="row in rows.filter(r => r.estado === 'MUESTRA RECHAZADA')" :key="row.id">-->
+<!--              &lt;!&ndash;              <td>&ndash;&gt;-->
+<!--              &lt;!&ndash;                <q-btn&ndash;&gt;-->
+<!--              &lt;!&ndash;                  dense&ndash;&gt;-->
+<!--              &lt;!&ndash;                  no-caps&ndash;&gt;-->
+<!--              &lt;!&ndash;                  outline&ndash;&gt;-->
+<!--              &lt;!&ndash;                  color="deep-purple-6"&ndash;&gt;-->
+<!--              &lt;!&ndash;                  icon="confirmation_number"&ndash;&gt;-->
+<!--              &lt;!&ndash;                  :label="row.codigo ? 'Ver código' : 'Generar código'"-->
 
-              <!--                  @click.stop="onGenerarCodigo(row)"-->
-              <!--                />-->
-              <!--              </td>-->
-              <td>{{ row.fecha_creacion ? moment(row.fecha_creacion).format('DD/MM/YYYY HH:mm') : '' }}</td>
-              <td>
-                <q-chip
-                  dense
-                  :color="row.estado === 'CREADO' ? 'blue-6' : (row.estado === 'MUESTRA RECHAZADA'?'red-6':'grey-6')"
-                  text-color="white"
-                  icon="pending"
-                >
-                  {{ row.estado }}
-                </q-chip>
-              </td>
-              <td>
-                <div class="text-weight-medium">
-                  {{ row.paciente_nombre || row.paciente?.nombre_completo }}
-                </div>
-                <div class="text-caption text-grey-7">
-                  CI: {{ row.paciente_ci || row.paciente?.ci || '-' }}
-                </div>
-              </td>
-              <td>
-                <div v-if="row.codigo">
-                    <span class="text-bold">
-                      {{ row.codigo }} -
-                      {{ row.nro_registro }}
-                    </span>
-                </div>
-                <div v-else class="text-negative text-caption">
-                  Sin código
-                </div>
-              </td>
-              <td>
-                <!-- mostrar array de solicitudes rechazadas en formato json bonita -->
-                <div>
-                  <div class="text-weight-medium">
-                    {{row.solicitud_rechazadas.length}} motivos de rechazo <br>
-                    <small class="text-grey-7">
-                      <!--                        {{ row.solicitud_rechazadas.map(r => r.motivo).join('; ') }}-->
-                      <!--                        mostrar medico ara motivo-->
-                      {{ row.solicitud_rechazadas.map(r => r.motivo + ' (por: ' + (r.user?.name || 'Desconocido') + ')').join('; ') }}
-                      <br>
-                      {{ row.solicitud_rechazadas.map(r => 'Área: ' + (r.area?.title || 'Desconocida')).join('; ') }}
-                    </small>
-                  </div>
-                </div>
-                <!--                  <pre>{{row.solicitud_rechazadas}}</pre>-->
-                <!--                  [-->
-                <!--                  {-->
-                <!--                  "id": 1,-->
-                <!--                  "solicitude_id": 75,-->
-                <!--                  "motivo": "aas",-->
-                <!--                  "fecha_hora": "2026-01-14 05:41:26",-->
-                <!--                  "area_id": 1,-->
-                <!--                  "user_id": 1,-->
-                <!--                  "user": {-->
-                <!--                  "id": 1,-->
-                <!--                  "name": "Admin User",-->
-                <!--                  "username": "admin",-->
-                <!--                  "role": "Administrador",-->
-                <!--                  "area_id": 1,-->
-                <!--                  "avatar": "default.png",-->
-                <!--                  "email": "",-->
-                <!--                  "email_verified_at": null,-->
-                <!--                  "establecimiento_id": 1-->
-                <!--                  },-->
-                <!--                  "area": {-->
-                <!--                  "id": 1,-->
-                <!--                  "name": "HEMATOLOGÍA (Area 2)",-->
-                <!--                  "descripcion": "HEMATOLOGÍA (Area 2)",-->
-                <!--                  "title": "HEMATOLOGÍA",-->
-                <!--                  "estado": "ACTIVO"-->
-                <!--                  }-->
-                <!--                  }-->
-                <!--                  ]-->
-                <!--                  {{ row.doctor_nombre || row.doctor?.name || '' }}-->
-              </td>
-              <!--                <td>{{ row.servicios ? row.servicios.map(s => s.nombre).join(', ') : '' }}</td>-->
-              <!--                <td>{{ row.establecimiento_salud || '-' }}</td>-->
-              <!--                <td>-->
-              <!--                  <q-chip-->
-              <!--                    dense-->
-              <!--                    :color="row.tipo_atencion === 'SI' ? 'green-6' : 'orange-6'"-->
-              <!--                    text-color="white"-->
-              <!--                  >-->
-              <!--                    {{ row.tipo_atencion === 'SI' ? 'SUS' : row.tipo_otro || 'EXT' }}-->
-              <!--                  </q-chip>-->
-              <!--                </td>-->
-              <!--                <td class="text-center">-->
-              <!--                  <q-badge color="primary" :label="row.servicios ? row.servicios.length : 0" />-->
-              <!--                </td>-->
-              <!--                <td>{{ row.user_preanalitica ? row.user_preanalitica.name : 'No asignado' }}</td>-->
-            </tr>
-            </tbody>
-          </q-markup-table>
-        </q-card-section>
-        <q-card-actions align="center" class="bg-grey-1 q-mt-md">
-          <q-btn
-            flat
-            label="Cerrar"
-            color="primary"
-            icon="close"
-            v-close-popup
-            no-caps
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+<!--              &lt;!&ndash;                  @click.stop="onGenerarCodigo(row)"&ndash;&gt;-->
+<!--              &lt;!&ndash;                />&ndash;&gt;-->
+<!--              &lt;!&ndash;              </td>&ndash;&gt;-->
+<!--              <td>{{ row.fecha_creacion ? moment(row.fecha_creacion).format('DD/MM/YYYY HH:mm') : '' }}</td>-->
+<!--              <td>-->
+<!--                <q-chip-->
+<!--                  dense-->
+<!--                  :color="row.estado === 'CREADO' ? 'blue-6' : (row.estado === 'MUESTRA RECHAZADA'?'red-6':'grey-6')"-->
+<!--                  text-color="white"-->
+<!--                  icon="pending"-->
+<!--                >-->
+<!--                  {{ row.estado }}-->
+<!--                </q-chip>-->
+<!--              </td>-->
+<!--              <td>-->
+<!--                <div class="text-weight-medium">-->
+<!--                  {{ row.paciente_nombre || row.paciente?.nombre_completo }}-->
+<!--                </div>-->
+<!--                <div class="text-caption text-grey-7">-->
+<!--                  CI: {{ row.paciente_ci || row.paciente?.ci || '-' }}-->
+<!--                </div>-->
+<!--              </td>-->
+<!--              <td>-->
+<!--                <div v-if="row.codigo">-->
+<!--                    <span class="text-bold">-->
+<!--                      {{ row.codigo }} - -->
+<!--                      {{ row.nro_registro }}-->
+<!--                    </span>-->
+<!--                </div>-->
+<!--                <div v-else class="text-negative text-caption">-->
+<!--                  Sin código-->
+<!--                </div>-->
+<!--              </td>-->
+<!--              <td>-->
+<!--                &lt;!&ndash; mostrar array de solicitudes rechazadas en formato json bonita &ndash;&gt;-->
+<!--                <div>-->
+<!--                  <div class="text-weight-medium">-->
+<!--                    {{row.solicitud_rechazadas.length}} motivos de rechazo <br>-->
+<!--                    <small class="text-grey-7">-->
+<!--                      &lt;!&ndash;                        {{ row.solicitud_rechazadas.map(r => r.motivo).join('; ') }}&ndash;&gt;-->
+<!--                      &lt;!&ndash;                        mostrar medico ara motivo&ndash;&gt;-->
+<!--                      {{ row.solicitud_rechazadas.map(r => r.motivo + ' (por: ' + (r.user?.name || 'Desconocido') + ')').join('; ') }}-->
+<!--                      <br>-->
+<!--                      {{ row.solicitud_rechazadas.map(r => 'Área: ' + (r.area?.title || 'Desconocida')).join('; ') }}-->
+<!--                    </small>-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--                &lt;!&ndash;                  <pre>{{row.solicitud_rechazadas}}</pre>&ndash;&gt;-->
+<!--                &lt;!&ndash;                  [&ndash;&gt;-->
+<!--                &lt;!&ndash;                  {&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "id": 1,&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "solicitude_id": 75,&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "motivo": "aas",&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "fecha_hora": "2026-01-14 05:41:26",&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "area_id": 1,&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "user_id": 1,&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "user": {&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "id": 1,&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "name": "Admin User",&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "username": "admin",&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "role": "Administrador",&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "area_id": 1,&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "avatar": "default.png",&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "email": "",&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "email_verified_at": null,&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "establecimiento_id": 1&ndash;&gt;-->
+<!--                &lt;!&ndash;                  },&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "area": {&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "id": 1,&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "name": "HEMATOLOGÍA (Area 2)",&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "descripcion": "HEMATOLOGÍA (Area 2)",&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "title": "HEMATOLOGÍA",&ndash;&gt;-->
+<!--                &lt;!&ndash;                  "estado": "ACTIVO"&ndash;&gt;-->
+<!--                &lt;!&ndash;                  }&ndash;&gt;-->
+<!--                &lt;!&ndash;                  }&ndash;&gt;-->
+<!--                &lt;!&ndash;                  ]&ndash;&gt;-->
+<!--                &lt;!&ndash;                  {{ row.doctor_nombre || row.doctor?.name || '' }}&ndash;&gt;-->
+<!--              </td>-->
+<!--              &lt;!&ndash;                <td>{{ row.servicios ? row.servicios.map(s => s.nombre).join(', ') : '' }}</td>&ndash;&gt;-->
+<!--              &lt;!&ndash;                <td>{{ row.establecimiento_salud || '-' }}</td>&ndash;&gt;-->
+<!--              &lt;!&ndash;                <td>&ndash;&gt;-->
+<!--              &lt;!&ndash;                  <q-chip&ndash;&gt;-->
+<!--              &lt;!&ndash;                    dense&ndash;&gt;-->
+<!--              &lt;!&ndash;                    :color="row.tipo_atencion === 'SI' ? 'green-6' : 'orange-6'"&ndash;&gt;-->
+<!--              &lt;!&ndash;                    text-color="white"&ndash;&gt;-->
+<!--              &lt;!&ndash;                  >&ndash;&gt;-->
+<!--              &lt;!&ndash;                    {{ row.tipo_atencion === 'SI' ? 'SUS' : row.tipo_otro || 'EXT' }}&ndash;&gt;-->
+<!--              &lt;!&ndash;                  </q-chip>&ndash;&gt;-->
+<!--              &lt;!&ndash;                </td>&ndash;&gt;-->
+<!--              &lt;!&ndash;                <td class="text-center">&ndash;&gt;-->
+<!--              &lt;!&ndash;                  <q-badge color="primary" :label="row.servicios ? row.servicios.length : 0" />&ndash;&gt;-->
+<!--              &lt;!&ndash;                </td>&ndash;&gt;-->
+<!--              &lt;!&ndash;                <td>{{ row.user_preanalitica ? row.user_preanalitica.name : 'No asignado' }}</td>&ndash;&gt;-->
+<!--            </tr>-->
+<!--            </tbody>-->
+<!--          </q-markup-table>-->
+<!--        </q-card-section>-->
+<!--        <q-card-actions align="center" class="bg-grey-1 q-mt-md">-->
+<!--          <q-btn-->
+<!--            flat-->
+<!--            label="Cerrar"-->
+<!--            color="primary"-->
+<!--            icon="close"-->
+<!--            v-close-popup-->
+<!--            no-caps-->
+<!--          />-->
+<!--        </q-card-actions>-->
+<!--      </q-card>-->
+<!--    </q-dialog>-->
 
   </q-page>
 </template>
@@ -840,14 +840,14 @@ export default {
   },
   methods: {
     imprimirSolicitud() {
-      console.log('Consentimiento:', this.rows)
-      if (!this.rows) return
-      printSolicitudPreanalitica({
-        solicitud: this.rows,
-        areasTipoMuestras: this.areas_tipo_muestras,
-        establecimientoNombre: this.consentimiento.establecimiento_salud || 'Hospital General',
-        areaNombre: 'Área Preanalítica'
-      })
+      console.log(this.rows)
+      // if (!this.rows) return
+      // printSolicitudPreanalitica({
+      //   solicitud: this.rows,
+      //   areasTipoMuestras: this.areas_tipo_muestras,
+      //   establecimientoNombre: this.consentimiento.establecimiento_salud || 'Hospital General',
+      //   areaNombre: 'Área Preanalítica'
+      // })
     },
     areasTipoMuestrasGet(){
       this.$axios.get('areas-tipo-muestras')

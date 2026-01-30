@@ -89,7 +89,8 @@
 <!--          <td colspan="2"><div class="line clip">{{ $solicitud->fecha_finalizacion ?? '-' }}</div></td>-->
 <!--        </tr>-->
 <!--      </table>-->
-      <InfoServicio :header="header" />
+      <InfoServicio :header="header" :fecha_fin="form.created_at"/>
+<!--      <pre>{{form}}</pre>-->
 
       <q-inner-loading :showing="loading && !formLoaded">
         <q-spinner size="42px" />
@@ -103,6 +104,26 @@
           <!-- HEMOGRAMA BÁSICO -->
           <div class="section-title q-mb-xs">
             <div class="row">
+              <div class="col-12">
+                <div class="section-title q-mb-xs">Muestra rechazada</div>
+              </div>
+              <div class="col-12 col-md-4">
+
+                <q-toggle v-model="form.muestra_rechazada" label="¿Muestra rechazada?" true-value="Si" false-value="No"
+                          @update:model-value="form.muestra_observacion = ''"
+                />
+              </div>
+              <div class="col-12 col-md-4" v-if="form.muestra_rechazada === 'Si'">
+                <div class="section-title q-mb-xs">Observación</div>
+                <q-input
+                  v-model="form.muestra_observacion"
+                  type="textarea"
+                  dense
+                  outlined
+                  label="Observación de la muestra"
+                />
+              </div>
+              <div class="col-12"></div>
               <div class="col-12 col-md-3">
                 Hemograma
               </div>
@@ -121,7 +142,7 @@
                   dense
                   outlined
                   label="Equipo"
-                  :options="['Mindray BC C3510', 'Mindray BC 3000 Plus', 'Otro']"
+                  :options="['Mindray BC 5130', 'Mindray BC 3000 Plus', 'Otro']"
                 />
               </div>
             </div>
@@ -732,7 +753,7 @@
                   dense
                   outlined
                   label="Equipo"
-                  :options="['Mindray C3510', 'Mindray 3000', 'Otro']"
+                  :options="['Mindray BC 5130', 'Mindray BC 3000 Plus', 'Otro']"
                 />
               </div>
             </div>
@@ -995,7 +1016,7 @@
                 outlined
                 clearable
                 class="bg-white"
-                label="Grupo (ABO)"
+                label="Grupo"
               />
             </div>
 
@@ -1067,25 +1088,6 @@
                 outlined
                 class="bg-white q-mb-xs"
                 label="Especifique otro equipo"
-              />
-            </div>
-            <div class="col-12">
-              <div class="section-title q-mb-xs">Muestra rechazada</div>
-            </div>
-            <div class="col-12 col-md-4">
-
-              <q-toggle v-model="form.muestra_rechazada" label="¿Muestra rechazada?" true-value="Si" false-value="No"
-                        @update:model-value="form.muestra_observacion = ''"
-              />
-            </div>
-            <div class="col-12 col-md-4" v-if="form.muestra_rechazada === 'Si'">
-              <div class="section-title q-mb-xs">Observación</div>
-              <q-input
-                v-model="form.muestra_observacion"
-                type="textarea"
-                dense
-                outlined
-                label="Observación de la muestra"
               />
             </div>
           </div>

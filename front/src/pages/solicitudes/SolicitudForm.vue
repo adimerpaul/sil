@@ -743,6 +743,8 @@ export default {
 
     onChangeCi (val) {
       this.searchCi = val
+      const name = (this.solicitud.paciente_nombre || '').toUpperCase()
+      if (name.includes('RN')) return
       this.buscarPacientePorCi()
     },
 

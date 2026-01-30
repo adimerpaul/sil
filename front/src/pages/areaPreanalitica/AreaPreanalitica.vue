@@ -807,7 +807,7 @@
                       Fecha recepción preanalítica
                     </div>
                     <div class="text-body2">
-                      {{ consentimiento.fecha_pre_analitica || '-' }}
+                      {{ consentimiento.fecha_envio_analitica || '-' }}
                     </div>
 
                     <div class="text-caption text-grey-7 q-mt-sm">
@@ -823,7 +823,7 @@
                         {{
                           tiempoAtencion(
                             consentimiento.fecha_creacion,
-                            consentimiento.fecha_pre_analitica
+                            consentimiento.fecha_envio_analitica
                           ) || 'No registrado'
                         }}
                       </q-chip>

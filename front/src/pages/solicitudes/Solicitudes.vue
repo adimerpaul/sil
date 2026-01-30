@@ -147,7 +147,7 @@ export default {
         // codigo
         { name: 'codigo', label: 'Código', field: row => row.codigo + row.nro_registro },
         { name: 'fecha_solicitud', label: 'Fecha', field: row => row.fecha_solicitud, format: v => v || '' },
-        { name: 'paciente', label: 'Paciente', field: row => row.paciente?.nombre_completo || row.paciente_nombre || '' },
+        { name: 'paciente', label: 'Paciente', field: row => row?.paciente_nombre || row.paciente_nombre || '' },
         { name: 'doctor', label: 'Doctor', field: row => row.doctor?.nombre || row.doctor_nombre || '' },
         { name: 'tipo_atencion', label: 'Tipo atención', field: 'tipo_atencion' },
         { name: 'estado', label: 'Estado', field: 'estado' }
