@@ -480,13 +480,13 @@ export default {
   },
   mounted () {
     this.analiticaGet()
-    // if (!this.$store.socketAnalitica) {
-    //   this.$store.socketAnalitica = true
-    //   this.$socket.on('silSolicitud', msg => {
-    //     this.$alert.info('Nueva solicitud de analítica recibido.')
-    //     this.analiticaGet()
-    //   })
-    // }
+    if (!this.$store.socketAnalitica) {
+      this.$store.socketAnalitica = true
+      this.$socket.on('silSolicitud', msg => {
+        this.$alert.info('Nueva solicitud de analítica recibido.')
+        this.analiticaGet()
+      })
+    }
   },
   methods: {
     hasPermission(perm) {
