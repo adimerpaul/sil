@@ -2,6 +2,7 @@
   <q-page class="q-pa-md bg-grey-2">
     <!-- HEADER -->
     <div class="row items-center q-mb-md">
+
       <div class="col-12 col-md-6">
         <div class="text-h5 text-weight-bold">Dashboard de Solicitudes</div>
         <div class="text-caption text-grey-7">
