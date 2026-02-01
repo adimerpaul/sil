@@ -253,7 +253,7 @@
                       'text-right',
                       isOutOfRange('Hematocrito', form.hematocrito) ? 'text-negative text-weight-bold' : ''
                     ]"
-
+                  @update:model-value=" form.rc = ((form.ipr2 || 0) * ((form.hematocrito || 0) / 45)).toFixed(2); "
                 />
 <!--                @update:model-value="calculateHematimetricos"-->
               </td>
@@ -446,7 +446,7 @@
 <!--              <td>{{ rangoUnidad('Hematocrito') }}</td>-->
 <!--            </tr>-->
 
-            <tr v-if="canServicios('ÍNDICES HEMATIMÉTRICOS')">
+            <tr >
               <td>VCM</td>
               <td>
                 <q-input
@@ -465,7 +465,7 @@
               <td>{{ rangoUnidad('V.C.M.') }}</td>
             </tr>
 
-            <tr v-if="canServicios('ÍNDICES HEMATIMÉTRICOS')">
+            <tr >
               <td>HBCM</td>
               <td>
                 <q-input
@@ -484,7 +484,7 @@
               <td>{{ rangoUnidad('Hb.C.M.') }}</td>
             </tr>
 
-            <tr v-if="canServicios('ÍNDICES HEMATIMÉTRICOS')">
+            <tr >
               <td>CHCM</td>
               <td>
                 <q-input
@@ -931,7 +931,39 @@
 <!--              <td>&lt; 20</td>-->
 <!--              <td>mm/h</td>-->
 <!--            </tr>-->
-
+            <tr v-if="canServicios('RECUENTO DE RETICULOCITOS')">
+              <td>RETICULOCITOS</td>
+              <td>
+                <q-input
+                  v-model.number="form.ipr2" dense outlined type="number" step="0.01"
+                  :input-class="['text-right', isOutOfRange('Reticulocitos', form.ipr2) ? 'text-negative text-weight-bold' : '']"
+                  @update:model-value="
+                  form.rc = ((form.ipr2 || 0) * ((form.hematocrito || 0) / 45)).toFixed(2);
+"
+                />
+              </td>
+              <td>
+                {{ rangoTexto('Reticulocitos') }}
+              </td>
+              <td>
+                {{ rangoUnidad('Reticulocitos') }}
+              </td>
+            </tr>
+            <tr v-if="canServicios('RECUENTO DE RETICULOCITOS')">
+              <td>RC</td>
+              <td>
+                <q-input
+                  v-model.number="form.rc" dense outlined type="number" step="0.01"
+                  :input-class="['text-right', isOutOfRange('IPR', form.rc) ? 'text-negative text-weight-bold' : '']"
+                />
+              </td>
+              <td>
+                {{ rangoTexto('RC') }}
+              </td>
+              <td>
+                {{ rangoUnidad('RC') }}
+              </td>
+            </tr>
             <tr v-if="canServicios('RECUENTO DE RETICULOCITOS')">
               <td>IPR</td>
               <td>
@@ -948,21 +980,6 @@
               </td>
             </tr>
 
-            <tr v-if="canServicios('RECUENTO DE RETICULOCITOS')">
-              <td>RETICULOCITOS</td>
-              <td>
-                <q-input
-                  v-model.number="form.ipr2" dense outlined type="number" step="0.01"
-                  :input-class="['text-right', isOutOfRange('Reticulocitos', form.ipr2) ? 'text-negative text-weight-bold' : '']"
-                />
-              </td>
-              <td>
-                {{ rangoTexto('Reticulocitos') }}
-              </td>
-              <td>
-                {{ rangoUnidad('Reticulocitos') }}
-              </td>
-            </tr>
             </tbody>
           </q-markup-table>
             <div class="section-title q-mb-xs">FROTIS</div>
@@ -1032,8 +1049,8 @@
                 label="Rh"
               />
             </div>
-            <div class="col-12">
-              <div class="section-title q-mb-xs">Método / Equipo</div>
+            <div class="col-12 q-pt-md">
+              <div class="section-title q-mb-xs">Observaciones</div>
             </div>
             <div class="col-12 col-sm-4">
               <q-input
@@ -1244,6 +1261,15 @@ export default {
     }
   },
   computed: {
+    factorFC(){
+      // Factor de corrección = Hematocrito del paciente / Hematocrito normal (45%)
+      const ht = parseFloat(this.form.hematocrito)
+      if (!isNaN(ht) && ht !== 0) {
+        return ht / 45
+      } else {
+        return 1
+      }
+    },
     totalDiferencial () {
       const n = (v) => {
         const x = parseFloat(v)

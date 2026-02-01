@@ -674,11 +674,11 @@ class SolicitudeController extends Controller
         $query = Solicitude::with([
             'paciente',
             'doctor',
-            'servicios.area.areaTipoMuestras',
+            'servicios.area.rangos',
+            'preAnaliticaMuestras.areaTipoMuestra.area',
             'userPreanalitica',
+            'userAnalitica',
             'user',
-            'solicitudRechazadas.user',
-            'solicitudRechazadas.area',
         ])
             ->whereDate('fecha_creacion', $fecha)
             ->whereIn('estado', ['ATENDIENDO','MUESTRA RECHAZADA','ENVIADO_ANALITICA','ANALIZADO','MUESTRA NO TOMADA']);

@@ -74,6 +74,7 @@ return new class extends Migration
             $table->decimal('fibrinogeno', 8, 2)->nullable();              // g/L
             $table->decimal('ves', 8, 2)->nullable();                      // mm/hora
             $table->decimal('ipr', 8, 2)->nullable();                      // %
+            $table->decimal('rc', 8, 2)->nullable();
             $table->decimal('ipr2', 8, 2)->nullable();                     // %
 
             // ---------------------------

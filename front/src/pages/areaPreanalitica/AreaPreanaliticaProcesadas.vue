@@ -256,9 +256,9 @@
           </div>
         </template>
       </q-table>
-      <pre>
-        {{ rows }}
-      </pre>
+<!--      <pre>-->
+<!--        {{ rows }}-->
+<!--      </pre>-->
     </q-card>
     <!--    dialogConsentimiento-->
     <q-dialog
@@ -527,26 +527,102 @@
                 </div>
               </div>
               <div>
-                <div class="q-ml-md q-mt-xs">
-                  <template v-for="(atm, index) in areas_tipo_muestras" :key="atm.id">
-                    <div class="text-subtitle2 text-primary q-mb-xs">
-                      {{ atm.name }}
-                    </div>
-                    <q-separator spaced />
-                    <div class="q-mb-md">
-                      <q-checkbox
-                        v-for="tipo_muestra in atm.area_tipo_muestras"
-                        :key="tipo_muestra.id"
-                        v-model="tipo_muestra.selected"
-                        :label="tipo_muestra.tipo_muestra"
-                        :true-value="true"
-                        :false-value="false"
-                      />
-                    </div>
-                  </template>
+<!--                <pre>{{consentimiento.pre_analitica_muestras}}</pre>-->
+<!--                [-->
+<!--                {-->
+<!--                "id": 869,-->
+<!--                "area_tipo_muestra_id": 4,-->
+<!--                "solicitude_id": 120,-->
+<!--                "estado": "Pendiente",-->
+<!--                "nombre": "Suero",-->
+<!--                "selected": 0,-->
+<!--                "area_tipo_muestra": {-->
+<!--                "id": 4,-->
+<!--                "area_id": 2,-->
+<!--                "tipo_muestra": "Suero",-->
+<!--                "area": {-->
+<!--                "id": 2,-->
+<!--                "name": "QUÍMICA SANGUÍNEA Y SEROLOGÍA (Area 3)",-->
+<!--                "descripcion": "QUÍMICA SANGUÍNEA Y SEROLOGÍA (Area 3)",-->
+<!--                "title": "QUÍMICA SANGUÍNEA Y SEROLOGÍA",-->
+<!--                "estado": "ACTIVO"-->
+<!--                }-->
+<!--                }-->
+<!--                },-->
+<!--                {-->
+<!--                "id": 870,-->
+<!--                "area_tipo_muestra_id": 38,-->
+<!--                "solicitude_id": 120,-->
+<!--                "estado": "Pendiente",-->
+<!--                "nombre": "Líquido",-->
+<!--                "selected": 0,-->
+<!--                "area_tipo_muestra": {-->
+<!--                "id": 38,-->
+<!--                "area_id": 2,-->
+<!--                "tipo_muestra": "Líquido",-->
+<!--                "area": {-->
+<!--                "id": 2,-->
+<!--                "name": "QUÍMICA SANGUÍNEA Y SEROLOGÍA (Area 3)",-->
+<!--                "descripcion": "QUÍMICA SANGUÍNEA Y SEROLOGÍA (Area 3)",-->
+<!--                "title": "QUÍMICA SANGUÍNEA Y SEROLOGÍA",-->
+<!--                "estado": "ACTIVO"-->
+<!--                }-->
+<!--                }-->
+<!--                },-->
+<!--                {-->
+<!--                "id": 871,-->
+<!--                "area_tipo_muestra_id": 44,-->
+<!--                "solicitude_id": 120,-->
+<!--                "estado": "Pendiente",-->
+<!--                "nombre": "Orina",-->
+<!--                "selected": 0,-->
+<!--                "area_tipo_muestra": {-->
+<!--                "id": 44,-->
+<!--                "area_id": 2,-->
+<!--                "tipo_muestra": "Orina",-->
+<!--                "area": {-->
+<!--                "id": 2,-->
+<!--                "name": "QUÍMICA SANGUÍNEA Y SEROLOGÍA (Area 3)",-->
+<!--                "descripcion": "QUÍMICA SANGUÍNEA Y SEROLOGÍA (Area 3)",-->
+<!--                "title": "QUÍMICA SANGUÍNEA Y SEROLOGÍA",-->
+<!--                "estado": "ACTIVO"-->
+<!--                }-->
+<!--                }-->
+<!--                },-->
+<!--                {-->
+<!--                "id": 872,-->
+<!--                "area_tipo_muestra_id": 45,-->
+<!--                "solicitude_id": 120,-->
+<!--                "estado": "Pendiente",-->
+<!--                "nombre": "Líquidos biológicos",-->
+<!--                "selected": 1,-->
+<!--                "area_tipo_muestra": {-->
+<!--                "id": 45,-->
+<!--                "area_id": 2,-->
+<!--                "tipo_muestra": "Líquidos biológicos",-->
+<!--                "area": {-->
+<!--                "id": 2,-->
+<!--                "name": "QUÍMICA SANGUÍNEA Y SEROLOGÍA (Area 3)",-->
+<!--                "descripcion": "QUÍMICA SANGUÍNEA Y SEROLOGÍA (Area 3)",-->
+<!--                "title": "QUÍMICA SANGUÍNEA Y SEROLOGÍA",-->
+<!--                "estado": "ACTIVO"-->
+<!--                }-->
+<!--                }-->
+<!--                }-->
+<!--                ]-->
 
+<!--                div mostrar selected muestras-->
+                <div class="text-caption text-grey-7 ">Muestras seleccionadas</div>
+                <div class="text-body2">
+                  <ul class="">
+                    <li
+                      v-for="muestra in consentimiento.pre_analitica_muestras.filter(m => m.selected === 1)"
+                      :key="muestra.id"
+                    >
+                      {{ muestra.nombre }}
+                    </li>
+                  </ul>
                 </div>
-                <!--                <pre>{{areas_tipo_muestras}}</pre>-->
               </div>
             </div>
           </div>

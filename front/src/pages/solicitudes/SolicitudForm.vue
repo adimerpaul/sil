@@ -1,7 +1,15 @@
 <template>
   <q-card style="max-width: 980px; margin: 0 auto;" flat bordered>
       <q-card-section class="row items-center q-pa-sm">
-        <div class="text-subtitle1">Nueva solicitud</div>
+        <div class="text-subtitle1">
+          Nueva solicitud
+<!--          si hay fecah de creacion nesecito la mostrar-->
+          <template v-if="solicitud.id">
+            <q-chip size="sm" color="grey-4" text-color="black" class="q-ml-sm">
+              Creación: {{ solicitud.fecha_creacion }} {{ solicitud.hora_creacion }}
+            </q-chip>
+          </template>
+        </div>
         <q-space />
         <q-btn icon="arrow_back" flat round dense @click="$router.push({ path: '/solicitudes' })" />
         <q-btn color="primary" label="Guardar" @click="$refs.form.submit()" :loading="loading" />
@@ -14,7 +22,15 @@
           <!-- Paciente -->
           <div class="row items-center q-mb-xs">
             <q-icon name="person" size="18px" class="q-mr-xs" />
-            <div class="text-subtitle2">Datos del paciente</div>
+            <div class="text-subtitle2">
+              Datos del paciente
+              <q-btn flat dense icon="child_care" color="primary" class="q-ml-sm"
+                     @click="rnnnGet('RN')"
+                     label="RN" />
+              <q-btn flat dense icon="face" color="primary" class="q-ml-xs"
+                     @click="rnnnGet('NN')"
+                     label="NN" />
+            </div>
           </div>
           <div class="row q-col-gutter-xs">
             <div class="col-6 col-sm-3">
@@ -126,6 +142,30 @@
                 v-model="solicitud.establecimiento_salud"
                 :options="establecimientos"
                 option-label="nombre"
+                use-input
+                @filter="(val, update) => {
+                  update(() => {
+                    const text = (val || '').toLowerCase().trim()
+
+                    if (!text) {
+                      this.establecimientos = this.establecimientosAll
+                      return
+                    }
+
+                    this.establecimientos = this.establecimientosAll
+                      .filter(e => {
+                        const nombre = String(e.nombre || '').toLowerCase()
+                        const tipo = String(e.tipo || '').toLowerCase()
+                        const nivel = String(e.nivel || '').toLowerCase()
+                        return (
+                          nombre.includes(text) ||
+                          tipo.includes(text) ||
+                          nivel.includes(text)
+                        )
+                      })
+                      .slice(0, 50) // 🔥 limita resultados (performance)
+                  })
+                }"
                 option-value="nombre"
                 emit-value map-options
                 label="Establecimiento de salud (SUS)"
@@ -184,6 +224,21 @@
 
             <div class="col-6">
               <q-select v-model="solicitud.sala"
+                        use-input
+                        @filter="(val, update) => {
+                          update(() => {
+                            const text = (val || '').toLowerCase().trim()
+
+                            if (!text) {
+                              this.salas = this.salasAll
+                              return
+                            }
+
+                            this.salas = this.salasAll
+                              .filter(s => s.toLowerCase().includes(text))
+                              .slice(0, 50) // 🔥 limita resultados (performance)
+                          })
+                        }"
                         :options="salas"
                         label="Unidad solicitante" dense outlined clearable />
             </div>
@@ -466,6 +521,7 @@
 
 <script>
 import moment from 'moment'
+import salasJson from 'src/data/salas.json'
 
 export default {
   name: 'SolicitudForm',
@@ -483,54 +539,13 @@ export default {
       },
       loading: false,
       solicitud: {},
-      salas:[
-        'CIRUGIA MUJERES',
-        'CIRUGIA VARONES',
-        'CIRUGIA GENERAL',
-        'CONSULTA EXTERNA ANESTESIOLOGIA',
-        'CONSULTA EXTERNA CARDIOLOGIA',
-        'CONSULTA EXTERNA CIRUGIA GENERAL',
-        'CONSULTA EXTERNA CIRUGIA MAXILO FACIAL',
-        'CONSULTA EXTERNA DERMATOLOGIA',
-        'CONSULTA EXTERNA ENDOCRINOLOGIA',
-        'CONSULTA EXTERNA GASTROENTEROLOGIA',
-        'CONSULTA EXTERNA GERIATRIA',
-        'CONSULTA EXTERNA GINECOLOGIA',
-        'CONSULTA EXTERNA HEMATOLOGIA',
-        'CONSULTA EXTERNA MEDICINA INTERNA',
-        'CONSULTA EXTERNA NEFROLOGIA',
-        'CONSULTA EXTERNA NEUMOLOGIA',
-        'CONSULTA EXTERNA NEUROCIRUGIA',
-        'CONSULTA EXTERNA NEUROLOGIA',
-        'CONSULTA EXTERNA NUTRICION',
-        'CONSULTA EXTERNA OBSTETRICIA',
-        'CONSULTA EXTERNA OFTALMOLOGIA',
-        'CONSULTA EXTERNA ONCOLOGIA',
-        'CONSULTA EXTERNA OTORRINOLARINGOLOGIA',
-        'CONSULTA EXTERNA PEDIATRIA',
-        'CONSULTA EXTERNA PSICOLOGIA',
-        'CONSULTA EXTERNA PSIQUIATRIA',
-        'CONSULTA EXTERNA REUMATOLOGIA',
-        'CONSULTA EXTERNA TRAUMATOLOGIA',
-        'CONSULTA EXTERNA UROLOGIA',
-        'EMERGENCIA EMERGENCIA',
-        'HOSPITALIZACION CIRUJIA GENERAL',
-        'HOSPITALIZACION GINECOLOGIA',
-        'HOSPITALIZACION MEDICINA INTERNA',
-        'HOSPITALIZACION NEONATOLOGIA',
-        'HOSPITALIZACION OBSTETRICIA',
-        'HOSPITALIZACION ONCOLOGIA',
-        'HOSPITALIZACION PEDIATRIA',
-        'HOSPITALIZACION QUEMADOS',
-        'HOSPITALIZACION UNIDAD DE CUIDADOS INTENSIVOS (UCI)',
-        'HOSPITALIZACION UNIDAD DE TERAPIA NTENSIVA (UTI)',
-        'SOLICITUD EXTERNA'
-      ],
-
+      salas : [...Object.values(salasJson)],
+      salasAll: [...Object.values(salasJson)],
       doctoresOptions: [],
       doctoresOptionsAll: [],
       areas: [],
       establecimientos: [],
+      establecimientosAll: [],
       searchCi: '',
       serviciosFilter: '',
       serviciosAreaId: null,
@@ -572,7 +587,7 @@ export default {
     // this.initSolicitud()
     this.loadDoctores()
     this.diagnosticosGet()
-    this.$axios.get('establecimientos').then(res => { this.establecimientos = res.data })
+    this.$axios.get('establecimientos').then(res => { this.establecimientos = res.data; this.establecimientosAll = res.data })
     this.$axios.get('areasCreateSolicitud').then(res => {
       this.areas = res.data
       console.log('SolicitudForm mounted with solicitudProp:', this.solicitudProp)
@@ -596,6 +611,18 @@ export default {
     })
   },
   methods: {
+    rnnnGet(tipo){
+      this.loading = true
+      this.$axios.get(`pacientesnn-rn/`, {
+        params: {
+          tipo: tipo
+        }
+      }).then(res => {
+        this.solicitud.paciente_nombre = res.data
+      }).finally(() => {
+        this.loading = false
+      })
+    },
     buscarpacientes(){
       this.$axios.get('pacientes', {
         params: {

@@ -62,6 +62,11 @@
         <q-chip class="line clip" color="blue" text-color="white" size="xs">
           {{ tiempoTranscurrido }}
         </q-chip>
+        <span class="text-bold">FECHA PRE ANALITICA: </span>
+        <span class="line clip">
+          {{ header.fecha_envio_analitica}}
+        </span>
+<!--        <pre>{{header}}</pre>-->
 <!--        {{fecha_fin}}-->
       </div>
     </div>

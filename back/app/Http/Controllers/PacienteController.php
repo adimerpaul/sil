@@ -3,14 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Models\Paciente;
+use App\Models\Solicitude;
 use Illuminate\Http\Request;
 
 class PacienteController extends Controller
 {
-    /**
-     * Listar pacientes con paginación (20 por página por defecto)
-     * Soporta ?page=1&per_page=20&search=texto
-     */
+    function buscarPorNN_RN(Request $request)
+    {
+        $tipo = $request->get('tipo'); // NN o RN
+
+        if (!in_array($tipo, ['NN', 'RN'])) {
+            return response()->json(['error' => 'Tipo inválido'], 422);
+        }
+
+        $count = Paciente::where('nombre_completo', 'LIKE', $tipo . '-%')
+            ->count();
+
+        return $tipo . '-' . ($count + 1);
+    }
+
+
     public function index(Request $request)
     {
         $perPage = (int) $request->get('per_page', 20);

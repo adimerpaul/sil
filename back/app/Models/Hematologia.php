@@ -54,6 +54,7 @@ class Hematologia extends Model implements AuditableContract
         'ves',
         'ipr',
         'ipr2',
+        'rc',
 
         'grupo_sanguineo',
         'factor_rh',

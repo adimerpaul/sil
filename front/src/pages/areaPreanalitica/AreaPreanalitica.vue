@@ -807,7 +807,7 @@
                       Fecha recepción preanalítica
                     </div>
                     <div class="text-body2">
-                      {{ consentimiento.fecha_envio_analitica || '-' }}
+                      {{ moment().format('YYYY-MM-DD HH:mm:ss') || '-' }}
                     </div>
 
                     <div class="text-caption text-grey-7 q-mt-sm">
@@ -823,7 +823,7 @@
                         {{
                           tiempoAtencion(
                             consentimiento.fecha_creacion,
-                            consentimiento.fecha_envio_analitica
+                            moment().format('YYYY-MM-DD HH:mm:ss')
                           ) || 'No registrado'
                         }}
                       </q-chip>
