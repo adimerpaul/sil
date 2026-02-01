@@ -220,11 +220,10 @@ class ConsentimientoController extends Controller
     public function print($id)
     {
         $consentimiento = Consentimiento::with('paciente')->findOrFail($id);
-//        return $consentimiento->load('paciente');
 
         $pdf = Pdf::loadView('pdf.consentimiento', [
             'c' => $consentimiento,
-        ])->setPaper('A4', 'portrait');
+        ])->setPaper('legal', 'portrait');
 
         return $pdf->stream('consentimiento-'.$consentimiento->id.'.pdf');
     }
