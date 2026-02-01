@@ -1389,6 +1389,13 @@ export default {
   mounted () {
     this.reloadTable()
     this.areasTipoMuestrasGet()
+    if (!this.$store.socketAnalitica) {
+      this.$store.socketAnalitica = true
+      this.$socket.on('silSolicitud', msg => {
+        this.$alert.info('Nueva solicitud de analítica recibido.')
+        this.reloadTable()
+      })
+    }
   },
   methods: {
     areasTipoMuestrasGet(){
