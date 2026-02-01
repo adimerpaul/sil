@@ -626,9 +626,9 @@ class SolicitudeController extends Controller
         $solicitud = Solicitude::findOrFail($id);
         $area_tipo_muestras = $request->input('area_tipo_muestras', []);
 
-        $urlSocket = env('URL_SOCKET_IO', null);
-        //return response()->json(['message' => 'URL_SOCKET_IO no está configurada', 'url' => $urlSocket], 500);
-        $response = Http::get($urlSocket . '/silSolicitud');
+//        $urlSocket = env('URL_SOCKET_IO', null);
+//        //return response()->json(['message' => 'URL_SOCKET_IO no está configurada', 'url' => $urlSocket], 500);
+//        $response = Http::get($urlSocket . '/silSolicitud');
 
 
         foreach ($area_tipo_muestras as $area) {
@@ -860,6 +860,9 @@ class SolicitudeController extends Controller
             $newServicioSolicitud->nombre = $servicio['nombre'] ?? '';
             $newServicioSolicitud->save();
         }
+        $urlSocket = env('URL_SOCKET_IO', null);
+//        //return response()->json(['message' => 'URL_SOCKET_IO no está configurada', 'url' => $urlSocket], 500);
+        $response = Http::get($urlSocket . '/silSolicitud');
 
         return response()->json($solicitud->load(['paciente', 'doctor', 'servicios']), 201);
     }
