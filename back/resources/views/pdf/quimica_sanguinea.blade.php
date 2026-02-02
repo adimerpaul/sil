@@ -270,7 +270,7 @@
                                         </thead>
                                         <tbody>
 
-                                        @if($canServicios(['ÁCIDO ÚRICO','PERFIL RENAL (CREATININA SÉRICA, ÁCIDO ÚRICO, UREA)']))
+                                        @if($canServicios(['ÁCIDO ÚRICO','PERFIL RENAL (CREATININA SÉRICA, ÁCIDO ÚRICO, UREA)','GLUCOSA']))
                                             <tr>
                                                 <td>Ácido Úrico</td>
                                                 <td class="center">{{ val($q,'acido_urico') }}</td>
@@ -330,7 +330,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios('NITROGENO UREICO SERICO (NUS)'))
+                                        @if($canServicios(['NITROGENO UREICO SERICO (NUS)','GLUCOSA']))
                                             <tr>
                                                 <td>NUS</td>
                                                 <td class="center">{{ val($q,'nus') }}</td>

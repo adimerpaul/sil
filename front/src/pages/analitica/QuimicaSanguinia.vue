@@ -133,7 +133,8 @@
               'CREATININA SÉRICA',
               'PERFIL RENAL (CREATININA SÉRICA, ÁCIDO ÚRICO, UREA)',
               'PROTEINOGRAMA (PROTEÍNAS TOTALES, ALBÚMINA, GLOBULINA)',
-              'CLEARENCE DE CREATININA'
+              'CLEARENCE DE CREATININA',
+              'GLUCOSA'
             ])"
           >
             <div class="section-title q-mb-xs">Química sanguínea básica</div>
@@ -196,7 +197,7 @@
                 <td>{{ rangoUnidad('Glucosa') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['UREA','PERFIL RENAL (CREATININA SÉRICA, ÁCIDO ÚRICO, UREA)','NITROGENO UREICO SERICO (NUS)'])">
+              <tr v-if="canServicios(['UREA','PERFIL RENAL (CREATININA SÉRICA, ÁCIDO ÚRICO, UREA)','NITROGENO UREICO SERICO (NUS)','GLUCOSA'])">
                 <td>Urea</td>
                 <td>
                   <q-input v-model.number="form.urea" dense outlined type="number" step="0.01"
@@ -207,7 +208,7 @@
                 <td>{{ rangoUnidad('Urea') }}</td>
               </tr>
 
-              <tr v-if="canServicios('NITROGENO UREICO SERICO (NUS)')">
+              <tr v-if="canServicios(['NITROGENO UREICO SERICO (NUS)','GLUCOSA'])">
                 <td>NUS</td>
                 <td>
                   <q-input v-model.number="form.nus" dense outlined type="number" step="0.01"
