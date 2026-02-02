@@ -93,7 +93,7 @@
         flat
         bordered
         :loading="loading"
-        :pagination.sync="pagination"
+        v-model:pagination="pagination"
         :rows-per-page-options="[10, 20, 50]"
         @request="onRequest"
         @rowClick="openDialogSolicitud"
@@ -331,6 +331,30 @@
               <div>
                 <div class="text-subtitle2 text-primary q-mb-xs">
                   Datos de la solicitud
+<!--                  q input cambiar numero de muestra y codigo-->
+<!--                  <pre>{{consentimiento.codigo}}</pre>-->
+                  <div class="row">
+                    <div class="col-12 col-md-3">
+                      <q-input
+                        v-model="consentimiento.codigo"
+                        debounce="2000"
+                        @update:model-value="onCodigoChange"
+                        label="Número de muestra"
+                        dense
+                        outlined
+                        class="q-mt-sm"/>
+                    </div>
+                    <div class="col-12 col-md-3">
+                      <q-input
+                        v-model="consentimiento.nro_registro"
+                        label="Número de registro"
+                        @update:model-value="onCodigoChange"
+                        dense
+                        outlined
+                        class="q-mt-sm"/>
+                    </div>
+                  </div>
+<!--                  <pre>{{consentimiento.nro_registro}}</pre>-->
                 </div>
                 <q-separator spaced />
 
@@ -921,6 +945,25 @@ export default {
     this.areasTipoMuestrasGet()
   },
   methods: {
+    onCodigoChange() {
+      // actualizar codigo y nro_registro en backend
+      if (!this.consentimiento) return
+      this.$axios.post(`solicitudes/${this.consentimiento.id}/actualizar-codigo`, {
+        codigo: this.consentimiento.codigo,
+        nro_registro: this.consentimiento.nro_registro
+      })
+        .then(res => {
+          this.$alert.success('Código actualizado correctamente.')
+          this.reloadTable()
+        })
+        .catch(err => {
+          console.error(err)
+          const msg = err.response?.data?.message || err.message
+          if (this.$alert && this.$alert.error) {
+            this.$alert.error('Error al actualizar código: ' + msg)
+          }
+        })
+    },
     imprimirSolicitud () {
       const base = this.$axios.defaults.baseURL // ej: http://tuapi/api
       const qs = new URLSearchParams({

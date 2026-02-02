@@ -22,6 +22,22 @@ use Illuminate\Support\Facades\Http;
 
 class SolicitudeController extends Controller
 {
+    function actualizarCodigo(Request $request, $id){
+        //    this.$axios.post(`solicitudes/${this.consentimiento.id}/actualizar-codigo`, {
+//        codigo: this.consentimiento.codigo,
+//        nro_registro: this.consentimiento.nro_registro
+//      })
+        $solicitud = Solicitude::findOrFail($id);
+        if ($request->filled('codigo')) {
+            $solicitud->codigo = $request->input('codigo');
+        }
+        if ($request->filled('nro_registro')) {
+            $solicitud->nro_registro = $request->input('nro_registro');
+        }
+        $solicitud->save();
+
+        return response()->json($solicitud->fresh());
+    }
     public function pdfPreanalitica(Request $request)
     {
         $fecha  = $request->query('fecha');          // YYYY-MM-DD
@@ -595,28 +611,27 @@ class SolicitudeController extends Controller
         $timestamp = strtotime($fechaBase);
 
         $anio = date('Y', $timestamp);
-        $mes = date('m', $timestamp);
-        $establecimiento = $solicitud->user->establecimiento;
+        $mes  = date('m', $timestamp);
 
-        if ($tipo === 'SI') {
-            $ultimoCodigo = Solicitude::where('tipo_atencion', $tipo)
-                ->whereYear('fecha_creacion', $anio)
-                ->whereMonth('fecha_creacion', $mes)
-                ->whereNotNull('codigo')
-                ->where('iniciales',$establecimiento->inicial)
-                ->max('codigo');
-        }else{
-            $ultimoCodigo = Solicitude::where('tipo_atencion', $tipo)
-                ->whereYear('fecha_creacion', $anio)
-                ->whereMonth('fecha_creacion', $mes)
-                ->whereDate('fecha_creacion', date('Y-m-d', $timestamp))
-                ->whereNotNull('codigo')
-                ->where('iniciales',$establecimiento->inicial)
-                ->max('codigo');
+        $establecimientoId = $solicitud->establecimiento_origen_id
+            ?? ($solicitud->user && $solicitud->user->establecimiento ? $solicitud->user->establecimiento->id : null);
+
+        $q = Solicitude::query()
+            ->where('tipo_atencion', $tipo)
+            ->whereYear('fecha_creacion', $anio)
+            ->whereMonth('fecha_creacion', $mes)
+            ->whereNotNull('codigo');
+
+        if ($establecimientoId) {
+            $q->where('establecimiento_origen_id', $establecimientoId);
         }
 
+        // si para EXTERNO quieres reiniciar por día
+        if ($tipo !== 'SI') {
+            $q->whereDate('fecha_creacion', date('Y-m-d', $timestamp));
+        }
 
-        error_log("Último código para tipo $tipo en $anio-$mes: " . var_export($ultimoCodigo, true));
+        $ultimoCodigo = $q->max('codigo');
 
         return $ultimoCodigo ? ((int)$ultimoCodigo + 1) : 1;
     }
