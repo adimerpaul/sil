@@ -187,7 +187,7 @@
                 <td>{{ rangoUnidad('Proteinas totales') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['GLICEMIA','PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)','PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)'])">
+              <tr v-if="canServicios(['GLICEMIA','PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)','PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)','GLUCOSA'])">
                 <td>Glucosa</td>
                 <td>
                   <q-input v-model.number="form.glucosa" dense outlined type="number" step="0.01"
@@ -197,7 +197,7 @@
                 <td>{{ rangoUnidad('Glucosa') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['UREA','PERFIL RENAL (CREATININA SÉRICA, ÁCIDO ÚRICO, UREA)','NITROGENO UREICO SERICO (NUS)','GLUCOSA'])">
+              <tr v-if="canServicios(['UREA','PERFIL RENAL (CREATININA SÉRICA, ÁCIDO ÚRICO, UREA)','NITROGENO UREICO SERICO (NUS)'])">
                 <td>Urea</td>
                 <td>
                   <q-input v-model.number="form.urea" dense outlined type="number" step="0.01"
@@ -208,7 +208,7 @@
                 <td>{{ rangoUnidad('Urea') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['NITROGENO UREICO SERICO (NUS)','GLUCOSA'])">
+              <tr v-if="canServicios(['NITROGENO UREICO SERICO (NUS)'])">
                 <td>NUS</td>
                 <td>
                   <q-input v-model.number="form.nus" dense outlined type="number" step="0.01"

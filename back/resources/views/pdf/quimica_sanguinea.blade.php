@@ -312,7 +312,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios(['GLICEMIA','PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)','PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)']))
+                                        @if($canServicios(['GLICEMIA','PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)','PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)','GLUCOSA']))
                                             <tr>
                                                 <td>Glucosa</td>
                                                 <td class="center">{{ val($q,'glucosa') }}</td>
@@ -330,7 +330,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios(['NITROGENO UREICO SERICO (NUS)','GLUCOSA']))
+                                        @if($canServicios(['NITROGENO UREICO SERICO (NUS)']))
                                             <tr>
                                                 <td>NUS</td>
                                                 <td class="center">{{ val($q,'nus') }}</td>
