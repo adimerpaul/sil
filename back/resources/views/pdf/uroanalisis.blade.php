@@ -9,7 +9,7 @@
         body{
             margin:0; padding:0;
             font-family: DejaVu Sans, sans-serif;
-            font-size: 7px;
+            font-size: 12px;
             color:#111;
             line-height: 0.9;
         }
@@ -22,10 +22,10 @@
         table { page-break-inside: avoid; }
         tr, td, th { page-break-inside: avoid; }
 
-        .title { font-weight:700; font-size: 7px; text-align:center; }
-        .subtitle { font-size: 7px; text-align:center; margin-top: 1px; }
+        .title { font-weight:700; font-size: 12px; text-align:center; }
+        .subtitle { font-size: 12px; text-align:center; margin-top: 1px; }
         .muted { color:#555; }
-        .small { font-size: 7px; }
+        .small { font-size: 12px; }
         .hr { border-top: 1.6px solid #111; margin: 2px 0; }
 
         table.inner{ width:100%; border-collapse: collapse; table-layout: fixed; }
@@ -37,7 +37,7 @@
         table.inner th{
             background:#f2f2f2;
             font-weight:700;
-            font-size: 7px;
+            font-size: 12px;
         }
 
         .no-border td, .no-border th{ border:none; padding:0; }
@@ -61,7 +61,7 @@
         .section{ margin-top: 3px; }
         .section h3{
             margin: 0 0 2px;
-            font-size: 6px;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: .2px;
         }
@@ -224,18 +224,20 @@
                 <table class="inner">
                     <thead>
                     <tr>
-                        <th style="width:50%;">EXAMEN</th>
-                        <th style="width:50%;">RES.</th>
+                        <th style="width:25%;">EXAMEN</th>
+                        <th style="width:25%;">RES.</th>
+                        <th style="width:25%;">EXAMEN</th>
+                        <th style="width:25%;">RES.</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr><td>Proteínas</td><td class="center">{{ $u->proteinas ?? '' }}</td></tr>
-                    <tr><td>Glucosa</td><td class="center">{{ $u->glucosa ?? '' }}</td></tr>
-                    <tr><td>Sangre</td><td class="center">{{ $u->sangre ?? '' }}</td></tr>
-                    <tr><td>Cetonas</td><td class="center">{{ $u->cetonas ?? '' }}</td></tr>
-                    <tr><td>Bilirrubina</td><td class="center">{{ $u->bilirrubina ?? '' }}</td></tr>
-                    <tr><td>Urobilinógeno</td><td class="center">{{ $u->urobilinogeno ?? '' }}</td></tr>
-                    <tr><td>Nitritos</td><td class="center">{{ $u->nitritos ?? '' }}</td></tr>
+                    <tr><td>Proteínas</td><td class="center">{{ $u->proteinas ?? '' }}</td><td>Glucosa</td><td class="center">{{ $u->glucosa ?? '' }}</td></tr>
+{{--                    <tr></tr>--}}
+                    <tr><td>Sangre</td><td class="center">{{ $u->sangre ?? '' }}</td><td>Cetonas</td><td class="center">{{ $u->cetonas ?? '' }}</td></tr>
+{{--                    <tr></tr>--}}
+                    <tr><td>Bilirrubina</td><td class="center">{{ $u->bilirrubina ?? '' }}</td><td>Urobilinógeno</td><td class="center">{{ $u->urobilinogeno ?? '' }}</td></tr>
+{{--                    <tr></tr>--}}
+                    <tr><td>Nitritos</td><td class="center">{{ $u->nitritos ?? '' }}</td><td></td><td></td></tr>
                     </tbody>
                 </table>
             </div>

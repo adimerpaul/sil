@@ -10,7 +10,7 @@
         body{
             margin:0; padding:0;
             font-family: DejaVu Sans, sans-serif;
-            font-size: 7px;
+            font-size: 12px;
             line-height: 1.08;
             color:#111;
         }
@@ -36,12 +36,12 @@
         }
 
         .block{
-            border:1px solid #111;
-            margin:3px 0;
+            /*border:1px solid #111;*/
+            /*margin:3px 0;*/
         }
         .block .title{
-            background:#f2f2f2;
-            border-bottom:1px solid #111;
+            /*background:#f2f2f2;*/
+            /*border-bottom:1px solid #111;*/
             padding:2px 3px;
             font-size:7.6px;
             font-weight:700;
@@ -62,9 +62,9 @@
         }
         .tbl th{
             background:#f7f7f7;
-            font-size:7px;
+            font-size: 12px;
         }
-        .tbl td{ font-size:7.1px; }
+        .tbl td{ font-size: 12px; }
 
         .w-analito{ width:44%; }
         .w-res{ width:16%; }

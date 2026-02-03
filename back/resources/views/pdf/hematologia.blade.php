@@ -9,7 +9,7 @@
         body{
             margin:0; padding:0;
             font-family: DejaVu Sans, sans-serif;
-            font-size: 10px;
+            font-size: 12px;
             color:#111;
             line-height: 1;
         }
@@ -183,7 +183,7 @@
         <table>
             <thead>
             <tr>
-                <th style="width:38%;">ANALITO</th>
+                <th style="width:20%;">ANALITO</th>
                 <th style="width:18%;" class="center">RESULTADO</th>
                 <th style="width:26%;" class="center">RANGO REF.</th>
                 <th style="width:18%;" class="center">UNIDAD</th>
@@ -360,7 +360,7 @@
         <table>
             <thead>
             <tr>
-                <th style="width:46%;">PRUEBA</th>
+                <th style="width:20%;">PRUEBA</th>
                 <th style="width:18%;" class="center">RESULTADO</th>
                 <th style="width:22%;" class="center">RANGO</th>
                 <th style="width:14%;" class="center">UNID.</th>
@@ -427,7 +427,7 @@
         <table>
             <tbody>
             <tr>
-                <td><b>ABO:</b> {{ $hematologia->grupo_sanguineo ?? '' }}</td>
+                <td><b>GRUPO SANGUÍNEO :</b> {{ $hematologia->grupo_sanguineo ?? '' }}</td>
                 <td><b>Rh:</b> {{ $hematologia->factor_rh ?? '' }}</td>
             </tr>
             </tbody>

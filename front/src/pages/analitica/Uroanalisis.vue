@@ -826,7 +826,7 @@ export default {
       // Opciones para selects (puedes ajustarlas a tu gusto)
       colorOptions: ['Amarillo', 'Ámbar', 'Rojo', 'Pardo', 'Incoloro', 'Otros'],
       olorOptions: ['Sui-generis', 'Fétido', 'Inodoro', 'Medicamentoso', 'Otros'],
-      aspectoOptions: ['Límpido', 'Turbio', 'Opalescente'],
+      aspectoOptions: ['Límpido', 'Turbio', 'Opalescente','Ligeramente Opalescente'],
       espumaOptions: ['Ausente', 'Escasa', 'Moderada', 'Abundante'],
       sedimentoOptions: ['Ausente', 'Escaso', 'Moderado', 'Abundante'],
 

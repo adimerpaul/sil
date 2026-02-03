@@ -72,8 +72,12 @@
               <q-radio v-model="solicitud.paciente_genero" val="OTRO" label="Otro" dense />
             </div>
 
-            <div class="col-12 col-sm-4">
+            <div class="col-12 col-sm-2">
               <q-input v-model.number="solicitud.paciente_edad" type="number" label="Edad" dense outlined />
+            </div>
+            <div class="col-12 col-sm-2">
+              <span class="text-bold">Edad adm: </span> <br>
+              {{edadadmY}}
             </div>
           </div>
 
@@ -557,6 +561,24 @@ export default {
     }
   },
   computed: {
+    edadadmY () {
+      if (!this.solicitud.paciente_fecha_nac) return ''
+
+      const nacimiento = moment(this.solicitud.paciente_fecha_nac, 'YYYY-MM-DD')
+      if (!nacimiento.isValid()) return ''
+
+      const hoy = moment()
+
+      const years = hoy.diff(nacimiento, 'years')
+      nacimiento.add(years, 'years')
+
+      const months = hoy.diff(nacimiento, 'months')
+      nacimiento.add(months, 'months')
+
+      const days = hoy.diff(nacimiento, 'days')
+
+      return `${days}d ${months}m ${years}A`
+    },
     selectedServicios() {
       const selected = []
       this.areas.forEach(area => {

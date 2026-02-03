@@ -32,10 +32,10 @@
         }
 
         /* Tipos */
-        .title { font-weight:700; font-size: 10.2px; text-align:center; }
-        .subtitle { font-size: 8px; text-align:center; margin-top: 1px; }
+        .title { font-weight:700; font-size: 12px; text-align:center; }
+        .subtitle { font-size: 12px; text-align:center; margin-top: 1px; }
         .muted { color:#555; }
-        .small { font-size: 7.6px; }
+        .small { font-size: 12px; }
         .center { text-align:center; }
         .right { text-align:right; }
         .bold { font-weight:700; }
@@ -47,7 +47,7 @@
         /* Tablas */
         table{ width:100%; border-collapse: collapse; table-layout: fixed; }
         th, td{ border:1px solid #111; padding: 2px 3px; vertical-align: middle; }
-        th{ background:#f2f2f2; font-weight:700; font-size: 7.8px; }
+        th{ background:#f2f2f2; font-weight:700; font-size: 12px; }
         .no-border td, .no-border th{ border:none; padding:0; }
         .clip{ overflow:hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -56,21 +56,21 @@
             border:none;
             padding: 2px 3px 2px 0;
             vertical-align: bottom;
-            font-size: 7.6px;
+            font-size: 12px;
         }
         .label{ font-weight:700; }
         .line{
             border-bottom: 1px solid #111;
             height: 12px;
             padding: 0 3px;
-            font-size: 7.7px;
+            font-size: 12px;
         }
 
         /* Secciones */
         .section{ margin-top: 4px; }
         .section h3{
             margin: 0 0 2px;
-            font-size: 8.2px;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: .2px;
         }
@@ -81,14 +81,14 @@
         .note{
             border: 1px dashed #444;
             padding: 3px 4px;
-            font-size: 7.4px;
+            font-size: 12px;
             color:#333;
         }
 
         /* Footer */
         .footer{
             margin-top: 6px;
-            font-size: 7px;
+            font-size: 12px;
             color:#444;
         }
 

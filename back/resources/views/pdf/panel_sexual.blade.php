@@ -10,7 +10,7 @@
         body{
             margin:0; padding:0;
             font-family: DejaVu Sans, sans-serif;
-            font-size: 10px;
+            font-size: 12px;
             color:#111;
             line-height: 1;
         }
@@ -29,13 +29,13 @@
             padding-left: 6px;
         }
 
-        .title { font-weight:700; font-size: 10.2px; text-align:center; }
-        .subtitle { font-size: 8px; text-align:center; margin-top: 1px; }
+        .title { font-weight:700; font-size: 12px; text-align:center; }
+        .subtitle { font-size: 12px; text-align:center; margin-top: 1px; }
         .muted { color:#555; }
 
         .hr { border-top: 1.8px solid #111; margin: 2px 0; }
         .box { border: 1px solid #111; padding: 3px 4px; }
-        .small { font-size: 7.6px; }
+        .small { font-size: 12px; }
         .center { text-align:center; }
         .right { text-align:right; }
 
@@ -48,7 +48,7 @@
             border:none;
             padding: 2px 3px 2px 0;
             vertical-align: bottom;
-            font-size: 7.6px;
+            font-size: 12px;
         }
 
         .label{ font-weight:700; }
@@ -56,7 +56,7 @@
             border-bottom: 1px solid #111;
             height: 12px;
             padding: 0 3px;
-            font-size: 7.7px;
+            font-size: 12px;
         }
 
         .res-pos{ font-weight:700;color: RED; }

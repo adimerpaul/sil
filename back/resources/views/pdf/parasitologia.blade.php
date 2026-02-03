@@ -5,17 +5,17 @@
     <style>
         @page { size: legal; margin: 10px 12px; }
         * { box-sizing: border-box; }
-        body{ margin:0; padding:0; font-family: DejaVu Sans, sans-serif; font-size: 10px; color:#111; line-height: 1; }
+        body{ margin:0; padding:0; font-family: DejaVu Sans, sans-serif; font-size: 12px; color:#111; line-height: 1; }
 
         .sheet{ width:100%; overflow:hidden; }
         .half{ width:48%; float:left; overflow:hidden; padding:0; }
         .half-left{ transform: scale(1.02); transform-origin: top left; padding-right: 6px; }
         .half-right{ transform: scale(1.02); transform-origin: top left; padding-left: 6px; }
 
-        .title { font-weight:700; font-size: 10.2px; text-align:center; }
-        .subtitle { font-size: 8px; text-align:center; margin-top: 1px; }
+        .title { font-weight:700; font-size: 12px; text-align:center; }
+        .subtitle { font-size: 12px; text-align:center; margin-top: 1px; }
         .muted { color:#555; }
-        .small { font-size: 7.6px; }
+        .small { font-size: 12px; }
 
         .hr { border-top: 1.8px solid #111; margin: 2px 0; }
         .box { border: 1px solid #111; padding: 3px 4px; }
@@ -24,15 +24,15 @@
 
         table{ width:100%; border-collapse: collapse; table-layout: fixed; }
         th, td{ border:1px solid #111; padding: 1.8px 3px; vertical-align: middle; }
-        th{ background:#f2f2f2; font-weight:700; font-size: 7.8px; }
+        th{ background:#f2f2f2; font-weight:700; font-size: 12px; }
         .no-border td, .no-border th{ border:none; padding:0; }
 
-        .form-grid td{ border:none; padding: 2px 3px 2px 0; vertical-align: bottom; font-size: 7.6px; }
+        .form-grid td{ border:none; padding: 2px 3px 2px 0; vertical-align: bottom; font-size: 12px; }
         .label{ font-weight:700; }
-        .line{ border-bottom: 1px solid #111; height: 12px; padding: 0 3px; font-size: 7.7px; }
+        .line{ border-bottom: 1px solid #111; height: 12px; padding: 0 3px; font-size: 12px; }
 
         .section{ margin-top: 4px; }
-        .section h3{ margin: 0 0 2px; font-size: 8.2px; text-transform: uppercase; letter-spacing: .2px; }
+        .section h3{ margin: 0 0 2px; font-size: 12px; text-transform: uppercase; letter-spacing: .2px; }
 
         .clearfix::after{ content:""; display:block; clear:both; }
         img{ max-width: 100%; }

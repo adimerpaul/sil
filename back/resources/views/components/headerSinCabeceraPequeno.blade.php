@@ -10,23 +10,23 @@
     /*    line-height: 1;*/
     /*}*/
 
-    .title { font-weight:700; font-size: 10.2px; text-align:center; }
-    .subtitle { font-size: 8px; text-align:center; margin-top: 1px; }
-    .muted { color:#555; }
-    .small { font-size: 7.6px; }
-    .center { text-align:center; }
-    .right { text-align:right; }
+    /*.title { font-weight:700; font-size: 10.2px; text-align:center; }*/
+    /*.subtitle { font-size: 8px; text-align:center; margin-top: 1px; }*/
+    /*.muted { color:#555; }*/
+    /*.small { font-size: 7.6px; }*/
+    /*.center { text-align:center; }*/
+    /*.right { text-align:right; }*/
 
-    .hr { border-top: 1.8px solid #111; margin: 2px 0; }
+    /*.hr { border-top: 1.8px solid #111; margin: 2px 0; }*/
 
-    .section-title{
-        margin-top: 2px;
-        margin-bottom: 1px;
-        font-size: 8px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: .25px;
-    }
+    /*.section-title{*/
+    /*    margin-top: 2px;*/
+    /*    margin-bottom: 1px;*/
+    /*    font-size: 8px;*/
+    /*    font-weight: 700;*/
+    /*    text-transform: uppercase;*/
+    /*    letter-spacing: .25px;*/
+    /*}*/
 
     table{ width:100%; border-collapse: collapse; table-layout: fixed; }
     /*th, td{ border:1px solid #111; padding: 1px 2px; vertical-align: middle; }*/
@@ -37,14 +37,14 @@
         border:none;
         padding: 2px 3px 2px 0;
         vertical-align: bottom;
-        font-size: 7.6px;
+        font-size: 9px;
     }
     .label{ font-weight:700; }
     .line{
         border-bottom: 1px solid #111;
         height: 12px;
         padding: 0 3px;
-        font-size: 7.7px;
+        font-size: 9px;
     }
 
     img{ max-width: 100%; }
@@ -77,7 +77,7 @@
 {{--</table>--}}
 
 {{--<div class="hr"></div>--}}
-<table class="form-grid" style="margin-top:60px;">
+<table class="form-grid" style="margin-top:75px;">
     <tr>
         <td style="width:15%"><span class="label">CÓDIGO:</span></td>
         <td style="width:10%"><div class="line clip">{{ $solicitud->codigo ?? $solicitud->id }}</div></td>
@@ -108,8 +108,8 @@
         <td colspan="2" class="line clip">
             {{ ($solicitud->codigo ?? '-') . '-' . ($solicitud->nro_registro ?? '-') }}
         </td>
-        <td><span class="label">SERVICIO/SALA/CAMA:</span></td>
-        <td colspan="2"><div class="line clip">{{ $solicitud->sala ?? '-' }} / {{ $solicitud->cama ?? '-' }}</div></td>
+        <td colspan="2"><span class="label">SERVICIO/SALA/CAMA:</span></td>
+        <td ><div class="line clip">{{ $solicitud->sala ?? '-' }} / {{ $solicitud->cama ?? '-' }}</div></td>
     </tr>
 
     <tr>

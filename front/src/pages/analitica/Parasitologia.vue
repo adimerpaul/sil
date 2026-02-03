@@ -180,26 +180,26 @@
                   <div class="row q-col-gutter-sm">
                     <div class="col-12 col-md-3">
                       <q-select v-model="form.sangre_oculta" outlined label="Sangre oculta"
-                                :options="['NEGATIVO','POSITIVO']" />
+                                :options="['NEGATIVO','POSITIVO']" dense/>
                     </div>
 
                     <div class="col-12 col-md-3">
                       <q-select v-model="form.prueba_rapida_rotavirus" outlined label="Prueba rápida Rotavirus"
-                                :options="['NEGATIVO','POSITIVO']" />
+                                :options="['NEGATIVO','POSITIVO']" dense />
                     </div>
 
                     <div class="col-12 col-md-3">
 <!--                      <q-input v-model="form.moco_fecal_positivo" outlined label="Moco fecal" />-->
                       <q-select v-model="form.moco_fecal_positivo" outlined label="Moco fecal"
-                                :options="['NEGATIVO','POSITIVO']" />
+                                :options="['NEGATIVO','POSITIVO']" dense/>
                     </div>
                     <div class="col-12 col-md-3">
-                      <q-input v-model="form.moco_fecal" outlined label="Moco fecal Descripcion" />
+                      <q-input v-model="form.moco_fecal" outlined label="Moco fecal Descripcion" dense/>
                     </div>
 
                     <div class="col-12 col-md-4">
                       <q-select v-model="form.test_benedict" outlined label="Test de Benedict"
-                                                      :options="['NEGATIVO','POSITIVO']" />
+                                                      :options="['NEGATIVO','POSITIVO']" dense/>
                       <!--                                :options="['pH 5.0 ácido','pH 5.5 ácido','pH 6.0 ácido','pH 6.5 ácido','pH 7.0 neutro','pH 7.5 alcalino','pH 8.0 alcalino','pH 9.0 alcalino']" />-->
                       <!--                      para TEST DE BENEDICT poner las siguientes reacciones:                              pH 	5.0 ácido-->
                       <!--                      pH 	5.5 ácido-->
@@ -213,7 +213,9 @@
 
                     <div class="col-12 col-md-4">
                       <q-select v-model="form.reaccion" outlined label="Reacción"
-                                :options="['pH 5.0 ácido','pH 5.5 ácido','pH 6.0 ácido','pH 6.5 ácido','pH 7.0 neutro','pH 7.5 alcalino','pH 8.0 alcalino','pH 9.0 alcalino']" />
+                                :options="['pH 5.0 ácido','pH 5.5 ácido','pH 6.0 ácido','pH 6.5 ácido','pH 7.0 neutro','pH 7.5 alcalino','pH 8.0 alcalino','pH 9.0 alcalino']"
+                        dense
+                      />
                     </div>
                   </div>
 
@@ -234,7 +236,7 @@
 <!--                        />-->
 <!--                      </template>-->
                     </div>
-                    <div class="col-12 col-md-12" v-if="form.otros_examenes === 'OTROS'">
+                    <div class="col-12 col-md-12">
 <!--                      otros_examenes_descripcion-->
                       <q-input
                         v-model="form.otros_examenes_otros"
@@ -244,16 +246,16 @@
                         label="Descripción otros exámenes"
                       />
                     </div>
-                    <div class="col-12 col-md-12" v-if="form.otros_examenes === 'OTROS'">
-                      <!--                      otros_examenes_descripcion-->
-                      <q-input
-                        v-model="form.otros_resultados"
-                        dense
-                        outlined
-                        type="textarea"
-                        label="Resultados otros exámenes"
-                      />
-                    </div>
+<!--                    <div class="col-12 col-md-12" v-if="form.otros_examenes === 'OTROS'">-->
+<!--                      &lt;!&ndash;                      otros_examenes_descripcion&ndash;&gt;-->
+<!--                      <q-input-->
+<!--                        v-model="form.otros_resultados"-->
+<!--                        dense-->
+<!--                        outlined-->
+<!--                        type="textarea"-->
+<!--                        label="Resultados otros exámenes"-->
+<!--                      />-->
+<!--                    </div>-->
                   </div>
 
                 </q-card-section>

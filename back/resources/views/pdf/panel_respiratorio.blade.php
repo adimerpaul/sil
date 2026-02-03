@@ -10,7 +10,7 @@
         body{
             margin:0; padding:0;
             font-family: DejaVu Sans, sans-serif;
-            font-size: 10px;
+            font-size: 12px;
             color:#111;
             line-height: 1;
         }
@@ -32,14 +32,14 @@
         }
 
         /* Tipos */
-        .title { font-weight:700; font-size: 10.2px; text-align:center; }
-        .subtitle { font-size: 8px; text-align:center; margin-top: 1px; }
+        .title { font-weight:700; font-size: 12px; text-align:center; }
+        .subtitle { font-size: 12px; text-align:center; margin-top: 1px; }
         .muted { color:#555; }
 
         /* Líneas / cajas */
         .hr { border-top: 1.8px solid #111; margin: 2px 0; }
         .box { border: 1px solid #111; padding: 3px 4px; }
-        .small { font-size: 7.6px; }
+        .small { font-size: 12px; }
         .center { text-align:center; }
         .right { text-align:right; }
         .bold{ font-weight:700; }
@@ -47,7 +47,7 @@
         /* Tablas */
         table{ width:100%; border-collapse: collapse; table-layout: fixed; }
         th, td{ border:1px solid #111; padding: 1.8px 3px; vertical-align: middle; }
-        th{ background:#f2f2f2; font-weight:700; font-size: 7.8px; }
+        th{ background:#f2f2f2; font-weight:700; font-size: 12px; }
         .no-border td, .no-border th{ border:none; padding:0; }
 
         /* Form */

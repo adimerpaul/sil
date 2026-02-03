@@ -8,7 +8,7 @@
         /* HOJA OFICIO (LEGAL) */
         @page {
             size: legal portrait;
-            margin: 10mm 12mm;
+            margin: 10mm 10mm;
         }
 
         * { box-sizing: border-box; }
@@ -16,7 +16,7 @@
         body {
             margin: 0;
             font-family: DejaVu Sans, sans-serif;
-            font-size: 8.2px;
+            font-size: 12px;
             line-height: 1.12;
             color: #000;
         }
