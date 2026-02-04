@@ -116,7 +116,8 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'tolerancia_hora_3h',
         'tolerancia_hora_4h',
         'tolerancia_hora_5h',
-        'user_id'
+        'user_id',
+        'trf'
     ];
 
     protected $hidden = [

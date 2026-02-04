@@ -545,6 +545,15 @@
                 <td>{{ rangoTexto('Hierro sérico') }}</td>
                 <td>{{ rangoUnidad('Hierro sérico') }}</td>
               </tr>
+              <tr v-if="canServicios(['HIERRO'])">
+                <td>TRF</td>
+                <td>
+                  <q-input v-model.number="form.trf" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('trf', form.trf)" />
+                </td>
+                <td>{{ rangoTexto('trf') }}</td>
+                <td>{{ rangoUnidad('trf') }}</td>
+              </tr>
               </tbody>
             </q-markup-table>
           </div>

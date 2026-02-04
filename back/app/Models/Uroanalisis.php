@@ -52,6 +52,18 @@ class Uroanalisis extends Model implements AuditableContract{
         'morfologia_eritrocitaria2',
         'valor_morfologia2',
         'user_id',
+//        $table->string('cilindros2')->nullable();
+//$table->string('celulas_epiteliales2')->nullable();
+//$table->string('cristales2')->nullable();
+//$table->string('cilindros_valor2')->nullable();
+//$table->string('celulas_epiteliales_valor2')->nullable();
+//$table->string('cristales_valor2')->nullable();
+        'cilindros2',
+        'celulas_epiteliales2',
+        'cristales2',
+        'cilindros_valor2',
+        'celulas_epiteliales_valor2',
+        'cristales_valor2',
     ];
     protected $hidden = [
 //        'created_at',

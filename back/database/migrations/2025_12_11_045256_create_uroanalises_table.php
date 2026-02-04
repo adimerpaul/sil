@@ -62,6 +62,13 @@ return new class extends Migration
             $table->string('otros')->nullable();
             $table->string('code', 100)->nullable();
 
+            $table->string('cilindros2')->nullable();
+            $table->string('celulas_epiteliales2')->nullable();
+            $table->string('cristales2')->nullable();
+            $table->string('cilindros_valor2')->nullable();
+            $table->string('celulas_epiteliales_valor2')->nullable();
+            $table->string('cristales_valor2')->nullable();
+
             // Observaciones generales
             $table->text('observaciones')->nullable();
 

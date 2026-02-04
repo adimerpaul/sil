@@ -474,6 +474,13 @@
                   <td>xcampo/uL</td>
                   <td>*</td>
                 </tr>
+<!--ALTER TABLE uroanalisis-->
+<!--ADD COLUMN cilindros2 VARCHAR(255) NULL,-->
+<!--ADD COLUMN celulas_epiteliales2 VARCHAR(255) NULL,-->
+<!--ADD COLUMN cristales2 VARCHAR(255) NULL,-->
+<!--ADD COLUMN cilindros_valor2 VARCHAR(255) NULL,-->
+<!--ADD COLUMN celulas_epiteliales_valor2 VARCHAR(255) NULL,-->
+<!--ADD COLUMN cristales_valor2 VARCHAR(255) NULL;-->
                 <tr>
                   <td>Cilindros</td>
                   <td>
@@ -499,6 +506,34 @@
                     </div>
 <!--                    form.cilindros valor-->
 
+                  </td>
+                  <td>xcampo/uL</td>
+                  <td>#</td>
+                </tr>
+                <tr>
+                  <td>
+                  </td>
+                  <td>
+                    <div class="row">
+                      <div class="col-6">
+                        <q-select
+                          v-model="form.cilindros2"
+                          :options="['Hialino', 'Granuloso', 'Cereo', 'Leucocitario', 'Eritrocitario', 'Mixto', 'Epithelial', 'Bacteriano']"
+                          dense
+                          outlined
+                          emit-value
+                          map-options
+                        />
+                      </div>
+                      <div class="col-6">
+                        <q-input
+                          v-model="form.cilindros_valor2"
+                          dense
+                          outlined
+                          placeholder="valor"
+                        />
+                      </div>
+                    </div>
                   </td>
                   <td>xcampo/uL</td>
                   <td>#</td>
@@ -547,6 +582,34 @@
                   <td>#</td>
                 </tr>
                 <tr>
+                  <td>
+                  </td>
+                  <td>
+                    <div class="row">
+                      <div class="col-6">
+                        <q-select
+                          v-model="form.celulas_epiteliales2"
+                          :options="['Escamosas', 'Transicionales', 'Renal']"
+                          dense
+                          outlined
+                          emit-value
+                          map-options
+                        />
+                      </div>
+                      <div class="col-6">
+                        <q-input
+                          v-model="form.celulas_epiteliales_valor2"
+                          dense
+                          outlined
+                          placeholder="valor"
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  <td>xcampo/uL</td>
+                  <td>#</td>
+                </tr>
+                <tr>
                   <td>Cristales</td>
                   <td>
 <!--                    <q-input-->
@@ -574,6 +637,34 @@
                       <div class="col-6">
                         <q-input
                           v-model="form.valor_cristales"
+                          dense
+                          outlined
+                          placeholder="valor"
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  <td>xcampo/uL</td>
+                  <td>#</td>
+                </tr>
+                <tr>
+                  <td>
+                  </td>
+                  <td>
+                    <div class="row">
+                      <div class="col-6">
+                        <q-select
+                          v-model="form.cristales2"
+                          :options="['Oxalato de calcio dihidratado', 'Fosfato amorfo', 'Urato amorfo', 'Fosfato triple de amonio y magnesio', 'Ácido Úrico', 'OTROS']"
+                          dense
+                          outlined
+                          emit-value
+                          map-options
+                        />
+                      </div>
+                      <div class="col-6">
+                        <q-input
+                          v-model="form.cristales_valor2"
                           dense
                           outlined
                           placeholder="valor"
