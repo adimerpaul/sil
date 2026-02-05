@@ -93,10 +93,9 @@
         flat
         bordered
         :loading="loading"
-        :pagination.sync="pagination"
-        :rows-per-page-options="[10, 20, 50]"
+        v-model:pagination="pagination"
+        :rows-per-page-options="[50, 100, 150,200,300]"
         @request="onRequest"
-        @rowClick="openDialogSolicitud"
       >
         <template #top>
           <div class="row items-center full-width q-pa-xs">
@@ -227,7 +226,7 @@
                 <div class="col-auto">
                   <q-select
                     v-model="pagination.rowsPerPage"
-                    :options="[10, 20, 50]"
+                    :options="[50, 100, 150,200,300]"
                     dense
                     outlined
                     options-dense

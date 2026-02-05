@@ -682,9 +682,12 @@ class SolicitudeController extends Controller
             'area_tipo_muestras' => $solicitud,
         ]);
     }
-    function solicitudesAreaPreanaliticaEstado(Request $request){
-        $filter = $request->input('filter', '');
-        $fecha = $request->input('fecha', '');
+    public function solicitudesAreaPreanaliticaEstado(Request $request)
+    {
+        $fecha  = $request->query('fecha') ?: now()->toDateString();
+        $filter = trim((string) $request->query('filter', ''));
+        $perPage = (int) $request->query('per_page', 10);
+        $perPage = max(1, min($perPage, 100)); // límite sano
 
         $query = Solicitude::with([
             'paciente',
@@ -708,10 +711,10 @@ class SolicitudeController extends Controller
             });
         }
 
-        $perPage = $request->input('per_page', 10);
-        $solicitudes = $query->orderBy('id', 'desc')->paginate($perPage);
+        $query->orderByRaw("FIELD(estado, 'ATENDIENDO', 'ENVIADO_ANALITICA', 'ANALIZADO', 'MUESTRA RECHAZADA', 'MUESTRA NO TOMADA') ASC")
+            ->orderByDesc('id');
 
-        return response()->json($solicitudes);
+        return $query->paginate($perPage); // usa ?page= y devuelve total/data/etc
     }
 
     public function solicitudesAreaPreanalitica(Request $request)
