@@ -253,7 +253,7 @@
                       'text-right',
                       isOutOfRange('Hematocrito', form.hematocrito) ? 'text-negative text-weight-bold' : ''
                     ]"
-                  @update:model-value=" form.rc = ((form.ipr2 || 0) * ((form.hematocrito || 0) / 45)).toFixed(2); "
+
                 />
 <!--                @update:model-value="calculateHematimetricos"-->
               </td>
@@ -934,13 +934,18 @@
             <tr v-if="canServicios('RECUENTO DE RETICULOCITOS')">
               <td>RETICULOCITOS</td>
               <td>
+<!--                <pre>{{form.ipr2 }}</pre>-->
+<!--                <pre>{{form.hematocrito }}</pre>-->
                 <q-input
                   v-model.number="form.ipr2" dense outlined type="number" step="0.01"
                   :input-class="['text-right', isOutOfRange('Reticulocitos', form.ipr2) ? 'text-negative text-weight-bold' : '']"
                   @update:model-value="
-                  form.rc = ((form.ipr2 || 0) * ((form.hematocrito || 0) / 45)).toFixed(2);
-"
+                  form.rc = (((form.ipr2 || 0) * (form.hematocrito || 0))).toFixed(2)
+                  ";
+
                 />
+<!--                // form.ipr = ( (form.rc) / ());"-->
+<!--                @update:model-value=" form.rc = ((form.ipr2 || 0) * ((form.hematocrito || 0) / 45)).toFixed(2); "-->
               </td>
               <td>
                 {{ rangoTexto('Reticulocitos') }}

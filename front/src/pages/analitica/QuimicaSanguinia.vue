@@ -781,7 +781,7 @@
                 <td>{{ rangoUnidad('FR') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['PCR CUALITATIVO (PROTEÍNA C REACTIVA)','TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)'])">
+              <tr v-if="canServicios(['PCR CUALITATIVO (PROTEÍNA C REACTIVA)'])">
                 <td>PCR</td>
                 <td>
                   <q-input v-model.number="form.pcr" dense outlined type="number" step="0.01"
@@ -789,6 +789,16 @@
                 </td>
                 <td>{{ rangoTexto('PCR') }}</td>
                 <td>{{ rangoUnidad('PCR') }}</td>
+              </tr>
+<!--              TEST de embraza-->
+              <tr v-if="canServicios('TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)')">
+                <td>Test de embarazo</td>
+                <td>
+<!--                  <q-input v-model="form.test_embarazo" dense outlined placeholder="Reactivo / No reactivo" />-->
+                  <q-select v-model="form.test_embarazo" :options="['Positivo', 'Negativo']" dense outlined clearable />
+                </td>
+                <td>{{ rangoTexto('Test de embarazo') }}</td>
+                <td>{{ rangoUnidad('Test de embarazo') }}</td>
               </tr>
 <!--              PRUEBA RAPIDA PARA HEPATITIS B-->
 <!--              PRUEBA RAPIDA PARA HEPATITIS C-->
@@ -824,7 +834,7 @@
                 <td>{{ rangoUnidad('Prueba rápida Chagas') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['PRUEBA RAPIDA PARA VIH','TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)'])">
+              <tr v-if="canServicios(['PRUEBA RAPIDA PARA VIH'])">
                 <td>Prueba rápida VIH</td>
                 <td style="width: 250px;">
 <!--                  <q-input v-model="form.prueba_rapida_vih" dense outlined placeholder="Reactivo / No reactivo" />-->
@@ -852,7 +862,7 @@
                 <td>{{ rangoUnidad('Prueba rápida Troponina') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['RPR- VDRL','TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)'])">
+              <tr v-if="canServicios(['RPR- VDRL'])">
                 <td>RPR / VDRL</td>
                 <td><q-input v-model="form.rpr" dense outlined placeholder="Reactivo / No reactivo" /></td>
                 <td>{{ rangoTexto('RPR / VDRL') }}</td>
@@ -938,9 +948,17 @@
               'CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS'
             ])"
           >
-            <div class="section-title q-mb-xs">
-              Citoquímico
-<!--              <q-input v-model="form.citoquimico_observaciones" dense outlined placeholder="Observaciones" class="q-ml-md" style="width: 300px;" />-->
+            <div class="row items-center q-col-gutter-sm q-mb-xs">
+              <div class="col-auto section-title">Citoquímico</div>
+              <div class="col">
+                <q-input
+                  v-model="form.tipo_de_muestra"
+                  dense
+                  outlined
+                  class="bg-white"
+                  label="Tipo de muestra"
+                />
+              </div>
             </div>
 <!--            EXAMEN FISICO-->
 <!--            CANTIDAD: 4  ml-->
@@ -1250,6 +1268,7 @@ export default {
         prueba_rapida_vih: '',
         rpr: '',
         reaccion_widal: '',
+        tipo_de_muestra: '',
         observaciones: '',
         metodo: '',
         equipo: ''
