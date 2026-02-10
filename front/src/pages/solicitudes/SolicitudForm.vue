@@ -56,8 +56,13 @@
               <q-input v-model="solicitud.paciente_telefono" label="Celular" dense outlined clearable/>
             </div>
 
-            <div class="col-12">
+            <div class="col-12 col-md-6">
               <q-input v-model="solicitud.paciente_direccion" label="Dirección" dense outlined clearable/>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="text-caption text-black">FUM (Fecha última menstruación)</div>
+              <q-chip size="12px" color="primary" text-color="white">FUM: {{ solicitud.paciente?.fum || 'N/A' }}</q-chip>
+<!--              <pre>{{solicitud.paciente.fum}}</pre>-->
             </div>
 
             <div class="col-6 col-sm-4">

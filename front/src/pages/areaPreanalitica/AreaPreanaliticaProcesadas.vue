@@ -95,6 +95,7 @@
         :loading="loading"
         v-model:pagination="pagination"
         :rows-per-page-options="[50, 100, 150,200,300]"
+        @row-click="openDialogSolicitud"
         @request="onRequest"
       >
         <template #top>

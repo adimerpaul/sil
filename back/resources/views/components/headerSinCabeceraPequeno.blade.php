@@ -37,14 +37,14 @@
         border:none;
         padding: 2px 3px 2px 0;
         vertical-align: bottom;
-        font-size: 9px;
+        font-size: 12px;
     }
     .label{ font-weight:700; }
     .line{
         border-bottom: 1px solid #111;
         height: 12px;
         padding: 0 3px;
-        font-size: 9px;
+        font-size: 12px;
     }
 
     img{ max-width: 100%; }
@@ -77,10 +77,10 @@
 {{--</table>--}}
 
 {{--<div class="hr"></div>--}}
-<table class="form-grid" style="margin-top:75px;">
+<table class="form-grid" style="margin-top:75px; ">
     <tr>
-        <td style="width:15%"><span class="label">CÓDIGO:</span></td>
-        <td style="width:10%"><div class="line clip">{{ $solicitud->codigo ?? $solicitud->id }}</div></td>
+        <td style="width:15%"><span class="label" >CÓDIGO:</span></td>
+        <td style="width:10%"><div class=" " style="font-size: 24px">{{ $solicitud->codigo ?? $solicitud->id }}</div></td>
         <td style="width:10%"><span class="label">ATENCION:</span></td>
         <td style="width:15%"><div class="line clip">{{ ($solicitud->tipo_atencion ?? '') === 'SI' ? 'SUS' : 'EXT' }}</div></td>
         <td colspan="2" style="width:20%"><span class="label">NRO. REGISTRO:</span></td>

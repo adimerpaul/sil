@@ -780,8 +780,17 @@
                                                 <td class="center">{{ rangoUnidad('FR',$rangosMap) }}</td>
                                             </tr>
                                         @endif
+{{--                                        Test de embarazo--}}
+                                        @if($canServicios('TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)'))
+                                            <tr>
+                                                <td>Test de embarazo</td>
+                                                <td class="center">{{ val($q,'test_embarazo') }}</td>
+                                                <td class="center">{{ rangoTexto('Test de embarazo',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoUnidad('Test de embarazo',$rangosMap) }}</td>
+                                            </tr>
+                                        @endif
 
-                                        @if($canServicios(['PCR CUALITATIVO (PROTEÍNA C REACTIVA)','TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)']))
+                                        @if($canServicios(['PCR CUALITATIVO (PROTEÍNA C REACTIVA)']))
                                             <tr>
                                                 <td>PCR</td>
                                                 <td class="center">{{ val($q,'pcr') }}</td>
@@ -790,7 +799,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios(['PRUEBA RAPIDA PARA VIH','TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)']))
+                                        @if($canServicios(['PRUEBA RAPIDA PARA VIH']))
                                             <tr>
                                                 <td>Prueba rápida VIH</td>
                                                 <td class="center">{{ val($q,'prueba_rapida_vih') }}</td>
@@ -799,7 +808,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios(['RPR- VDRL','TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)']))
+                                        @if($canServicios(['RPR- VDRL']))
                                             <tr>
                                                 <td>RPR / VDRL</td>
                                                 <td class="center">{{ val($q,'rpr') }}</td>

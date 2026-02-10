@@ -85,7 +85,8 @@
         $r = $rango($nombre);
         if (!$r) return '';
         if (!is_null($r->rango_minimo) && !is_null($r->rango_maximo)) {
-            return $r->rango_minimo.' - '.$r->rango_maximo;
+//            return $r->rango_minimo.' - '.$r->rango_maximo;
+            return round($r->rango_minimo).' - '.round($r->rango_maximo);
         }
         return $r->interpretacion ?? '';
     };
@@ -137,6 +138,7 @@
     $showHemograma = true;
         // ✅ aquí YA NO pongo "|| true" para que se oculte si no está el servicio
 
+//    $showIndices = $canServicios('ÍNDICES HEMATIMÉTRICOS');
     $showIndices = $canServicios('ÍNDICES HEMATIMÉTRICOS');
     $showDiferencial = $canServicios('HEMOGRAMA COMPLETO+ PLAQUETAS');
 
@@ -227,7 +229,8 @@
                 <tr>
                     <td>Plaquetas</td>
                     <td class="center {{ $outOfRange('Plaquetas', $hematologia->plaquetas ?? null) ? 'out-range' : '' }}">
-                        {{ $hematologia->plaquetas ?? '' }}
+{{--                        {{ $hematologia->plaquetas ?? '' }} redondeado parte entera--}}
+                        {{ round($hematologia->plaquetas) ?? '' }}
                     </td>
                     <td class="center">{{ $rangoTexto('Plaquetas') }}</td>
                     <td class="center">{{ $rangoUnidad('Plaquetas') }}</td>
@@ -237,7 +240,8 @@
                 <tr>
                     <td>Hemoglobina</td>
                     <td class="center {{ $outOfRange('Hemoglobina', $hematologia->hemoglobina ?? null) ? 'out-range' : '' }}">
-                        {{ $hematologia->hemoglobina ?? '' }}
+{{--                        {{ $hematologia->hemoglobina ?? '' }}--}}
+                        {{ round($hematologia->hemoglobina) ?? '' }}
                     </td>
                     <td class="center">{{ $rangoTexto('Hemoglobina') }}</td>
                     <td class="center">{{ $rangoUnidad('Hemoglobina') }}</td>
@@ -271,19 +275,28 @@
             <tbody>
             <tr>
                 <td>VCM</td>
-                <td class="center {{ $outOfRange('V.C.M.', $hematologia->vcm ?? null) ? 'out-range' : '' }}">{{ $hematologia->vcm ?? '' }}</td>
+                <td class="center {{ $outOfRange('V.C.M.', $hematologia->vcm ?? null) ? 'out-range' : '' }}">
+{{--                    {{ $hematologia->vcm ?? '' }}--}}
+                    {{round($hematologia->vcm) ?? '' }}
+                </td>
                 <td class="center">{{ $rangoTexto('V.C.M.') }}</td>
                 <td class="center">{{ $rangoUnidad('V.C.M.') }}</td>
             </tr>
             <tr>
                 <td>HBCM</td>
-                <td class="center {{ $outOfRange('Hb.C.M.', $hematologia->hbcm ?? null) ? 'out-range' : '' }}">{{ $hematologia->hbcm ?? '' }}</td>
+                <td class="center {{ $outOfRange('Hb.C.M.', $hematologia->hbcm ?? null) ? 'out-range' : '' }}">
+{{--                    {{ $hematologia->hbcm ?? '' }}--}}
+                    {{ round($hematologia->hbcm) ?? '' }}
+                </td>
                 <td class="center">{{ $rangoTexto('Hb.C.M.') }}</td>
                 <td class="center">{{ $rangoUnidad('Hb.C.M.') }}</td>
             </tr>
             <tr>
                 <td>CHCM</td>
-                <td class="center {{ $outOfRange('CHCM', $hematologia->chcm ?? null) ? 'out-range' : '' }}">{{ $hematologia->chcm ?? '' }}</td>
+                <td class="center {{ $outOfRange('CHCM', $hematologia->chcm ?? null) ? 'out-range' : '' }}">
+{{--                    {{ $hematologia->chcm ?? '' }}--}}
+                    {{ round($hematologia->chcm) ?? '' }}
+                </td>
                 <td class="center">{{ $rangoTexto('CHCM') }}</td>
                 <td class="center">{{ $rangoUnidad('CHCM') }}</td>
             </tr>
@@ -306,42 +319,60 @@
             <tbody>
             <tr>
                 <td>Basófilos</td>
-                <td class="center">{{ $hematologia->basofilos_porcentaje ?? '' }}</td>
+                <td class="center">
+{{--                    {{ $hematologia->basofilos_porcentaje ?? '' }}--}}
+                    {{ round($hematologia->basofilos_porcentaje) ?? '' }}
+                </td>
                 <td class="center">{{ $hematologia->basofilos_absoluto ?? '' }}</td>
                 <td class="center">{{ $rangoTexto('Basofilos') }}</td>
                 <td class="center">{{ $rangoTexto('Basilos (Absoluto)') }}</td>
             </tr>
             <tr>
                 <td>Eosinófilos</td>
-                <td class="center">{{ $hematologia->eosinofilos_porcentaje ?? '' }}</td>
+                <td class="center">
+{{--                    {{ $hematologia->eosinofilos_porcentaje ?? '' }}--}}
+                    {{ round($hematologia->eosinofilos_porcentaje) ?? '' }}
+                </td>
                 <td class="center">{{ $hematologia->eosinofilos_absoluto ?? '' }}</td>
                 <td class="center">{{ $rangoTexto('Eosinofilos') }}</td>
                 <td class="center">{{ $rangoTexto('Eosinofilos (Absoluto)') }}</td>
             </tr>
             <tr>
                 <td>Cayados</td>
-                <td class="center">{{ $hematologia->cayados_porcentaje ?? '' }}</td>
+                <td class="center">
+{{--                    {{ $hematologia->cayados_porcentaje ?? '' }}--}}
+                    {{ round($hematologia->cayados_porcentaje) ?? '' }}
+                </td>
                 <td class="center">{{ $hematologia->cayados_absoluto ?? '' }}</td>
                 <td class="center">{{ $rangoTexto('Cayados') }}</td>
                 <td class="center">{{ $rangoTexto('Cayados (Absoluto)') }}</td>
             </tr>
             <tr>
                 <td>Segmentados</td>
-                <td class="center">{{ $hematologia->segmentados_porcentaje ?? '' }}</td>
+                <td class="center">
+{{--                    {{ $hematologia->segmentados_porcentaje ?? '' }}--}}
+                    {{ round($hematologia->segmentados_porcentaje) ?? '' }}
+                </td>
                 <td class="center">{{ $hematologia->segmentados_absoluto ?? '' }}</td>
                 <td class="center">{{ $rangoTexto('Segmentados') }}</td>
                 <td class="center">{{ $rangoTexto('Segmentados (Absoluto)') }}</td>
             </tr>
             <tr>
                 <td>Linfocitos</td>
-                <td class="center">{{ $hematologia->linfocitos_porcentaje ?? '' }}</td>
+                <td class="center">
+{{--                    {{ $hematologia->linfocitos_porcentaje ?? '' }}--}}
+                    {{ round($hematologia->linfocitos_porcentaje) ?? '' }}
+                </td>
                 <td class="center">{{ $hematologia->linfocitos_absoluto ?? '' }}</td>
                 <td class="center">{{ $rangoTexto('Linfocitos') }}</td>
                 <td class="center">{{ $rangoTexto('Linfocitos (Absoluto)') }}</td>
             </tr>
             <tr>
                 <td>Monocitos</td>
-                <td class="center">{{ $hematologia->monocitos_porcentaje ?? '' }}</td>
+                <td class="center">
+{{--                    {{ $hematologia->monocitos_porcentaje ?? '' }}--}}
+                    {{ round($hematologia->monocitos_porcentaje) ?? '' }}
+                </td>
                 <td class="center">{{ $hematologia->monocitos_absoluto ?? '' }}</td>
                 <td class="center">{{ $rangoTexto('Monocitos') }}</td>
                 <td class="center">{{ $rangoTexto('Monocitos (Absoluto)') }}</td>
@@ -371,6 +402,7 @@
                 <tr><td>Tiempo de protrombina (TP)</td><td class="center">{{ $hematologia->tiempo_protrombina ?? '' }}</td><td class="center">11 – 15</td><td class="center">seg</td></tr>
                 <tr><td>Actividad de protrombina</td><td class="center">{{ $hematologia->actividad_protrombina ?? '' }}</td><td class="center">70 – 100</td><td class="center">%</td></tr>
                 <tr><td>INR</td><td class="center">{{ $hematologia->inr ?? '' }}</td><td class="center">0.8 – 1.2</td><td class="center">-</td></tr>
+                <tr><td>VES</td><td class="center">{{ $hematologia->ves ?? '' }}</td><td class="center">0 – 20</td><td class="center">mm/h</td></tr>
             @endif
             @if($canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)']))
                 <tr><td>APTT</td><td class="center">{{ $hematologia->aptt ?? '' }}</td><td class="center">24 – 35</td><td class="center">seg</td></tr>
@@ -392,11 +424,46 @@
             </thead>
             <tbody>
             @if($canServicios('FIBRINÓGENO'))
-                <tr><td>Fibrinógeno</td><td class="center">{{ $hematologia->fibrinogeno ?? '' }}</td><td class="center">2.0 – 4.0</td><td class="center">g/L</td></tr>
+                <tr>
+                    <td>Fibrinógeno</td>
+                    <td class="center">
+{{--                        {{ $hematologia->fibrinogeno ?? '' }}--}}
+                        {{ round($hematologia->fibrinogeno,1) ?? '' }}
+                    </td>
+                    <td class="center">
+                        {{ $rangoTexto('FIBRINOGENO') }}
+                    </td>
+                    <td class="center">
+                        {{ $rangoUnidad('FIBRINOGENO') }}
+                    </td>
+                </tr>
             @endif
             @if($canServicios('RECUENTO DE RETICULOCITOS'))
-                <tr><td>IPR</td><td class="center">{{ $hematologia->ipr ?? '' }}</td><td class="center">{{ $rangoTexto('IPR') }}</td><td class="center">{{ $rangoUnidad('IPR') }}</td></tr>
-                <tr><td>Reticulocitos</td><td class="center">{{ $hematologia->ipr2 ?? '' }}</td><td class="center">{{ $rangoTexto('Reticulocitos') }}</td><td class="center">{{ $rangoUnidad('Reticulocitos') }}</td></tr>
+                <tr>
+                    <td>IPR</td><td class="center">
+{{--                        {{ $hematologia->ipr ?? '' }}--}}
+                        {{ round($hematologia->ipr, 1) ?? '' }}
+                    </td><td class="center">{{ $rangoTexto('IPR') }}</td>
+                    <td class="center">{{ $rangoUnidad('IPR') }}</td>
+                </tr>
+                <tr>
+                    <td>Reticulocitos</td>
+                    <td class="center">
+{{--                        {{ $hematologia->ipr2 ?? '' }}--}}
+                        {{ round($hematologia->ipr2, 1) ?? '' }}
+                    </td>
+                    <td class="center">{{ $rangoTexto('Reticulocitos') }}</td>
+                    <td class="center">{{ $rangoUnidad('Reticulocitos') }}</td>
+                </tr>
+                <tr>
+                    <td>RC</td>
+                    <td class="center">
+                        {{--                        {{ $hematologia->ipr2 ?? '' }}--}}
+                        {{ round($hematologia->rc, 1) ?? '' }}
+                    </td>
+                    <td class="center">{{ $rangoTexto('RC') }}</td>
+                    <td class="center">{{ $rangoUnidad('RC') }}</td>
+                </tr>
             @endif
             </tbody>
         </table>

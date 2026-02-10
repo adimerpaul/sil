@@ -338,9 +338,13 @@
 <!--            </tr>-->
             </tbody>
           </q-markup-table>
-          <div class="section-title q-mb-xs">Indices hematimetricos</div>
+          <div class="section-title q-mb-xs"
+               v-if="canServicios('ÍNDICES HEMATIMÉTRICOS')"
+          >Indices hematimetricos</div>
 
-          <q-markup-table dense flat bordered square class="bg-white q-mb-md">
+          <q-markup-table dense flat bordered square class="bg-white q-mb-md"
+                          v-if="canServicios('ÍNDICES HEMATIMÉTRICOS')"
+          >
             <thead>
             <tr>
               <th class="text-left">Analito</th>
@@ -446,7 +450,7 @@
 <!--              <td>{{ rangoUnidad('Hematocrito') }}</td>-->
 <!--            </tr>-->
 
-            <tr >
+            <tr v-if="canServicios('ÍNDICES HEMATIMÉTRICOS')">
               <td>VCM</td>
               <td>
                 <q-input
@@ -465,7 +469,7 @@
               <td>{{ rangoUnidad('V.C.M.') }}</td>
             </tr>
 
-            <tr >
+            <tr v-if="canServicios('ÍNDICES HEMATIMÉTRICOS')">
               <td>HBCM</td>
               <td>
                 <q-input
@@ -484,7 +488,7 @@
               <td>{{ rangoUnidad('Hb.C.M.') }}</td>
             </tr>
 
-            <tr >
+            <tr v-if="canServicios('ÍNDICES HEMATIMÉTRICOS')">
               <td>CHCM</td>
               <td>
                 <q-input
@@ -803,6 +807,15 @@
               </td>
               <td>0.8 – 1.2</td>
               <td>-</td>
+            </tr>
+<!--            ves-->
+            <tr v-if="canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO DE PROTROMBINA (TP)'])">
+              <td>V.E.S</td>
+              <td>
+                <q-input v-model.number="form.ves" dense outlined type="number" step="0.01" input-class="text-right" />
+              </td>
+              <td>&lt; 20</td>
+              <td>mm/h</td>
             </tr>
 
             <tr v-if="canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)'])">
