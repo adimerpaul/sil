@@ -94,6 +94,8 @@ return new class extends Migration
 
 
             $table->decimal('citoquimico_cantidad', 8, 2)->nullable();
+            $table->string('tipo_de_muestra', 255)->nullable();
+            $table->string('test_embarazo', 50)->nullable();    // No reactivo / Reactivo
             $table->string('citoquimico_color', 50)->nullable();
             $table->string('citoquimico_aspecto', 50)->nullable();
             $table->decimal('citoquimico_glucosa', 8, 2)->nullable();

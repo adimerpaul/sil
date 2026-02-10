@@ -82,6 +82,8 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'relacion_ag',
         'lipasa',
         'citoquimico_cantidad',
+        'tipo_de_muestra',
+        'test_embarazo',
         'citoquimico_color',
         'citoquimico_aspecto',
         'citoquimico_glucosa',

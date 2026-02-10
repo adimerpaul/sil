@@ -20,8 +20,12 @@
 <body>
 {!! view('components.header', ['solicitud' => $solicitud])->render() !!}
 
-<div class="center title">CITOQUIMICO</div>
-<div class="bold center">MUESTRA: LIQUIDO ASCITICO</div>
+<div class="center title">
+    CITOQUIMICO
+    @if(!empty($quimica->tipo_de_muestra))
+        <span style="font-weight:400;"> - MUESTRA: {{ $quimica->tipo_de_muestra }}</span>
+    @endif
+</div>
 
 <div class="mt bold">EXAMEN FISICO</div>
 <table>
