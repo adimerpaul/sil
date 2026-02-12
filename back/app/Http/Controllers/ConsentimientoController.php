@@ -183,7 +183,7 @@ class ConsentimientoController extends Controller
             $pacienteData = $request->only([
                 'nombre_completo', 'ci', 'fecha_nac', 'genero', 'edad',
                 'telefono', 'direccion', 'discapacidad', 'discapacidad_cual',
-                'embarazo', 'fum', 'sem_gest'
+                'discapacidad_otro', 'embarazo', 'fum', 'sem_gest'
             ]);
             $paciente = Paciente::create($pacienteData);
             // Actualizar el request con el nuevo paciente_id

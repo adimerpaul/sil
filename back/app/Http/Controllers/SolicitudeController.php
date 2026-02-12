@@ -896,6 +896,12 @@ class SolicitudeController extends Controller
                 'fecha_nac' => $data['paciente_fecha_nac'] ?? null,
                 'genero' => $data['paciente_genero'] ?? null,
                 'edad' => $data['paciente_edad'] ?? null,
+                'discapacidad' => $data['paciente_discapacidad'] ?? 0,
+                'discapacidad_cual' => $data['paciente_discapacidad_cual'] ?? null,
+                'discapacidad_otro' => $data['paciente_discapacidad_otro'] ?? null,
+                'embarazo' => $data['paciente_embarazo'] ?? 0,
+                'fum' => $data['paciente_fum'] ?? null,
+                'sem_gest' => $data['paciente_sem_gest'] ?? null,
             ]);
             $data['paciente_id'] = $p->id;
             return $p;
@@ -909,6 +915,12 @@ class SolicitudeController extends Controller
             $p->fecha_nac = $data['paciente_fecha_nac'] ?? $p->fecha_nac;
             $p->genero = $data['paciente_genero'] ?? $p->genero;
             $p->edad = $data['paciente_edad'] ?? $p->edad;
+            $p->discapacidad = $data['paciente_discapacidad'] ?? $p->discapacidad;
+            $p->discapacidad_cual = $data['paciente_discapacidad_cual'] ?? $p->discapacidad_cual;
+            $p->discapacidad_otro = $data['paciente_discapacidad_otro'] ?? $p->discapacidad_otro;
+            $p->embarazo = $data['paciente_embarazo'] ?? $p->embarazo;
+            $p->fum = $data['paciente_fum'] ?? $p->fum;
+            $p->sem_gest = $data['paciente_sem_gest'] ?? $p->sem_gest;
             $p->save();
         } else {
             $p = Paciente::create([
@@ -919,6 +931,12 @@ class SolicitudeController extends Controller
                 'fecha_nac' => $data['paciente_fecha_nac'] ?? null,
                 'genero' => $data['paciente_genero'] ?? null,
                 'edad' => $data['paciente_edad'] ?? null,
+                'discapacidad' => $data['paciente_discapacidad'] ?? 0,
+                'discapacidad_cual' => $data['paciente_discapacidad_cual'] ?? null,
+                'discapacidad_otro' => $data['paciente_discapacidad_otro'] ?? null,
+                'embarazo' => $data['paciente_embarazo'] ?? 0,
+                'fum' => $data['paciente_fum'] ?? null,
+                'sem_gest' => $data['paciente_sem_gest'] ?? null,
             ]);
         }
 

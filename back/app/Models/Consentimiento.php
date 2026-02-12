@@ -30,6 +30,7 @@ class Consentimiento extends Model implements AuditableContract
 
         'discapacidad',
         'discapacidad_cual',
+        'discapacidad_otro',
 
         'embarazo',
         'fum',

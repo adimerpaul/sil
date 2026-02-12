@@ -39,6 +39,12 @@ class Solicitude extends Model implements AuditableContract
         'paciente_fecha_nac',
         'paciente_genero',
         'paciente_edad',
+        'paciente_discapacidad',
+        'paciente_discapacidad_cual',
+        'paciente_discapacidad_otro',
+        'paciente_embarazo',
+        'paciente_fum',
+        'paciente_sem_gest',
 
         // copia de datos del doctor
         'doctor_nombre',
