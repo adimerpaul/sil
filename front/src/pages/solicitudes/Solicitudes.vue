@@ -1,6 +1,5 @@
 <template>
   <q-page class="q-pa-sm">
-    <!-- FILTROS -->
     <q-card flat bordered>
       <q-card-section class="row items-center q-col-gutter-xs">
         <div class="col-12 col-sm-3">
@@ -27,7 +26,6 @@
           </q-input>
         </div>
         <div class="col-12 col-sm-6 text-right">
-<!--          btn muestrar rechazadas-->
           <q-btn
             color="red"
             icon="block"
@@ -58,7 +56,6 @@
       </q-card-section>
     </q-card>
 
-    <!-- TABLA -->
     <q-table
       class="q-mt-sm"
       :rows="rows"
@@ -73,6 +70,14 @@
         <q-td :props="props">
           <q-btn-dropdown color="primary" label="Opciones" dense size="10px" no-caps>
             <q-list>
+              <q-item clickable v-close-popup @click="abrirConsentimiento(props.row)">
+                <q-item-section avatar><q-icon name="description" /></q-item-section>
+                <q-item-section>Consentimiento</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="imprimirConsentimiento(props.row)">
+                <q-item-section avatar><q-icon name="picture_as_pdf" /></q-item-section>
+                <q-item-section>Imprimir consentimiento</q-item-section>
+              </q-item>
               <q-item clickable v-close-popup @click="editar(props.row)">
                 <q-item-section avatar><q-icon name="edit" /></q-item-section>
                 <q-item-section>Editar</q-item-section>
@@ -85,14 +90,28 @@
           </q-btn-dropdown>
         </q-td>
       </template>
+
       <template #body-cell-estado="props">
         <q-td :props="props">
-          <q-chip :color="props.row.estado === 'MUESTRA RECHAZADA' ? 'red' : (props.row.estado === 'ANALIZADO' ? 'green' : (props.row.estado === 'ATENDIENDO' ? 'blue' : 'grey'))" text-color="white" dense>
+          <q-chip :color="colorEstado(props.row.estado)" text-color="white" dense>
             {{ props.row.estado }}
           </q-chip>
         </q-td>
       </template>
+
+      <template #body-cell-consentimiento="props">
+        <q-td :props="props">
+          <q-chip
+            :color="props.row.consentimiento ? 'positive' : 'grey-6'"
+            text-color="white"
+            dense
+          >
+            {{ props.row.consentimiento ? (props.row.consentimiento.tipo || 'REGISTRADO') : 'PENDIENTE' }}
+          </q-chip>
+        </q-td>
+      </template>
     </q-table>
+
     <q-dialog v-model="muestraRechazadasDialog" persistent max-width="600px">
       <q-card>
         <q-card-section class="row items-center bg-grey-7 text-white">
@@ -101,7 +120,6 @@
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
         <q-card-section class="q-pa-xs">
-<!--          <pre>{{muestrasRechazadas}}</pre>-->
           <q-markup-table dense wrap-cells bordered flat>
             <thead>
               <tr>
@@ -110,7 +128,7 @@
                 <th>Doctor</th>
                 <th>Fecha Solicitud</th>
                 <th>Estado</th>
-                <th>Observación</th>
+                <th>Observacion</th>
               </tr>
             </thead>
             <tbody>
@@ -130,6 +148,104 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="consentimientoDialog" persistent>
+      <q-card style="min-width: 720px; max-width: 920px;">
+        <q-card-section class="row items-center">
+          <div class="text-h6">Consentimiento en Admision</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+        <q-separator />
+        <q-card-section>
+          <div class="row q-col-gutter-sm q-mb-sm">
+            <div class="col-12 col-sm-6"><b>Paciente:</b> {{ consentimiento.nombre_completo || '-' }}</div>
+            <div class="col-12 col-sm-3"><b>CI:</b> {{ consentimiento.ci || '-' }}</div>
+            <div class="col-12 col-sm-3"><b>Solicitud:</b> #{{ selectedSolicitud?.id || '-' }}</div>
+          </div>
+
+          <q-form @submit.prevent="guardarConsentimiento">
+            <div class="row q-col-gutter-sm">
+              <div class="col-12 col-sm-3">
+                <q-input v-model="consentimiento.fecha_recepcion" type="date" dense outlined label="Fecha recepcion" />
+              </div>
+              <div class="col-12 col-sm-3">
+                <q-input v-model="consentimiento.hora_recepcion" type="time" dense outlined label="Hora recepcion" />
+              </div>
+              <div class="col-12 col-sm-3">
+                <q-input v-model="consentimiento.fecha_solicitud" type="date" dense outlined label="Fecha solicitud medico" />
+              </div>
+              <div class="col-12 col-sm-3">
+                <q-input v-model="consentimiento.fecha_consentimiento" type="date" dense outlined label="Fecha consentimiento" />
+              </div>
+
+              <div class="col-12 col-sm-4">
+                <q-toggle
+                  v-model="consentimiento.medicamento"
+                  :true-value="1"
+                  :false-value="0"
+                  label="Medicamento"
+                />
+              </div>
+              <div class="col-12 col-sm-8" v-if="consentimiento.medicamento">
+                <q-input v-model="consentimiento.tratamiento" dense outlined label="Tratamiento" />
+              </div>
+
+              <div class="col-12 col-sm-4">
+                <q-select
+                  v-model="consentimiento.condicion"
+                  :options="['BASAL', 'AYUNO PROL', 'POST PRANDIAL', 'ETAPA_GESTACION']"
+                  dense outlined
+                  label="Condicion"
+                  clearable
+                />
+              </div>
+              <div class="col-12 col-sm-4" v-if="consentimiento.condicion === 'ETAPA_GESTACION'">
+                <q-input v-model="consentimiento.etapa_gestacion" dense outlined label="Etapa gestacion" />
+              </div>
+              <div class="col-12 col-sm-4">
+                <q-select
+                  v-model="consentimiento.tipo"
+                  :options="['ACEPTA', 'RECHAZA']"
+                  dense outlined
+                  label="Tipo consentimiento"
+                  clearable
+                />
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <q-input v-model="consentimiento.declarante_nombre" dense outlined label="Yo declarante" />
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-select
+                  v-model="consentimiento.declarante_condicion"
+                  :options="['Padre', 'Madre', 'Abuelo/a', 'Hijo/a', 'Propio', 'Otros']"
+                  dense outlined
+                  label="En condicion de"
+                  clearable
+                />
+              </div>
+              <div class="col-12" v-if="consentimiento.declarante_condicion === 'Otros'">
+                <q-input v-model="consentimiento.declarante_condicion_otro" dense outlined label="Otra condicion" />
+              </div>
+            </div>
+
+            <div class="text-right q-mt-md">
+              <q-btn flat label="Cerrar" v-close-popup :disable="consentimientoLoading" />
+              <q-btn color="primary" label="Guardar" class="q-ml-sm" type="submit" :loading="consentimientoLoading" />
+              <q-btn
+                color="negative"
+                icon="picture_as_pdf"
+                label="Imprimir / Reimprimir"
+                class="q-ml-sm"
+                :disable="!selectedSolicitud?.id"
+                @click="imprimirConsentimiento(selectedSolicitud)"
+              />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -144,13 +260,13 @@ export default {
       columns: [
         { name: 'actions', label: 'Acciones', align: 'center' },
         { name: 'id', label: 'ID', field: 'id', align: 'left' },
-        // codigo
-        { name: 'codigo', label: 'Código', field: row => row.codigo + row.nro_registro },
+        { name: 'codigo', label: 'Codigo', field: row => `${row.codigo || ''}${row.nro_registro || ''}` },
         { name: 'fecha_solicitud', label: 'Fecha', field: row => row.fecha_solicitud, format: v => v || '' },
-        { name: 'paciente', label: 'Paciente', field: row => row?.paciente_nombre || row.paciente_nombre || '' },
+        { name: 'paciente', label: 'Paciente', field: row => row?.paciente_nombre || '' },
         { name: 'doctor', label: 'Doctor', field: row => row.doctor?.nombre || row.doctor_nombre || '' },
-        { name: 'tipo_atencion', label: 'Tipo atención', field: 'tipo_atencion' },
-        { name: 'estado', label: 'Estado', field: 'estado' }
+        { name: 'tipo_atencion', label: 'Tipo atencion', field: 'tipo_atencion' },
+        { name: 'estado', label: 'Estado', field: 'estado' },
+        { name: 'consentimiento', label: 'Consentimiento', field: row => row?.consentimiento?.tipo || '' }
       ],
       filter: '',
       loading: false,
@@ -161,16 +277,43 @@ export default {
         estado: ''
       },
       muestrasRechazadas: [],
-      muestraRechazadasDialog: false
+      muestraRechazadasDialog: false,
+      consentimientoDialog: false,
+      consentimientoLoading: false,
+      selectedSolicitud: null,
+      consentimiento: {
+        id: null,
+        solicitude_id: null,
+        paciente_id: null,
+        nombre_completo: '',
+        ci: '',
+        fecha_recepcion: '',
+        hora_recepcion: '',
+        fecha_solicitud: '',
+        fecha_consentimiento: '',
+        medicamento: 0,
+        tratamiento: '',
+        condicion: '',
+        etapa_gestacion: '',
+        tipo: '',
+        declarante_nombre: '',
+        declarante_condicion: '',
+        declarante_condicion_otro: ''
+      }
     }
   },
   mounted () {
     this.getSolicitudes()
   },
   methods: {
-    getMuestrasRechazadas(){
+    colorEstado (estado) {
+      if (estado === 'MUESTRA RECHAZADA') return 'red'
+      if (estado === 'ANALIZADO') return 'green'
+      if (estado === 'ATENDIENDO') return 'blue'
+      return 'grey'
+    },
+    getMuestrasRechazadas () {
       this.loading = true
-      // muestraRechazadasDialog
       this.muestraRechazadasDialog = true
       this.muestrasRechazadas = []
       this.$axios.get('solicitudesMuestrasRechazadas')
@@ -186,17 +329,78 @@ export default {
         .then(res => { this.rows = res.data })
         .finally(() => { this.loading = false })
     },
-
-    // ✅ AHORA NAVEGA A RUTA
+    consentimientoBase () {
+      return {
+        id: null,
+        solicitude_id: this.selectedSolicitud?.id || null,
+        paciente_id: this.selectedSolicitud?.paciente_id || null,
+        nombre_completo: this.selectedSolicitud?.paciente_nombre || '',
+        ci: this.selectedSolicitud?.paciente_ci || '',
+        fecha_recepcion: moment().format('YYYY-MM-DD'),
+        hora_recepcion: moment().format('HH:mm'),
+        fecha_solicitud: this.selectedSolicitud?.fecha_solicitud || '',
+        fecha_consentimiento: moment().format('YYYY-MM-DD'),
+        medicamento: 0,
+        tratamiento: '',
+        condicion: '',
+        etapa_gestacion: '',
+        tipo: '',
+        declarante_nombre: '',
+        declarante_condicion: '',
+        declarante_condicion_otro: ''
+      }
+    },
+    abrirConsentimiento (row) {
+      this.selectedSolicitud = row
+      this.consentimientoDialog = true
+      this.consentimientoLoading = true
+      this.consentimiento = this.consentimientoBase()
+      this.$axios
+        .get(`solicitudes/${row.id}/consentimiento`)
+        .then(res => {
+          this.consentimiento = { ...this.consentimientoBase(), ...res.data }
+          if (!this.consentimiento.declarante_nombre) {
+            this.consentimiento.declarante_nombre = this.consentimiento.nombre_completo
+            this.consentimiento.declarante_condicion = 'Propio'
+          }
+        })
+        .finally(() => { this.consentimientoLoading = false })
+    },
+    guardarConsentimiento () {
+      if (!this.selectedSolicitud?.id) return
+      this.consentimientoLoading = true
+      this.$axios
+        .post(`solicitudes/${this.selectedSolicitud.id}/consentimiento`, this.consentimiento)
+        .then(res => {
+          this.consentimiento = { ...this.consentimiento, ...res.data }
+          const idx = this.rows.findIndex(r => r.id === this.selectedSolicitud.id)
+          if (idx >= 0) this.rows[idx].consentimiento = res.data
+          this.selectedSolicitud = { ...this.selectedSolicitud, consentimiento: res.data }
+          if (this.$alert?.success) this.$alert.success('Consentimiento guardado')
+        })
+        .catch(e => {
+          const msg = e.response?.data?.message || e.message
+          if (this.$alert?.error) this.$alert.error('Error al guardar consentimiento: ' + msg)
+        })
+        .finally(() => { this.consentimientoLoading = false })
+    },
+    imprimirConsentimiento (row) {
+      if (!row?.id) return
+      const isSelectedRow = row?.id === this.selectedSolicitud?.id
+      const hasConsentimiento = isSelectedRow ? !!this.consentimiento?.id : !!row?.consentimiento
+      if (!hasConsentimiento) {
+        if (this.$alert?.error) this.$alert.error('Primero debe registrar el consentimiento')
+        return
+      }
+      const url = `${this.$axios.defaults.baseURL}/solicitudes/${row.id}/consentimiento/print`
+      window.open(url, '_blank')
+    },
     nuevo () {
       this.$router.push({ name: 'solicitudes-new' })
     },
-
-    // ✅ AHORA NAVEGA A RUTA
     editar (row) {
       this.$router.push({ name: 'solicitudes-edit', params: { id: row.id } })
     },
-
     eliminar (id) {
       if (this.$alert && this.$alert.dialog) {
         this.$alert.dialog('¿Eliminar solicitud?').onOk(() => {
@@ -216,3 +420,4 @@ export default {
   }
 }
 </script>
+
