@@ -212,7 +212,15 @@
               <div class="col-12 col-sm-8" v-if="consentimiento.discapacidad">
                 <q-input
                   v-model="consentimiento.discapacidad_cual"
-                  label="¿Cuál?"
+                  label="Discapacidad (cual)"
+                  dense outlined
+                  :readonly="soloVer"
+                />
+              </div>
+              <div class="col-12 col-sm-8" v-if="consentimiento.discapacidad">
+                <q-input
+                  v-model="consentimiento.discapacidad_otro"
+                  label="Discapacidad (otro)"
                   dense outlined
                   :readonly="soloVer"
                 />
@@ -451,6 +459,7 @@ export default {
         direccion: '',
         discapacidad: 0,
         discapacidad_cual: '',
+        discapacidad_otro: '',
         embarazo: 0,
         fum: '',
         sem_gest: null,
@@ -550,6 +559,7 @@ export default {
           this.consentimiento.edad = res.data.edad;
           this.consentimiento.discapacidad = res.data.discapacidad;
           this.consentimiento.discapacidad_cual = res.data.discapacidad_cual;
+          this.consentimiento.discapacidad_otro = res.data.discapacidad_otro;
           this.consentimiento.embarazo = res.data.embarazo;
           this.consentimiento.fum = res.data.fum;
           this.consentimiento.sem_gest = res.data.sem_gest;
@@ -574,6 +584,7 @@ export default {
       this.consentimiento.edad = p.edad;
       this.consentimiento.discapacidad = p.discapacidad;
       this.consentimiento.discapacidad_cual = p.discapacidad_cual;
+      this.consentimiento.discapacidad_otro = p.discapacidad_otro;
       this.consentimiento.embarazo = p.embarazo;
       this.consentimiento.fum = p.fum;
       this.consentimiento.sem_gest = p.sem_gest;
@@ -585,3 +596,4 @@ export default {
   },
 };
 </script>
+

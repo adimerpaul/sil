@@ -61,7 +61,7 @@
             </div>
             <div class="col-12 col-md-6">
               <div class="text-caption text-black">FUM (Fecha última menstruación)</div>
-              <q-chip size="12px" color="primary" text-color="white">FUM: {{ solicitud.paciente?.fum || 'N/A' }}</q-chip>
+              <q-chip size="12px" color="primary" text-color="white">FUM: {{ solicitud.paciente_fum || 'N/A' }}</q-chip>
 <!--              <pre>{{solicitud.paciente.fum}}</pre>-->
             </div>
 
@@ -83,6 +83,66 @@
             <div class="col-12 col-sm-2">
               <span class="text-bold">Edad adm: </span> <br>
               {{edadadmY}}
+            </div>
+
+            <div class="col-12 col-sm-4">
+              <q-toggle
+                v-model="solicitud.paciente_discapacidad"
+                :true-value="1"
+                :false-value="0"
+                label="Discapacidad"
+                dense
+              />
+            </div>
+            <div class="col-12 col-sm-4" v-if="solicitud.paciente_discapacidad">
+              <q-input
+                v-model="solicitud.paciente_discapacidad_cual"
+                label="Discapacidad (cual)"
+                dense
+                outlined
+                clearable
+              />
+            </div>
+            <div class="col-12 col-sm-4" v-if="solicitud.paciente_discapacidad">
+              <q-input
+                v-model="solicitud.paciente_discapacidad_otro"
+                label="Discapacidad (otro)"
+                dense
+                outlined
+                clearable
+              />
+            </div>
+
+            <div class="col-12 col-sm-4">
+              <q-toggle
+                v-model="solicitud.paciente_embarazo"
+                :true-value="1"
+                :false-value="0"
+                label="Embarazo"
+                dense
+              />
+            </div>
+            <div class="col-12 col-sm-4" v-if="solicitud.paciente_embarazo">
+              <q-input
+                v-model="solicitud.paciente_fum"
+                type="date"
+                label="FUM"
+                dense
+                @update:model-value="
+                solicitud.paciente_sem_gest = solicitud.paciente_fum
+                  ? Math.floor(moment().diff(moment(solicitud.paciente_fum, 'YYYY-MM-DD'), 'weeks', true))
+                  : null"
+                outlined
+              />
+            </div>
+            <div class="col-12 col-sm-4" v-if="solicitud.paciente_embarazo">
+              <q-input
+                v-model.number="solicitud.paciente_sem_gest"
+                type="number"
+                label="Semanas gestación"
+                dense
+                outlined
+              />
             </div>
           </div>
 
@@ -542,6 +602,7 @@ export default {
   },
   data () {
     return {
+      moment: moment,
       dialogDoctorNew: false,
       doctor: {
         estado: 'ACTIVO'
@@ -759,6 +820,12 @@ export default {
         paciente_fecha_nac: '',
         paciente_genero: '',
         paciente_edad: null,
+        paciente_discapacidad: 0,
+        paciente_discapacidad_cual: '',
+        paciente_discapacidad_otro: '',
+        paciente_embarazo: 0,
+        paciente_fum: '',
+        paciente_sem_gest: null,
 
         doctor_nombre: '',
         doctor_especialidad: '',
@@ -812,6 +879,12 @@ export default {
       this.solicitud.paciente_fecha_nac = ''
       this.solicitud.paciente_genero = ''
       this.solicitud.paciente_edad = null
+      this.solicitud.paciente_discapacidad = 0
+      this.solicitud.paciente_discapacidad_cual = ''
+      this.solicitud.paciente_discapacidad_otro = ''
+      this.solicitud.paciente_embarazo = 0
+      this.solicitud.paciente_fum = ''
+      this.solicitud.paciente_sem_gest = null
       this.$axios
         .get(`pacientes/buscar-ci/${this.searchCi}`)
         .then(res => { this.onSelectPaciente(res.data) })
@@ -831,6 +904,12 @@ export default {
       this.solicitud.paciente_fecha_nac = p.fecha_nac
       this.solicitud.paciente_genero = p.genero
       this.solicitud.paciente_edad = p.edad
+      this.solicitud.paciente_discapacidad = p.discapacidad ?? 0
+      this.solicitud.paciente_discapacidad_cual = p.discapacidad_cual || ''
+      this.solicitud.paciente_discapacidad_otro = p.discapacidad_otro || ''
+      this.solicitud.paciente_embarazo = p.embarazo ?? 0
+      this.solicitud.paciente_fum = p.fum || ''
+      this.solicitud.paciente_sem_gest = p.sem_gest
     },
 
     onSelectDoctor (id) {
