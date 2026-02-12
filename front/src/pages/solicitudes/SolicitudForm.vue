@@ -423,6 +423,101 @@
         </q-form>
       </q-card-section>
     </q-card>
+  <q-dialog v-model="consentimientoDialog" persistent>
+    <q-card style="min-width: 720px; max-width: 920px;">
+      <q-card-section class="row items-center">
+        <div class="text-h6">Consentimiento de la solicitud</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+      <q-separator />
+      <q-card-section>
+        <div class="row q-col-gutter-sm q-mb-sm">
+          <div class="col-12 col-sm-6">
+            <b>Paciente:</b> {{ consentimiento.nombre_completo || '-' }}
+<!--            icon btn copiar -->
+            <q-btn flat dense icon="content_copy" color="primary" @click="
+             consentimiento.declarante_nombre = consentimiento.nombre_completo;
+            " />
+          </div>
+          <div class="col-12 col-sm-3"><b>CI:</b> {{ consentimiento.ci || '-' }}</div>
+          <div class="col-12 col-sm-3"><b>Solicitud:</b> #{{ solicitudCreadaId || '-' }}</div>
+        </div>
+
+        <q-form @submit.prevent="guardarConsentimientoNuevaSolicitud">
+          <div class="row q-col-gutter-sm">
+            <div class="col-12 col-sm-3">
+              <q-input v-model="consentimiento.fecha_recepcion" type="date" dense outlined label="Fecha recepción" />
+            </div>
+            <div class="col-12 col-sm-3">
+              <q-input v-model="consentimiento.hora_recepcion" type="time" dense outlined label="Hora recepción" />
+            </div>
+            <div class="col-12 col-sm-3">
+              <q-input v-model="consentimiento.fecha_solicitud" type="date" dense outlined label="Fecha solicitud médico" />
+            </div>
+            <div class="col-12 col-sm-3">
+              <q-input v-model="consentimiento.fecha_consentimiento" type="date" dense outlined label="Fecha consentimiento" />
+            </div>
+
+            <div class="col-12 col-sm-4">
+              <q-toggle
+                v-model="consentimiento.medicamento"
+                :true-value="1"
+                :false-value="0"
+                label="Medicamento"
+              />
+            </div>
+            <div class="col-12 col-sm-8" v-if="consentimiento.medicamento">
+              <q-input v-model="consentimiento.tratamiento" dense outlined label="Tratamiento" />
+            </div>
+
+            <div class="col-12 col-sm-4">
+              <q-select
+                v-model="consentimiento.condicion"
+                :options="['BASAL', 'AYUNO PROL', 'POST PRANDIAL', 'ETAPA_GESTACION']"
+                dense outlined
+                label="Condición"
+                clearable
+              />
+            </div>
+            <div class="col-12 col-sm-4" v-if="consentimiento.condicion === 'ETAPA_GESTACION'">
+              <q-input v-model="consentimiento.etapa_gestacion" dense outlined label="Etapa gestación" />
+            </div>
+            <div class="col-12 col-sm-4">
+              <q-select
+                v-model="consentimiento.tipo"
+                :options="['ACEPTA', 'RECHAZA']"
+                dense outlined
+                label="Tipo consentimiento"
+                clearable
+              />
+            </div>
+
+            <div class="col-12 col-sm-6">
+              <q-input v-model="consentimiento.declarante_nombre" dense outlined label="Yo declarante" />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-select
+                v-model="consentimiento.declarante_condicion"
+                :options="['Padre', 'Madre', 'Abuelo/a', 'Hijo/a', 'Propio', 'Otros']"
+                dense outlined
+                label="En condición de"
+                clearable
+              />
+            </div>
+            <div class="col-12" v-if="consentimiento.declarante_condicion === 'Otros'">
+              <q-input v-model="consentimiento.declarante_condicion_otro" dense outlined label="Otra condición" />
+            </div>
+          </div>
+
+          <div class="text-right q-mt-md">
+            <q-btn flat label="Omitir" @click="omitirConsentimiento" :disable="consentimientoLoading" />
+            <q-btn color="primary" label="Guardar consentimiento" class="q-ml-sm" type="submit" :loading="consentimientoLoading" />
+          </div>
+        </q-form>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
   <q-dialog v-model="dialogDoctorNew">
     <q-card style="min-width: 400px; max-width: 600px;">
       <q-card-section class="row items-center">
@@ -623,7 +718,29 @@ export default {
       diagnosticosAll: [],
       dialogPaciente: false,
       pacienteNameSearch: '',
-      pacientes: []
+      pacientes: [],
+      consentimientoDialog: false,
+      consentimientoLoading: false,
+      solicitudCreadaId: null,
+      consentimiento: {
+        id: null,
+        solicitude_id: null,
+        paciente_id: null,
+        nombre_completo: '',
+        ci: '',
+        fecha_recepcion: '',
+        hora_recepcion: '',
+        fecha_solicitud: '',
+        fecha_consentimiento: '',
+        medicamento: 0,
+        tratamiento: '',
+        condicion: '',
+        etapa_gestacion: '',
+        tipo: '',
+        declarante_nombre: '',
+        declarante_condicion: '',
+        declarante_condicion_otro: ''
+      }
     }
   },
   computed: {
@@ -699,6 +816,67 @@ export default {
     })
   },
   methods: {
+    consentimientoBaseDesdeSolicitud (s) {
+      return {
+        id: null,
+        solicitude_id: s?.id || null,
+        paciente_id: s?.paciente_id || null,
+        nombre_completo: s?.paciente_nombre || '',
+        ci: s?.paciente_ci || '',
+        fecha_recepcion: moment().format('YYYY-MM-DD'),
+        hora_recepcion: moment().format('HH:mm'),
+        fecha_solicitud: s?.fecha_solicitud || '',
+        fecha_consentimiento: moment().format('YYYY-MM-DD'),
+        medicamento: 0,
+        tratamiento: '',
+        condicion: '',
+        etapa_gestacion: '',
+        tipo: '',
+        declarante_nombre: '',
+        declarante_condicion: '',
+        declarante_condicion_otro: ''
+      }
+    },
+    abrirConsentimientoNuevaSolicitud (solicitudCreada) {
+      this.solicitudCreadaId = solicitudCreada?.id || null
+      this.consentimiento = this.consentimientoBaseDesdeSolicitud(solicitudCreada)
+      this.consentimientoLoading = true
+      this.consentimientoDialog = true
+      this.$axios
+        .get(`solicitudes/${this.solicitudCreadaId}/consentimiento`)
+        .then(res => {
+          this.consentimiento = { ...this.consentimiento, ...res.data }
+          // si no tiene el nombre
+          if (!this.consentimiento.nombre_completo) {
+            this.consentimiento.nombre_completo = this.solicitud.paciente_nombre || ''
+          }
+        })
+        .finally(() => { this.consentimientoLoading = false })
+    },
+    omitirConsentimiento () {
+      this.consentimientoDialog = false
+      this.$router.push({ path: '/solicitudes' })
+    },
+    guardarConsentimientoNuevaSolicitud () {
+      if (!this.solicitudCreadaId) return
+      this.consentimientoLoading = true
+      this.$axios
+        .post(`solicitudes/${this.solicitudCreadaId}/consentimiento`, this.consentimiento)
+        .then(() => {
+          this.$alert?.success ? this.$alert.success('Solicitud y consentimiento guardados correctamente') : null
+          this.consentimientoDialog = false
+          // imprimrir
+          // http://localhost:8000/api/solicitudes/472/consentimiento/print
+          const url = `${this.$axios.defaults.baseURL}/solicitudes/${this.solicitudCreadaId}/consentimiento/print`
+          window.open(url, '_blank')
+          this.$router.push({ path: '/solicitudes' })
+        })
+        .catch(e => {
+          const msg = e.response?.data?.message || e.message
+          this.$alert?.error ? this.$alert.error('Error al guardar consentimiento: ' + msg) : null
+        })
+        .finally(() => { this.consentimientoLoading = false })
+    },
     rnnnGet(tipo){
       this.loading = true
       this.$axios.get(`pacientesnn-rn/`, {
@@ -1002,9 +1180,29 @@ export default {
         this.loading = true
         this.$axios
           .post('solicitudes', this.solicitud)
-          .then(() => {
-            this.$alert?.success ? this.$alert.success('Guardado correctamente') : console.log('Guardado correctamente')
-            this.$router.push({ path: '/solicitudes' })
+          .then((res) => {
+            const solicitudCreada = res.data || {}
+            this.$q.dialog({
+              size: '400px',
+              title: 'Solicitud guardada',
+              message: '<span class="text-primary" style="font-size: 20px">¿Desea llenar el consentimiento ahora?</span>' +
+                '<br><small>Puede llenarlo después desde la sección de solicitudes</small>',
+              html: true,
+              cancel: true,
+              ok: {
+                label: 'Sí, llenar ahora',
+                color: 'primary'
+              },
+              cancel: {
+                label: 'No'
+              },
+              persistent: true
+            }).onOk(() => {
+              this.abrirConsentimientoNuevaSolicitud(solicitudCreada)
+            }).onCancel(() => {
+              this.$alert?.success ? this.$alert.success('Solicitud guardada correctamente') : null
+              this.$router.push({ path: '/solicitudes' })
+            })
           })
           .catch(e => {
             const msg = e.response?.data?.message || e.message
