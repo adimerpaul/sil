@@ -788,7 +788,7 @@ class SolicitudeController extends Controller
 
     public function index(Request $request)
     {
-        $query = Solicitude::with(['paciente', 'doctor', 'servicios']);
+        $query = Solicitude::with(['paciente', 'doctor', 'servicios', 'consentimiento']);
 
         if ($request->filled('from')) {
             $query->whereDate('fecha_creacion', '>=', $request->from);
@@ -810,7 +810,7 @@ class SolicitudeController extends Controller
 
     public function show($id)
     {
-        return Solicitude::with(['paciente', 'doctor', 'servicios'])->findOrFail($id);
+        return Solicitude::with(['paciente', 'doctor', 'servicios', 'consentimiento'])->findOrFail($id);
     }
 
     public function store(Request $request)
@@ -882,7 +882,7 @@ class SolicitudeController extends Controller
 //        //return response()->json(['message' => 'URL_SOCKET_IO no está configurada', 'url' => $urlSocket], 500);
         $response = Http::get($urlSocket . '/silSolicitud');
 
-        return response()->json($solicitud->load(['paciente', 'doctor', 'servicios']), 201);
+        return response()->json($solicitud->load(['paciente', 'doctor', 'servicios', 'consentimiento']), 201);
     }
 
     protected function pacienteUpsert($ci, &$data)
@@ -990,7 +990,7 @@ class SolicitudeController extends Controller
 //        solitud uupte
         $solicitud->update($data);
 
-        return response()->json($solicitud->load(['paciente', 'doctor', 'servicios']));
+        return response()->json($solicitud->load(['paciente', 'doctor', 'servicios', 'consentimiento']));
     }
 
     protected function syncServicios(Solicitude $solicitud, array $servicios)

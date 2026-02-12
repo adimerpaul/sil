@@ -37,6 +37,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     // Consentimientos
     Route::apiResource('consentimientos', ConsentimientoController::class);
+    Route::get('solicitudes/{id}/consentimiento', [ConsentimientoController::class, 'showBySolicitude']);
+    Route::post('solicitudes/{id}/consentimiento', [ConsentimientoController::class, 'upsertBySolicitude']);
     Route::apiResource('doctores', DoctorController::class);
 
     Route::apiResource('solicitudes', SolicitudeController::class);
@@ -138,6 +140,7 @@ Route::get('public/reportes/{codigo}', [SolicitudeController::class, 'imprimirAn
     ->name('solicitudes.analitica.publica');
 
 Route::get('consentimientos/{id}/print', [ConsentimientoController::class, 'print']);
+Route::get('solicitudes/{id}/consentimiento/print', [ConsentimientoController::class, 'printBySolicitude']);
 //pacientes/nn-rn/
 Route::get('pacientesnn-rn/', [PacienteController::class, 'buscarPorNN_RN']);
 
@@ -157,7 +160,6 @@ Route::get('/cultivo-antibiograma/solicitud/{id}/pdf', [\App\Http\Controllers\Cu
 
 Route::get('/inmunologia/solicitude-formulario/{id}/pdf', [\App\Http\Controllers\InmunologiaController::class, 'pdfOne']);
 Route::get('/inmunologia/solicitud/{id}/pdf-all', [\App\Http\Controllers\InmunologiaController::class, 'pdfAll']);
-
 
 
 

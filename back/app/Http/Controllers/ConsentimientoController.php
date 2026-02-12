@@ -5,12 +5,85 @@ namespace App\Http\Controllers;
 
 use App\Models\Consentimiento;
 use App\Models\Paciente;
+use App\Models\Solicitude;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 
 class ConsentimientoController extends Controller
 {
+    public function showBySolicitude($solicitudeId)
+    {
+        $solicitud = Solicitude::findOrFail($solicitudeId);
+
+        $consentimiento = Consentimiento::where('solicitude_id', $solicitudeId)
+            ->with('paciente')
+            ->first();
+
+        if ($consentimiento) {
+            return response()->json($consentimiento);
+        }
+
+        return response()->json([
+            'solicitude_id' => $solicitud->id,
+            'paciente_id' => $solicitud->paciente_id,
+            'fecha_solicitud' => $solicitud->fecha_solicitud,
+            'nombre_completo' => $solicitud->paciente_nombre,
+            'fecha_nac' => $solicitud->paciente_fecha_nac,
+            'genero' => $solicitud->paciente_genero,
+            'edad' => $solicitud->paciente_edad,
+            'ci' => $solicitud->paciente_ci,
+            'telefono' => $solicitud->paciente_telefono,
+            'direccion' => $solicitud->paciente_direccion,
+            'discapacidad' => $solicitud->paciente_discapacidad,
+            'discapacidad_cual' => $solicitud->paciente_discapacidad_cual,
+            'discapacidad_otro' => $solicitud->paciente_discapacidad_otro,
+            'embarazo' => $solicitud->paciente_embarazo,
+            'fum' => $solicitud->paciente_fum,
+            'sem_gest' => $solicitud->paciente_sem_gest,
+            'medicamento' => 0,
+            'tratamiento' => null,
+            'condicion' => null,
+            'etapa_gestacion' => null,
+            'tipo' => null,
+            'declarante_nombre' => null,
+            'declarante_condicion' => null,
+            'declarante_condicion_otro' => null,
+            'fecha_consentimiento' => now()->toDateString(),
+            'fecha_recepcion' => now()->toDateString(),
+            'hora_recepcion' => now()->format('H:i'),
+        ]);
+    }
+
+    public function upsertBySolicitude(Request $request, $solicitudeId)
+    {
+        $solicitud = Solicitude::findOrFail($solicitudeId);
+
+        $request->validate([
+            'tipo' => 'nullable|in:ACEPTA,RECHAZA',
+            'fecha_consentimiento' => 'nullable|date',
+            'fecha_recepcion' => 'nullable|date',
+            'hora_recepcion' => 'nullable',
+        ]);
+
+        $payload = $request->all();
+        $payload['solicitude_id'] = $solicitud->id;
+        $payload['paciente_id'] = $payload['paciente_id'] ?? $solicitud->paciente_id;
+
+        if ($request->user()) {
+            $payload['user_id'] = $request->user()->id;
+        }
+
+        $consentimiento = Consentimiento::where('solicitude_id', $solicitud->id)->first();
+
+        if ($consentimiento) {
+            $consentimiento->update($payload);
+        } else {
+            $consentimiento = Consentimiento::create($payload);
+        }
+
+        return response()->json($consentimiento->load('paciente'));
+    }
     public function reporte(Request $request)
     {
         $dateFrom = $request->input('date_from');
@@ -226,5 +299,18 @@ class ConsentimientoController extends Controller
         ])->setPaper('legal', 'portrait');
 
         return $pdf->stream('consentimiento-'.$consentimiento->id.'.pdf');
+    }
+
+    public function printBySolicitude($solicitudeId)
+    {
+        $consentimiento = Consentimiento::with('paciente')
+            ->where('solicitude_id', $solicitudeId)
+            ->firstOrFail();
+
+        $pdf = Pdf::loadView('pdf.consentimiento', [
+            'c' => $consentimiento,
+        ])->setPaper('legal', 'portrait');
+
+        return $pdf->stream('consentimiento-solicitud-'.$solicitudeId.'.pdf');
     }
 }

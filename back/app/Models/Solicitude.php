@@ -170,6 +170,10 @@ class Solicitude extends Model implements AuditableContract
     {
         return $this->hasOne(CultivoAntibiograma::class);
     }
+    public function consentimiento()
+    {
+        return $this->hasOne(Consentimiento::class, 'solicitude_id');
+    }
 //inmunologia
     public function solicitudRechazadas()
     {

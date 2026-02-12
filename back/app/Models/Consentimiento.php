@@ -16,6 +16,7 @@ class Consentimiento extends Model implements AuditableContract
 
     protected $fillable = [
         'paciente_id',
+        'solicitude_id',
         'fecha_recepcion',
         'hora_recepcion',
         'fecha_solicitud',
@@ -74,5 +75,10 @@ class Consentimiento extends Model implements AuditableContract
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function solicitude()
+    {
+        return $this->belongsTo(Solicitude::class);
     }
 }
