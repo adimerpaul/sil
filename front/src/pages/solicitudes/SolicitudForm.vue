@@ -374,6 +374,280 @@
               </div>
             </q-card-section>
           </q-card>
+          <div class="row">
+<!--            ☐ Bilirrubinas totales y fracciones-->
+<!--            ☐ Coproparasitológico simple-->
+<!--            ☐ Coproparasitológico seriado-->
+<!--            ☐ Creatinina en orina-->
+<!--            ☐ Creatinina sérica-->
+<!--            ☐ Cultivo p/ gérmenes comunes y antibiograma-->
+<!--            ☐ Examen general de orina-->
+<!--            ☐ Electrolitos (sodio, potasio, cloro)-->
+<!--            ☐ Factor reumatoideo-->
+<!--            ☐ Fosfatasa alcalina y ácida-->
+<!--            ☐ Frotis tinción Gram-->
+<!--            ☐ Grupo sanguíneo y factor Rh-->
+<!--            ☐ Glicemia-->
+<!--            ☐ Gasometría arterial o venosa-->
+<!--            ☐ Hemoglobina y hematocrito-->
+<!--            ☐ Hemograma completo-->
+
+<!--            ☐ Inmunoglobulinas IgG, IgM, IgA-->
+<!--            ☐ Moco fecal-->
+<!--            ☐ Nitrógeno ureico sérico y urea-->
+<!--            ☐ Proteína C Reactiva (PCR)-->
+<!--            ☐ Proteinuria de 24 horas-->
+<!--            ☐ Prueba rápida para sífilis-->
+<!--            ☐ Tiempo de coagulación y tiempo de sangría-->
+<!--            ☐ Tiempo de protrombina / TPP-->
+<!--            ☐ Transaminasas TGO – TGP-->
+<!--            ☐ Test de embarazo en sangre (HCG)-->
+<!--            ☐ Reactantes de fase aguda (VES, Fibrinógeno, PCR)-->
+<!--            ☐ Reacción Widal-->
+<!--            ☐ RPR para sífilis – VDRL-->
+<!--            ☐ VIH-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.bilirrubinas_totales" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([17])"
+              >
+                Bilirrubinas totales y fracciones
+              </q-checkbox>
+            </div>
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.inmunoglobulinas" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([144, 145, 146])"
+              >
+                Inmunoglobulinas IgG, IgM, IgA
+              </q-checkbox>
+            </div>
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.coproparasitologico_simple" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([70])"
+              >
+                Coproparasitológico simple
+              </q-checkbox>
+            </div>
+<!--            moco fecal-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.moco_fecal" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([75])"
+              >
+                Moco fecal
+              </q-checkbox>
+            </div>
+<!--            Coproparasitológico seriado-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.coproparasitologico_seriado" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([71])"
+              >
+                Coproparasitológico seriado
+              </q-checkbox>
+            </div>
+<!--            Nitrógeno ureico sérico y urea-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.nitrogeno_ureico" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([39, 51])"
+              >
+                Nitrógeno ureico sérico y urea
+              </q-checkbox>
+            </div>
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.creatinina_orina" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([24])"
+              >
+                Creatinina en orina
+              </q-checkbox>
+            </div>
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.proteinac" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([54])"
+              >
+                Proteína C Reactiva (PCR)
+              </q-checkbox>
+            </div>
+<!--            ☐ Creatinina sérica-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.creatinina_serica" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([28])"
+              >
+                Creatinina sérica
+              </q-checkbox>
+            </div>
+<!--            ☐ Proteinuria de 24 horas-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.proteinuria_24h" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([45])"
+              >
+                Proteinuria de 24 horas
+              </q-checkbox>
+            </div>
+<!--            ☐ Cultivo p/ gérmenes comunes y antibiograma-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.cultivo_germenes" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([79])"
+              >
+                Cultivo p/ gérmenes comunes y antibiograma
+              </q-checkbox>
+            </div>
+<!--            ☐ Prueba rápida para sífilis-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.prueba_sifilis" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([59])"
+              >
+                Prueba rápida para sífilis
+              </q-checkbox>
+            </div>
+<!--            ☐ Examen general de orina-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.examen_orina" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([65])"
+              >
+                Examen general de orina
+              </q-checkbox>
+            </div>
+<!--            ☐ Tiempo de coagulación y tiempo de sangría-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.tiempo_coagulacion" :true-value="1" :false-value="null" dense
+              >
+                Tiempo de coagulación y tiempo de sangría
+              </q-checkbox>
+            </div>
+<!--            ☐ Electrolitos (sodio, potasio, cloro)-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.electrolitos" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([26])"
+              >
+                Electrolitos (sodio, potasio, cloro)
+              </q-checkbox>
+            </div>
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.tiempo_protrombina" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([12])"
+              >
+                Tiempo de protrombina / TPP
+              </q-checkbox>
+            </div>
+<!--            ☐ Factor reumatoideo-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.factor_reumatoideo" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([53])"
+              >
+                Factor reumatoideo
+              </q-checkbox>
+            </div>
+<!--            ☐ Transaminasas TGO – TGP-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.transaminasas" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([49,48])"
+              >
+                Transaminasas TGO – TGP
+              </q-checkbox>
+            </div>
+<!--            ☐ Fosfatasa alcalina y ácida-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.fosfatasa" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([27])"
+              >
+                Fosfatasa alcalina y ácida
+              </q-checkbox>
+            </div>
+<!--            ☐ Test de embarazo en sangre (HCG)-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.test_embarazo" :true-value="1" :false-value="null" dense
+              >
+                Test de embarazo en sangre (HCG)
+              </q-checkbox>
+            </div>
+<!--            ☐ Frotis tinción Gram-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.frotis_gram" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([82])"
+              >
+                Frotis tinción Gram
+              </q-checkbox>
+            </div>
+<!--            ☐ Reactantes de fase aguda (VES, Fibrinógeno, PCR)-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.reactantes_fase_aguda" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([2, 3, 54])"
+              >
+                Reactantes de fase aguda (VES, Fibrinógeno, PCR)
+              </q-checkbox>
+            </div>
+<!--            ☐ Grupo sanguíneo y factor Rh-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.grupo_sanguineo" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([5])"
+              >
+                Grupo sanguíneo y factor Rh
+              </q-checkbox>
+            </div>
+<!--            Reacción Widal-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.reaccion_widal" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([61])"
+              >
+                Reacción Widal
+              </q-checkbox>
+            </div>
+<!--            Glicemia-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.glicemia" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([31])"
+              >
+                Glicemia
+              </q-checkbox>
+            </div>
+<!--            ☐ RPR para sífilis – VDRL-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.rpr_sifilis" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([59])"
+              >
+                RPR para sífilis – VDRL
+              </q-checkbox>
+            </div>
+<!--            ☐ Gasometría arterial o venosa-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.gasometria" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([30])"
+              >
+                Gasometría arterial o venosa
+              </q-checkbox>
+            </div>
+<!--&lt;!&ndash;           Hemoglobina y hematocrito-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.hemoglobina" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([7])"
+              >
+                Hemoglobina y hematocrito
+              </q-checkbox>
+            </div>
+<!--            Hemograma completo-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.hemograma_completo" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([6])"
+              >
+                Hemograma completo
+              </q-checkbox>
+            </div>
+<!--            VIH-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.vih" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([58])"
+              >
+                VIH
+              </q-checkbox>
+            </div>
+<!--            Ihonograma-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.ihonograma" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([35])"
+              >
+                Ionograma
+              </q-checkbox>
+            </div>
+
+          </div>
 
           <div class="row q-col-gutter-xs">
             <div class="col-12">
@@ -392,6 +666,7 @@
                     <div class="row q-col-gutter-xs">
                       <div v-for="servicio in filteredServicios(area)" :key="servicio.id || servicio.codigo"
                            class="col-12 col-sm-6">
+<!--                        <pre>{{servicio}}</pre>-->
                         <q-checkbox v-model="servicio.seleccionado" :true-value="1" :false-value="0" dense>
                           <div>
                             {{ textCapitalize(servicio.nombre) }}
@@ -697,6 +972,7 @@ export default {
   },
   data () {
     return {
+      extras: {},
       moment: moment,
       dialogDoctorNew: false,
       doctor: {
@@ -816,6 +1092,25 @@ export default {
     })
   },
   methods: {
+    selecinarCodigo(codigos){
+      // this.areas.forEach(area => {
+      //   (area.servicios || []).forEach(s => {
+      //     if(s.codigo === codigo){
+      //       // s.seleccionado = 1 si esta mascao desmaracar
+      //       s.seleccionado = s.seleccionado === 1 ? 0 : 1
+      //     }
+      //   })
+      // })
+      for (const codigo of codigos) {
+        this.areas.forEach(area => {
+          (area.servicios || []).forEach(s => {
+            if (s.codigo === codigo) {
+              s.seleccionado = s.seleccionado === 1 ? 0 : 1
+            }
+          })
+        })
+      }
+    },
     consentimientoBaseDesdeSolicitud (s) {
       return {
         id: null,
