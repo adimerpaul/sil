@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Area;
 use App\Models\Recogido;
 use App\Models\Solicitude;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -90,17 +91,16 @@ class RecogidoController extends Controller
             'grado_parentesco' => 'nullable|string|max:120',
             'telefono_recogido' => 'nullable|string|max:40',
             'ci_recogido' => 'nullable|string|max:40',
-            'recogido_en_dia' => 'nullable|date',
         ]);
-        $data['recogido_en_dia'] = $data['recogido_en_dia'] ? date('Y-m-d H:i:s', strtotime($data['recogido_en_dia'])) : null;
+
         if ($data['fue_recogido']) {
             $request->validate([
                 'recogido_por_personal' => 'required|string|max:255',
                 'grado_parentesco' => 'required|string|max:120',
                 'telefono_recogido' => 'required|string|max:40',
                 'ci_recogido' => 'required|string|max:40',
-                'recogido_en_dia' => 'required|date',
             ]);
+            $data['recogido_en_dia'] = now();
         } else {
             $data['recogido_por_personal'] = null;
             $data['grado_parentesco'] = null;
@@ -124,7 +124,6 @@ class RecogidoController extends Controller
             'grado_parentesco' => 'nullable|string|max:120',
             'telefono_recogido' => 'nullable|string',
             'ci_recogido' => 'nullable|string|max:40',
-            'recogido_en_dia' => 'nullable|date',
         ]);
 
         if ($data['fue_recogido']) {
@@ -133,8 +132,8 @@ class RecogidoController extends Controller
                 'grado_parentesco' => 'nullable|string|max:120',
                 'telefono_recogido' => 'nullable|string|max:40',
                 'ci_recogido' => 'nullable|string|max:40',
-                'recogido_en_dia' => 'nullable|date',
             ]);
+            $data['recogido_en_dia'] = now();
         } else {
             $data['recogido_por_personal'] = null;
             $data['grado_parentesco'] = null;
@@ -181,5 +180,122 @@ class RecogidoController extends Controller
             'updated_count' => $count,
             'rows' => $rows,
         ]);
+    }
+
+    public function reportePdf(Request $request)
+    {
+        $user = $request->user();
+        $tipo = (string) $request->get('tipo', 'dia'); // dia|area|pendientes|activos|recogidos
+        $search = trim((string) $request->get('search', ''));
+        $from = $request->get('from');
+        $to = $request->get('to');
+        $date = $request->get('date', now()->toDateString());
+
+        $areaId = $request->filled('area_id') ? (int) $request->get('area_id') : null;
+        if (($user->role ?? null) !== 'Administrador') {
+            $areaId = (int) ($user->area_id ?? 0);
+        }
+
+        $query = DB::table('servicio_solicitudes as ss')
+            ->join('solicitudes as s', 's.id', '=', 'ss.solicitude_id')
+            ->leftJoin('areas as a', 'a.id', '=', 'ss.area_id')
+            ->leftJoin('servicios as se', 'se.id', '=', 'ss.servicio_id')
+            ->whereNull('ss.deleted_at')
+            ->whereNull('s.deleted_at')
+            ->when($areaId, fn($q) => $q->where('ss.area_id', $areaId))
+            ->when($from, fn($q) => $q->whereDate(DB::raw('COALESCE(ss.recogido_en_dia, s.fecha_solicitud)'), '>=', $from))
+            ->when($to, fn($q) => $q->whereDate(DB::raw('COALESCE(ss.recogido_en_dia, s.fecha_solicitud)'), '<=', $to))
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($w) use ($search) {
+                    $w->where('s.paciente_nombre', 'like', "%{$search}%")
+                        ->orWhere('s.doctor_nombre', 'like', "%{$search}%")
+                        ->orWhere('s.nro_registro', 'like', "%{$search}%")
+                        ->orWhere('s.codigo', 'like', "%{$search}%")
+                        ->orWhere('ss.recogido_por_personal', 'like', "%{$search}%")
+                        ->orWhere('ss.ci_recogido', 'like', "%{$search}%");
+                });
+            });
+
+        switch ($tipo) {
+            case 'pendientes':
+                $query->where(function ($q) {
+                    $q->whereNull('ss.fue_recogido')->orWhere('ss.fue_recogido', 0);
+                });
+                break;
+            case 'activos':
+                $query->where('ss.realizado', 'REALIZADO');
+                break;
+            case 'recogidos':
+                $query->where('ss.fue_recogido', 1);
+                break;
+            case 'area':
+                // Solo aplica filtros generales + area_id.
+                break;
+            case 'dia':
+            default:
+                $query->whereDate(DB::raw('COALESCE(ss.recogido_en_dia, s.fecha_solicitud)'), '=', $date);
+                break;
+        }
+
+        $rows = $query
+            ->select(
+                'ss.id',
+                'ss.solicitude_id',
+                'ss.area_id',
+                'ss.realizado',
+                'ss.fue_recogido',
+                'ss.recogido_por_personal',
+                'ss.ci_recogido',
+                'ss.telefono_recogido',
+                'ss.grado_parentesco',
+                'ss.recogido_en_dia',
+                'ss.nombre as servicio_nombre_pivot',
+                'se.nombre as servicio_nombre_catalogo',
+                'a.name as area_name',
+                'a.title as area_title',
+                's.codigo',
+                's.nro_registro',
+                's.paciente_nombre',
+                's.paciente_ci',
+                's.doctor_nombre',
+                's.fecha_solicitud',
+                's.fecha_creacion'
+            )
+            ->orderByDesc('ss.recogido_en_dia')
+            ->orderByDesc('ss.id')
+            ->get();
+
+        $total = $rows->count();
+        $totalRecogidos = $rows->where('fue_recogido', 1)->count();
+        $totalPendientes = $rows->where('fue_recogido', 0)->count();
+        $totalRealizados = $rows->where('realizado', 'REALIZADO')->count();
+
+        $labels = [
+            'dia' => 'Reporte por dia',
+            'area' => 'Reporte por area',
+            'pendientes' => 'Reporte pendientes',
+            'activos' => 'Reporte activos',
+            'recogidos' => 'Reporte recogidos',
+        ];
+
+        $pdf = Pdf::loadView('reportes.recogidos_resumen', [
+            'rows' => $rows,
+            'tipo' => $tipo,
+            'titulo' => $labels[$tipo] ?? 'Reporte recogidos',
+            'date' => $date,
+            'from' => $from,
+            'to' => $to,
+            'search' => $search,
+            'area' => $areaId ? Area::find($areaId) : null,
+            'generado' => now(),
+            'totales' => [
+                'total' => $total,
+                'recogidos' => $totalRecogidos,
+                'pendientes' => $totalPendientes,
+                'realizados' => $totalRealizados,
+            ],
+        ])->setPaper('letter', 'landscape');
+
+        return $pdf->stream('reporte_recogidos_'.$tipo.'_'.now()->format('Ymd_His').'.pdf');
     }
 }

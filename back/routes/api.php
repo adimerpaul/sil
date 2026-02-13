@@ -137,6 +137,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('recogidos', [RecogidoController::class, 'index']);
     Route::put('recogidos/{id}', [RecogidoController::class, 'update']);
     Route::post('recogidos/recoger-area', [RecogidoController::class, 'recogerArea']);
+    Route::get('reportes/recogidos/pdf', [RecogidoController::class, 'reportePdf']);
 
 });
 Route::get('solicitudes-area-preanalitica/pdf', [SolicitudeController::class, 'pdfPreanalitica']);
@@ -165,6 +166,5 @@ Route::get('/cultivo-antibiograma/solicitud/{id}/pdf', [\App\Http\Controllers\Cu
 
 Route::get('/inmunologia/solicitude-formulario/{id}/pdf', [\App\Http\Controllers\InmunologiaController::class, 'pdfOne']);
 Route::get('/inmunologia/solicitud/{id}/pdf-all', [\App\Http\Controllers\InmunologiaController::class, 'pdfAll']);
-
 
 
