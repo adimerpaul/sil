@@ -39,6 +39,11 @@ const routes = [
         component: () => import('pages/solicitudes/Solicitudes.vue'),
         meta: {requiresAuth: true, perm: 'Solicitudes'}
       },
+      {
+        path: '/recogidos',
+        component: () => import('pages/recogidos/Recogidos.vue'),
+        meta: {requiresAuth: true, perm: 'Solicitudes'}
+      },
 
       {
         path: '/solicitudes/new',

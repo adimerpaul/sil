@@ -179,6 +179,14 @@
             <q-item-label class="text-white">Admision</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item dense to="/recogidos" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Solicitudes')">
+          <q-item-section avatar>
+            <q-icon name="inventory_2" class="text-white"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="text-white">Recogidos</q-item-label>
+          </q-item-section>
+        </q-item>
         <q-item dense to="/area-preanalitica" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Area preanalitica')">
           <q-item-section avatar>
             <q-icon name="science" class="text-white"/>
