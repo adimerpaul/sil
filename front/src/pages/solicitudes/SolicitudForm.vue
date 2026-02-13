@@ -56,9 +56,9 @@
               <q-input v-model="solicitud.paciente_telefono" label="Celular" dense outlined clearable/>
             </div>
 
-            <div class="col-12 col-md-6">
-              <q-input v-model="solicitud.paciente_direccion" label="Dirección" dense outlined clearable/>
-            </div>
+<!--            <div class="col-12 col-md-6">-->
+<!--              <q-input v-model="solicitud.paciente_direccion" label="Dirección" dense outlined clearable/>-->
+<!--            </div>-->
             <div class="col-12 col-md-6">
               <div class="text-caption text-black">FUM (Fecha última menstruación)</div>
               <q-chip size="12px" color="primary" text-color="white">FUM: {{ solicitud.paciente_fum || 'N/A' }}</q-chip>
@@ -374,41 +374,12 @@
               </div>
             </q-card-section>
           </q-card>
-          <div class="row">
-<!--            ☐ Bilirrubinas totales y fracciones-->
-<!--            ☐ Coproparasitológico simple-->
-<!--            ☐ Coproparasitológico seriado-->
-<!--            ☐ Creatinina en orina-->
-<!--            ☐ Creatinina sérica-->
-<!--            ☐ Cultivo p/ gérmenes comunes y antibiograma-->
-<!--            ☐ Examen general de orina-->
-<!--            ☐ Electrolitos (sodio, potasio, cloro)-->
-<!--            ☐ Factor reumatoideo-->
-<!--            ☐ Fosfatasa alcalina y ácida-->
-<!--            ☐ Frotis tinción Gram-->
-<!--            ☐ Grupo sanguíneo y factor Rh-->
-<!--            ☐ Glicemia-->
-<!--            ☐ Gasometría arterial o venosa-->
-<!--            ☐ Hemoglobina y hematocrito-->
-<!--            ☐ Hemograma completo-->
-
-<!--            ☐ Inmunoglobulinas IgG, IgM, IgA-->
-<!--            ☐ Moco fecal-->
-<!--            ☐ Nitrógeno ureico sérico y urea-->
-<!--            ☐ Proteína C Reactiva (PCR)-->
-<!--            ☐ Proteinuria de 24 horas-->
-<!--            ☐ Prueba rápida para sífilis-->
-<!--            ☐ Tiempo de coagulación y tiempo de sangría-->
-<!--            ☐ Tiempo de protrombina / TPP-->
-<!--            ☐ Transaminasas TGO – TGP-->
-<!--            ☐ Test de embarazo en sangre (HCG)-->
-<!--            ☐ Reactantes de fase aguda (VES, Fibrinógeno, PCR)-->
-<!--            ☐ Reacción Widal-->
-<!--            ☐ RPR para sífilis – VDRL-->
-<!--            ☐ VIH-->
+<!--          <div class="row"  mostrar solo al crar no al editar-->
+          <div class="row q-ma-md" v-if="!solicitud.id" style="border: 1px solid #3666ce; padding: 10px; border-radius: 4px;">
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.bilirrubinas_totales" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([17])"
+                          class="text-subtitle2"
               >
                 Bilirrubinas totales y fracciones
               </q-checkbox>
@@ -416,6 +387,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.inmunoglobulinas" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([144, 145, 146])"
+                          class="text-subtitle2"
               >
                 Inmunoglobulinas IgG, IgM, IgA
               </q-checkbox>
@@ -423,6 +395,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.coproparasitologico_simple" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([70])"
+                          class="text-subtitle2"
               >
                 Coproparasitológico simple
               </q-checkbox>
@@ -431,6 +404,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.moco_fecal" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([75])"
+                          class="text-subtitle2"
               >
                 Moco fecal
               </q-checkbox>
@@ -439,6 +413,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.coproparasitologico_seriado" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([71])"
+                          class="text-subtitle2"
               >
                 Coproparasitológico seriado
               </q-checkbox>
@@ -447,6 +422,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.nitrogeno_ureico" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([39, 51])"
+                          class="text-subtitle2"
               >
                 Nitrógeno ureico sérico y urea
               </q-checkbox>
@@ -454,6 +430,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.creatinina_orina" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([24])"
+                          class="text-subtitle2"
               >
                 Creatinina en orina
               </q-checkbox>
@@ -461,6 +438,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.proteinac" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([54])"
+                          class="text-subtitle2"
               >
                 Proteína C Reactiva (PCR)
               </q-checkbox>
@@ -469,6 +447,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.creatinina_serica" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([28])"
+                          class="text-subtitle2"
               >
                 Creatinina sérica
               </q-checkbox>
@@ -477,6 +456,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.proteinuria_24h" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([45])"
+                          class="text-subtitle2"
               >
                 Proteinuria de 24 horas
               </q-checkbox>
@@ -485,6 +465,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.cultivo_germenes" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([79])"
+                          class="text-subtitle2"
               >
                 Cultivo p/ gérmenes comunes y antibiograma
               </q-checkbox>
@@ -493,6 +474,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.prueba_sifilis" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([59])"
+                          class="text-subtitle2"
               >
                 Prueba rápida para sífilis
               </q-checkbox>
@@ -501,6 +483,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.examen_orina" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([65])"
+                          class="text-subtitle2"
               >
                 Examen general de orina
               </q-checkbox>
@@ -516,6 +499,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.electrolitos" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([26])"
+                          class="text-subtitle2"
               >
                 Electrolitos (sodio, potasio, cloro)
               </q-checkbox>
@@ -523,6 +507,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.tiempo_protrombina" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([12])"
+                          class="text-subtitle2"
               >
                 Tiempo de protrombina / TPP
               </q-checkbox>
@@ -531,6 +516,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.factor_reumatoideo" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([53])"
+                          class="text-subtitle2"
               >
                 Factor reumatoideo
               </q-checkbox>
@@ -539,6 +525,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.transaminasas" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([49,48])"
+                          class="text-subtitle2"
               >
                 Transaminasas TGO – TGP
               </q-checkbox>
@@ -547,6 +534,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.fosfatasa" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([27])"
+                          class="text-subtitle2"
               >
                 Fosfatasa alcalina y ácida
               </q-checkbox>
@@ -562,6 +550,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.frotis_gram" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([82])"
+                          class="text-subtitle2"
               >
                 Frotis tinción Gram
               </q-checkbox>
@@ -570,6 +559,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.reactantes_fase_aguda" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([2, 3, 54])"
+                          class="text-subtitle2"
               >
                 Reactantes de fase aguda (VES, Fibrinógeno, PCR)
               </q-checkbox>
@@ -578,6 +568,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.grupo_sanguineo" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([5])"
+                          class="text-subtitle2"
               >
                 Grupo sanguíneo y factor Rh
               </q-checkbox>
@@ -586,6 +577,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.reaccion_widal" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([61])"
+                          class="text-subtitle2"
               >
                 Reacción Widal
               </q-checkbox>
@@ -594,6 +586,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.glicemia" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([31])"
+                          class="text-subtitle2"
               >
                 Glicemia
               </q-checkbox>
@@ -602,6 +595,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.rpr_sifilis" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([59])"
+                          class="text-subtitle2"
               >
                 RPR para sífilis – VDRL
               </q-checkbox>
@@ -610,6 +604,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.gasometria" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([30])"
+                          class="text-subtitle2"
               >
                 Gasometría arterial o venosa
               </q-checkbox>
@@ -618,6 +613,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.hemoglobina" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([7])"
+                          class="text-subtitle2"
               >
                 Hemoglobina y hematocrito
               </q-checkbox>
@@ -626,6 +622,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.hemograma_completo" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([6])"
+                          class="text-subtitle2"
               >
                 Hemograma completo
               </q-checkbox>
@@ -634,6 +631,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.vih" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([58])"
+                          class="text-subtitle2"
               >
                 VIH
               </q-checkbox>
@@ -642,6 +640,7 @@
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.ihonograma" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([35])"
+                          class="text-subtitle2"
               >
                 Ionograma
               </q-checkbox>

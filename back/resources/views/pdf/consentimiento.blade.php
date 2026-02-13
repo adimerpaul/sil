@@ -207,7 +207,7 @@
         la toma de muestra, asumiendo total responsabilidad por las consecuencias.
     </p>
 
-    <table class="no-border" style="margin-top:6px;">
+    <table class="no-border" style="margin-top:50px;">
         <tr>
             <td class="centrado" style="width:60%;">
                 ......................................................<br>
