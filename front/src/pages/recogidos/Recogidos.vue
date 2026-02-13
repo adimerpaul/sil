@@ -31,7 +31,26 @@
           </q-input>
         </div>
         <div class="col-12 col-sm-6 text-right">
-          <q-btn color="primary" icon="search" label="Filtrar" no-caps :loading="loading" @click="fetchRows" />
+          <q-btn color="primary" icon="search" label="Filtrar" no-caps :loading="loading" @click="fetchRows" class="q-mr-xs" />
+          <q-btn-dropdown color="grey-8" icon="description" label="Reportes" no-caps :loading="loadingReport">
+            <q-list dense>
+              <q-item clickable v-close-popup @click="openReporte('dia')">
+                <q-item-section>Reporte por día</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="openReporte('area')">
+                <q-item-section>Reporte por área</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="openReporte('pendientes')">
+                <q-item-section>Pendientes</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="openReporte('activos')">
+                <q-item-section>Activos</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="openReporte('recogidos')">
+                <q-item-section>Recogidos</q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
         </div>
       </q-card-section>
     </q-card>
@@ -168,6 +187,7 @@ export default {
   data () {
     return {
       loading: false,
+      loadingReport: false,
       saving: false,
       rows: [],
       areas: [],
@@ -237,6 +257,32 @@ export default {
     onRequest (props) {
       this.pagination = props.pagination
       this.fetchRows()
+    },
+    async openReporte (tipo) {
+      this.loadingReport = true
+      try {
+        const params = {
+          tipo,
+          from: this.filters.from || null,
+          to: this.filters.to || null,
+          date: this.filters.from || moment().format('YYYY-MM-DD'),
+          search: this.filters.search || null,
+          area_id: this.filters.area_id || null,
+        }
+        const res = await this.$axios.get('reportes/recogidos/pdf', {
+          params,
+          responseType: 'blob',
+        })
+
+        const blob = new Blob([res.data], { type: 'application/pdf' })
+        const url = window.URL.createObjectURL(blob)
+        window.open(url, '_blank')
+        setTimeout(() => window.URL.revokeObjectURL(url), 20000)
+      } catch (err) {
+        this.$alert.error(err.response?.data?.message || 'No se pudo generar el reporte')
+      } finally {
+        this.loadingReport = false
+      }
     },
     groupedAreas (servicios = []) {
       const map = {}
