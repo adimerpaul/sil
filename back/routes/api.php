@@ -13,6 +13,7 @@ use App\Http\Controllers\AreaTipoMuestraController; // <-- NUEVO
 use App\Http\Controllers\SolicitudePropiedadController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReporteServiciosController;
+use App\Http\Controllers\RecogidoController;
 
 Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
 
@@ -133,6 +134,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('solicitudes/{id}/marcar-muestra-no-tomada', [SolicitudeController::class, 'marcarMuestraNoTomada']);
 
+    Route::get('recogidos', [RecogidoController::class, 'index']);
+    Route::put('recogidos/{id}', [RecogidoController::class, 'update']);
+    Route::post('recogidos/recoger-area', [RecogidoController::class, 'recogerArea']);
+
 });
 Route::get('solicitudes-area-preanalitica/pdf', [SolicitudeController::class, 'pdfPreanalitica']);
 Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);
@@ -160,8 +165,6 @@ Route::get('/cultivo-antibiograma/solicitud/{id}/pdf', [\App\Http\Controllers\Cu
 
 Route::get('/inmunologia/solicitude-formulario/{id}/pdf', [\App\Http\Controllers\InmunologiaController::class, 'pdfOne']);
 Route::get('/inmunologia/solicitud/{id}/pdf-all', [\App\Http\Controllers\InmunologiaController::class, 'pdfAll']);
-
-
 
 
 

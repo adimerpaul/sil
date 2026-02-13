@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable as AuditableTrait;
-class ServicioSolicitude extends Model implements AuditableContract
+
+class Recogido extends Model implements AuditableContract
 {
-    use AuditableTrait, SoftDeletes;
+    use SoftDeletes, AuditableTrait;
+
+    protected $table = 'servicio_solicitudes';
 
     protected $fillable = [
         'solicitude_id',
@@ -21,8 +24,8 @@ class ServicioSolicitude extends Model implements AuditableContract
         'recogido_por_personal',
         'grado_parentesco',
         'telefono_recogido',
+        'ci_recogido',
         'recogido_en_dia',
-        'ci_recogido'
     ];
 
     protected $casts = [
@@ -30,16 +33,18 @@ class ServicioSolicitude extends Model implements AuditableContract
         'recogido_en_dia' => 'date:Y-m-d',
     ];
 
-    protected $hidden = [
-        'created_at', 'updated_at', 'deleted_at',
-    ];
-    function servicio(){
-        return $this->belongsTo(Servicio::class);
+    public function solicitud()
+    {
+        return $this->belongsTo(Solicitude::class, 'solicitude_id');
     }
-    function solicitud(){
-        return $this->belongsTo(Solicitude::class);
+
+    public function servicio()
+    {
+        return $this->belongsTo(Servicio::class, 'servicio_id');
     }
-    function area(){
-        return $this->belongsTo(Area::class);
+
+    public function area()
+    {
+        return $this->belongsTo(Area::class, 'area_id');
     }
 }

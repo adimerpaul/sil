@@ -115,6 +115,11 @@ class Solicitude extends Model implements AuditableContract
             ->wherePivotNull('deleted_at'); // por SoftDeletes en pivot
     }
 
+    public function servicioSolicitudes()
+    {
+        return $this->hasMany(ServicioSolicitude::class, 'solicitude_id');
+    }
+
     public function preAnaliticaMuestras()
     {
         return $this->hasMany(SolitudePreAnalitica::class, 'solicitude_id');
