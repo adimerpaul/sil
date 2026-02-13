@@ -8,11 +8,11 @@
         <div class="col-12 col-sm-3">
           <q-input v-model="filters.to" type="date" dense outlined label="Hasta" />
         </div>
-        <div class="col-12 col-sm-3" v-if="$store.user?.role === 'Administrador'">
+        <div class="col-12 col-sm-3">
           <q-select
             v-model="filters.area_id"
             :options="areas"
-            option-label="title"
+            :option-label="areaLabel"
             option-value="id"
             emit-value
             map-options
@@ -20,6 +20,7 @@
             dense
             outlined
             label="Area"
+            :disable="!isAdmin"
           />
         </div>
       </q-card-section>
@@ -228,17 +229,32 @@ export default {
   },
   mounted () {
     this.fetchAreas()
+    if (!this.isAdmin) {
+      this.filters.area_id = this.$store.user?.area_id || this.$store.user?.area?.id || null
+    }
     this.fetchRows()
   },
+  computed: {
+    isAdmin () {
+      return this.$store.user?.role === 'Administrador'
+    },
+  },
   methods: {
+    areaLabel (opt) {
+      return opt?.title || opt?.name || `Area ${opt?.id ?? ''}`
+    },
     fetchAreas () {
-      if (this.$store.user?.role !== 'Administrador') return
       this.$axios.get('areas')
         .then(res => { this.areas = res.data || [] })
     },
     params () {
+      const areaId = this.isAdmin
+        ? (this.filters.area_id || null)
+        : (this.$store.user?.area_id || this.$store.user?.area?.id || null)
+
       return {
         ...this.filters,
+        area_id: areaId,
         page: this.pagination.page,
         per_page: this.pagination.rowsPerPage,
       }
@@ -261,13 +277,23 @@ export default {
     async openReporte (tipo) {
       this.loadingReport = true
       try {
+        const areaId = this.isAdmin
+          ? (this.filters.area_id || null)
+          : (this.$store.user?.area_id || this.$store.user?.area?.id || null)
+
+        if (tipo === 'area' && !areaId) {
+          this.$alert.error('Seleccione un area para el reporte por area')
+          this.loadingReport = false
+          return
+        }
+
         const params = {
           tipo,
           from: this.filters.from || null,
           to: this.filters.to || null,
           date: this.filters.from || moment().format('YYYY-MM-DD'),
           search: this.filters.search || null,
-          area_id: this.filters.area_id || null,
+          area_id: areaId,
         }
         const res = await this.$axios.get('reportes/recogidos/pdf', {
           params,
