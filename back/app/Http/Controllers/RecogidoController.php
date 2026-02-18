@@ -13,7 +13,6 @@ class RecogidoController extends Controller
 {
     public function index(Request $request)
     {
-        $user = $request->user();
         $search = trim((string) $request->get('search', ''));
         $from = $request->get('from');
         $to = $request->get('to');
@@ -21,21 +20,6 @@ class RecogidoController extends Controller
         $perPage = $perPage > 0 ? min($perPage, 100) : 10;
 
         $areaId = $request->filled('area_id') ? (int) $request->get('area_id') : null;
-        if (($user->role ?? null) !== 'Administrador') {
-            $areaId = (int) ($user->area_id ?? 0);
-            if ($areaId <= 0) {
-                return response()->json([
-                    'rows' => [],
-                    'pagination' => [
-                        'page' => 1,
-                        'per_page' => $perPage,
-                        'rows_number' => 0,
-                        'last_page' => 1,
-                    ],
-                    'area' => null,
-                ]);
-            }
-        }
 
         $query = Solicitude::query()
             ->with([
@@ -184,7 +168,6 @@ class RecogidoController extends Controller
 
     public function reportePdf(Request $request)
     {
-        $user = $request->user();
         $tipo = (string) $request->get('tipo', 'dia'); // dia|area|pendientes|activos|recogidos
         $search = trim((string) $request->get('search', ''));
         $from = $request->get('from');
@@ -192,9 +175,6 @@ class RecogidoController extends Controller
         $date = $request->get('date', now()->toDateString());
 
         $areaId = $request->filled('area_id') ? (int) $request->get('area_id') : null;
-        if (($user->role ?? null) !== 'Administrador') {
-            $areaId = (int) ($user->area_id ?? 0);
-        }
 
         $query = DB::table('servicio_solicitudes as ss')
             ->join('solicitudes as s', 's.id', '=', 'ss.solicitude_id')
