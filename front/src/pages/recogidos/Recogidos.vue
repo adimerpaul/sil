@@ -11,7 +11,7 @@
         <div class="col-12 col-sm-3">
           <q-select
             v-model="filters.area_id"
-            :options="areas"
+            :options="areaOptions"
             :option-label="areaLabel"
             option-value="id"
             emit-value
@@ -20,7 +20,6 @@
             dense
             outlined
             label="Area"
-            :disable="!isAdmin"
           />
         </div>
       </q-card-section>
@@ -52,6 +51,13 @@
               </q-item>
             </q-list>
           </q-btn-dropdown>
+        </div>
+        <div class="col-12">
+          <span class="text-caption">
+            <q-badge color="blue-9" text-color="white" class="q-mr-sm"><q-icon name="check_circle" class="q-mr-xs" />Recogido</q-badge>
+            <q-badge color="green" text-color="white" class="q-mr-sm"><q-icon name="task_alt" class="q-mr-xs" />Procesado</q-badge>
+            <q-badge color="yellow-7" text-color="black"><q-icon name="schedule" class="q-mr-xs" />Pendiente Procesado</q-badge>
+          </span>
         </div>
       </q-card-section>
     </q-card>
@@ -90,7 +96,7 @@
                 dense
               />
 
-              <q-badge :color="areaStatusColor(ga)" text-color="white" class="q-pa-xs">
+              <q-badge :color="areaStatusColor(ga)" :text-color="areaTextColor(ga)" class="q-pa-xs text-subtitle2">
                 <q-icon :name="areaStatusIcon(ga)" class="q-mr-xs" />
                 {{ ga.area_nombre }} ({{ ga.recogidos }}/{{ ga.total_servicios }})
               </q-badge>
@@ -100,6 +106,7 @@
                 dense
                 color="grey-8"
                 label="Recoger area"
+                class="text-subtitle2"
                 no-caps
                 @click="openDialogByAreas(props.row, [ga])"
               />
@@ -111,10 +118,21 @@
                 dense
                 color="grey"
                 icon="done_all"
-                class="text-black"
+                class="text-black text-subtitle2"
                 label="Seleccionar todos"
                 no-caps
                 @click="openDialogSelected(props.row)"
+              />
+              <q-btn
+                size="sm"
+                dense
+                color="grey"
+                icon="checklist"
+                class="q-ml-sm text-black text-subtitle2"
+                :label="`Solo seleccionados (${selectedAreasCount(props.row.id)})`"
+                no-caps
+                :disable="selectedAreasCount(props.row.id) === 0"
+                @click="openDialogOnlySelected(props.row)"
               />
             </div>
           </div>
@@ -151,11 +169,21 @@
               </div>
 
               <div class="col-12 col-sm-6" v-if="form.fue_recogido">
-                <q-input v-model="form.recogido_por_personal" dense outlined label="Recogido por personal" />
+                <q-input v-model="form.recogido_por_personal" dense outlined label="Recogido por personal" >
+<!--                  templayte un boton alado de copiar -->
+                  <template #append>
+                    <q-btn
+                      flat
+                      dense
+                      icon="content_copy"
+                      @click="form.recogido_por_personal = selectedSolicitud.paciente_nombre"
+                    />
+                  </template>
+                </q-input>
               </div>
               <div class="col-12 col-sm-6" v-if="form.fue_recogido">
 <!--                <q-input v-model="form.grado_parentesco" dense outlined label="Grado de parentesco" />-->
-                <q-select v-model="form.grado_parentesco" :options="['Padre', 'Madre', 'Hno/a', 'Abuelo/a', 'Tio/a', 'Primo/a', 'Otro','Personal']" dense outlined label="Grado de parentesco" />
+                <q-select v-model="form.grado_parentesco" :options="['Padre', 'Madre', 'Hno/a', 'Abuelo/a', 'Tio/a', 'Primo/a', 'Otro','Personal','Interno','Personal sala']" dense outlined label="Grado de parentesco" />
               </div>
               <div class="col-12 col-sm-6" v-if="form.fue_recogido">
                 <q-input v-model="form.telefono_recogido" dense outlined label="Telefono" />
@@ -229,18 +257,19 @@ export default {
   },
   mounted () {
     this.fetchAreas()
-    if (!this.isAdmin) {
-      this.filters.area_id = this.$store.user?.area_id || this.$store.user?.area?.id || null
-    }
     this.fetchRows()
   },
   computed: {
     isAdmin () {
       return this.$store.user?.role === 'Administrador'
     },
+    areaOptions () {
+      return [{ id: null, name: 'Todos' }, ...this.areas]
+    },
   },
   methods: {
     areaLabel (opt) {
+      if (opt?.id === null) return 'Todos'
       return opt?.title || opt?.name || `Area ${opt?.id ?? ''}`
     },
     fetchAreas () {
@@ -248,13 +277,9 @@ export default {
         .then(res => { this.areas = res.data || [] })
     },
     params () {
-      const areaId = this.isAdmin
-        ? (this.filters.area_id || null)
-        : (this.$store.user?.area_id || this.$store.user?.area?.id || null)
-
       return {
         ...this.filters,
-        area_id: areaId,
+        area_id: this.filters.area_id || null,
         page: this.pagination.page,
         per_page: this.pagination.rowsPerPage,
       }
@@ -277,9 +302,7 @@ export default {
     async openReporte (tipo) {
       this.loadingReport = true
       try {
-        const areaId = this.isAdmin
-          ? (this.filters.area_id || null)
-          : (this.$store.user?.area_id || this.$store.user?.area?.id || null)
+        const areaId = this.filters.area_id || null
 
         if (tipo === 'area' && !areaId) {
           this.$alert.error('Seleccione un area para el reporte por area')
@@ -339,10 +362,15 @@ export default {
         all_realizado: x.total_servicios > 0 && x.total_servicios === x.realizados,
       }))
     },
+    areaTextColor(ga) {
+      if (ga.all_recogido) return 'white'
+      if (ga.all_realizado) return 'white'
+      return 'black'
+    },
     areaStatusColor (ga) {
       if (ga.all_recogido) return 'blue-9'
       if (ga.all_realizado) return 'green'
-      return 'orange-7'
+      return 'yellow-7'
     },
     areaStatusIcon (ga) {
       if (ga.all_recogido) return 'check_circle'
@@ -395,7 +423,24 @@ export default {
 
       this.openDialogByAreas(solicitud, grouped)
     },
+    openDialogOnlySelected (solicitud) {
+      const grouped = this.groupedAreas(solicitud.servicio_solicitudes)
+      if (!grouped.length) return
+
+      const selected = grouped.filter(a => this.isSelectedArea(solicitud.id, a.area_id))
+      if (!selected.length) {
+        this.$alert.error('Seleccione al menos un area')
+        return
+      }
+
+      this.openDialogByAreas(solicitud, selected)
+    },
     async saveRecogidoAreas () {
+
+      if (this.form.fue_recogido && !this.form.telefono_recogido) {
+        this.$alert.error('El telefono es obligatorio si fue recogido')
+        return
+      }
       if (!this.selectedSolicitud?.id || !this.selectedDialogAreas.length) return
       this.saving = true
 

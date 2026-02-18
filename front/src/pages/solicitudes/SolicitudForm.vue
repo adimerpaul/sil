@@ -198,8 +198,60 @@
 
             <template v-if="solicitud.tipo_atencion === 'NO'">
               <div class="col-6 col-md-3" >
-                <q-input  v-model="solicitud.tipo_otro"
-                          label="Especificar tipo de atención" dense outlined />
+<!--                <q-input  v-model="solicitud.tipo_otro"-->
+<!--                          label="Especificar tipo de atención" dense outlined />-->
+                <q-select
+                  v-model="solicitud.establecimiento_salud"
+                  :options="establecimientosPrivados"
+                  option-label="nombre"
+                  use-input
+                  @filter="(val, update) => {
+                  update(() => {
+                    const text = (val || '').toLowerCase().trim()
+
+                    if (!text) {
+                      this.establecimientosPrivados = this.establecimientosPrivadosAll
+                      return
+                    }
+
+                    this.establecimientosPrivados = this.establecimientosPrivadosAll
+                      .filter(e => {
+                        const nombre = String(e.nombre || '').toLowerCase()
+                        const tipo = String(e.tipo || '').toLowerCase()
+                        const nivel = String(e.nivel || '').toLowerCase()
+                        return (
+                          nombre.includes(text) ||
+                          tipo.includes(text) ||
+                          nivel.includes(text)
+                        )
+                      })
+                      .slice(0, 50) // 🔥 limita resultados (performance)
+                  })
+                }"
+                  option-value="nombre"
+                  emit-value map-options
+                  label="Establecimiento de salud (SUS)"
+                  dense outlined clearable
+                  @update:model-value="onEstablecimientoChange"
+                >
+                  <template #after>
+                    <q-btn
+                      flat
+                      dense
+                      icon="add_business"
+                      color="positive"
+                      @click="openDialogEstablecimiento('PRIVADO')"
+                    />
+                  </template>
+                  <template #option="scope">
+                    <q-item v-bind="scope.itemProps">
+                      <q-item-section>
+                        <q-item-label>{{ scope.opt.nombre }}</q-item-label>
+                        <q-item-label caption>{{ scope.opt.tipo }} • {{ scope.opt.nivel }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
               </div>
               <div class="col-6 col-md-3" >
                 <q-input v-model="solicitud.numero_factura"
@@ -209,7 +261,7 @@
             <div class="col-6 col-md-6" v-else>
               <q-select
                 v-model="solicitud.establecimiento_salud"
-                :options="establecimientos"
+                :options="establecimientosPublicos"
                 option-label="nombre"
                 use-input
                 @filter="(val, update) => {
@@ -217,11 +269,11 @@
                     const text = (val || '').toLowerCase().trim()
 
                     if (!text) {
-                      this.establecimientos = this.establecimientosAll
+                      this.establecimientosPublicos = this.establecimientosPublicosAll
                       return
                     }
 
-                    this.establecimientos = this.establecimientosAll
+                    this.establecimientosPublicos = this.establecimientosPublicosAll
                       .filter(e => {
                         const nombre = String(e.nombre || '').toLowerCase()
                         const tipo = String(e.tipo || '').toLowerCase()
@@ -241,6 +293,15 @@
                 dense outlined clearable
                 @update:model-value="onEstablecimientoChange"
               >
+                <template #after>
+                  <q-btn
+                    flat
+                    dense
+                    icon="add_business"
+                    color="positive"
+                    @click="openDialogEstablecimiento('PUBLICO')"
+                  />
+                </template>
                 <template #option="scope">
                   <q-item v-bind="scope.itemProps">
                     <q-item-section>
@@ -250,6 +311,7 @@
                   </q-item>
                 </template>
               </q-select>
+<!--              <pre>{{establecimientosPublicos}}</pre>-->
             </div>
 
             <div class="col-12 col-md-6 q-mt-xs">
@@ -491,6 +553,8 @@
 <!--            ☐ Tiempo de coagulación y tiempo de sangría-->
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.tiempo_coagulacion" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([13])"
+                          class="text-subtitle2"
               >
                 Tiempo de coagulación y tiempo de sangría
               </q-checkbox>
@@ -542,6 +606,8 @@
 <!--            ☐ Test de embarazo en sangre (HCG)-->
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.test_embarazo" :true-value="1" :false-value="null" dense
+                @update:model-value="selecinarCodigo([63])"
+                          class="text-subtitle2"
               >
                 Test de embarazo en sangre (HCG)
               </q-checkbox>
@@ -887,6 +953,63 @@
       </q-card-section>
     </q-card>
   </q-dialog>
+  <q-dialog v-model="dialogEstablecimientoNew">
+    <q-card style="min-width: 420px; max-width: 620px;">
+      <q-card-section class="row items-center">
+        <div class="text-h6">Nuevo establecimiento</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+      <q-separator />
+      <q-card-section>
+        <q-form @submit.prevent="guardarEstablecimientoRapido">
+          <div class="row q-col-gutter-sm">
+            <div class="col-12">
+              <q-input v-model="establecimientoNew.nombre" label="Nombre" dense outlined />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-select
+                v-model="establecimientoNew.tipo"
+                :options="['PUBLICO', 'PRIVADO']"
+                label="Tipo"
+                dense
+                outlined
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-select
+                v-model="establecimientoNew.nivel"
+                :options="['NIVEL I', 'NIVEL II', 'NIVEL III']"
+                label="Nivel"
+                dense
+                outlined
+              />
+            </div>
+            <div class="col-12">
+              <q-input v-model="establecimientoNew.direccion" label="Dirección" dense outlined />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input v-model="establecimientoNew.telefono_contacto" label="Teléfono" dense outlined />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input v-model="establecimientoNew.inicial" label="Inicial" dense outlined />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input v-model="establecimientoNew.responsable_laboratorio" label="Responsable" dense outlined />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input v-model="establecimientoNew.telefono_responsable" label="Tel. responsable" dense outlined />
+            </div>
+          </div>
+
+          <div class="text-right q-mt-md">
+            <q-btn flat label="Cancelar" v-close-popup :disable="savingEstablecimiento" />
+            <q-btn color="primary" label="Guardar" type="submit" class="q-ml-sm" :loading="savingEstablecimiento" />
+          </div>
+        </q-form>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
   <q-dialog v-model="dialogPaciente" persistent max-width="600px">
     <q-card style="min-width: 400px; max-width: 90vh;">
       <q-card-section class="row items-center q-pa-md">
@@ -974,7 +1097,20 @@ export default {
       extras: {},
       moment: moment,
       dialogDoctorNew: false,
+      dialogEstablecimientoNew: false,
+      savingEstablecimiento: false,
       doctor: {
+        estado: 'ACTIVO'
+      },
+      establecimientoNew: {
+        nombre: '',
+        tipo: 'PUBLICO',
+        nivel: 'NIVEL I',
+        direccion: '',
+        telefono_contacto: '',
+        inicial: '',
+        responsable_laboratorio: '',
+        telefono_responsable: '',
         estado: 'ACTIVO'
       },
       loading: false,
@@ -985,6 +1121,10 @@ export default {
       doctoresOptionsAll: [],
       areas: [],
       establecimientos: [],
+      establecimientosPublicos: [],
+      establecimientosPublicosAll: [],
+      establecimientosPrivados: [],
+      establecimientosPrivadosAll: [],
       establecimientosAll: [],
       searchCi: '',
       serviciosFilter: '',
@@ -1067,7 +1207,15 @@ export default {
     // this.initSolicitud()
     this.loadDoctores()
     this.diagnosticosGet()
-    this.$axios.get('establecimientos').then(res => { this.establecimientos = res.data; this.establecimientosAll = res.data })
+    this.$axios.get('establecimientos').then(res => {
+      this.establecimientos = res.data;
+      this.establecimientosAll = res.data;
+      // establecimientosPublicos
+      this.establecimientosPublicos = res.data.filter(e => e.tipo === 'PUBLICO')
+      this.establecimientosPublicosAll = res.data.filter(e => e.tipo === 'PUBLICO')
+      this.establecimientosPrivados = res.data.filter(e => e.tipo === 'PRIVADO')
+      this.establecimientosPrivadosAll = res.data.filter(e => e.tipo === 'PRIVADO')
+    })
     this.$axios.get('areasCreateSolicitud').then(res => {
       this.areas = res.data
       console.log('SolicitudForm mounted with solicitudProp:', this.solicitudProp)
@@ -1196,6 +1344,52 @@ export default {
     },
     clickDialogPaciente(){
       this.dialogPaciente = true
+    },
+    openDialogEstablecimiento (tipo) {
+      this.establecimientoNew = {
+        nombre: this.solicitud.establecimiento_salud || '',
+        tipo: tipo || (this.solicitud.tipo_atencion === 'SI' ? 'PUBLICO' : 'PRIVADO'),
+        nivel: 'NIVEL I',
+        direccion: '',
+        telefono_contacto: '',
+        inicial: '',
+        responsable_laboratorio: '',
+        telefono_responsable: '',
+        estado: 'ACTIVO'
+      }
+      this.dialogEstablecimientoNew = true
+    },
+    guardarEstablecimientoRapido () {
+      if (!this.establecimientoNew.nombre || !this.establecimientoNew.nombre.trim()) {
+        this.$alert?.error ? this.$alert.error('Ingrese el nombre del establecimiento') : null
+        return
+      }
+
+      this.savingEstablecimiento = true
+      this.$axios.post('establecimientos', this.establecimientoNew)
+        .then(res => {
+          const est = res.data
+          this.establecimientos.unshift(est)
+          this.establecimientosAll.unshift(est)
+          if (est.tipo === 'PUBLICO') {
+            this.establecimientosPublicos.unshift(est)
+            this.establecimientosPublicosAll.unshift(est)
+          } else {
+            this.establecimientosPrivados.unshift(est)
+            this.establecimientosPrivadosAll.unshift(est)
+          }
+          this.solicitud.establecimiento_salud = est.nombre
+          this.onEstablecimientoChange()
+          this.dialogEstablecimientoNew = false
+          this.$alert?.success ? this.$alert.success('Establecimiento agregado') : null
+        })
+        .catch(e => {
+          const msg = e.response?.data?.message || e.message
+          this.$alert?.error ? this.$alert.error('Error al guardar establecimiento: ' + msg) : null
+        })
+        .finally(() => {
+          this.savingEstablecimiento = false
+        })
     },
     guardarDoctor() {
       this.loading = true
