@@ -95,7 +95,6 @@
         :loading="loading"
         v-model:pagination="pagination"
         :rows-per-page-options="[50, 100, 150,200,300]"
-        @row-click="openDialogSolicitud"
         @request="onRequest"
       >
         <template #top>
@@ -193,20 +192,35 @@
         <!-- ACCIONES -->
         <template #body-cell-actions="props">
           <q-td :props="props" class="text-right">
-            <!--            @click.stop="onGenerarCodigo(props.row)"-->
-            <q-btn
-              v-if="props.row.estado === 'CREADO'"
+            <q-btn-dropdown
               dense
+              color="primary"
               no-caps
-              outline
-              color="deep-purple-6"
-              icon="confirmation_number"
-              :label="props.row.codigo ? 'Ver código' : 'Generar código'"
-              :loading="loadingRowId === props.row.id"
-            />
-            <span v-else class="text-red text-bold">
-              Sin Enviar Muestra
-            </span>
+              label="Opciones"
+              size="sm"
+              @click.stop
+            >
+              <q-list dense style="min-width: 230px">
+                <q-item clickable v-close-popup @click.stop="openDialogSolicitud(null, props.row, null)">
+                  <q-item-section avatar><q-icon name="visibility" /></q-item-section>
+                  <q-item-section>Ver datos</q-item-section>
+                </q-item>
+
+                <q-item clickable v-close-popup @click.stop="openDialogTestEmbarazo(props.row)">
+                  <q-item-section avatar><q-icon name="science" /></q-item-section>
+                  <q-item-section>Llenar test de embarazo</q-item-section>
+                </q-item>
+
+                <q-item
+                  clickable
+                  v-close-popup
+                  @click.stop="printTestEmbarazo(props.row)"
+                >
+                  <q-item-section avatar><q-icon name="print" /></q-item-section>
+                  <q-item-section>Imprimir test de embarazo</q-item-section>
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
           </q-td>
         </template>
 
@@ -654,6 +668,56 @@
 
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="dialogTestEmbarazo" persistent>
+      <q-card style="width: 520px; max-width: 95vw;">
+        <q-card-section class="bg-primary text-white">
+          <div class="text-subtitle1">Test de embarazo</div>
+          <div class="text-caption">
+            {{ testEmbarazoSolicitud?.paciente_nombre || testEmbarazoSolicitud?.paciente?.nombre_completo || '-' }}
+            <span v-if="testEmbarazoSolicitud?.codigo"> | {{ testEmbarazoSolicitud.codigo }}</span>
+          </div>
+        </q-card-section>
+
+        <q-card-section class="q-gutter-sm">
+          <q-select
+            v-model="testEmbarazoForm.test_embarazo"
+            :options="['Positivo', 'Negativo']"
+            label="Resultado"
+            dense
+            outlined
+            options-dense
+            :disable="loadingTestEmbarazo || savingTestEmbarazo || printingTestEmbarazo"
+          />
+          <div class="text-caption text-grey-7" v-if="testEmbarazoForm.quimica_code">
+            Código Química: <b>{{ testEmbarazoForm.quimica_code }}</b>
+          </div>
+          <div class="text-caption text-primary" v-if="loadingTestEmbarazo">
+            Cargando datos del test...
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cerrar" color="grey-8" v-close-popup :disable="savingTestEmbarazo || printingTestEmbarazo" />
+          <q-btn
+            flat
+            label="Imprimir"
+            icon="print"
+            color="primary"
+            :disable="!testEmbarazoForm.test_embarazo"
+            :loading="printingTestEmbarazo"
+            @click="printTestEmbarazo(testEmbarazoSolicitud)"
+          />
+          <q-btn
+            color="primary"
+            icon="save"
+            label="Guardar"
+            :loading="savingTestEmbarazo"
+            @click="saveTestEmbarazo"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <!--    dialogRechazado-->
 <!--    <q-dialog-->
 <!--      v-model="dialogRechazado"-->
@@ -826,6 +890,7 @@ export default {
   data () {
     return {
       dialogConsentimiento: false,
+      dialogTestEmbarazo: false,
       rows: [],
       fecha: moment().format('YYYY-MM-DD'),
       loading: false,
@@ -836,6 +901,15 @@ export default {
       savingPre: false,          // 👈 nuevo
       selectedMuestras: [],      // 👈 nuevo: ids de area_tipo_muestras
       consentimiento: null,
+      testEmbarazoSolicitud: null,
+      savingTestEmbarazo: false,
+      loadingTestEmbarazo: false,
+      printingTestEmbarazo: false,
+      testEmbarazoForm: {
+        solicitude_id: null,
+        test_embarazo: null,
+        quimica_code: null
+      },
       areas_tipo_muestras: [],
       areas_tipo_muestrasAll: [],
       pagination: {
@@ -846,7 +920,7 @@ export default {
         descending: true
       },
       columns: [
-        // { name: 'actions', label: 'Acciones', align: 'right' },
+        { name: 'actions', label: 'Opciones', field: 'id', align: 'left' },
         {
           name: 'fecha_creacion',
           label: 'Fecha Solicitud',
@@ -945,6 +1019,113 @@ export default {
     this.areasTipoMuestrasGet()
   },
   methods: {
+    hasTestEmbarazo (row) {
+      return !!(row?._test_embarazo || row?.quimica_sanguinea?.test_embarazo)
+    },
+    async openDialogTestEmbarazo (row) {
+      if (!row?.id) return
+
+      this.dialogTestEmbarazo = true
+      this.loadingTestEmbarazo = true
+      this.$q.loading.show({ message: 'Cargando test de embarazo...' })
+
+      this.testEmbarazoSolicitud = row
+      this.testEmbarazoForm = {
+        solicitude_id: row.id,
+        test_embarazo: row._test_embarazo || null,
+        quimica_code: row._quimica_code || null
+      }
+
+      try {
+        const { data } = await this.$axios.get(`solicitudes/${row.id}/test-embarazo`)
+        this.testEmbarazoSolicitud = data?.solicitud || row
+        this.testEmbarazoForm = {
+          solicitude_id: row.id,
+          test_embarazo: data?.test_embarazo || null,
+          quimica_code: data?.quimica_code || null
+        }
+        row._test_embarazo = data?.test_embarazo || null
+        row._quimica_code = data?.quimica_code || null
+      } catch (err) {
+        const msg = err.response?.data?.message || err.message
+        this.$alert?.error ? this.$alert.error('Error al cargar test de embarazo: ' + msg) : null
+      } finally {
+        this.loadingTestEmbarazo = false
+        this.$q.loading.hide()
+      }
+    },
+    async saveTestEmbarazo () {
+      if (!this.testEmbarazoForm.solicitude_id) return
+      if (!this.testEmbarazoForm.test_embarazo) {
+        this.$alert?.error ? this.$alert.error('Seleccione un resultado para el test de embarazo.') : null
+        return
+      }
+
+      this.savingTestEmbarazo = true
+      this.$q.loading.show({ message: 'Guardando test de embarazo...' })
+      try {
+        const { data } = await this.$axios.post(
+          `solicitudes/${this.testEmbarazoForm.solicitude_id}/test-embarazo`,
+          { test_embarazo: this.testEmbarazoForm.test_embarazo }
+        )
+        this.testEmbarazoForm.quimica_code = data?.quimica_code || null
+
+        const idx = this.rows.findIndex(r => r.id === this.testEmbarazoForm.solicitude_id)
+        if (idx !== -1) {
+          this.rows[idx]._test_embarazo = this.testEmbarazoForm.test_embarazo
+          this.rows[idx]._quimica_code = this.testEmbarazoForm.quimica_code
+        }
+
+        this.$alert?.success ? this.$alert.success('Test de embarazo guardado correctamente.') : null
+      } catch (err) {
+        const msg = err.response?.data?.message || err.message
+        this.$alert?.error ? this.$alert.error('Error al guardar test de embarazo: ' + msg) : null
+      } finally {
+        this.savingTestEmbarazo = false
+        this.$q.loading.hide()
+      }
+    },
+    async printTestEmbarazo (row) {
+      const id = row?.id || this.testEmbarazoForm.solicitude_id
+      if (!id) return
+
+      this.printingTestEmbarazo = true
+      this.$q.loading.show({ message: 'Preparando impresión...' })
+
+      try {
+        let quimicaCode = row?._quimica_code || this.testEmbarazoForm.quimica_code || null
+
+        if (!this.hasTestEmbarazo(row || { _test_embarazo: this.testEmbarazoForm.test_embarazo })) {
+          const { data } = await this.$axios.get(`solicitudes/${id}/test-embarazo`)
+          if (!data?.test_embarazo) {
+            this.$alert?.error ? this.$alert.error('Debe llenar el test de embarazo antes de imprimir.') : null
+            return
+          }
+          if (row) {
+            row._test_embarazo = data.test_embarazo
+            row._quimica_code = data.quimica_code || null
+          }
+          quimicaCode = data?.quimica_code || quimicaCode
+        }
+
+        if (!quimicaCode) {
+          const { data } = await this.$axios.get(`solicitudes/${id}/test-embarazo`)
+          quimicaCode = data?.quimica_code || null
+          if (!quimicaCode) {
+            this.$alert?.error ? this.$alert.error('No se encontró código de Química para imprimir.') : null
+            return
+          }
+        }
+        const url = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${quimicaCode}/pdf`
+        window.open(url, '_blank')
+      } catch (err) {
+        const msg = err.response?.data?.message || err.message
+        this.$alert?.error ? this.$alert.error('Error al imprimir test de embarazo: ' + msg) : null
+      } finally {
+        this.printingTestEmbarazo = false
+        this.$q.loading.hide()
+      }
+    },
     onCodigoChange() {
       // actualizar codigo y nro_registro en backend
       if (!this.consentimiento) return

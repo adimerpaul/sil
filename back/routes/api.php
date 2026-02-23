@@ -61,6 +61,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('solicitudes/{id}/generar-codigo', [SolicitudeController::class, 'generarCodigo']);
     Route::get('solicitudesMuestrasRechazadas', [SolicitudeController::class, 'muestrasRechazadas']);
     Route::post('solicitudes/{id}/actualizar-codigo', [SolicitudeController::class, 'actualizarCodigo']);
+    Route::get('solicitudes/{id}/test-embarazo', [SolicitudeController::class, 'showTestEmbarazo']);
+    Route::post('solicitudes/{id}/test-embarazo', [SolicitudeController::class, 'saveTestEmbarazo']);
+    Route::get('solicitudes/{id}/test-embarazo/pdf', [SolicitudeController::class, 'printTestEmbarazo']);
 
 //    Route::get('solicitudes-area-analitica', [SolicitudeController::class, 'solicitudesAreaAnalitica']);
 //    Route::post('solicitudes/{id}/analitica', [SolicitudeController::class, 'guardarAnalitica']);
@@ -166,5 +169,4 @@ Route::get('/cultivo-antibiograma/solicitud/{id}/pdf', [\App\Http\Controllers\Cu
 
 Route::get('/inmunologia/solicitude-formulario/{id}/pdf', [\App\Http\Controllers\InmunologiaController::class, 'pdfOne']);
 Route::get('/inmunologia/solicitud/{id}/pdf-all', [\App\Http\Controllers\InmunologiaController::class, 'pdfAll']);
-
 

@@ -8,6 +8,7 @@ use App\Models\SolicitudeFormulario;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Models\ResultadoLaboratorio;
+use App\Models\QuimicaSanguinea;
 use App\Models\Servicio;
 use App\Models\Solicitude;
 use App\Models\Paciente;
@@ -22,6 +23,53 @@ use Illuminate\Support\Facades\Http;
 
 class SolicitudeController extends Controller
 {
+    public function showTestEmbarazo($id)
+    {
+        $solicitud = Solicitude::with(['paciente', 'doctor'])->findOrFail($id);
+        $quimica = QuimicaSanguinea::where('solicitude_id', $id)->first();
+
+        return response()->json([
+            'solicitud' => $solicitud,
+            'test_embarazo' => $quimica?->test_embarazo,
+            'quimica_code' => $quimica?->code,
+        ]);
+    }
+
+    public function saveTestEmbarazo(Request $request, $id)
+    {
+        $solicitud = Solicitude::findOrFail($id);
+
+        $payload = $request->validate([
+            'test_embarazo' => 'required|in:Positivo,Negativo',
+        ]);
+
+        $quimica = QuimicaSanguinea::updateOrCreate(
+            ['solicitude_id' => $solicitud->id],
+            [
+                'test_embarazo' => $payload['test_embarazo'],
+                'user_id' => $request->user()?->id,
+            ]
+        );
+
+        return response()->json([
+            'message' => 'Test de embarazo guardado correctamente.',
+            'test_embarazo' => $quimica->test_embarazo,
+            'quimica_code' => $quimica->code,
+        ]);
+    }
+
+    public function printTestEmbarazo($id)
+    {
+        $quimica = QuimicaSanguinea::where('solicitude_id', $id)->firstOrFail();
+
+        if (empty($quimica->test_embarazo)) {
+            return response()->json(['message' => 'No existe test de embarazo registrado para esta solicitud.'], 422);
+        }
+
+        // Reutiliza exactamente el formato estándar de Química Sanguínea (QR, layout y nomenclatura actual)
+        return app(\App\Http\Controllers\QuimicaSanguineaController::class)->pdfBySolicitude($quimica->code);
+    }
+
     function actualizarCodigo(Request $request, $id){
         //    this.$axios.post(`solicitudes/${this.consentimiento.id}/actualizar-codigo`, {
 //        codigo: this.consentimiento.codigo,
