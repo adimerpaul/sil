@@ -22,4 +22,38 @@ class Paciente extends Model implements Auditable
     protected $hidden = [
         'created_at', 'updated_at', 'deleted_at'
     ];
+
+    protected function toUpperValue($value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $text = trim((string) $value);
+        if ($text === '') {
+            return '';
+        }
+
+        return mb_strtoupper($text, 'UTF-8');
+    }
+
+    public function setNombreCompletoAttribute($value): void
+    {
+        $this->attributes['nombre_completo'] = $this->toUpperValue($value);
+    }
+
+    public function setDireccionAttribute($value): void
+    {
+        $this->attributes['direccion'] = $this->toUpperValue($value);
+    }
+
+    public function setTelefonoAttribute($value): void
+    {
+        $this->attributes['telefono'] = $this->toUpperValue($value);
+    }
+
+    public function setGeneroAttribute($value): void
+    {
+        $this->attributes['genero'] = $this->toUpperValue($value);
+    }
 }

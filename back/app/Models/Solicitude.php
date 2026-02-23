@@ -88,6 +88,40 @@ class Solicitude extends Model implements AuditableContract
         'created_at', 'updated_at', 'deleted_at',
     ];
 
+    protected function toUpperValue($value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $text = trim((string) $value);
+        if ($text === '') {
+            return '';
+        }
+
+        return mb_strtoupper($text, 'UTF-8');
+    }
+
+    public function setPacienteNombreAttribute($value): void
+    {
+        $this->attributes['paciente_nombre'] = $this->toUpperValue($value);
+    }
+
+    public function setPacienteDireccionAttribute($value): void
+    {
+        $this->attributes['paciente_direccion'] = $this->toUpperValue($value);
+    }
+
+    public function setPacienteTelefonoAttribute($value): void
+    {
+        $this->attributes['paciente_telefono'] = $this->toUpperValue($value);
+    }
+
+    public function setPacienteGeneroAttribute($value): void
+    {
+        $this->attributes['paciente_genero'] = $this->toUpperValue($value);
+    }
+
     public function paciente()
     {
         return $this->belongsTo(Paciente::class);

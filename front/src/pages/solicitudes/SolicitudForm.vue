@@ -46,14 +46,28 @@
 <!--              <pre>{{solicitud}}</pre>-->
             </div>
             <div class="col-12 col-sm-6">
-              <q-input v-model="solicitud.paciente_nombre" label="Nombre" dense outlined clearable>
+              <q-input
+                v-model="solicitud.paciente_nombre"
+                label="Nombre"
+                dense
+                outlined
+                clearable
+                @update:model-value="val => setUpperSolicitudField('paciente_nombre', val)"
+              >
                 <template v-slot:append>
                   <q-btn flat dense icon="search" @click="clickDialogPaciente" />
                 </template>
               </q-input>
             </div>
             <div class="col-6 col-sm-3">
-              <q-input v-model="solicitud.paciente_telefono" label="Celular" dense outlined clearable/>
+              <q-input
+                v-model="solicitud.paciente_telefono"
+                label="Celular"
+                dense
+                outlined
+                clearable
+                @update:model-value="val => setUpperSolicitudField('paciente_telefono', val)"
+              />
             </div>
 
 <!--            <div class="col-12 col-md-6">-->
@@ -101,6 +115,7 @@
                 dense
                 outlined
                 clearable
+                @update:model-value="val => setUpperSolicitudField('paciente_discapacidad_cual', val)"
               />
             </div>
             <div class="col-12 col-sm-4" v-if="solicitud.paciente_discapacidad">
@@ -110,6 +125,7 @@
                 dense
                 outlined
                 clearable
+                @update:model-value="val => setUpperSolicitudField('paciente_discapacidad_otro', val)"
               />
             </div>
 
@@ -1239,6 +1255,21 @@ export default {
     })
   },
   methods: {
+    toUpperText (value) {
+      if (value === null || value === undefined) return value
+      return String(value).toLocaleUpperCase('es')
+    },
+    setUpperSolicitudField (field, value) {
+      this.solicitud[field] = this.toUpperText(value)
+    },
+    normalizePacienteUpperFields () {
+      this.solicitud.paciente_nombre = this.toUpperText(this.solicitud.paciente_nombre || '')
+      this.solicitud.paciente_direccion = this.toUpperText(this.solicitud.paciente_direccion || '')
+      this.solicitud.paciente_telefono = this.toUpperText(this.solicitud.paciente_telefono || '')
+      this.solicitud.paciente_genero = this.toUpperText(this.solicitud.paciente_genero || '')
+      this.solicitud.paciente_discapacidad_cual = this.toUpperText(this.solicitud.paciente_discapacidad_cual || '')
+      this.solicitud.paciente_discapacidad_otro = this.toUpperText(this.solicitud.paciente_discapacidad_otro || '')
+    },
     selecinarCodigo(codigos){
       // this.areas.forEach(area => {
       //   (area.servicios || []).forEach(s => {
@@ -1626,6 +1657,7 @@ export default {
     },
 
     guardar () {
+      this.normalizePacienteUpperFields()
       // armar servicios
       this.solicitud.servicios = []
       this.areas.forEach(area => {
@@ -1700,6 +1732,7 @@ export default {
       }
     },
     actulizarSolicitud () {
+      this.normalizePacienteUpperFields()
       this.loading = true
       this.$axios
         .put(`solicitudes/${this.solicitud.id}`, this.solicitud)
