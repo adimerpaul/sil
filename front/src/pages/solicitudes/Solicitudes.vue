@@ -194,7 +194,7 @@
               <div class="col-12 col-sm-4">
                 <q-select
                   v-model="consentimiento.condicion"
-                  :options="['BASAL', 'AYUNO PROL', 'POST PRANDIAL', 'ETAPA_GESTACION']"
+                  :options="['BASAL', 'AYUNO PROL', 'POST PRANDIAL']"
                   dense outlined
                   label="Condicion"
                   clearable

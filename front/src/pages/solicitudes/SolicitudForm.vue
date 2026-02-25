@@ -409,20 +409,20 @@
           </div>
 
           <q-card flat bordered class="q-mb-xs">
-            <q-card-section class="row q-col-gutter-xs">
-              <div class="col-12 col-sm-6">
-                <q-input v-model="serviciosFilter" dense outlined label="Buscar servicio (nombre / código / subárea)" clearable>
-                  <template #append><q-icon name="search" /></template>
-                </q-input>
-              </div>
-              <div class="col-12 col-sm-6">
-                <q-select v-model="serviciosAreaId" :options="areas" option-label="name" option-value="id"
-                          dense outlined clearable label="Filtrar por área" emit-value map-options>
-                  <template #prepend><q-icon name="science" /></template>
-                </q-select>
-                <!--                <pre>{{serviciosAreaId}}</pre>-->
-              </div>
-            </q-card-section>
+<!--            <q-card-section class="row q-col-gutter-xs">-->
+<!--              <div class="col-12 col-sm-6">-->
+<!--                <q-input v-model="serviciosFilter" dense outlined label="Buscar servicio (nombre / código / subárea)" clearable>-->
+<!--                  <template #append><q-icon name="search" /></template>-->
+<!--                </q-input>-->
+<!--              </div>-->
+<!--              <div class="col-12 col-sm-6">-->
+<!--                <q-select v-model="serviciosAreaId" :options="areas" option-label="name" option-value="id"-->
+<!--                          dense outlined clearable label="Filtrar por área" emit-value map-options>-->
+<!--                  <template #prepend><q-icon name="science" /></template>-->
+<!--                </q-select>-->
+<!--                &lt;!&ndash;                <pre>{{serviciosAreaId}}</pre>&ndash;&gt;-->
+<!--              </div>-->
+<!--            </q-card-section>-->
 
             <q-card-section class=" text-grey-7">
               <div v-if="solicitud.tipo_atencion === 'SI' && currentEstablecimiento">
@@ -729,6 +729,20 @@
             </div>
 
           </div>
+          <q-card-section class="row q-col-gutter-xs">
+            <div class="col-12 col-sm-6">
+              <q-input v-model="serviciosFilter" dense outlined label="Buscar servicio (nombre / código / subárea)" clearable>
+                <template #append><q-icon name="search" /></template>
+              </q-input>
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-select v-model="serviciosAreaId" :options="areas" option-label="name" option-value="id"
+                        dense outlined clearable label="Filtrar por área" emit-value map-options>
+                <template #prepend><q-icon name="science" /></template>
+              </q-select>
+              <!--                <pre>{{serviciosAreaId}}</pre>-->
+            </div>
+          </q-card-section>
 
           <div class="row q-col-gutter-xs">
             <div class="col-12">
