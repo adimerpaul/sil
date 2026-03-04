@@ -453,7 +453,7 @@
             </q-card-section>
           </q-card>
 <!--          <div class="row"  mostrar solo al crar no al editar-->
-          <div class="row q-ma-md" v-if="!solicitud.id" style="border: 1px solid #3666ce; padding: 10px; border-radius: 4px;">
+          <div class="row q-ma-md" v-if="!solicitud.id" style="border: 4px solid #3151d9; padding: 10px; border-radius: 4px;">
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.bilirrubinas_totales" :true-value="1" :false-value="null" dense
                 @update:model-value="selecinarCodigo([17])"
@@ -510,7 +510,7 @@
                 @update:model-value="selecinarCodigo([24])"
                           class="text-subtitle2"
               >
-                Creatinina en orina
+                Sangre Oculta en Heces
               </q-checkbox>
             </div>
             <div class="col-12 col-md-6">
@@ -572,7 +572,7 @@
                 @update:model-value="selecinarCodigo([13])"
                           class="text-subtitle2"
               >
-                Tiempo de coagulación y tiempo de sangría
+                Coagulograma
               </q-checkbox>
             </div>
 <!--            ☐ Electrolitos (sodio, potasio, cloro)-->
@@ -589,7 +589,7 @@
                 @update:model-value="selecinarCodigo([12])"
                           class="text-subtitle2"
               >
-                Tiempo de protrombina / TPP
+                Tiempo de protrombina/APTT
               </q-checkbox>
             </div>
 <!--            ☐ Factor reumatoideo-->
@@ -697,7 +697,7 @@
                 @update:model-value="selecinarCodigo([7])"
                           class="text-subtitle2"
               >
-                Hemoglobina y hematocrito
+                Tamizaje  Neonatal
               </q-checkbox>
             </div>
 <!--            Hemograma completo-->
@@ -718,6 +718,14 @@
                 VIH
               </q-checkbox>
             </div>
+<!--            <div class="col-12 col-md-6">-->
+<!--              <q-checkbox v-model="extras.perfil" :true-value="1" :false-value="null" dense-->
+<!--                          @update:model-value="selecinarCodigo([58])"-->
+<!--                          class="text-subtitle2"-->
+<!--              >-->
+<!--                Perfil Tiroideo-->
+<!--              </q-checkbox>-->
+<!--            </div>-->
 <!--            Ihonograma-->
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.ihonograma" :true-value="1" :false-value="null" dense
@@ -731,13 +739,18 @@
           </div>
           <q-card-section class="row q-col-gutter-xs">
             <div class="col-12 col-sm-6">
-              <q-input v-model="serviciosFilter" dense outlined label="Buscar servicio (nombre / código / subárea)" clearable>
+              <q-input v-model="serviciosFilter" dense outlined
+                       label="Buscar servicio (nombre / código / subárea)" clearable
+                       bg-color="indigo-2"
+              >
                 <template #append><q-icon name="search" /></template>
               </q-input>
             </div>
             <div class="col-12 col-sm-6">
               <q-select v-model="serviciosAreaId" :options="areas" option-label="name" option-value="id"
-                        dense outlined clearable label="Filtrar por área" emit-value map-options>
+                        dense outlined clearable label="Filtrar por área" emit-value map-options
+                        bg-color="indigo-2"
+              >
                 <template #prepend><q-icon name="science" /></template>
               </q-select>
               <!--                <pre>{{serviciosAreaId}}</pre>-->

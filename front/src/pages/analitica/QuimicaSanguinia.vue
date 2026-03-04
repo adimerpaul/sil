@@ -56,13 +56,7 @@
           <div>
             <div class="section-title q-mb-xs">Observaciones / Método / Equipo</div>
 
-            <!--            <q-input-->
-            <!--              v-model="form.observaciones"-->
-            <!--              type="textarea"-->
-            <!--              dense outlined autogrow-->
-            <!--              class="bg-white q-mb-sm"-->
-            <!--              placeholder="Observaciones clínicas relevantes…"-->
-            <!--            />-->
+
 
             <div class="row q-col-gutter-sm q-mb-md">
               <div class="col-12 col-md-4">
@@ -101,7 +95,11 @@
                   v-model="form.equipo"
                   :options="[
                     'Mindray 240 –STAT FAX 4500-RADIOMETER',
-                    'Otros'
+                    'Otros',
+                    'A25',
+                    'Juan Studio',
+                    'EDAN',
+                    'EASIS',
                   ]"
                   dense outlined
                   label="Equipo"
@@ -1199,6 +1197,13 @@
               </tbody>
             </q-markup-table>
           </div>
+                      <q-input
+                        v-model="form.observaciones"
+                        type="textarea"
+                        dense outlined autogrow
+                        class="bg-white q-mb-sm"
+                        label="Observaciones clínicas relevantes…"
+                      />
 
 
 

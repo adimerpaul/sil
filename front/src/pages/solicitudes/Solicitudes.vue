@@ -70,14 +70,6 @@
         <q-td :props="props">
           <q-btn-dropdown color="primary" label="Opciones" dense size="10px" no-caps>
             <q-list>
-              <q-item clickable v-close-popup @click="abrirConsentimiento(props.row)">
-                <q-item-section avatar><q-icon name="description" /></q-item-section>
-                <q-item-section>Consentimiento</q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup @click="imprimirConsentimiento(props.row)">
-                <q-item-section avatar><q-icon name="picture_as_pdf" /></q-item-section>
-                <q-item-section>Imprimir consentimiento</q-item-section>
-              </q-item>
               <q-item clickable v-close-popup @click="editar(props.row)">
                 <q-item-section avatar><q-icon name="edit" /></q-item-section>
                 <q-item-section>Editar</q-item-section>
@@ -85,6 +77,14 @@
               <q-item clickable v-close-popup @click="eliminar(props.row.id)">
                 <q-item-section avatar><q-icon name="delete" /></q-item-section>
                 <q-item-section>Eliminar</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="abrirConsentimiento(props.row)">
+                <q-item-section avatar><q-icon name="description" /></q-item-section>
+                <q-item-section>Consentimiento</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="imprimirConsentimiento(props.row)">
+                <q-item-section avatar><q-icon name="picture_as_pdf" /></q-item-section>
+                <q-item-section>Imprimir consentimiento</q-item-section>
               </q-item>
             </q-list>
           </q-btn-dropdown>

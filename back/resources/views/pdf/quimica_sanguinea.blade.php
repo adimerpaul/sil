@@ -848,17 +848,17 @@
                                 <div class="body">
                                     <table class="tbl">
                                         <tr>
-                                            <td style="width:14%" class="bold">Observaciones</td>
+                                            <td style="width:16%" class="bold">Observaciones</td>
                                             <td style="width:86%">{{ val($q,'observaciones') }}</td>
                                         </tr>
-                                        <tr>
-                                            <td class="bold">Método</td>
-                                            <td>{{ val($q,'metodo') }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="bold">Equipo</td>
-                                            <td>{{ val($q,'equipo') }}</td>
-                                        </tr>
+{{--                                        <tr>--}}
+{{--                                            <td class="bold">Método</td>--}}
+{{--                                            <td>{{ val($q,'metodo') }}</td>--}}
+{{--                                        </tr>--}}
+{{--                                        <tr>--}}
+{{--                                            <td class="bold">Equipo</td>--}}
+{{--                                            <td>{{ val($q,'equipo') }}</td>--}}
+{{--                                        </tr>--}}
                                     </table>
                                 </div>
                             </div>
