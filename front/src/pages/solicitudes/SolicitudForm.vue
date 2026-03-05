@@ -718,14 +718,14 @@
                 VIH
               </q-checkbox>
             </div>
-<!--            <div class="col-12 col-md-6">-->
-<!--              <q-checkbox v-model="extras.perfil" :true-value="1" :false-value="null" dense-->
-<!--                          @update:model-value="selecinarCodigo([58])"-->
-<!--                          class="text-subtitle2"-->
-<!--              >-->
-<!--                Perfil Tiroideo-->
-<!--              </q-checkbox>-->
-<!--            </div>-->
+            <div class="col-12 col-md-6">
+              <q-checkbox v-model="extras.perfil" :true-value="1" :false-value="null" dense
+                          @update:model-value="selecinarCodigo([116,118,119,120])"
+                          class="text-subtitle2"
+              >
+                Perfil Tiroideo
+              </q-checkbox>
+            </div>
 <!--            Ihonograma-->
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.ihonograma" :true-value="1" :false-value="null" dense
