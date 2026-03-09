@@ -52,6 +52,15 @@ class ConsentimientoController extends Controller
             'fecha_consentimiento' => now()->toDateString(),
             'fecha_recepcion' => now()->toDateString(),
             'hora_recepcion' => now()->format('H:i'),
+            'm_orina' => 0,
+            'hr_recoleccion_orina' => null,
+            'm_liquidos' => 0,
+            'hr_recoleccion_liquidos' => null,
+            'm_esputo' => 0,
+            'hr_recoleccion_esputo' => null,
+            'm_secreciones' => 0,
+            'hr_recoleccion_secreciones' => null,
+            'observaciones' => null,
         ]);
     }
 

@@ -48,6 +48,15 @@ class Consentimiento extends Model implements AuditableContract
         'declarante_condicion',
         'declarante_condicion_otro',
         'fecha_consentimiento',
+        'm_orina',
+        'hr_recoleccion_orina',
+        'm_liquidos',
+        'hr_recoleccion_liquidos',
+        'm_esputo',
+        'hr_recoleccion_esputo',
+        'm_secreciones',
+        'hr_recoleccion_secreciones',
+        'observaciones',
 
         'user_id',
     ];
