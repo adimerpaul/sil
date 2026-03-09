@@ -507,7 +507,7 @@
             </div>
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.creatinina_orina" :true-value="1" :false-value="null" dense
-                @update:model-value="selecinarCodigo([24])"
+                @update:model-value="selecinarCodigo([77])"
                           class="text-subtitle2"
               >
                 Sangre Oculta en Heces
@@ -524,7 +524,7 @@
 <!--            ☐ Creatinina sérica-->
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.creatinina_serica" :true-value="1" :false-value="null" dense
-                @update:model-value="selecinarCodigo([28])"
+                @update:model-value="selecinarCodigo([25])"
                           class="text-subtitle2"
               >
                 Creatinina sérica
@@ -569,7 +569,7 @@
 <!--            ☐ Tiempo de coagulación y tiempo de sangría-->
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.tiempo_coagulacion" :true-value="1" :false-value="null" dense
-                @update:model-value="selecinarCodigo([13])"
+                @update:model-value="selecinarCodigo([10,12,13])"
                           class="text-subtitle2"
               >
                 Coagulograma
@@ -676,7 +676,7 @@
 <!--            ☐ RPR para sífilis – VDRL-->
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.rpr_sifilis" :true-value="1" :false-value="null" dense
-                @update:model-value="selecinarCodigo([59])"
+                @update:model-value="selecinarCodigo([62])"
                           class="text-subtitle2"
               >
                 RPR para sífilis – VDRL
@@ -694,7 +694,7 @@
 <!--&lt;!&ndash;           Hemoglobina y hematocrito-->
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.hemoglobina" :true-value="1" :false-value="null" dense
-                @update:model-value="selecinarCodigo([7])"
+                @update:model-value="selecinarCodigo([17])"
                           class="text-subtitle2"
               >
                 Tamizaje  Neonatal
