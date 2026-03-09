@@ -150,7 +150,7 @@
     </q-dialog>
 
     <q-dialog v-model="consentimientoDialog" persistent>
-      <q-card style="min-width: 720px; max-width: 920px;">
+      <q-card style="width: min(920px, 96vw); max-width: 96vw;">
         <q-card-section class="row items-center">
           <div class="text-h6">Consentimiento en Admision</div>
           <q-space />
@@ -228,6 +228,38 @@
               <div class="col-12" v-if="consentimiento.declarante_condicion === 'Otros'">
                 <q-input v-model="consentimiento.declarante_condicion_otro" dense outlined label="Otra condicion" />
               </div>
+
+              <div class="col-12"><q-separator class="q-my-sm" /></div>
+              <div class="col-12"><div class="text-subtitle2 q-mb-xs">Tipo de muestra</div></div>
+
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-checkbox v-model="consentimiento.m_orina" :true-value="1" :false-value="0" dense label="Orina" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-input v-model="consentimiento.hr_recoleccion_orina" type="time" dense outlined label="Hora recoleccion orina" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-checkbox v-model="consentimiento.m_liquidos" :true-value="1" :false-value="0" dense label="Liquidos" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-input v-model="consentimiento.hr_recoleccion_liquidos" type="time" dense outlined label="Hora recoleccion liquidos" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-checkbox v-model="consentimiento.m_esputo" :true-value="1" :false-value="0" dense label="Esputo" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-input v-model="consentimiento.hr_recoleccion_esputo" type="time" dense outlined label="Hora recoleccion esputo" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-checkbox v-model="consentimiento.m_secreciones" :true-value="1" :false-value="0" dense label="Secreciones" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-input v-model="consentimiento.hr_recoleccion_secreciones" type="time" dense outlined label="Hora recoleccion secreciones" />
+              </div>
+
+              <div class="col-12">
+                <q-input v-model="consentimiento.observaciones" type="textarea" autogrow dense outlined label="Observaciones" />
+              </div>
             </div>
 
             <div class="text-right q-mt-md">
@@ -298,7 +330,16 @@ export default {
         tipo: '',
         declarante_nombre: '',
         declarante_condicion: '',
-        declarante_condicion_otro: ''
+        declarante_condicion_otro: '',
+        m_orina: 0,
+        hr_recoleccion_orina: '',
+        m_liquidos: 0,
+        hr_recoleccion_liquidos: '',
+        m_esputo: 0,
+        hr_recoleccion_esputo: '',
+        m_secreciones: 0,
+        hr_recoleccion_secreciones: '',
+        observaciones: ''
       }
     }
   },
@@ -347,7 +388,16 @@ export default {
         tipo: '',
         declarante_nombre: '',
         declarante_condicion: '',
-        declarante_condicion_otro: ''
+        declarante_condicion_otro: '',
+        m_orina: 0,
+        hr_recoleccion_orina: '',
+        m_liquidos: 0,
+        hr_recoleccion_liquidos: '',
+        m_esputo: 0,
+        hr_recoleccion_esputo: '',
+        m_secreciones: 0,
+        hr_recoleccion_secreciones: '',
+        observaciones: ''
       }
     },
     abrirConsentimiento (row) {
@@ -420,4 +470,5 @@ export default {
   }
 }
 </script>
+
 

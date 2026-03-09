@@ -86,7 +86,7 @@
 
     <!-- Diálogo -->
     <q-dialog v-model="dialog">
-      <q-card style="min-width: 600px; max-width: 900px;">
+      <q-card style="width: min(900px, 96vw); max-width: 96vw;">
         <q-card-section class="row items-center">
           <div class="text-h6">
             {{ soloVer ? 'Ver consentimiento' : (editando ? 'Editar consentimiento' : 'Nuevo consentimiento') }}
@@ -346,7 +346,7 @@
                 <q-select
                   v-model="consentimiento.declarante_condicion"
                   :options="['Padre', 'Madre', 'Abuelo/a', 'Hijo/a', 'Propio', 'Otros']"
-                  label="Condición del declarante"
+                  label="Condicion del declarante"
                   dense outlined
                   clearable
                   :disable="soloVer"
@@ -354,7 +354,48 @@
                 <q-input
                   v-if="consentimiento.declarante_condicion === 'Otros'"
                   v-model="consentimiento.declarante_condicion_otro"
-                  label="Especifique condición del declarante"
+                  label="Especifique condicion del declarante"
+                  dense outlined
+                  :readonly="soloVer"
+                />
+              </div>
+
+              <div class="col-12"><q-separator class="q-my-sm" /></div>
+
+              <div class="col-12">
+                <div class="text-subtitle2 q-mb-xs">Tipo de muestra</div>
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-checkbox v-model="consentimiento.m_orina" :true-value="1" :false-value="0" dense label="Orina" :disable="soloVer" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-input v-model="consentimiento.hr_recoleccion_orina" type="time" label="Hora recoleccion orina" dense outlined :readonly="soloVer" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-checkbox v-model="consentimiento.m_liquidos" :true-value="1" :false-value="0" dense label="Liquidos" :disable="soloVer" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-input v-model="consentimiento.hr_recoleccion_liquidos" type="time" label="Hora recoleccion liquidos" dense outlined :readonly="soloVer" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-checkbox v-model="consentimiento.m_esputo" :true-value="1" :false-value="0" dense label="Esputo" :disable="soloVer" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-input v-model="consentimiento.hr_recoleccion_esputo" type="time" label="Hora recoleccion esputo" dense outlined :readonly="soloVer" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-checkbox v-model="consentimiento.m_secreciones" :true-value="1" :false-value="0" dense label="Secreciones" :disable="soloVer" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-input v-model="consentimiento.hr_recoleccion_secreciones" type="time" label="Hora recoleccion secreciones" dense outlined :readonly="soloVer" />
+              </div>
+
+              <div class="col-12">
+                <q-input
+                  v-model="consentimiento.observaciones"
+                  type="textarea"
+                  label="Observaciones"
+                  autogrow
                   dense outlined
                   :readonly="soloVer"
                 />
@@ -428,24 +469,8 @@ export default {
     this.loadPacientes();
   },
   methods: {
-    getConsentimientos () {
-      this.loading = true;
-      this.$axios
-        .get('consentimientos', { params: this.filters })
-        .then(res => {
-          this.rows = res.data;
-        })
-        .finally(() => {
-          this.loading = false;
-        });
-    },
-    loadPacientes () {
-      this.$axios.get('pacientes').then(res => {
-        this.pacientesOptions = res.data;
-      });
-    },
-    nuevo () {
-      this.consentimiento = {
+    consentimientoBase () {
+      return {
         paciente_id: null,
         fecha_recepcion: moment().format('YYYY-MM-DD'),
         hora_recepcion: moment().format('HH:mm'),
@@ -472,20 +497,56 @@ export default {
         declarante_condicion: '',
         declarante_condicion_otro: '',
         fecha_consentimiento: moment().format('YYYY-MM-DD'),
+        m_orina: 0,
+        hr_recoleccion_orina: '',
+        m_liquidos: 0,
+        hr_recoleccion_liquidos: '',
+        m_esputo: 0,
+        hr_recoleccion_esputo: '',
+        m_secreciones: 0,
+        hr_recoleccion_secreciones: '',
+        observaciones: '',
       };
+    },
+    getConsentimientos () {
+      this.loading = true;
+      this.$axios
+        .get('consentimientos', { params: this.filters })
+        .then(res => {
+          this.rows = res.data;
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+    loadPacientes () {
+      this.$axios.get('pacientes').then(res => {
+        this.pacientesOptions = res.data;
+      });
+    },
+    nuevo () {
+      this.consentimiento = this.consentimientoBase();
       this.searchCi = '';
       this.editando = false;
       this.soloVer = false;
       this.dialog = true;
     },
     editar (row) {
-      this.consentimiento = { ...row, paciente_id: row.paciente_id };
+      this.consentimiento = {
+        ...this.consentimientoBase(),
+        ...row,
+        paciente_id: row.paciente_id,
+      };
       this.editando = true;
       this.soloVer = false;
       this.dialog = true;
     },
     ver (row) {
-      this.consentimiento = { ...row, paciente_id: row.paciente_id };
+      this.consentimiento = {
+        ...this.consentimientoBase(),
+        ...row,
+        paciente_id: row.paciente_id,
+      };
       this.editando = false;
       this.soloVer = true;
       this.dialog = true;
@@ -596,4 +657,5 @@ export default {
   },
 };
 </script>
+
 

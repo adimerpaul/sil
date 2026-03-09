@@ -807,7 +807,7 @@
       </q-card-section>
     </q-card>
   <q-dialog v-model="consentimientoDialog" persistent>
-    <q-card style="min-width: 720px; max-width: 920px;">
+    <q-card style="width: min(920px, 96vw); max-width: 96vw;">
       <q-card-section class="row items-center">
         <div class="text-h6">Consentimiento de la solicitud</div>
         <q-space />
@@ -818,10 +818,7 @@
         <div class="row q-col-gutter-sm q-mb-sm">
           <div class="col-12 col-sm-6">
             <b>Paciente:</b> {{ consentimiento.nombre_completo || '-' }}
-<!--            icon btn copiar -->
-            <q-btn flat dense icon="content_copy" color="primary" @click="
-             consentimiento.declarante_nombre = consentimiento.nombre_completo;
-            " />
+            <q-btn flat dense icon="content_copy" color="primary" @click="consentimiento.declarante_nombre = consentimiento.nombre_completo" />
           </div>
           <div class="col-12 col-sm-3"><b>CI:</b> {{ consentimiento.ci || '-' }}</div>
           <div class="col-12 col-sm-3"><b>Solicitud:</b> #{{ solicitudCreadaId || '-' }}</div>
@@ -830,69 +827,77 @@
         <q-form @submit.prevent="guardarConsentimientoNuevaSolicitud">
           <div class="row q-col-gutter-sm">
             <div class="col-12 col-sm-3">
-              <q-input v-model="consentimiento.fecha_recepcion" type="date" dense outlined label="Fecha recepción" />
+              <q-input v-model="consentimiento.fecha_recepcion" type="date" dense outlined label="Fecha recepcion" />
             </div>
             <div class="col-12 col-sm-3">
-              <q-input v-model="consentimiento.hora_recepcion" type="time" dense outlined label="Hora recepción" />
+              <q-input v-model="consentimiento.hora_recepcion" type="time" dense outlined label="Hora recepcion" />
             </div>
             <div class="col-12 col-sm-3">
-              <q-input v-model="consentimiento.fecha_solicitud" type="date" dense outlined label="Fecha solicitud médico" />
+              <q-input v-model="consentimiento.fecha_solicitud" type="date" dense outlined label="Fecha solicitud medico" />
             </div>
             <div class="col-12 col-sm-3">
               <q-input v-model="consentimiento.fecha_consentimiento" type="date" dense outlined label="Fecha consentimiento" />
             </div>
 
             <div class="col-12 col-sm-4">
-              <q-toggle
-                v-model="consentimiento.medicamento"
-                :true-value="1"
-                :false-value="0"
-                label="Medicamento"
-              />
+              <q-toggle v-model="consentimiento.medicamento" :true-value="1" :false-value="0" label="Medicamento" />
             </div>
             <div class="col-12 col-sm-8" v-if="consentimiento.medicamento">
               <q-input v-model="consentimiento.tratamiento" dense outlined label="Tratamiento" />
             </div>
 
             <div class="col-12 col-sm-4">
-              <q-select
-                v-model="consentimiento.condicion"
-                :options="['BASAL', 'AYUNO PROL', 'POST PRANDIAL', 'ETAPA_GESTACION']"
-                dense outlined
-                label="Condición"
-                clearable
-              />
+              <q-select v-model="consentimiento.condicion" :options="['BASAL', 'AYUNO PROL', 'POST PRANDIAL', 'ETAPA_GESTACION']" dense outlined label="Condicion" clearable />
             </div>
             <div class="col-12 col-sm-4" v-if="consentimiento.condicion === 'ETAPA_GESTACION'">
-              <q-input v-model="consentimiento.etapa_gestacion" dense outlined label="Etapa gestación" />
+              <q-input v-model="consentimiento.etapa_gestacion" dense outlined label="Etapa gestacion" />
             </div>
             <div class="col-12 col-sm-4">
-              <q-select
-                v-model="consentimiento.tipo"
-                :options="['ACEPTA', 'RECHAZA']"
-                dense outlined
-                label="Tipo consentimiento"
-                clearable
-              />
+              <q-select v-model="consentimiento.tipo" :options="['ACEPTA', 'RECHAZA']" dense outlined label="Tipo consentimiento" clearable />
             </div>
 
             <div class="col-12 col-sm-6">
               <q-input v-model="consentimiento.declarante_nombre" dense outlined label="Yo declarante" />
             </div>
             <div class="col-12 col-sm-6">
-              <q-select
-                v-model="consentimiento.declarante_condicion"
-                :options="['Padre', 'Madre', 'Abuelo/a', 'Hijo/a', 'Propio', 'Otros']"
-                dense outlined
-                label="En condición de"
-                clearable
-              />
+              <q-select v-model="consentimiento.declarante_condicion" :options="['Padre', 'Madre', 'Abuelo/a', 'Hijo/a', 'Propio', 'Otros']" dense outlined label="En condicion de" clearable />
             </div>
             <div class="col-12" v-if="consentimiento.declarante_condicion === 'Otros'">
-              <q-input v-model="consentimiento.declarante_condicion_otro" dense outlined label="Otra condición" />
+              <q-input v-model="consentimiento.declarante_condicion_otro" dense outlined label="Otra condicion" />
+            </div>
+
+            <div class="col-12"><q-separator class="q-my-sm" /></div>
+            <div class="col-12"><div class="text-subtitle2 q-mb-xs">Tipo de muestra</div></div>
+
+            <div class="col-12 col-sm-6 col-md-3">
+              <q-checkbox v-model="consentimiento.m_orina" :true-value="1" :false-value="0" dense label="Orina" />
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <q-input v-model="consentimiento.hr_recoleccion_orina" type="time" dense outlined label="Hora recoleccion orina" />
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <q-checkbox v-model="consentimiento.m_liquidos" :true-value="1" :false-value="0" dense label="Liquidos" />
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <q-input v-model="consentimiento.hr_recoleccion_liquidos" type="time" dense outlined label="Hora recoleccion liquidos" />
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <q-checkbox v-model="consentimiento.m_esputo" :true-value="1" :false-value="0" dense label="Esputo" />
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <q-input v-model="consentimiento.hr_recoleccion_esputo" type="time" dense outlined label="Hora recoleccion esputo" />
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <q-checkbox v-model="consentimiento.m_secreciones" :true-value="1" :false-value="0" dense label="Secreciones" />
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <q-input v-model="consentimiento.hr_recoleccion_secreciones" type="time" dense outlined label="Hora recoleccion secreciones" />
+            </div>
+
+            <div class="col-12">
+              <q-input v-model="consentimiento.observaciones" type="textarea" autogrow dense outlined label="Observaciones" />
             </div>
           </div>
-
           <div class="text-right q-mt-md">
             <q-btn flat label="Omitir" @click="omitirConsentimiento" :disable="consentimientoLoading" />
             <q-btn color="primary" label="Guardar consentimiento" class="q-ml-sm" type="submit" :loading="consentimientoLoading" />
@@ -1197,7 +1202,16 @@ export default {
         tipo: '',
         declarante_nombre: '',
         declarante_condicion: '',
-        declarante_condicion_otro: ''
+        declarante_condicion_otro: '',
+        m_orina: 0,
+        hr_recoleccion_orina: '',
+        m_liquidos: 0,
+        hr_recoleccion_liquidos: '',
+        m_esputo: 0,
+        hr_recoleccion_esputo: '',
+        m_secreciones: 0,
+        hr_recoleccion_secreciones: '',
+        observaciones: ''
       }
     }
   },
@@ -1334,7 +1348,16 @@ export default {
         tipo: '',
         declarante_nombre: '',
         declarante_condicion: '',
-        declarante_condicion_otro: ''
+        declarante_condicion_otro: '',
+        m_orina: 0,
+        hr_recoleccion_orina: '',
+        m_liquidos: 0,
+        hr_recoleccion_liquidos: '',
+        m_esputo: 0,
+        hr_recoleccion_esputo: '',
+        m_secreciones: 0,
+        hr_recoleccion_secreciones: '',
+        observaciones: ''
       }
     },
     abrirConsentimientoNuevaSolicitud (solicitudCreada) {
@@ -1776,3 +1799,4 @@ export default {
   }
 }
 </script>
+
