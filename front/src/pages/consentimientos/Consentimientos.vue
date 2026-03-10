@@ -299,9 +299,10 @@
               <div class="col-12 col-sm-4">
                 <q-input
                   v-model="consentimiento.hora_recepcion"
-                  type="time"
+                  type="text"
                   label="Hora recepción"
                   dense outlined
+                  maxlength="10"
                   :readonly="soloVer"
                 />
               </div>
@@ -366,28 +367,25 @@
                 <div class="text-subtitle2 q-mb-xs">Tipo de muestra</div>
               </div>
               <div class="col-12 col-sm-6 col-md-3">
-                <q-checkbox v-model="consentimiento.m_orina" :true-value="1" :false-value="0" dense label="Orina" :disable="soloVer" />
-              </div>
-              <div class="col-12 col-sm-6 col-md-3">
-                <q-input v-model="consentimiento.hr_recoleccion_orina" type="time" label="Hora recoleccion orina" dense outlined :readonly="soloVer" />
-              </div>
-              <div class="col-12 col-sm-6 col-md-3">
                 <q-checkbox v-model="consentimiento.m_liquidos" :true-value="1" :false-value="0" dense label="Liquidos" :disable="soloVer" />
-              </div>
-              <div class="col-12 col-sm-6 col-md-3">
-                <q-input v-model="consentimiento.hr_recoleccion_liquidos" type="time" label="Hora recoleccion liquidos" dense outlined :readonly="soloVer" />
               </div>
               <div class="col-12 col-sm-6 col-md-3">
                 <q-checkbox v-model="consentimiento.m_esputo" :true-value="1" :false-value="0" dense label="Esputo" :disable="soloVer" />
               </div>
               <div class="col-12 col-sm-6 col-md-3">
-                <q-input v-model="consentimiento.hr_recoleccion_esputo" type="time" label="Hora recoleccion esputo" dense outlined :readonly="soloVer" />
-              </div>
-              <div class="col-12 col-sm-6 col-md-3">
                 <q-checkbox v-model="consentimiento.m_secreciones" :true-value="1" :false-value="0" dense label="Secreciones" :disable="soloVer" />
               </div>
               <div class="col-12 col-sm-6 col-md-3">
-                <q-input v-model="consentimiento.hr_recoleccion_secreciones" type="time" label="Hora recoleccion secreciones" dense outlined :readonly="soloVer" />
+                <q-checkbox v-model="consentimiento.m_orina" :true-value="1" :false-value="0" dense label="Orina" :disable="soloVer" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-input v-model="consentimiento.hr_recoleccion_orina" type="text" label="HR recoleccion orina" dense outlined maxlength="10" :readonly="soloVer" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-checkbox v-model="consentimiento.m_heces" :true-value="1" :false-value="0" dense label="Heces" :disable="soloVer" />
+              </div>
+              <div class="col-12 col-sm-6 col-md-3">
+                <q-input v-model="consentimiento.hr_recoleccion_heces" type="text" label="HR recoleccion heces" dense outlined maxlength="10" :readonly="soloVer" />
               </div>
 
               <div class="col-12">
@@ -500,11 +498,10 @@ export default {
         m_orina: 0,
         hr_recoleccion_orina: '',
         m_liquidos: 0,
-        hr_recoleccion_liquidos: '',
         m_esputo: 0,
-        hr_recoleccion_esputo: '',
         m_secreciones: 0,
-        hr_recoleccion_secreciones: '',
+        m_heces: 0,
+        hr_recoleccion_heces: '',
         observaciones: '',
       };
     },
@@ -657,5 +654,4 @@ export default {
   },
 };
 </script>
-
 

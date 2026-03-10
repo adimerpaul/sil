@@ -21,7 +21,7 @@ return new class extends Migration
 
             // Encabezado del formulario
             $table->date('fecha_recepcion')->nullable();
-            $table->time('hora_recepcion')->nullable();
+            $table->string('hora_recepcion', 20)->nullable();
             $table->date('fecha_solicitud')->nullable();
 
             // Datos del paciente (copiados para dejar constancia tal como firmó)

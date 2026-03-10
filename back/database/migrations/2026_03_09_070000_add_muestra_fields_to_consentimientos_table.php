@@ -10,13 +10,13 @@ return new class extends Migration
     {
         Schema::table('consentimientos', function (Blueprint $table) {
             $table->boolean('m_orina')->nullable()->after('fecha_consentimiento');
-            $table->time('hr_recoleccion_orina')->nullable()->after('m_orina');
+            $table->string('hr_recoleccion_orina', 20)->nullable()->after('m_orina');
             $table->boolean('m_liquidos')->nullable()->after('hr_recoleccion_orina');
-            $table->time('hr_recoleccion_liquidos')->nullable()->after('m_liquidos');
+            $table->string('hr_recoleccion_liquidos', 20)->nullable()->after('m_liquidos');
             $table->boolean('m_esputo')->nullable()->after('hr_recoleccion_liquidos');
-            $table->time('hr_recoleccion_esputo')->nullable()->after('m_esputo');
+            $table->string('hr_recoleccion_esputo', 20)->nullable()->after('m_esputo');
             $table->boolean('m_secreciones')->nullable()->after('hr_recoleccion_esputo');
-            $table->time('hr_recoleccion_secreciones')->nullable()->after('m_secreciones');
+            $table->string('hr_recoleccion_secreciones', 20)->nullable()->after('m_secreciones');
             $table->text('observaciones')->nullable()->after('hr_recoleccion_secreciones');
         });
     }

@@ -55,11 +55,10 @@ class ConsentimientoController extends Controller
             'm_orina' => 0,
             'hr_recoleccion_orina' => null,
             'm_liquidos' => 0,
-            'hr_recoleccion_liquidos' => null,
             'm_esputo' => 0,
-            'hr_recoleccion_esputo' => null,
             'm_secreciones' => 0,
-            'hr_recoleccion_secreciones' => null,
+            'm_heces' => 0,
+            'hr_recoleccion_heces' => null,
             'observaciones' => null,
         ]);
     }

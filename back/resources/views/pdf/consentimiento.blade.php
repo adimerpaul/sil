@@ -91,6 +91,11 @@
             return $fecha;
         }
     }
+
+    function formatHora($hora) {
+        if (!$hora) return '';
+        return substr((string) $hora, 0, 5);
+    }
 @endphp
 
 <table class="no-border" style="margin-bottom:2px;">
@@ -242,17 +247,17 @@
     <tr>
         <td colspan="2">
             <span class="label">TIPO DE MUESTRA:</span>
-            ORINA <span class="box">{{ !empty($c->m_orina) ? 'X' : '' }}</span>
-            <span class="label">HR RECOLECCION:</span> {{ $c->hr_recoleccion_orina }}
-            &nbsp;&nbsp;
             LIQUIDOS <span class="box">{{ !empty($c->m_liquidos) ? 'X' : '' }}</span>
-            <span class="label">HR RECOLECCION:</span> {{ $c->hr_recoleccion_liquidos }}
             &nbsp;&nbsp;
             ESPUTO <span class="box">{{ !empty($c->m_esputo) ? 'X' : '' }}</span>
-            <span class="label">HR RECOLECCION:</span> {{ $c->hr_recoleccion_esputo }}
             <br>
             SECRECIONES <span class="box">{{ !empty($c->m_secreciones) ? 'X' : '' }}</span>
-            <span class="label">HR RECOLECCION:</span> {{ $c->hr_recoleccion_secreciones }}
+            &nbsp;&nbsp;
+            ORINA <span class="box">{{ !empty($c->m_orina) ? 'X' : '' }}</span>
+            <span class="label">HR RECOLECCION:</span> {{ formatHora($c->hr_recoleccion_orina) }}
+            &nbsp;&nbsp;
+            HECES <span class="box">{{ !empty($c->m_heces) ? 'X' : '' }}</span>
+            <span class="label">HR RECOLECCION:</span> {{ formatHora($c->hr_recoleccion_heces) }}
         </td>
     </tr>
 

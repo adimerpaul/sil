@@ -720,7 +720,7 @@
             </div>
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.perfil" :true-value="1" :false-value="null" dense
-                          @update:model-value="selecinarCodigo([116,118,119,120])"
+                          @update:model-value="selecinarCodigo([116,118,119,120,121])"
                           class="text-subtitle2"
               >
                 Perfil Tiroideo
@@ -830,7 +830,7 @@
               <q-input v-model="consentimiento.fecha_recepcion" type="date" dense outlined label="Fecha recepcion" />
             </div>
             <div class="col-12 col-sm-3">
-              <q-input v-model="consentimiento.hora_recepcion" type="time" dense outlined label="Hora recepcion" />
+              <q-input v-model="consentimiento.hora_recepcion" type="text" dense outlined label="Hora recepcion" maxlength="10" />
             </div>
             <div class="col-12 col-sm-3">
               <q-input v-model="consentimiento.fecha_solicitud" type="date" dense outlined label="Fecha solicitud medico" />
@@ -870,28 +870,25 @@
             <div class="col-12"><div class="text-subtitle2 q-mb-xs">Tipo de muestra</div></div>
 
             <div class="col-12 col-sm-6 col-md-3">
-              <q-checkbox v-model="consentimiento.m_orina" :true-value="1" :false-value="0" dense label="Orina" />
-            </div>
-            <div class="col-12 col-sm-6 col-md-3">
-              <q-input v-model="consentimiento.hr_recoleccion_orina" type="time" dense outlined label="Hora recoleccion orina" />
-            </div>
-            <div class="col-12 col-sm-6 col-md-3">
               <q-checkbox v-model="consentimiento.m_liquidos" :true-value="1" :false-value="0" dense label="Liquidos" />
-            </div>
-            <div class="col-12 col-sm-6 col-md-3">
-              <q-input v-model="consentimiento.hr_recoleccion_liquidos" type="time" dense outlined label="Hora recoleccion liquidos" />
             </div>
             <div class="col-12 col-sm-6 col-md-3">
               <q-checkbox v-model="consentimiento.m_esputo" :true-value="1" :false-value="0" dense label="Esputo" />
             </div>
             <div class="col-12 col-sm-6 col-md-3">
-              <q-input v-model="consentimiento.hr_recoleccion_esputo" type="time" dense outlined label="Hora recoleccion esputo" />
-            </div>
-            <div class="col-12 col-sm-6 col-md-3">
               <q-checkbox v-model="consentimiento.m_secreciones" :true-value="1" :false-value="0" dense label="Secreciones" />
             </div>
             <div class="col-12 col-sm-6 col-md-3">
-              <q-input v-model="consentimiento.hr_recoleccion_secreciones" type="time" dense outlined label="Hora recoleccion secreciones" />
+              <q-checkbox v-model="consentimiento.m_orina" :true-value="1" :false-value="0" dense label="Orina" />
+            </div>
+<!--            <div class="col-12 col-sm-6 col-md-3">-->
+<!--              <q-input v-model="consentimiento.hr_recoleccion_orina" type="text" dense outlined label="HR recoleccion" maxlength="10" />-->
+<!--            </div>-->
+            <div class="col-12 col-sm-6 col-md-3">
+              <q-checkbox v-model="consentimiento.m_heces" :true-value="1" :false-value="0" dense label="HR recoleccion heces" />
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+              <q-input v-model="consentimiento.hr_recoleccion_heces" type="text" dense outlined label="HR recoleccion" maxlength="10" />
             </div>
 
             <div class="col-12">
@@ -1206,11 +1203,10 @@ export default {
         m_orina: 0,
         hr_recoleccion_orina: '',
         m_liquidos: 0,
-        hr_recoleccion_liquidos: '',
         m_esputo: 0,
-        hr_recoleccion_esputo: '',
         m_secreciones: 0,
-        hr_recoleccion_secreciones: '',
+        m_heces: 0,
+        hr_recoleccion_heces: '',
         observaciones: ''
       }
     }
@@ -1352,11 +1348,10 @@ export default {
         m_orina: 0,
         hr_recoleccion_orina: '',
         m_liquidos: 0,
-        hr_recoleccion_liquidos: '',
         m_esputo: 0,
-        hr_recoleccion_esputo: '',
         m_secreciones: 0,
-        hr_recoleccion_secreciones: '',
+        m_heces: 0,
+        hr_recoleccion_heces: '',
         observaciones: ''
       }
     },
@@ -1799,4 +1794,3 @@ export default {
   }
 }
 </script>
-
