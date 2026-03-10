@@ -5,15 +5,15 @@
     <title>Consentimiento informado</title>
 
     <style>
-        @page { size: legal portrait; margin: 7mm 7mm; }
+        @page { size: legal portrait; margin: 5mm 6mm; }
 
         * { box-sizing: border-box; }
 
         body{
             margin:0;
             font-family: DejaVu Sans, sans-serif;
-            font-size: 10px;
-            line-height: 1.02;
+            font-size: 9.4px;
+            line-height: 1;
             color:#000;
         }
 
@@ -25,7 +25,7 @@
 
         td, th{
             border:0.6px solid #000;
-            padding:0.6px 1px;
+            padding:0.4px 0.8px;
             vertical-align: middle;
             word-wrap: break-word;
         }
@@ -35,23 +35,23 @@
         .head-title{
             text-align:center;
             font-weight:700;
-            font-size: 10px;
-            line-height: 1.05;
+            font-size: 9.4px;
+            line-height: 1;
         }
 
         .head-sub{
             text-align:center;
             font-weight:700;
-            font-size: 8px;
-            margin-top: 1px;
+            font-size: 7.6px;
+            margin-top: 0.5px;
         }
 
         .mini{
-            font-size: 7.2px;
-            line-height: 1.05;
+            font-size: 6.8px;
+            line-height: 1;
         }
 
-        .logo{ height: 42px; }
+        .logo{ height: 36px; }
 
         .label{
             font-weight:700;
@@ -60,19 +60,23 @@
 
         .box{
             display:inline-block;
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             border: 0.8px solid #000;
             vertical-align: middle;
-            margin: 0 2px;
+            margin: 0 1px;
             text-align:center;
-            line-height: 7px;
-            font-size: 8px;
+            line-height: 6px;
+            font-size: 7px;
         }
 
         .center{ text-align:center; }
         .right{ text-align:right; }
         .justify{ text-align:justify; }
+        .section-gap{ margin-top:1px; }
+        .tight-gap{ margin-bottom:1px; }
+        .firma-space{ height:22px; }
+        .sello-space{ height:10px; }
     </style>
 </head>
 
@@ -98,7 +102,7 @@
     }
 @endphp
 
-<table class="no-border" style="margin-bottom:2px;">
+<table class="no-border tight-gap">
     <tr>
         <td style="width:16%;">
             <img src="{{ public_path('img/logo-hospital.png') }}" class="logo">
@@ -120,7 +124,7 @@
     </tr>
 </table>
 
-<table style="margin-bottom:2px;">
+<table class="tight-gap">
     <tr>
         <td class="mini">
             (LLENADO DEL MISMO DEBERA SER CON LETRA IMPRENTA CLARA Y LEGIBLE, BOLIGRAFO AZUL,
@@ -210,7 +214,7 @@
     </tr>
 </table>
 
-<table style="margin-top:2px;">
+<table class="section-gap">
     <tr>
         <td class="center" style="font-weight:700;">CONSENTIMIENTO INFORMADO</td>
     </tr>
@@ -233,9 +237,9 @@
 
     <tr>
         <td class="center">
-            <br> <br> <br> <br>
+            <div class="firma-space"></div>
             <span class="label">FIRMA / HUELLA:</span>
-            <span style="display:inline-block; width:65%; border-bottom:0.8px solid #000; height:10px;"></span>
+            <span style="display:inline-block; width:65%; border-bottom:0.8px solid #000; height:8px;"></span>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <span class="label">FECHA:</span>
             {{ $c->fecha_consentimiento }}
@@ -243,7 +247,7 @@
     </tr>
 </table>
 
-<table style="margin-top:2px;">
+<table class="section-gap">
     <tr>
         <td colspan="2">
             <span class="label">TIPO DE MUESTRA:</span>
@@ -270,7 +274,7 @@
     <tr>
         <td colspan="2">
             <span class="label">RESPONSABLE TOMA DE MUESTRA</span>
-            <div style="height:14px;"></div>
+            <div class="sello-space"></div>
             <span class="mini">(SELLO)</span>
         </td>
     </tr>
