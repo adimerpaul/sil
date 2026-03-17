@@ -11,6 +11,7 @@ use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\SolicitudeController;
 use App\Http\Controllers\AreaTipoMuestraController; // <-- NUEVO
 use App\Http\Controllers\SolicitudePropiedadController;
+use App\Http\Controllers\SolicitudCatalogoController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReporteServiciosController;
 use App\Http\Controllers\RecogidoController;
@@ -43,6 +44,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('doctores', DoctorController::class);
 
     Route::apiResource('solicitudes', SolicitudeController::class);
+    Route::get('solicitudes-create-catalogos', [SolicitudCatalogoController::class, 'create']);
     Route::apiResource('doctores', DoctorController::class);
     Route::apiResource('pacientes', PacienteController::class);
 
@@ -169,4 +171,3 @@ Route::get('/cultivo-antibiograma/solicitud/{id}/pdf', [\App\Http\Controllers\Cu
 
 Route::get('/inmunologia/solicitude-formulario/{id}/pdf', [\App\Http\Controllers\InmunologiaController::class, 'pdfOne']);
 Route::get('/inmunologia/solicitud/{id}/pdf-all', [\App\Http\Controllers\InmunologiaController::class, 'pdfAll']);
-

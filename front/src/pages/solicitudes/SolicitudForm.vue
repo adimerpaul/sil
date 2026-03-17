@@ -1256,42 +1256,54 @@ export default {
     }
   },
   mounted () {
+    this.cargarCatalogosSolicitud()
+  },
+  methods: {
+    cargarCatalogosSolicitud () {
+      this.loading = true
+      this.$axios.get('solicitudes-create-catalogos')
+        .then(res => {
+          this.aplicarCatalogosSolicitud(res.data)
+          this.inicializarSolicitudDesdeCatalogos()
+        })
+        .catch(error => {
+          this.$alert.error(error.response?.data?.message || 'No se pudieron cargar los catálogos')
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    },
+    aplicarCatalogosSolicitud (data) {
+      this.doctoresOptions = data.doctores || []
+      this.doctoresOptionsAll = data.doctores || []
+      this.diagnosticos = data.diagnosticos || []
+      this.diagnosticosAll = data.diagnosticos || []
+      this.areas = data.areas || []
 
-    // this.initSolicitud()
-    this.loadDoctores()
-    this.diagnosticosGet()
-    this.$axios.get('establecimientos').then(res => {
-      this.establecimientos = res.data;
-      this.establecimientosAll = res.data;
-      // establecimientosPublicos
-      this.establecimientosPublicos = res.data.filter(e => e.tipo === 'PUBLICO')
-      this.establecimientosPublicosAll = res.data.filter(e => e.tipo === 'PUBLICO')
-      this.establecimientosPrivados = res.data.filter(e => e.tipo === 'PRIVADO')
-      this.establecimientosPrivadosAll = res.data.filter(e => e.tipo === 'PRIVADO')
-    })
-    this.$axios.get('areasCreateSolicitud').then(res => {
-      this.areas = res.data
+      const establecimientos = data.establecimientos || []
+      this.establecimientos = establecimientos
+      this.establecimientosAll = establecimientos
+      this.establecimientosPublicos = establecimientos.filter(e => e.tipo === 'PUBLICO')
+      this.establecimientosPublicosAll = establecimientos.filter(e => e.tipo === 'PUBLICO')
+      this.establecimientosPrivados = establecimientos.filter(e => e.tipo === 'PRIVADO')
+      this.establecimientosPrivadosAll = establecimientos.filter(e => e.tipo === 'PRIVADO')
+    },
+    inicializarSolicitudDesdeCatalogos () {
       console.log('SolicitudForm mounted with solicitudProp:', this.solicitudProp)
       if (this.solicitudProp) {
         this.solicitud = { ...this.solicitudProp }
-        // selecioanr las area que tiene el servicios
         this.areas.forEach(area => {
           (area.servicios || []).forEach(s => {
             const found = this.solicitud.servicios.find(ss => ss.id === s.id)
-            if (found) {
-              s.seleccionado = 1
-            }else {
-              s.seleccionado = 0
-            }
+            s.seleccionado = found ? 1 : 0
           })
         })
-      } else {
-        this.initSolicitud()
-        this.resetServiciosSelection()
+        return
       }
-    })
-  },
-  methods: {
+
+      this.initSolicitud()
+      this.resetServiciosSelection()
+    },
     toUpperText (value) {
       if (value === null || value === undefined) return value
       return String(value).toLocaleUpperCase('es')
