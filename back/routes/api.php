@@ -36,6 +36,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // Pacientes
     Route::apiResource('pacientes', PacienteController::class);
     Route::get('pacientes/buscar-ci/{ci}', [PacienteController::class, 'buscarPorCi']);
+    Route::get('pacientes/nn-rn/{tipo}', [PacienteController::class, 'buscarPorTipoNN_RN']);
 
     // Consentimientos
     Route::apiResource('consentimientos', ConsentimientoController::class);

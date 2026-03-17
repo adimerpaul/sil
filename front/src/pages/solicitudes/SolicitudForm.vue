@@ -1488,11 +1488,7 @@ export default {
     },
     rnnnGet(tipo){
       this.loading = true
-      this.$axios.get(`pacientesnn-rn/`, {
-        params: {
-          tipo: tipo
-        }
-      }).then(res => {
+      this.$axios.get(`pacientes/nn-rn/${tipo}`).then(res => {
         this.solicitud.paciente_nombre = res.data
         this.$alert?.success ? this.$alert.success(`${tipo} generado`) : null
       }).catch(e => {

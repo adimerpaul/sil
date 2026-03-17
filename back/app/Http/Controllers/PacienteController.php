@@ -8,12 +8,20 @@ use Illuminate\Http\Request;
 
 class PacienteController extends Controller
 {
-    function buscarPorNN_RN(Request $request)
+    public function buscarPorNN_RN(Request $request)
     {
-        $tipo = $request->get('tipo'); // NN o RN
+        return $this->generarNombrePorTipo($request->get('tipo'));
+    }
 
+    public function buscarPorTipoNN_RN(string $tipo)
+    {
+        return $this->generarNombrePorTipo($tipo);
+    }
+
+    private function generarNombrePorTipo(?string $tipo)
+    {
         if (!in_array($tipo, ['NN', 'RN'])) {
-            return response()->json(['error' => 'Tipo inválido'], 422);
+            return response()->json(['error' => 'Tipo invÃ¡lido'], 422);
         }
 
         $count = Paciente::where('nombre_completo', 'LIKE', $tipo . '-%')
@@ -21,7 +29,6 @@ class PacienteController extends Controller
 
         return $tipo . '-' . ($count + 1);
     }
-
 
     public function index(Request $request)
     {
@@ -41,8 +48,6 @@ class PacienteController extends Controller
 
         $pacientes = $query->paginate($perPage);
 
-        // Devuelve estructura estándar de Laravel:
-        // data, current_page, per_page, total, last_page, etc.
         return response()->json($pacientes);
     }
 
@@ -58,7 +63,6 @@ class PacienteController extends Controller
         ]);
 
         $existe = Paciente::where('ci', $request->ci)->first();
-        // solo se permite null o vacío
         if ($existe && !empty($request->ci)) {
             return response()->json(['message' => 'El paciente con CI ' . $request->ci . ' ya existe'], 409);
         }
