@@ -910,8 +910,12 @@ class SolicitudeController extends Controller
         $nombreCompleto = $solicitud->paciente_nombre ?? ($paciente ? $paciente->nombre_completo : 'Desconocido');
         $nro_registro = $this->nroRegistro($nombreCompleto, $paciente->fecha_nac ?? null);
 
-        $solicitud->codigo = $this->generarCodigoPorTipoYMes($solicitud);
-        $solicitud->nro_registro = $nro_registro;
+        $solicitud->codigo = $request->filled('codigo')
+            ? $request->input('codigo')
+            : $this->generarCodigoPorTipoYMes($solicitud);
+        $solicitud->nro_registro = $request->filled('nro_registro')
+            ? $request->input('nro_registro')
+            : $nro_registro;
         $solicitud->save();
 
 //        $this->syncServicios($solicitud, $request->input('servicios', []));

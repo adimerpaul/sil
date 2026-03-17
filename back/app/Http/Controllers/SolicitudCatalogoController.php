@@ -6,6 +6,7 @@ use App\Models\Area;
 use App\Models\Diagnostico;
 use App\Models\Doctor;
 use App\Models\Establecimiento;
+use App\Models\Solicitude;
 use Illuminate\Http\Request;
 
 class SolicitudCatalogoController extends Controller
@@ -24,6 +25,10 @@ class SolicitudCatalogoController extends Controller
                     $establecimiento->servicio_ids = $establecimiento->servicios->pluck('id');
                 }),
             'areas' => $this->areasParaCrearSolicitud($request),
+            'codigos_sugeridos' => [
+                'SI' => $this->siguienteCodigoSugerido('SI', $request),
+                'NO' => $this->siguienteCodigoSugerido('NO', $request),
+            ],
         ]);
     }
 
@@ -44,5 +49,35 @@ class SolicitudCatalogoController extends Controller
         }
 
         return $query->where('id', '<>', $idBiologiaMolecular)->get();
+    }
+
+    private function siguienteCodigoSugerido(string $tipo, Request $request): int
+    {
+        $fechaBase = now()->toDateString();
+        $timestamp = strtotime($fechaBase);
+
+        $anio = date('Y', $timestamp);
+        $mes = date('m', $timestamp);
+        $establecimientoId = $request->user() && $request->user()->establecimiento
+            ? $request->user()->establecimiento->id
+            : null;
+
+        $query = Solicitude::query()
+            ->where('tipo_atencion', $tipo)
+            ->whereYear('fecha_creacion', $anio)
+            ->whereMonth('fecha_creacion', $mes)
+            ->whereNotNull('codigo');
+
+        if ($establecimientoId) {
+            $query->where('establecimiento_origen_id', $establecimientoId);
+        }
+
+        if ($tipo !== 'SI') {
+            $query->whereDate('fecha_creacion', date('Y-m-d', $timestamp));
+        }
+
+        $ultimoCodigo = $query->max('codigo');
+
+        return $ultimoCodigo ? ((int) $ultimoCodigo + 1) : 1;
     }
 }

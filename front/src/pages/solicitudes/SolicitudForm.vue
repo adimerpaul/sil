@@ -19,6 +19,29 @@
 
       <q-card-section class="q-pa-sm">
         <q-form @submit="guardar" ref="form">
+          <div class="row q-col-gutter-xs q-mb-sm">
+            <div class="col-12 col-sm-4">
+              <q-input
+                v-model="solicitud.codigo"
+                label="Código"
+                dense
+                outlined
+                clearable
+                @update:model-value="onCodigoManualChange"
+              />
+            </div>
+            <div class="col-12 col-sm-4">
+              <q-input
+                v-model="solicitud.nro_registro"
+                label="Nro. registro"
+                dense
+                outlined
+                clearable
+                @update:model-value="onNroRegistroManualChange"
+              />
+            </div>
+          </div>
+
           <!-- Paciente -->
           <div class="row items-center q-mb-xs">
             <q-icon name="person" size="18px" class="q-mr-xs" />
@@ -425,11 +448,11 @@
 <!--            </q-card-section>-->
 
             <q-card-section class=" text-grey-7">
-              <div v-if="solicitud.tipo_atencion === 'SI' && currentEstablecimiento">
-                Mostrando solo servicios del establecimiento: <b>{{ currentEstablecimiento.nombre }}</b>
+              <div v-if="solicitud.tipo_atencion === 'SI' && establecimientoServiciosBase">
+                Mostrando servicios base de: <b>{{ establecimientoServiciosBase.nombre }}</b>
               </div>
               <div v-else-if="solicitud.tipo_atencion === 'SI'">
-                Seleccione un establecimiento para filtrar los servicios.
+                No se encontró el establecimiento base de servicios.
               </div>
               <div v-else>
                 Mostrando todos los servicios disponibles (atención particular / especificar).
@@ -1164,6 +1187,12 @@ export default {
       salasAll: [...Object.values(salasJson)],
       doctoresOptions: [],
       doctoresOptionsAll: [],
+      codigosSugeridos: {
+        SI: null,
+        NO: null
+      },
+      codigoEditadoManual: false,
+      nroRegistroEditadoManual: false,
       areas: [],
       establecimientos: [],
       establecimientosPublicos: [],
@@ -1249,6 +1278,9 @@ export default {
       if (!this.solicitud.establecimiento_salud) return null
       return this.establecimientos.find(e => e.nombre === this.solicitud.establecimiento_salud) || null
     },
+    establecimientoServiciosBase () {
+      return this.establecimientos.find(e => e.id === 1) || null
+    },
     totalServiciosSeleccionados () {
       let total = 0
       this.areas.forEach(a => (a.servicios || []).forEach(s => { if (s.seleccionado) total++ }))
@@ -1279,6 +1311,7 @@ export default {
       this.diagnosticos = data.diagnosticos || []
       this.diagnosticosAll = data.diagnosticos || []
       this.areas = data.areas || []
+      this.codigosSugeridos = data.codigos_sugeridos || { SI: null, NO: null }
 
       const establecimientos = data.establecimientos || []
       this.establecimientos = establecimientos
@@ -1292,6 +1325,8 @@ export default {
       console.log('SolicitudForm mounted with solicitudProp:', this.solicitudProp)
       if (this.solicitudProp) {
         this.solicitud = { ...this.solicitudProp }
+        this.codigoEditadoManual = true
+        this.nroRegistroEditadoManual = true
         this.areas.forEach(area => {
           (area.servicios || []).forEach(s => {
             const found = this.solicitud.servicios.find(ss => ss.id === s.id)
@@ -1302,7 +1337,50 @@ export default {
       }
 
       this.initSolicitud()
+      this.aplicarCodigoSugerido()
+      this.aplicarNroRegistroSugerido()
       this.resetServiciosSelection()
+    },
+    onCodigoManualChange () {
+      this.codigoEditadoManual = true
+    },
+    onNroRegistroManualChange () {
+      this.nroRegistroEditadoManual = true
+    },
+    aplicarCodigoSugerido () {
+      if (this.codigoEditadoManual || this.solicitud.id) return
+      const sugerido = this.codigosSugeridos[this.solicitud.tipo_atencion]
+      this.solicitud.codigo = sugerido ?? ''
+    },
+    aplicarNroRegistroSugerido () {
+      if (this.nroRegistroEditadoManual || this.solicitud.id) return
+      this.solicitud.nro_registro = this.generarNroRegistroTemporal()
+    },
+    generarNroRegistroTemporal () {
+      const nombreCompleto = String(this.solicitud.paciente_nombre || '').trim().toUpperCase()
+      const fechaNac = this.solicitud.paciente_fecha_nac
+
+      if (!nombreCompleto || !fechaNac) return ''
+
+      const partes = nombreCompleto.split(/\s+/)
+      let nombre = partes[0]
+      let apPat = partes[0]
+      let apMat = partes[0]
+
+      if (partes.length >= 3) {
+        nombre = partes[0]
+        apPat = partes[partes.length - 2]
+        apMat = partes[partes.length - 1]
+      } else if (partes.length === 2) {
+        nombre = partes[0]
+        apPat = partes[1]
+        apMat = partes[1]
+      }
+
+      const fecha = moment(fechaNac, 'YYYY-MM-DD', true)
+      if (!fecha.isValid()) return `${nombre[0] || ''}${apPat[0] || ''}${apMat[0] || ''}`
+
+      return `${nombre[0] || ''}${apPat[0] || ''}${apMat[0] || ''}${fecha.format('DDMMYY')}`
     },
     toUpperText (value) {
       if (value === null || value === undefined) return value
@@ -1310,6 +1388,7 @@ export default {
     },
     setUpperSolicitudField (field, value) {
       this.solicitud[field] = this.toUpperText(value)
+      if (field === 'paciente_nombre') this.aplicarNroRegistroSugerido()
     },
     normalizePacienteUpperFields () {
       this.solicitud.paciente_nombre = this.toUpperText(this.solicitud.paciente_nombre || '')
@@ -1415,6 +1494,10 @@ export default {
         }
       }).then(res => {
         this.solicitud.paciente_nombre = res.data
+        this.$alert?.success ? this.$alert.success(`${tipo} generado`) : null
+      }).catch(e => {
+        const msg = e.response?.data?.message || e.response?.data?.error || e.message
+        this.$alert?.error ? this.$alert.error(msg) : null
       }).finally(() => {
         this.loading = false
       })
@@ -1558,6 +1641,8 @@ export default {
         paciente_id: null,
         doctor_id: null,
         codigo_solicitud: '',
+        codigo: '',
+        nro_registro: '',
         tipo_atencion: 'SI',
         tipo_otro: '',
         fecha_solicitud: moment().format('YYYY-MM-DD'),
@@ -1588,6 +1673,8 @@ export default {
         doctor_email: '',
         doctor_registro: ''
       }
+      this.codigoEditadoManual = false
+      this.nroRegistroEditadoManual = false
       this.searchCi = ''
       this.serviciosFilter = ''
       this.serviciosAreaId = null
@@ -1598,6 +1685,7 @@ export default {
       const birthDate = moment(this.solicitud.paciente_fecha_nac, 'YYYY-MM-DD')
       if (!birthDate.isValid()) return
       this.solicitud.paciente_edad = moment().diff(birthDate, 'years')
+      this.aplicarNroRegistroSugerido()
     },
 
     textCapitalize (str) {
@@ -1664,6 +1752,7 @@ export default {
       this.solicitud.paciente_embarazo = p.embarazo ?? 0
       this.solicitud.paciente_fum = p.fum || ''
       this.solicitud.paciente_sem_gest = p.sem_gest
+      this.aplicarNroRegistroSugerido()
     },
 
     onSelectDoctor (id) {
@@ -1683,10 +1772,11 @@ export default {
       // this.resetServiciosSelection()
       if (this.solicitud.tipo_atencion === 'NO') this.solicitud.establecimiento_salud = ''
       else this.solicitud.tipo_otro = ''
+      this.aplicarCodigoSugerido()
     },
 
     onEstablecimientoChange () {
-      this.resetServiciosSelection()
+      // Las prestaciones ya no dependen del establecimiento seleccionado.
     },
 
     filteredServicios (area) {
@@ -1695,7 +1785,7 @@ export default {
       if (this.serviciosAreaId && area.id !== this.serviciosAreaId) return []
 
       if (this.solicitud.tipo_atencion === 'SI') {
-        const est = this.currentEstablecimiento
+        const est = this.establecimientoServiciosBase
         if (est && Array.isArray(est.servicio_ids) && est.servicio_ids.length) {
           const allowed = new Set(est.servicio_ids)
           servicios = servicios.filter(s => allowed.has(s.id))
