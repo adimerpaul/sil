@@ -41,7 +41,7 @@
           <div>
             <div class="text-subtitle2">
               Total Solicitudes:
-              <span class="text-bold">{{ rows.length }}</span>
+              <span class="text-bold">{{ pagination.rowsNumber }}</span>
             </div>
             <div class="text-caption text-grey-7">
               Creadas:
@@ -1018,6 +1018,14 @@ export default {
     this.reloadTable()
     this.areasTipoMuestrasGet()
   },
+  watch: {
+    fecha () {
+      this.resetToFirstPageAndReload()
+    },
+    filter () {
+      this.resetToFirstPageAndReload()
+    }
+  },
   methods: {
     hasTestEmbarazo (row) {
       return !!(row?._test_embarazo || row?.quimica_sanguinea?.test_embarazo)
@@ -1320,6 +1328,13 @@ export default {
       this.reloadTable()
     },
 
+    resetToFirstPageAndReload () {
+      if (this.pagination.page !== 1) {
+        this.pagination.page = 1
+      }
+      this.reloadTable()
+    },
+
     reloadTable () {
       if (this.$refs.tablePreanalitica) {
         this.$refs.tablePreanalitica.requestServerInteraction()
@@ -1351,6 +1366,7 @@ export default {
         .then(res => {
           this.rows = res.data.data || []
           this.pagination.rowsNumber = res.data.total || 0
+          this.pagination.page = res.data.current_page || pagination.page
         })
         .catch(err => {
           console.error(err)
