@@ -378,14 +378,15 @@
                   <td>
                     <div class="row">
                       <div class="col-6">
-                        <q-select
-                          v-model="form.morfologia_eritrocitaria"
-                          :options="['NORMAL', 'DISMORFICO', 'ISOMORFICO', 'ESTRELLADO (CRENADOS)', 'FANTASMA', 'SEPTADOS', 'POLIDIVERTICULADOS', 'ESPICULADOS', 'ANULARES', 'MONODIVERTICULARES', 'MIXTOS', 'VACIOS','ESQUISTOCITOS']"
-                          dense
-                          outlined
-                          emit-value
-                          map-options
-                        />
+<!--                        <q-select-->
+<!--                          v-model="form.morfologia_eritrocitaria"-->
+<!--                          :options="['NORMAL', 'DISMORFICO', 'ISOMORFICO', 'ESTRELLADO (CRENADOS)', 'FANTASMA', 'SEPTADOS', 'POLIDIVERTICULADOS', 'ESPICULADOS', 'ANULARES', 'MONODIVERTICULARES', 'MIXTOS', 'VACIOS','ESQUISTOCITOS']"-->
+<!--                          dense-->
+<!--                          outlined-->
+<!--                          emit-value-->
+<!--                          map-options-->
+<!--                        />-->
+                        <q-input v-model="form.morfologia_eritrocitaria" dense outlined placeholder="Morfología eritrocitaria" />
                       </div>
                       <div class="col-6">
                         <q-input
@@ -946,12 +947,12 @@ export default {
         'CONTIENE +++ (4 mg/dl)'
       ],
       urobilinogenoOptions: [
-        'NORMAL (0.2 mg/dl)',
-        '1 mg/dl',
-        '2 mg/dl',
-        '4 mg/dl',
-        '8 mg/dl',
-        '>=12 mg/dl'
+        'NORMAL (0.2 UE/dl)',
+        '1 UE/dl',
+        '2 UE/dl',
+        '4 UE/dl',
+        '8 UE/dl',
+        '>=12 UE/dl'
       ],
       nitritosOptions: ['NEGATIVO', 'POSITIVO'],
 
