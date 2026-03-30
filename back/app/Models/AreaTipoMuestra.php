@@ -38,4 +38,14 @@ class AreaTipoMuestra extends Model implements AuditableContract
             'solicitude_id'
         )->withTimestamps();
     }
+
+    public function servicios()
+    {
+        return $this->belongsToMany(
+            Servicio::class,
+            'servicio_area_tipo_muestra',
+            'area_tipo_muestra_id',
+            'servicio_id'
+        )->withTimestamps();
+    }
 }

@@ -35,7 +35,7 @@ class SolicitudCatalogoController extends Controller
     private function areasParaCrearSolicitud(Request $request)
     {
         $user = $request->user();
-        $query = Area::with('servicios')->orderBy('id', 'asc');
+        $query = Area::with('servicios.tiposMuestra')->orderBy('id', 'asc');
 
         if ($user->role === 'Administrador') {
             return $query->get();

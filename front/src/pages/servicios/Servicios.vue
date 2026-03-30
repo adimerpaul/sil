@@ -168,13 +168,27 @@
                 >
                   <template #body-cell-actions="props">
                     <q-td :props="props">
-                      <q-btn
+                      <q-btn-dropdown
                         dense
                         flat
-                        round
-                        icon="edit"
-                        @click="editarServicio(props.row)"
-                      />
+                        dropdown-icon="more_vert"
+                        no-icon-animation
+                      >
+                        <q-list dense style="min-width: 170px">
+                          <q-item clickable v-close-popup @click="editarServicio(props.row)">
+                            <q-item-section avatar><q-icon name="edit" /></q-item-section>
+                            <q-item-section>Editar</q-item-section>
+                          </q-item>
+                          <q-item clickable v-close-popup @click="abrirVincularServicio(props.row)">
+                            <q-item-section avatar><q-icon name="link" /></q-item-section>
+                            <q-item-section>Vincular</q-item-section>
+                          </q-item>
+                          <q-item clickable v-close-popup @click="eliminarServicio(props.row)">
+                            <q-item-section avatar><q-icon name="delete" color="negative" /></q-item-section>
+                            <q-item-section class="text-negative">Eliminar</q-item-section>
+                          </q-item>
+                        </q-list>
+                      </q-btn-dropdown>
                     </q-td>
                   </template>
 
@@ -189,6 +203,23 @@
                         class="text-caption text-grey"
                         v-html="props.row.descripcion || ''"
                       />
+                    </q-td>
+                  </template>
+
+                  <template #body-cell-tipos_muestra="props">
+                    <q-td :props="props">
+                      <div v-if="props.row.tipos_muestra && props.row.tipos_muestra.length" class="q-gutter-xs">
+                        <q-chip
+                          v-for="tipo in props.row.tipos_muestra"
+                          :key="tipo.id"
+                          dense
+                          color="blue-1"
+                          text-color="primary"
+                        >
+                          {{ tipo.tipo_muestra }}
+                        </q-chip>
+                      </div>
+                      <span v-else class="text-caption text-grey-7">Sin vincular</span>
                     </q-td>
                   </template>
                 </q-table>
@@ -438,6 +469,14 @@
               </div>
               <div class="col-4">
                 <q-input
+                  v-model="servicioForm.subarea"
+                  label="Subárea"
+                  dense
+                  outlined
+                />
+              </div>
+              <div class="col-4">
+                <q-input
                   v-model.number="servicioForm.precio"
                   type="number"
                   step="0.01"
@@ -588,6 +627,62 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="dialogVincularServicio">
+      <q-card style="min-width: 420px; max-width: 620px;">
+        <q-card-section class="row items-center q-pa-sm">
+          <div class="text-subtitle1">
+            Vincular tipos de muestra
+          </div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-section class="q-pa-sm">
+          <div class="text-body2 text-weight-medium q-mb-xs">
+            {{ servicioVincular?.nombre || '' }}
+          </div>
+          <div class="text-caption text-grey-7 q-mb-md">
+            Seleccione los tipos de muestra que corresponden a esta prestación.
+          </div>
+
+          <div v-if="!areaTipoMuestras.length" class="text-caption text-grey-7">
+            No hay tipos de muestra registrados para esta área.
+          </div>
+
+          <q-list v-else bordered separator>
+            <q-item
+              v-for="tipo in areaTipoMuestras"
+              :key="tipo.id"
+              tag="label"
+              clickable
+            >
+              <q-item-section avatar>
+                <q-checkbox
+                  v-model="servicioTiposSeleccionados"
+                  :val="tipo.id"
+                />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ tipo.tipo_muestra }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+
+          <div class="text-right q-mt-sm">
+            <q-btn flat label="Cancelar" v-close-popup :loading="loading" />
+            <q-btn
+              color="primary"
+              label="Guardar"
+              :loading="loading"
+              @click="guardarVinculoServicio"
+            />
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -620,12 +715,16 @@ export default {
       searchServicio: '',
       dialogServicio: false,
       editandoServicio: false,
+      dialogVincularServicio: false,
+      servicioVincular: null,
+      servicioTiposSeleccionados: [],
       servicioForm: {
         id: null,
         area_id: null,
         codigo: null,
         nombre: '',
         metodo: '',
+        subarea: '',
         precio: 0,
         estado: 'ACTIVO'
       },
@@ -643,7 +742,13 @@ export default {
           align: 'right',
           format: v => `Bs. ${Number(v || 0).toFixed(2)}`
         },
-        { name: 'estado', label: 'Estado', field: 'estado', align: 'left' }
+        { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
+        {
+          name: 'tipos_muestra',
+          label: 'Tipos de muestra',
+          field: row => row.tipos_muestra || [],
+          align: 'left'
+        }
       ],
 
       // RANGOS
@@ -828,6 +933,7 @@ export default {
         codigo: null,
         nombre: '',
         metodo: '',
+        subarea: '',
         precio: 0,
         estado: 'ACTIVO'
       }
@@ -835,7 +941,10 @@ export default {
       this.dialogServicio = true
     },
     editarServicio (row) {
-      this.servicioForm = { ...row }
+      this.servicioForm = {
+        ...row,
+        subarea: row.subarea || ''
+      }
       this.editandoServicio = true
       this.dialogServicio = true
     },
@@ -857,6 +966,51 @@ export default {
           this.$alert?.error?.('Error: ' + msg)
         })
         .finally(() => { this.loading = false })
+    },
+    abrirVincularServicio (row) {
+      this.servicioVincular = row
+      this.servicioTiposSeleccionados = (row.tipos_muestra || []).map(tipo => tipo.id)
+      this.dialogVincularServicio = true
+    },
+    guardarVinculoServicio () {
+      if (!this.servicioVincular?.id) return
+
+      this.loading = true
+      this.$axios.post(`servicios/${this.servicioVincular.id}/tipos-muestra`, {
+        area_tipo_muestra_ids: this.servicioTiposSeleccionados
+      })
+        .then(() => {
+          this.$alert?.success?.('Tipos de muestra vinculados')
+          this.dialogVincularServicio = false
+          this.loadServicios()
+        })
+        .catch(e => {
+          const msg = e.response?.data?.message || e.message
+          this.$alert?.error?.('Error: ' + msg)
+        })
+        .finally(() => { this.loading = false })
+    },
+    eliminarServicio (row) {
+      const confirmar = this.$alert?.dialog
+        ? () => this.$alert.dialog('¿Eliminar servicio?').onOk(this._deleteServicio.bind(this, row.id))
+        : () => {
+          if (confirm('¿Eliminar servicio?')) {
+            this._deleteServicio(row.id)
+          }
+        }
+
+      confirmar()
+    },
+    _deleteServicio (id) {
+      this.$axios.delete(`servicios/${id}`)
+        .then(() => {
+          this.$alert?.success?.('Servicio eliminado')
+          this.loadServicios()
+        })
+        .catch(e => {
+          const msg = e.response?.data?.message || e.message
+          this.$alert?.error?.('Error: ' + msg)
+        })
     },
 
     // --- RANGOS ---

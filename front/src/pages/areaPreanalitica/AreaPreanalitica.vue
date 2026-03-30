@@ -1568,32 +1568,31 @@ export default {
       // this.selectedMuestras = (row.area_tipo_muestras || []).map(m => m.id)
       // console.log(row)
       this.dialogConsentimiento = true
+      const guardadas = row.pre_analitica_muestras || []
+      const guardadasIds = new Set(guardadas.map(item => item.area_tipo_muestra_id))
+      const linkedIds = new Set()
       const areas = []
-      row.servicios.forEach(servicio => {
-        // if (servicio.area && !areas.includes(servicio.area.id)) {
+
+      ;(row.servicios || []).forEach(servicio => {
         if (servicio.area && !areas.some(a => a.id === servicio.area.id)) {
           areas.push(servicio.area)
         }
+
+        ;(servicio.tipos_muestra || []).forEach(tipo => {
+          linkedIds.add(tipo.id)
+        })
       })
-      // console.log(areas)
-      this.areas_tipo_muestras = [...areas].map(area => {
-        return {
-          id: area.id,
-          name: area.name,
-          area_tipo_muestras: this.areas_tipo_muestrasAll.filter(tm => tm.area_id === area.id).map(tm => {
-            return {
-              ...tm,
-              selected: (row.area_tipo_muestras || []).some(rtm => rtm.id === tm.id)
-            }
-          })
-        }
-      })
-      // area_tipo_muestras false
-      // this.areas_tipo_muestras.forEach(area => {
-      //   area.area_tipo_muestras.forEach(tm => {
-      //     tm.selected = false
-      //   })
-      // })
+
+      this.areas_tipo_muestras = areas.map(area => ({
+        id: area.id,
+        name: area.name,
+        area_tipo_muestras: this.areas_tipo_muestrasAll
+          .filter(tm => tm.area_id === area.id)
+          .map(tm => ({
+            ...tm,
+            selected: guardadas.length > 0 ? guardadasIds.has(tm.id) : linkedIds.has(tm.id)
+          }))
+      }))
     },
     // Utils info footer
     firstRowIndex (pag) {

@@ -99,7 +99,7 @@ class SolicitudeController extends Controller
         $query = Solicitude::with([
             'paciente',
             'doctor',
-            'servicios',
+            'servicios.tiposMuestra',
             'userPreanalitica',
         ])
             ->whereDate('fecha_creacion', $fecha)
@@ -518,7 +518,7 @@ class SolicitudeController extends Controller
         $filter = $request->input('filter', '');
         $fecha = $request->input('fecha', '');
         $query = Solicitude::with([
-            'paciente', 'doctor', 'servicios.area', 'resultados',
+            'paciente', 'doctor', 'servicios.area', 'servicios.tiposMuestra', 'resultados',
             'hematologia',
             'quimicaSanguinea',
             'uroanalisis',
@@ -566,6 +566,7 @@ class SolicitudeController extends Controller
             'doctor',
             'resultados',
             'servicios.area',
+            'servicios.tiposMuestra',
         ])->where('nro_registro', $codigo)->firstOrFail();
 
         $pdf = $this->buildPdfFromSolicitud($solicitud);
@@ -580,6 +581,7 @@ class SolicitudeController extends Controller
             'doctor',
             'resultados',
             'servicios.area',
+            'servicios.tiposMuestra',
             'userAnalitica'
         ])->findOrFail($id);
 
@@ -648,7 +650,7 @@ class SolicitudeController extends Controller
 
         $solicitud->save();
 
-        return response()->json($solicitud->fresh(['paciente', 'doctor', 'servicios']));
+        return response()->json($solicitud->fresh(['paciente', 'doctor', 'servicios.tiposMuestra']));
     }
 
     protected function generarCodigoPorTipoYMes(Solicitude $solicitud): int
@@ -702,7 +704,10 @@ class SolicitudeController extends Controller
                         ->where('area_tipo_muestra_id', $idTipo)
                         ->first();
 
-                    if (!$existing) {
+                    if ($existing) {
+                        $existing->selected = !empty($tipoMuestra['selected']);
+                        $existing->save();
+                    } else {
                         $findArea = \App\Models\AreaTipoMuestra::find($idTipo);
                         $SolitudePreAnalitica = new SolitudePreAnalitica();
                         $SolitudePreAnalitica->solicitude_id = $solicitud->id;
@@ -741,6 +746,7 @@ class SolicitudeController extends Controller
             'paciente',
             'doctor',
             'servicios.area.rangos',
+            'servicios.tiposMuestra',
             'preAnaliticaMuestras.areaTipoMuestra.area',
             'userPreanalitica',
             'userAnalitica',
@@ -773,7 +779,9 @@ class SolicitudeController extends Controller
         $query = Solicitude::with([
             'paciente',
             'doctor',
-            'servicios.area.areaTipoMuestras',
+            'servicios.area',
+            'servicios.tiposMuestra',
+            'preAnaliticaMuestras.areaTipoMuestra',
             'userPreanalitica',
             'user',
             'solicitudRechazadas.user',
@@ -836,7 +844,7 @@ class SolicitudeController extends Controller
 
     public function index(Request $request)
     {
-        $query = Solicitude::with(['paciente', 'doctor', 'servicios', 'consentimiento']);
+        $query = Solicitude::with(['paciente', 'doctor', 'servicios.tiposMuestra', 'consentimiento']);
 
         if ($request->filled('from')) {
             $query->whereDate('fecha_creacion', '>=', $request->from);
@@ -858,7 +866,7 @@ class SolicitudeController extends Controller
 
     public function show($id)
     {
-        return Solicitude::with(['paciente', 'doctor', 'servicios', 'consentimiento'])->findOrFail($id);
+        return Solicitude::with(['paciente', 'doctor', 'servicios.tiposMuestra', 'consentimiento'])->findOrFail($id);
     }
 
     public function store(Request $request)
@@ -934,7 +942,7 @@ class SolicitudeController extends Controller
 //        //return response()->json(['message' => 'URL_SOCKET_IO no está configurada', 'url' => $urlSocket], 500);
         $response = Http::get($urlSocket . '/silSolicitud');
 
-        return response()->json($solicitud->load(['paciente', 'doctor', 'servicios', 'consentimiento']), 201);
+        return response()->json($solicitud->load(['paciente', 'doctor', 'servicios.tiposMuestra', 'consentimiento']), 201);
     }
 
     protected function pacienteUpsert($ci, &$data)
@@ -1042,7 +1050,7 @@ class SolicitudeController extends Controller
 //        solitud uupte
         $solicitud->update($data);
 
-        return response()->json($solicitud->load(['paciente', 'doctor', 'servicios', 'consentimiento']));
+        return response()->json($solicitud->load(['paciente', 'doctor', 'servicios.tiposMuestra', 'consentimiento']));
     }
 
     protected function syncServicios(Solicitude $solicitud, array $servicios)
@@ -1077,6 +1085,7 @@ class SolicitudeController extends Controller
             'paciente',
             'doctor',
             'servicios.area.rangos',
+            'servicios.tiposMuestra',
             'preAnaliticaMuestras.areaTipoMuestra.area',
             'userPreanalitica',
             'userAnalitica',
@@ -1107,6 +1116,7 @@ class SolicitudeController extends Controller
             'paciente',
             'doctor',
             'servicios.area.rangos',
+            'servicios.tiposMuestra',
             'resultados',
             'preAnaliticaMuestras.areaTipoMuestra.area',
             'propiedades',

@@ -55,6 +55,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 //    areasCreateSolicitud
     Route::get('areasCreateSolicitud', [AreaController::class, 'areasCreateSolicitud']);
     Route::apiResource('servicios', ServicioController::class);
+    Route::post('servicios/{id}/tipos-muestra', [ServicioController::class, 'syncTiposMuestra']);
 
     Route::get('solicitudes-area-preanalitica', [SolicitudeController::class, 'solicitudesAreaPreanalitica']);
     Route::get('solicitudes-area-preanalitica-estado', [SolicitudeController::class, 'solicitudesAreaPreanaliticaEstado']);

@@ -41,7 +41,7 @@
     }
     .label{ font-weight:700; }
     .line{
-        border-bottom: 1px solid #111;
+        /*border-bottom: 1px solid #111;*/
         height: 12px;
         padding: 0 3px;
         font-size: 12px;
@@ -82,40 +82,40 @@
         <td style="width:15%"><span class="label" >CÓDIGO:</span></td>
         <td style="width:10%"><div class=" " style="font-size: 24px">{{ $solicitud->codigo ?? $solicitud->id }}</div></td>
         <td style="width:10%"><span class="label">ATENCION:</span></td>
-        <td style="width:15%"><div class="line clip">{{ ($solicitud->tipo_atencion ?? '') === 'SI' ? 'SUS' : 'EXT' }}</div></td>
+        <td style="width:15%"><div class=" clip">{{ ($solicitud->tipo_atencion ?? '') === 'SI' ? 'SUS' : 'EXT' }}</div></td>
         <td colspan="2" style="width:20%"><span class="label">NRO. REGISTRO:</span></td>
-        <td colspan="2" style="width:30%"><div class="line clip">{{ $solicitud->nro_registro ?? '-' }}</div></td>
+        <td colspan="2" style="width:30%"><div class=" clip">{{ $solicitud->nro_registro ?? '-' }}</div></td>
     </tr>
 
     <tr>
         <td><span class="label">PACIENTE:</span></td>
-        <td colspan="3"><div class="line clip">{{ $solicitud->paciente_nombre ?? '-' }}</div></td>
+        <td colspan="3"><div class=" clip">{{ $solicitud->paciente_nombre ?? '-' }}</div></td>
         <td><span class="label">EDAD:</span></td>
-        <td><div class="line clip">{{ $solicitud->paciente_edad ?? '-' }}</div></td>
+        <td><div class=" clip">{{ $solicitud->paciente_edad ?? '-' }}</div></td>
         <td><span class="label">SEXO:</span></td>
-        <td><div class="line clip">{{ $solicitud->paciente_genero ?? '-' }}</div></td>
+        <td><div class=" clip">{{ $solicitud->paciente_genero ?? '-' }}</div></td>
     </tr>
 
     <tr>
         <td><span class="label">MEDICO SOL.:</span></td>
-        <td colspan="3"><div class="line clip">{{ $solicitud->doctor_nombre ?? '-' }}</div></td>
+        <td colspan="3"><div class=" clip">{{ $solicitud->doctor_nombre ?? '-' }}</div></td>
         <td><span class="label">DX:</span></td>
-        <td colspan="3"><div class="line clip">{{ $solicitud->diagnostico_select ?? '-' }}</div></td>
+        <td colspan="3"><div class=" clip">{{ $solicitud->diagnostico_select ?? '-' }}</div></td>
     </tr>
 
     <tr>
         <td colspan="2"><span class="label">CODIGO MUESTRA:</span></td>
-        <td colspan="2" class="line clip">
+        <td colspan="2" class=" clip">
             {{ ($solicitud->codigo ?? '-') . '-' . ($solicitud->nro_registro ?? '-') }}
         </td>
         <td colspan="2"><span class="label">SERVICIO/SALA/CAMA:</span></td>
-        <td ><div class="line clip">{{ $solicitud->sala ?? '-' }} / {{ $solicitud->cama ?? '-' }}</div></td>
+        <td ><div class=" clip">{{ $solicitud->sala ?? '-' }} / {{ $solicitud->cama ?? '-' }}</div></td>
     </tr>
 
     <tr>
         <td><span class="label">EST. DE SALUD:</span></td>
-        <td colspan="3"><div class="line clip">{{ $solicitud->establecimiento_salud ?? '-' }}</div></td>
+        <td colspan="3"><div class=" clip">{{ $solicitud->establecimiento_salud ?? '-' }}</div></td>
         <td colspan="2"><span class="label">FECHA DE RESULTADO:</span></td>
-        <td colspan="2"><div class="line clip">{{ $fecha_solicitud ?? '-' }}</div></td>
+        <td colspan="2"><div class=" clip">{{ $fecha_solicitud ?? '-' }}</div></td>
     </tr>
 </table>

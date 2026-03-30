@@ -48,4 +48,14 @@ class Servicio extends Model implements AuditableContract
             'solicitude_id'
         )->withPivot('precio')->withTimestamps();
     }
+
+    public function tiposMuestra()
+    {
+        return $this->belongsToMany(
+            AreaTipoMuestra::class,
+            'servicio_area_tipo_muestra',
+            'servicio_id',
+            'area_tipo_muestra_id'
+        )->withTimestamps();
+    }
 }

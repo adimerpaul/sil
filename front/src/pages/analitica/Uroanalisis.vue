@@ -227,7 +227,7 @@
 <!--                    select with options from 5.0 to 9-->
                     <q-select
                       v-model="form.reaccion"
-                      :options="['pH 5.0 ácido', 'pH 5.5 ácido', 'pH 6.0 ácido', 'pH 6.5 neutro', 'pH 7.0 neutro', 'pH 7.5 neutro', 'pH 8.0 alcalino', 'pH 8.5 alcalino', 'pH 9.0 alcalino']"
+                      :options="['pH 5.0 ácido', 'pH 5.5 ácido', 'pH 6.0 ácido', 'pH 6.5 ácido', 'pH 7.0 neutro', 'pH 7.5 alcalino', 'pH 8.0 alcalino', 'pH 8.5 alcalino', 'pH 9.0 alcalino']"
                       dense
                       outlined
                       emit-value
@@ -915,8 +915,8 @@ export default {
       header: null,
       formLoaded: false,
 
-      // Opciones para selects (puedes ajustarlas a tu gusto)
-      colorOptions: ['Amarillo', 'Ámbar', 'Rojo', 'Pardo', 'Incoloro', 'Otros'],
+      // Opciones para selects (puedes ajustarlas a tu gusto) agrgar amarrilo pagico
+      colorOptions: ['Amarillo', 'Ámbar', 'Rojo', 'Pardo', 'Incoloro', 'Otros', 'Amarillo pajizo'],
       olorOptions: ['Sui-generis', 'Fétido', 'Inodoro', 'Medicamentoso', 'Otros'],
       aspectoOptions: ['Límpido', 'Turbio', 'Opalescente','Ligeramente Opalescente'],
       espumaOptions: ['Ausente', 'Escasa', 'Moderada', 'Abundante'],

@@ -24,7 +24,7 @@ class Area extends Model implements AuditableContract
 
     public function servicios()
     {
-        return $this->hasMany(Servicio::class);
+        return $this->hasMany(Servicio::class)->orderBy('codigo', 'asc');
     }
 
     public function areaTipoMuestras()
