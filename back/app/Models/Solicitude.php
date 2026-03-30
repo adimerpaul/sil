@@ -219,4 +219,10 @@ class Solicitude extends Model implements AuditableContract
         return $this->hasMany(SolicitudRechazada::class);
     }
 
+    public function preAnaliticaComentarios()
+    {
+        return $this->hasMany(SolicitudePreAnaliticaComentario::class, 'solicitude_id')
+            ->orderByDesc('created_at');
+    }
+
 }

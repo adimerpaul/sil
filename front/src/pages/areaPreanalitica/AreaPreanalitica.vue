@@ -1101,6 +1101,74 @@
                 </div>
 <!--                <pre>{{areas_tipo_muestras}}</pre>-->
               </div>
+              <div>
+                <div class="text-subtitle2 text-primary q-mb-xs">
+                  Comentarios
+                </div>
+                <q-separator spaced />
+
+                <q-input
+                  v-model="comentarioNuevo"
+                  type="textarea"
+                  autogrow
+                  dense
+                  outlined
+                  label="Agregar comentario"
+                />
+
+                <div class="text-right q-mt-sm">
+                  <q-btn
+                    color="primary"
+                    icon="add_comment"
+                    label="Agregar comentario"
+                    no-caps
+                    :loading="savingComentario"
+                    @click="guardarComentarioPreanalitica"
+                  />
+                </div>
+
+                <q-markup-table
+                  flat
+                  bordered
+                  dense
+                  class="q-mt-md"
+                  v-if="consentimiento.pre_analitica_comentarios && consentimiento.pre_analitica_comentarios.length"
+                >
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Usuario</th>
+                      <th>Comentario</th>
+                      <th class="text-right">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="comentario in consentimiento.pre_analitica_comentarios"
+                      :key="comentario.id"
+                    >
+                      <td>{{ formatoComentarioFecha(comentario.created_at) }}</td>
+                      <td>{{ comentario.user?.name || 'Desconocido' }}</td>
+                      <td style="white-space: pre-wrap;">{{ comentario.comentario }}</td>
+                      <td class="text-right">
+                        <q-btn
+                          v-if="puedeEliminarComentario(comentario)"
+                          flat
+                          dense
+                          round
+                          color="negative"
+                          icon="delete"
+                          @click="eliminarComentarioPreanalitica(comentario)"
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </q-markup-table>
+
+                <div v-else class="text-caption text-grey-7 q-mt-md">
+                  No hay comentarios registrados.
+                </div>
+              </div>
             </div>
           </div>
         </q-card-section>
@@ -1135,7 +1203,7 @@
             no-caps
             @click="guardarPreAnalitica"
           >
-            Guardar y Enviar <br>a Distribución
+            {{ etiquetaGuardarPreanalitica() }}
           </q-btn>
         </q-card-actions>
 
@@ -1315,6 +1383,8 @@ export default {
       moment: moment,
       filter: '',
       loadingRowId: null,
+      savingComentario: false,
+      comentarioNuevo: '',
       dialogRechazado: false,
       savingPre: false,          // 👈 nuevo
       selectedMuestras: [],      // 👈 nuevo: ids de area_tipo_muestras
@@ -1532,6 +1602,58 @@ export default {
           this.savingPre = false
         })
     },
+    guardarComentarioPreanalitica () {
+      if (!this.consentimiento?.id) return
+      if (!String(this.comentarioNuevo || '').trim()) {
+        this.$alert?.error?.('Escriba un comentario antes de guardar.')
+        return
+      }
+
+      this.savingComentario = true
+      this.$axios.post(`solicitudes/${this.consentimiento.id}/pre-analitica-comentarios`, {
+        comentario: this.comentarioNuevo
+      })
+        .then(res => {
+          if (!Array.isArray(this.consentimiento.pre_analitica_comentarios)) {
+            this.consentimiento.pre_analitica_comentarios = []
+          }
+          this.consentimiento.pre_analitica_comentarios.unshift(res.data)
+          this.comentarioNuevo = ''
+          this.$alert?.success?.('Comentario agregado')
+        })
+        .catch(err => {
+          const msg = err.response?.data?.message || err.message
+          this.$alert?.error?.('Error al guardar comentario: ' + msg)
+        })
+        .finally(() => {
+          this.savingComentario = false
+        })
+    },
+    eliminarComentarioPreanalitica (comentario) {
+      if (!this.consentimiento?.id || !comentario?.id) return
+
+      this.$axios.delete(`solicitudes/${this.consentimiento.id}/pre-analitica-comentarios/${comentario.id}`)
+        .then(() => {
+          this.consentimiento.pre_analitica_comentarios =
+            (this.consentimiento.pre_analitica_comentarios || []).filter(item => item.id !== comentario.id)
+          this.$alert?.success?.('Comentario eliminado')
+        })
+        .catch(err => {
+          const msg = err.response?.data?.message || err.message
+          this.$alert?.error?.('Error al eliminar comentario: ' + msg)
+        })
+    },
+    puedeEliminarComentario (comentario) {
+      return Number(comentario?.user_id) === Number(this.$store.user?.id)
+    },
+    formatoComentarioFecha (fecha) {
+      return fecha ? moment(fecha).format('DD/MM/YYYY HH:mm') : '-'
+    },
+    etiquetaGuardarPreanalitica () {
+      return ['CREADO', 'ATENDIENDO'].includes(this.consentimiento?.estado)
+        ? 'Guardar y Enviar a Distribución'
+        : 'Guardar cambios'
+    },
     textCapitalize(text) {
       if (!text) return ''
       return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
@@ -1564,6 +1686,10 @@ export default {
     },
     openDialogSolicitud (action, row, index) {
       this.consentimiento = row
+      if (!Array.isArray(this.consentimiento.pre_analitica_comentarios)) {
+        this.consentimiento.pre_analitica_comentarios = []
+      }
+      this.comentarioNuevo = ''
       // cargar seleccionadas desde backend (relación area_tipo_muestras de la solicitud)
       // this.selectedMuestras = (row.area_tipo_muestras || []).map(m => m.id)
       // console.log(row)

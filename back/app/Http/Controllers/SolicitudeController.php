@@ -14,6 +14,7 @@ use App\Models\Solicitude;
 use App\Models\Paciente;
 use App\Models\Doctor;
 use App\Models\SolitudePreAnalitica;
+use App\Models\SolicitudePreAnaliticaComentario;
 use App\Models\SolicitudePropiedad;
 
 // <-- NUEVO
@@ -721,8 +722,13 @@ class SolicitudeController extends Controller
             }
         }
 
-        $solicitud->fecha_envio_analitica = now();
-        $solicitud->estado = 'ENVIADO_ANALITICA';
+        if (empty($solicitud->fecha_envio_analitica)) {
+            $solicitud->fecha_envio_analitica = now();
+        }
+
+        if (in_array($solicitud->estado, ['CREADO', 'ATENDIENDO'], true)) {
+            $solicitud->estado = 'ENVIADO_ANALITICA';
+        }
 //        'muestra_rechazada',
 //        'muestra_observacion',
         $solicitud->muestra_rechazada = 'No';
@@ -732,7 +738,40 @@ class SolicitudeController extends Controller
 
         return response()->json([
             'message' => 'Muestras preanalíticas actualizadas',
-            'area_tipo_muestras' => $solicitud,
+            'area_tipo_muestras' => $solicitud->load('preAnaliticaComentarios.user'),
+        ]);
+    }
+    public function storePreAnaliticaComentario(Request $request, $id)
+    {
+        $solicitud = Solicitude::findOrFail($id);
+
+        $data = $request->validate([
+            'comentario' => 'required|string|max:3000',
+        ]);
+
+        $comentario = SolicitudePreAnaliticaComentario::create([
+            'solicitude_id' => $solicitud->id,
+            'user_id' => $request->user()->id,
+            'comentario' => trim($data['comentario']),
+        ])->load('user');
+
+        return response()->json($comentario, 201);
+    }
+    public function destroyPreAnaliticaComentario(Request $request, $id, $comentarioId)
+    {
+        $comentario = SolicitudePreAnaliticaComentario::where('solicitude_id', $id)
+            ->findOrFail($comentarioId);
+
+        if ((int) $comentario->user_id !== (int) $request->user()->id) {
+            return response()->json([
+                'message' => 'Solo puede eliminar sus propios comentarios.'
+            ], 403);
+        }
+
+        $comentario->delete();
+
+        return response()->json([
+            'message' => 'Comentario eliminado correctamente.'
         ]);
     }
     public function solicitudesAreaPreanaliticaEstado(Request $request)
@@ -748,6 +787,7 @@ class SolicitudeController extends Controller
             'servicios.area.rangos',
             'servicios.tiposMuestra',
             'preAnaliticaMuestras.areaTipoMuestra.area',
+            'preAnaliticaComentarios.user',
             'userPreanalitica',
             'userAnalitica',
             'user',
@@ -782,6 +822,7 @@ class SolicitudeController extends Controller
             'servicios.area',
             'servicios.tiposMuestra',
             'preAnaliticaMuestras.areaTipoMuestra',
+            'preAnaliticaComentarios.user',
             'userPreanalitica',
             'user',
             'solicitudRechazadas.user',

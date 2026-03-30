@@ -60,6 +60,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('solicitudes-area-preanalitica', [SolicitudeController::class, 'solicitudesAreaPreanalitica']);
     Route::get('solicitudes-area-preanalitica-estado', [SolicitudeController::class, 'solicitudesAreaPreanaliticaEstado']);
     Route::post('solicitudes/{id}/pre-analitica', [SolicitudeController::class, 'guardarPreAnalitica']);
+    Route::post('solicitudes/{id}/pre-analitica-comentarios', [SolicitudeController::class, 'storePreAnaliticaComentario']);
+    Route::delete('solicitudes/{id}/pre-analitica-comentarios/{comentarioId}', [SolicitudeController::class, 'destroyPreAnaliticaComentario']);
     Route::get('areas-tipo-muestras', [AreaController::class, 'tipoMuestras']);
 
     Route::post('solicitudes/{id}/generar-codigo', [SolicitudeController::class, 'generarCodigo']);
