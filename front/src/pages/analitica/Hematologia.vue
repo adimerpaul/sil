@@ -757,8 +757,9 @@
                   dense
                   outlined
                   label="Equipo"
-                  :options="['Mindray BC 5130', 'Mindray BC 3000 Plus', 'Otro']"
+                  :options="['Mindray BC 3510','Mindray BC 5130', 'Mindray BC 3000 Plus', 'Otro']"
                 />
+                <!--                Moundray c-3510-->
               </div>
             </div>
             <!--            methodo equipo-->
@@ -1320,6 +1321,17 @@ export default {
       return `${hours}h ${minutes}m ${seconds}s`
     }
   },
+  watch: {
+    'form.globulos_rojos' () {
+      this.calculateHematimetricos()
+    },
+    'form.hemoglobina' () {
+      this.calculateHematimetricos()
+    },
+    'form.hematocrito' () {
+      this.calculateHematimetricos()
+    }
+  },
   mounted () {
     this.load()
     // tiempos sacar de tablaTP
@@ -1334,21 +1346,21 @@ export default {
       const gr = parseFloat(this.form.globulos_rojos)
       const hb = parseFloat(this.form.hemoglobina)
       const ht = parseFloat(this.form.hematocrito)
-      if (!isNaN(gr) && !isNaN(ht) && ht !== 0) {
+      if (!isNaN(ht) && !isNaN(gr) && gr !== 0) {
         // this.form.vcm = ((gr * 10) / ht) redondear a 2 decimales
-        this.form.vcm = parseFloat(((gr * 10) / ht).toFixed(2))
+        this.form.vcm = parseFloat(((ht * 10) / gr).toFixed(2))
       } else {
         this.form.vcm = null
       }
-      if (!isNaN(hb) && !isNaN(ht) && ht !== 0) {
+      if (!isNaN(hb) && !isNaN(gr) && gr !== 0) {
         // this.form.hbcm = (hb / ht) / 10
-        this.form.hbcm = parseFloat(((hb / ht) / 10).toFixed(2))
+        this.form.hbcm = parseFloat(((hb * 10) / gr).toFixed(2))
       } else {
         this.form.hbcm = null
       }
-      if (!isNaN(gr) && !isNaN(hb) && hb !== 0) {
+      if (!isNaN(hb) && !isNaN(ht) && ht !== 0) {
         // this.form.chcm = (gr * 10) / hb
-        this.form.chcm = parseFloat(((gr * 10)*1000 / hb).toFixed(2))
+        this.form.chcm = parseFloat(((hb * 100) / ht).toFixed(2))
       } else {
         this.form.chcm = null
       }
@@ -1376,6 +1388,7 @@ export default {
         this.form.muestra_rechazada = muestra_rechazada
         this.form.muestra_observacion = muestra_observacion
         this.rangos = data.rangos || []
+        this.calculateHematimetricos()
         this.formLoaded = true
       } catch (e) {
         const msg = e.response?.data?.message || e.message
