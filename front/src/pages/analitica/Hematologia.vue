@@ -168,7 +168,7 @@
                   dense
                   outlined
                   type="number"
-                  step="0.01"
+                  step="0.1"
                   :input-class="[
                       'text-right',
                       isOutOfRange('Globulos Rojos', form.globulos_rojos) ? 'text-negative text-weight-bold' : ''
@@ -189,7 +189,7 @@
                   dense
                   outlined
                   type="number"
-                  step="0.01"
+                  step="0.1"
                   :input-class="[
                       'text-right',
                       isOutOfRange('Globulos Blancos (Leucocitos)', form.globulos_blancos) ? 'text-negative text-weight-bold' : ''
@@ -208,7 +208,7 @@
                   dense
                   outlined
                   type="number"
-                  step="0.01"
+                  step="0.1"
                   :input-class="[
                       'text-right',
                       isOutOfRange('Plaquetas', form.plaquetas) ? 'text-negative text-weight-bold' : ''
@@ -845,6 +845,14 @@
               <td>&lt; 20</td>
               <td>mm/h</td>
             </tr>
+            <tr v-if="canServicios('FIBRINÓGENO')">
+              <td>Fibrinógeno</td>
+              <td>
+                <q-input v-model.number="form.fibrinogeno" dense outlined type="number" step="0.01" input-class="text-right" />
+              </td>
+              <td>2.0 – 4.0</td>
+              <td>g/L</td>
+            </tr>
 
 <!--            <tr v-if="canServicios('RECUENTO DE RETICULOCITOS')">-->
 <!--              <td>IPR</td>-->
@@ -928,14 +936,14 @@
 <!--              <td>seg</td>-->
 <!--            </tr>-->
 
-            <tr v-if="canServicios('FIBRINÓGENO')">
-              <td>Fibrinógeno</td>
-              <td>
-                <q-input v-model.number="form.fibrinogeno" dense outlined type="number" step="0.01" input-class="text-right" />
-              </td>
-              <td>2.0 – 4.0</td>
-              <td>g/L</td>
-            </tr>
+<!--            <tr v-if="canServicios('FIBRINÓGENO')">-->
+<!--              <td>Fibrinógeno</td>-->
+<!--              <td>-->
+<!--                <q-input v-model.number="form.fibrinogeno" dense outlined type="number" step="0.01" input-class="text-right" />-->
+<!--              </td>-->
+<!--              <td>2.0 – 4.0</td>-->
+<!--              <td>g/L</td>-->
+<!--            </tr>-->
 
 <!--            <tr v-if="canServicios('ERITROSEDIMENTACIÓN (VSG- VES)')">-->
 <!--              <td>V.E.S</td>-->
@@ -948,18 +956,10 @@
             <tr v-if="canServicios('RECUENTO DE RETICULOCITOS')">
               <td>RETICULOCITOS</td>
               <td>
-<!--                <pre>{{form.ipr2 }}</pre>-->
-<!--                <pre>{{form.hematocrito }}</pre>-->
                 <q-input
-                  v-model.number="form.ipr2" dense outlined type="number" step="0.01"
+                  v-model.number="form.ipr2" dense outlined type="number" step="0.1"
                   :input-class="['text-right', isOutOfRange('Reticulocitos', form.ipr2) ? 'text-negative text-weight-bold' : '']"
-                  @update:model-value="
-                  form.rc = (((form.ipr2 || 0) * (form.hematocrito || 0))).toFixed(2)
-                  ";
-
                 />
-<!--                // form.ipr = ( (form.rc) / ());"-->
-<!--                @update:model-value=" form.rc = ((form.ipr2 || 0) * ((form.hematocrito || 0) / 45)).toFixed(2); "-->
               </td>
               <td>
                 {{ rangoTexto('Reticulocitos') }}
@@ -972,7 +972,7 @@
               <td>RC</td>
               <td>
                 <q-input
-                  v-model.number="form.rc" dense outlined type="number" step="0.01"
+                  v-model.number="form.rc" dense outlined type="number" step="0.1" readonly
                   :input-class="['text-right', isOutOfRange('IPR', form.rc) ? 'text-negative text-weight-bold' : '']"
                 />
               </td>
@@ -987,7 +987,7 @@
               <td>IPR</td>
               <td>
                 <q-input
-                  v-model.number="form.ipr" dense outlined type="number" step="0.01"
+                  v-model.number="form.ipr" dense outlined type="number" step="0.1" readonly
                   :input-class="['text-right', isOutOfRange('IPR', form.ipr) ? 'text-negative text-weight-bold' : '']"
                 />
               </td>
@@ -1330,6 +1330,10 @@ export default {
     },
     'form.hematocrito' () {
       this.calculateHematimetricos()
+      this.calculateReticulocitos()
+    },
+    'form.ipr2' () {
+      this.calculateReticulocitos()
     }
   },
   mounted () {
@@ -1348,21 +1352,46 @@ export default {
       const ht = parseFloat(this.form.hematocrito)
       if (!isNaN(ht) && !isNaN(gr) && gr !== 0) {
         // this.form.vcm = ((gr * 10) / ht) redondear a 2 decimales
-        this.form.vcm = parseFloat(((ht * 10) / gr).toFixed(2))
+        this.form.vcm = parseFloat(((ht * 10) / gr).toFixed(1))
       } else {
         this.form.vcm = null
       }
       if (!isNaN(hb) && !isNaN(gr) && gr !== 0) {
         // this.form.hbcm = (hb / ht) / 10
-        this.form.hbcm = parseFloat(((hb * 10) / gr).toFixed(2))
+        this.form.hbcm = parseFloat(((hb * 10) / gr).toFixed(1))
       } else {
         this.form.hbcm = null
       }
       if (!isNaN(hb) && !isNaN(ht) && ht !== 0) {
         // this.form.chcm = (gr * 10) / hb
-        this.form.chcm = parseFloat(((hb * 100) / ht).toFixed(2))
+        this.form.chcm = parseFloat(((hb * 100) / ht).toFixed(1))
       } else {
         this.form.chcm = null
+      }
+    },
+    getReticulocitoFactorCorreccion () {
+      const ht = parseFloat(this.form.hematocrito)
+      if (isNaN(ht)) return null
+      if (ht >= 40) return 1.0
+      if (ht >= 30) return 1.5
+      if (ht >= 20) return 2.0
+      return 2.5
+    },
+    calculateReticulocitos () {
+      const reticulocitos = parseFloat(this.form.ipr2)
+      const hematocrito = parseFloat(this.form.hematocrito)
+      const factorCorreccion = this.getReticulocitoFactorCorreccion()
+
+      if (!isNaN(reticulocitos) && !isNaN(hematocrito)) {
+        this.form.rc = parseFloat((reticulocitos * (hematocrito / 45)).toFixed(1))
+      } else {
+        this.form.rc = null
+      }
+
+      if (this.form.rc !== null && factorCorreccion) {
+        this.form.ipr = parseFloat((this.form.rc / factorCorreccion).toFixed(1))
+      } else {
+        this.form.ipr = null
       }
     },
     // ========= servicio match =========
@@ -1389,6 +1418,7 @@ export default {
         this.form.muestra_observacion = muestra_observacion
         this.rangos = data.rangos || []
         this.calculateHematimetricos()
+        this.calculateReticulocitos()
         this.formLoaded = true
       } catch (e) {
         const msg = e.response?.data?.message || e.message

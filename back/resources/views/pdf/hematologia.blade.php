@@ -157,7 +157,7 @@
         'TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)'
     ]);
 
-    $showOtros = $canServicios(['FIBRINÓGENO','RECUENTO DE RETICULOCITOS']);
+    $showOtros = $canServicios(['RECUENTO DE RETICULOCITOS']);
     $showFrotis = $canServicios('FROTIS SANGUÍNEO/LEUCOGRAMA');
 
     /* =========================
@@ -286,7 +286,7 @@
                 <td>VCM</td>
                 <td class="center {{ $outOfRange('V.C.M.', $hematologia->vcm ?? null) ? 'out-range' : '' }}">
 {{--                    {{ $hematologia->vcm ?? '' }}--}}
-                    {{round($hematologia->vcm) ?? '' }}
+                    {{ round($hematologia->vcm, 1) ?? '' }}
                 </td>
                 <td class="center">{{ $rangoTexto('V.C.M.') }}</td>
                 <td class="center">{{ $rangoUnidad('V.C.M.') }}</td>
@@ -295,7 +295,7 @@
                 <td>HBCM</td>
                 <td class="center {{ $outOfRange('Hb.C.M.', $hematologia->hbcm ?? null) ? 'out-range' : '' }}">
 {{--                    {{ $hematologia->hbcm ?? '' }}--}}
-                    {{ round($hematologia->hbcm) ?? '' }}
+                    {{ round($hematologia->hbcm, 1) ?? '' }}
                 </td>
                 <td class="center">{{ $rangoTexto('Hb.C.M.') }}</td>
                 <td class="center">{{ $rangoUnidad('Hb.C.M.') }}</td>
@@ -304,7 +304,7 @@
                 <td>CHCM</td>
                 <td class="center {{ $outOfRange('CHCM', $hematologia->chcm ?? null) ? 'out-range' : '' }}">
 {{--                    {{ $hematologia->chcm ?? '' }}--}}
-                    {{ round($hematologia->chcm) ?? '' }}
+                    {{ round($hematologia->chcm, 1) ?? '' }}
                 </td>
                 <td class="center">{{ $rangoTexto('CHCM') }}</td>
                 <td class="center">{{ $rangoUnidad('CHCM') }}</td>
@@ -407,6 +407,9 @@
             </tr>
             </thead>
             <tbody>
+            @if(false && $canServicios('FIBRINÃ“GENO'))
+                <tr><td>FibrinÃ³geno</td><td class="center">{{ round($hematologia->fibrinogeno,1) ?? '' }}</td><td class="center">{{ $rangoTexto('FIBRINOGENO') }}</td><td class="center">{{ $rangoUnidad('FIBRINOGENO') }}</td></tr>
+            @endif
             @if($canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO DE PROTROMBINA (TP)']))
                 <tr><td>Tiempo de protrombina (TP)</td><td class="center">{{ $hematologia->tiempo_protrombina ?? '' }}</td><td class="center">11 – 15</td><td class="center">seg</td></tr>
                 <tr><td>Actividad de protrombina</td><td class="center">{{ $hematologia->actividad_protrombina ?? '' }}</td><td class="center">70 – 100</td><td class="center">%</td></tr>
@@ -449,13 +452,6 @@
             @endif
             @if($canServicios('RECUENTO DE RETICULOCITOS'))
                 <tr>
-                    <td>IPR</td><td class="center">
-{{--                        {{ $hematologia->ipr ?? '' }}--}}
-                        {{ round($hematologia->ipr, 1) ?? '' }}
-                    </td><td class="center">{{ $rangoTexto('IPR') }}</td>
-                    <td class="center">{{ $rangoUnidad('IPR') }}</td>
-                </tr>
-                <tr>
                     <td>Reticulocitos</td>
                     <td class="center">
 {{--                        {{ $hematologia->ipr2 ?? '' }}--}}
@@ -472,6 +468,13 @@
                     </td>
                     <td class="center">{{ $rangoTexto('RC') }}</td>
                     <td class="center">{{ $rangoUnidad('RC') }}</td>
+                </tr>
+                <tr>
+                    <td>IPR</td><td class="center">
+{{--                        {{ $hematologia->ipr ?? '' }}--}}
+                        {{ round($hematologia->ipr, 1) ?? '' }}
+                    </td><td class="center">{{ $rangoTexto('IPR') }}</td>
+                    <td class="center">{{ $rangoUnidad('IPR') }}</td>
                 </tr>
             @endif
             </tbody>
