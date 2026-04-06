@@ -239,7 +239,9 @@
 {{--        @endforeach--}}
         <td style="width:50%; vertical-align:top; padding:0 4px;">
 
-            {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud, 'fecha_solicitud'=>$q->created_at])->render() !!}
+            <div style="margin-top:-30px;">
+                {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud, 'fecha_solicitud'=>$q->created_at])->render() !!}
+            </div>
 
             <div class="center bold" style="font-size:12px; margin:2px 0; margin-top: 5px">QUÍMICA SANGUÍNEA</div>
             <div class="center small muted">

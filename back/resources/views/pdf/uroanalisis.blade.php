@@ -9,7 +9,7 @@
         body{
             margin:0; padding:0;
             font-family: DejaVu Sans, sans-serif;
-            font-size: 12px;
+            font-size: 13px;
             color:#111;
             line-height: 0.9;
         }
@@ -22,22 +22,22 @@
         table { page-break-inside: avoid; }
         tr, td, th { page-break-inside: avoid; }
 
-        .title { font-weight:700; font-size: 12px; text-align:center; }
-        .subtitle { font-size: 12px; text-align:center; margin-top: 1px; }
+        .title { font-weight:700; font-size: 13px; text-align:center; }
+        .subtitle { font-size: 13px; text-align:center; margin-top: 1px; }
         .muted { color:#555; }
-        .small { font-size: 12px; }
+        .small { font-size: 13px; }
         .hr { border-top: 1.6px solid #111; margin: 2px 0; }
 
         table.inner{ width:100%; border-collapse: collapse; table-layout: fixed; }
         table.inner th, table.inner td{
             border:1px solid #111;
-            padding: 2px 3px;
+            padding: 3px 4px;
             vertical-align: middle;
         }
         table.inner th{
             background:#f2f2f2;
             font-weight:700;
-            font-size: 12px;
+            font-size: 13px;
         }
 
         .no-border td, .no-border th{ border:none; padding:0; }
@@ -47,7 +47,7 @@
             border:none;
             padding: 2px 3px 2px 0;
             vertical-align: bottom;
-            font-size: 7px;
+            font-size: 8px;
         }
 
         .label{ font-weight:700; }
@@ -55,13 +55,13 @@
             border-bottom: 1px solid #111;
             height: 11px;
             padding: 0 3px;
-            font-size: 7px;
+            font-size: 8px;
         }
 
         .section{ margin-top: 3px; }
         .section h3{
             margin: 0 0 2px;
-            font-size: 12px;
+            font-size: 13px;
             text-transform: uppercase;
             letter-spacing: .2px;
         }
@@ -83,7 +83,7 @@
             @php $side = 'left'; @endphp
             {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud, 'fecha_solicitud'=>$u->created_at])->render() !!}
 
-            <div class="section center" style="margin-top:4px; font-weight:700; font-size:9px;">
+            <div class="section center" style="margin-top:4px; font-weight:700; font-size:11px;">
                 UROANÁLISIS
             </div>
 

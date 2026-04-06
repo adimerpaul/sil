@@ -762,8 +762,10 @@
               <tr v-if="canServicios('ASTO O ASO')">
                 <td>ASO</td>
                 <td>
-                  <q-input v-model.number="form.aso" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('ASO', form.aso)" />
+<!--                  <q-input v-model.number="form.aso" dense outlined type="number" step="0.01"-->
+<!--                           :input-class="inputRangeClass('ASO', form.aso)" />-->
+<!--                  select positivo negativo-->
+                  <q-select v-model="form.aso" :options="['Positivo', 'Negativo']" dense outlined clearable />
                 </td>
                 <td>{{ rangoTexto('ASO') }}</td>
                 <td>{{ rangoUnidad('ASO') }}</td>
@@ -772,8 +774,9 @@
               <tr v-if="canServicios('FACTOR REUMATOIDEO (FR)')">
                 <td>FR</td>
                 <td>
-                  <q-input v-model.number="form.fr" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('FR', form.fr)" />
+<!--                  <q-input v-model.number="form.fr" dense outlined type="number" step="0.01"-->
+<!--                           :input-class="inputRangeClass('FR', form.fr)" />-->
+                  <q-select v-model="form.fr" :options="['Positivo', 'Negativo']" dense outlined clearable />
                 </td>
                 <td>{{ rangoTexto('FR') }}</td>
                 <td>{{ rangoUnidad('FR') }}</td>
@@ -782,8 +785,9 @@
               <tr v-if="canServicios(['PCR CUALITATIVO (PROTEÍNA C REACTIVA)'])">
                 <td>PCR</td>
                 <td>
-                  <q-input v-model.number="form.pcr" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('PCR', form.pcr)" />
+<!--                  <q-input v-model.number="form.pcr" dense outlined type="number" step="0.01"-->
+<!--                           :input-class="inputRangeClass('PCR', form.pcr)" />-->
+                  <q-select v-model="form.pcr" :options="['Positivo', 'Negativo']" dense outlined clearable />
                 </td>
                 <td>{{ rangoTexto('PCR') }}</td>
                 <td>{{ rangoUnidad('PCR') }}</td>
