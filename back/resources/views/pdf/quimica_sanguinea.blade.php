@@ -110,6 +110,11 @@
         return $obj->$field ?? '';
     }
 
+    function hasVal($obj, $field){
+        if(!$obj) return false;
+        return isset($obj->$field) && $obj->$field !== '';
+    }
+
     /* =========================
        HELPERS: SERVICIOS (igual que el front)
        ========================= */
@@ -765,7 +770,7 @@
                                         </thead>
                                         <tbody>
 
-                                        @if($canServicios('ASTO O ASO'))
+                                        @if($canServicios('ASTO O ASO') || hasVal($q,'aso'))
                                             <tr>
                                                 <td>ASO</td>
                                                 <td class="center">{{ val($q,'aso') }}</td>
@@ -774,7 +779,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios('FACTOR REUMATOIDEO (FR)'))
+                                        @if($canServicios('FACTOR REUMATOIDEO (FR)') || hasVal($q,'fr'))
                                             <tr>
                                                 <td>FR</td>
                                                 <td class="center">{{ val($q,'fr') }}</td>
@@ -783,16 +788,16 @@
                                             </tr>
                                         @endif
 {{--                                        Test de embarazo--}}
-                                        @if($canServicios('TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)'))
+                                        @if($canServicios('TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)') || hasVal($q,'test_embarazo'))
                                             <tr>
-                                                <td>Test de embarazo</td>
+                                                <td>Test embarazo</td>
                                                 <td class="center">{{ val($q,'test_embarazo') }}</td>
                                                 <td class="center">{{ rangoTexto('Test de embarazo',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Test de embarazo',$rangosMap) }}</td>
                                             </tr>
                                         @endif
 
-                                        @if($canServicios(['PCR CUALITATIVO (PROTEÍNA C REACTIVA)']))
+                                        @if($canServicios(['PCR CUALITATIVO (PROTEÍNA C REACTIVA)']) || hasVal($q,'pcr'))
                                             <tr>
                                                 <td>PCR</td>
                                                 <td class="center">{{ val($q,'pcr') }}</td>
@@ -801,7 +806,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios(['PRUEBA RAPIDA PARA VIH']))
+                                        @if($canServicios(['PRUEBA RAPIDA PARA VIH']) || hasVal($q,'prueba_rapida_vih'))
                                             <tr>
                                                 <td>Prueba rápida VIH</td>
                                                 <td class="center">{{ val($q,'prueba_rapida_vih') }}</td>
@@ -810,7 +815,43 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios(['RPR- VDRL']))
+                                        @if($canServicios('PRUEBA RAPIDA PARA HEPATITIS B') || hasVal($q,'prueba_rapida_hepatitis_b'))
+                                            <tr>
+                                                <td>Hepatitis B</td>
+                                                <td class="center">{{ val($q,'prueba_rapida_hepatitis_b') }}</td>
+                                                <td class="center">{{ rangoTexto('Hepatitis B',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoUnidad('Hepatitis B',$rangosMap) }}</td>
+                                            </tr>
+                                        @endif
+
+                                        @if($canServicios('PRUEBA RAPIDA PARA HEPATITIS C') || hasVal($q,'prueba_rapida_hepatitis_c'))
+                                            <tr>
+                                                <td>Hepatitis C</td>
+                                                <td class="center">{{ val($q,'prueba_rapida_hepatitis_c') }}</td>
+                                                <td class="center">{{ rangoTexto('Hepatitis C',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoUnidad('Hepatitis C',$rangosMap) }}</td>
+                                            </tr>
+                                        @endif
+
+                                        @if($canServicios('PRUEBA RAPIDA PARA CHAGAS') || hasVal($q,'prueba_rapida_chagas'))
+                                            <tr>
+                                                <td>Chagas</td>
+                                                <td class="center">{{ val($q,'prueba_rapida_chagas') }}</td>
+                                                <td class="center">{{ rangoTexto('Chagas',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoUnidad('Chagas',$rangosMap) }}</td>
+                                            </tr>
+                                        @endif
+
+                                        @if($canServicios('PRUEBA RAPIDA PARA SIFILIS') || hasVal($q,'prueba_rapida_sifilis'))
+                                            <tr>
+                                                <td>Sífilis</td>
+                                                <td class="center">{{ val($q,'prueba_rapida_sifilis') }}</td>
+                                                <td class="center">{{ rangoTexto('Sífilis',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoUnidad('Sífilis',$rangosMap) }}</td>
+                                            </tr>
+                                        @endif
+
+                                        @if($canServicios(['RPR- VDRL']) || hasVal($q,'rpr'))
                                             <tr>
                                                 <td>RPR / VDRL</td>
                                                 <td class="center">{{ val($q,'rpr') }}</td>
@@ -819,7 +860,16 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios('REACCIÓN DE WIDAL'))
+                                        @if($canServicios('PRUEBA RAPIDA PARA TROPONINA') || hasVal($q,'prueba_rapida_troponina'))
+                                            <tr>
+                                                <td>Troponina</td>
+                                                <td class="center">{{ val($q,'prueba_rapida_troponina') }}</td>
+                                                <td class="center">{{ rangoTexto('Troponina',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoUnidad('Troponina',$rangosMap) }}</td>
+                                            </tr>
+                                        @endif
+
+                                        @if($canServicios('REACCIÓN DE WIDAL') || hasVal($q,'reaccion_widal'))
                                             <tr>
                                                 <td>Reacción de Widal</td>
                                                 <td class="center">{{ val($q,'reaccion_widal') }}</td>
@@ -828,7 +878,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios('CLEARENCE DE CREATININA'))
+                                        @if($canServicios('CLEARENCE DE CREATININA') || hasVal($q,'dce'))
                                             <tr>
                                                 <td>DCE</td>
                                                 <td class="center">{{ val($q,'dce') }}</td>
