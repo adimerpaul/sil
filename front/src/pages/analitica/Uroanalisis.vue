@@ -275,7 +275,7 @@
 <!--                    <select class="w-full bg-transparent border-b border-gray-300 focus:border-blue-500 focus:outline-none px-1 py-0 text-center text-[10px]"><option value="Fugaz">Fugaz</option><option value="Blanco Fugaz">Blanco Fugaz</option><option value="Persistente">Persistente</option></select>-->
                     <q-select
                       v-model="form.espuma"
-                      :options="['Fugaz', 'Blanco fugaz', 'Persistente','Amarillo fugaz', 'Amarillo persistente','Otros']"
+                      :options="['Fugaz', 'Blanco fugaz', 'Persistente','Amarillo fugaz', 'Amarillo persistente','Otros','Blanco persistente']"
                       dense
                       outlined
                       emit-value
@@ -925,6 +925,7 @@ export default {
       proteinasOptions: [
         'NO CONTIENE',
         'TRAZAS',
+        '15 mg/dl',
         '30 mg/dl',
         '100 mg/dl',
         '300 mg/dl',

@@ -81,22 +81,9 @@
         return null;
     };
 
-    $formatoRangoNumero = function($valor) {
-        if (is_null($valor) || $valor === '') return '';
-        if (!is_numeric($valor)) return $valor;
-
-        $texto = number_format((float) $valor, 4, '.', '');
-        $texto = rtrim(rtrim($texto, '0'), '.');
-
-        return $texto === '-0' ? '0' : $texto;
-    };
-
-    $rangoTexto = function($nombre) use ($rango, $formatoRangoNumero) {
+    $rangoTexto = function($nombre) use ($rango) {
         $r = $rango($nombre);
         if (!$r) return '';
-        if (!is_null($r->rango_minimo) && !is_null($r->rango_maximo)) {
-            return $formatoRangoNumero($r->rango_minimo).' - '.$formatoRangoNumero($r->rango_maximo);
-        }
         return $r->interpretacion ?? '';
     };
 
