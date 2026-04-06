@@ -3,126 +3,230 @@
 <head>
     <meta charset="utf-8">
     <style>
-        *{ box-sizing:border-box; }
-        body{ font-family: DejaVu Sans, sans-serif; font-size: 8px; color:#111; margin:0; }
-        .center{ text-align:center; }
+        * { box-sizing: border-box; }
+
+        body{
+            margin:0;
+            padding:0;
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 12px;
+            line-height: 1.08;
+            color:#111;
+        }
+
+        .muted{ color:#666; }
         .bold{ font-weight:700; }
-        .tbl{ width:100%; border-collapse:collapse; }
-        .tbl th,.tbl td{ border:1px solid #111; padding:2px 4px; }
-        .tbl th{ background:#f3f3f3; }
-        .mt-8{ margin-top:8px; }
-        .title{ font-size:12px; font-weight:700; margin:4px 0; }
-        .chart-wrap{ text-align:center; }
-        .chart-img{ width:92%; height:auto; }
+        .center{ text-align:center; }
+        .small{ font-size:6.6px; }
+
+        .block{
+            page-break-inside: avoid;
+        }
+        .block .title{
+            padding:2px 3px;
+            font-size:7.6px;
+            font-weight:700;
+            text-transform:uppercase;
+            letter-spacing:.02em;
+        }
+        .block .body{ padding:2px 3px; }
+
+        .tbl{
+            width:100%;
+            border-collapse:collapse;
+            table-layout:fixed;
+        }
+        .tbl th, .tbl td{
+            border:1px solid #111;
+            padding:1.5px 2px;
+            vertical-align:middle;
+        }
+        .tbl th{
+            background:#f7f7f7;
+            font-size: 12px;
+        }
+        .tbl td{ font-size: 12px; }
     </style>
 </head>
 
 <body>
-{!! view('components.header', ['solicitud' => $solicitud])->render() !!}
+@php
+    $q = $quimica ?? null;
 
-<div class="center title">
-    CITOQUIMICO
-    @if(!empty($quimica->tipo_de_muestra))
-        <span style="font-weight:400;"> - MUESTRA: {{ $quimica->tipo_de_muestra }}</span>
-    @endif
-</div>
+    $fmt = function($value, $suffix = '') {
+        if ($value === null || $value === '') return '';
+        return trim($value . ($suffix ? ' ' . $suffix : ''));
+    };
+@endphp
 
-<div class="mt bold">EXAMEN FISICO</div>
 <table>
-    @if($quimica->citoquimico_cantidad)
-        <tr>
-            <td class="col-label">CANTIDAD:</td>
-            <td class="col-val">{{ $quimica->citoquimico_cantidad }} ml</td>
-        </tr>
-    @endif
+    <tr>
+        <td style="width:50%; vertical-align:top; padding:0 4px;">
+            <div style="margin-top:-30px;">
+                {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud, 'fecha_solicitud' => $q->created_at ?? null])->render() !!}
+            </div>
 
-    @if($quimica->citoquimico_color)
-        <tr>
-            <td>COLOR:</td>
-            <td>{{ $quimica->citoquimico_color }}</td>
-        </tr>
-    @endif
+            <div class="center bold" style="font-size:12px; margin:2px 0; margin-top: 5px">CITOQUÍMICO</div>
+            <div class="center bold" style="font-size:11px; margin:2px 0;">
+                MUESTRA: {{ $q->tipo_de_muestra ?: 'LÍQUIDO CEFALORRAQUÍDEO' }}
+            </div>
 
-    @if($quimica->citoquimico_aspecto)
-        <tr>
-            <td>ASPECTO:</td>
-            <td>{{ $quimica->citoquimico_aspecto }}</td>
-        </tr>
-    @endif
+            <div class="center small muted" style="margin-bottom:4px;">
+                Método: {{ $q->metodo ?: '—' }} &nbsp; • &nbsp;
+                Equipo: {{ $q->equipo == 'Otros' ? $q->equipo_otro : ($q->equipo ?? '—') }}
+            </div>
+
+            <div class="block">
+                <div class="title">Examen físico</div>
+                <div class="body">
+                    <table class="tbl">
+                        <thead>
+                        <tr>
+                            <th style="width:45%;">Parámetro</th>
+                            <th style="width:55%;">Resultado</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @if($q->citoquimico_cantidad !== null && $q->citoquimico_cantidad !== '')
+                            <tr>
+                                <td>Cantidad</td>
+                                <td class="center">{{ $fmt($q->citoquimico_cantidad, 'ml') }}</td>
+                            </tr>
+                        @endif
+                        @if($q->citoquimico_color)
+                            <tr>
+                                <td>Color</td>
+                                <td class="center">{{ $q->citoquimico_color }}</td>
+                            </tr>
+                        @endif
+                        @if($q->citoquimico_aspecto)
+                            <tr>
+                                <td>Aspecto</td>
+                                <td class="center">{{ $q->citoquimico_aspecto }}</td>
+                            </tr>
+                        @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="title">Examen químico</div>
+                <div class="body">
+                    <table class="tbl">
+                        <thead>
+                        <tr>
+                            <th style="width:45%;">Parámetro</th>
+                            <th style="width:55%;">Resultado</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @if($q->citoquimico_glucosa !== null && $q->citoquimico_glucosa !== '')
+                            <tr>
+                                <td>Glucosa</td>
+                                <td class="center">{{ $fmt($q->citoquimico_glucosa, 'mg/dL') }}</td>
+                            </tr>
+                        @endif
+                        @if($q->citoquimico_ph !== null && $q->citoquimico_ph !== '')
+                            <tr>
+                                <td>pH</td>
+                                <td class="center">{{ $q->citoquimico_ph }}</td>
+                            </tr>
+                        @endif
+                        @if($q->citoquimico_proteinas_totales !== null && $q->citoquimico_proteinas_totales !== '')
+                            <tr>
+                                <td>Proteínas totales</td>
+                                <td class="center">{{ $fmt($q->citoquimico_proteinas_totales, 'g/dL') }}</td>
+                            </tr>
+                        @endif
+                        @if($q->citoquimico_densidad !== null && $q->citoquimico_densidad !== '')
+                            <tr>
+                                <td>Densidad</td>
+                                <td class="center">{{ $q->citoquimico_densidad }}</td>
+                            </tr>
+                        @endif
+                        @if($q->citoquimico_albumina !== null && $q->citoquimico_albumina !== '')
+                            <tr>
+                                <td>Albúmina</td>
+                                <td class="center">{{ $fmt($q->citoquimico_albumina, 'g/dL') }}</td>
+                            </tr>
+                        @endif
+                        @if($q->citoquimico_ldh !== null && $q->citoquimico_ldh !== '')
+                            <tr>
+                                <td>LDH</td>
+                                <td class="center">{{ $fmt($q->citoquimico_ldh, 'U/L') }}</td>
+                            </tr>
+                        @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="title">Examen microscópico</div>
+                <div class="body">
+                    <table class="tbl">
+                        <thead>
+                        <tr>
+                            <th style="width:45%;">Parámetro</th>
+                            <th style="width:55%;">Resultado</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @if($q->citoquimico_globulos_blancos !== null && $q->citoquimico_globulos_blancos !== '')
+                            <tr>
+                                <td>Glóbulos blancos</td>
+                                <td class="center">{{ $fmt($q->citoquimico_globulos_blancos, 'x mm3') }}</td>
+                            </tr>
+                        @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="block">
+                <div class="title">Recuento diferencial</div>
+                <div class="body">
+                    <table class="tbl">
+                        <thead>
+                        <tr>
+                            <th style="width:45%;">Parámetro</th>
+                            <th style="width:55%;">Resultado</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @if($q->citoquimico_polimorfonucleares !== null && $q->citoquimico_polimorfonucleares !== '')
+                            <tr>
+                                <td>Polimorfonucleares</td>
+                                <td class="center">{{ $fmt($q->citoquimico_polimorfonucleares, '%') }}</td>
+                            </tr>
+                        @endif
+                        @if($q->citoquimico_mononucleares !== null && $q->citoquimico_mononucleares !== '')
+                            <tr>
+                                <td>Mononucleares</td>
+                                <td class="center">{{ $fmt($q->citoquimico_mononucleares, '%') }}</td>
+                            </tr>
+                        @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            @if(!empty($q->observaciones))
+                <div class="block">
+                    <div class="title">Observaciones</div>
+                    <div class="body">
+                        <table class="tbl">
+                            <tr>
+                                <td>{{ $q->observaciones }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            @endif
+        </td>
+    </tr>
 </table>
-
-<div class="mt bold">EXAMEN QUIMICO</div>
-<table>
-    @if($quimica->citoquimico_glucosa)
-        <tr>
-            <td>GLUCOSA:</td>
-            <td>{{ $quimica->citoquimico_glucosa }} mg/dL</td>
-        </tr>
-    @endif
-
-    @if($quimica->citoquimico_ph)
-        <tr>
-            <td>PH:</td>
-            <td>{{ $quimica->citoquimico_ph }}</td>
-        </tr>
-    @endif
-
-    @if($quimica->citoquimico_proteinas_totales)
-        <tr>
-            <td>PROTEINAS TOTALES:</td>
-            <td>{{ $quimica->citoquimico_proteinas_totales }} g/dL</td>
-        </tr>
-    @endif
-
-    @if($quimica->citoquimico_densidad)
-        <tr>
-            <td>DENSIDAD:</td>
-            <td>{{ $quimica->citoquimico_densidad }}</td>
-        </tr>
-    @endif
-
-    @if($quimica->citoquimico_albumina)
-        <tr>
-            <td>ALBUMINA:</td>
-            <td>{{ $quimica->citoquimico_albumina }} g/dL</td>
-        </tr>
-    @endif
-
-    @if($quimica->citoquimico_ldh)
-        <tr>
-            <td>LDH:</td>
-            <td>{{ $quimica->citoquimico_ldh }} U/L</td>
-        </tr>
-    @endif
-</table>
-
-<div class="mt bold">EXAMEN MICROSCOPICO</div>
-<table>
-    @if($quimica->citoquimico_globulos_blancos)
-        <tr>
-            <td>GLOBULOS BLANCOS:</td>
-            <td>{{ $quimica->citoquimico_globulos_blancos }} x mm3</td>
-        </tr>
-    @endif
-</table>
-
-<div class="mt bold">RECUENTO DIFERENCIAL</div>
-<table>
-    @if($quimica->citoquimico_polimorfonucleares)
-        <tr>
-            <td>POLIMORFONUCLEARES:</td>
-            <td>{{ $quimica->citoquimico_polimorfonucleares }} %</td>
-        </tr>
-    @endif
-
-    @if($quimica->citoquimico_mononucleares)
-        <tr>
-            <td>MONONUCLEARES:</td>
-            <td>{{ $quimica->citoquimico_mononucleares }} %</td>
-        </tr>
-    @endif
-</table>
-
 
 </body>
 </html>
