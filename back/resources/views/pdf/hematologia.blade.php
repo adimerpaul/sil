@@ -398,14 +398,71 @@
                 <tr><td>FibrinÃ³geno</td><td class="center">{{ round($hematologia->fibrinogeno,1) ?? '' }}</td><td class="center">{{ $rangoTexto('FIBRINOGENO') }}</td><td class="center">{{ $rangoUnidad('FIBRINOGENO') }}</td></tr>
             @endif
             @if($canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO DE PROTROMBINA (TP)']))
-                <tr><td>Tiempo de protrombina (TP)</td><td class="center">{{ $hematologia->tiempo_protrombina ?? '' }}</td><td class="center">11 – 15</td><td class="center">seg</td></tr>
-                <tr><td>Actividad de protrombina</td><td class="center">{{ $hematologia->actividad_protrombina ?? '' }}</td><td class="center">70 – 100</td><td class="center">%</td></tr>
+                <tr>
+                    <td>Tiempo de protrombina (TP)</td>
+{{--                    redonde a un decimal--}}
+{{--                    <td class="center">{{ $hematologia->tiempo_protrombina ?? '' }}</td>--}}
+                    <td class="center">
+                        {{ isset($hematologia->tiempo_protrombina)
+                            ? number_format($hematologia->tiempo_protrombina, 1)
+                            : '' }}
+                    </td>
+                    <td class="center">11 – 15</td>
+                    <td class="center">seg</td>
+                </tr>
+                <tr>
+                    <td>Actividad de protrombina</td>
+{{--                    <td class="center">{{ $hematologia->actividad_protrombina ?? '' }}</td>--}}
+                    <td class="center">
+                        {{ isset($hematologia->actividad_protrombina)
+                            ? number_format($hematologia->actividad_protrombina, 1)
+                            : '' }}
+                    </td>
+                    <td class="center">70 – 100</td>
+                    <td class="center">%</td>
+                </tr>
                 <tr><td>INR</td><td class="center">{{ $hematologia->inr ?? '' }}</td><td class="center">0.8 – 1.2</td><td class="center">-</td></tr>
-                <tr><td>VES</td><td class="center">{{ $hematologia->ves ?? '' }}</td><td class="center">0 – 20</td><td class="center">mm/h</td></tr>
+                <tr>
+                    <td>APTT</td>
+                    <td class="center">
+{{--                        {{ $hematologia->aptt ?? '' }}--}}
+                        {{ isset($hematologia->aptt)
+? number_format($hematologia->aptt, 1)
+: '' }}
+                    </td>
+                    <td class="center">24 – 35</td>
+                    <td class="center">seg</td>
+                </tr>
+                <tr>
+                    <td>V.S.G.</td>
+{{--                    <td class="center">{{ $hematologia->ves ?? '' }}</td>--}}
+                    <td class="center">
+                        {{ isset($hematologia->ves)
+                        ? number_format($hematologia->ves, 0)
+                        : '' }}
+                    </td>
+                    <td class="center">0 – 20</td>
+                    <td class="center">mm/h</td>
+                </tr>
+                @if($canServicios('FIBRINÓGENO'))
+                    <tr>
+                        <td>Fibrinógeno</td>
+                        <td class="center">
+                            {{--                        {{ $hematologia->fibrinogeno ?? '' }}--}}
+                            {{ round($hematologia->fibrinogeno,1) ?? '' }}
+                        </td>
+                        <td class="center">
+                            {{ $rangoTexto('FIBRINOGENO') }}
+                        </td>
+                        <td class="center">
+                            {{ $rangoUnidad('FIBRINOGENO') }}
+                        </td>
+                    </tr>
+                @endif
             @endif
-            @if($canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)']))
-                <tr><td>APTT</td><td class="center">{{ $hematologia->aptt ?? '' }}</td><td class="center">24 – 35</td><td class="center">seg</td></tr>
-            @endif
+{{--            @if($canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)']))--}}
+
+{{--            @endif--}}
             </tbody>
         </table>
     @endif
@@ -422,21 +479,6 @@
             </tr>
             </thead>
             <tbody>
-            @if($canServicios('FIBRINÓGENO'))
-                <tr>
-                    <td>Fibrinógeno</td>
-                    <td class="center">
-{{--                        {{ $hematologia->fibrinogeno ?? '' }}--}}
-                        {{ round($hematologia->fibrinogeno,1) ?? '' }}
-                    </td>
-                    <td class="center">
-                        {{ $rangoTexto('FIBRINOGENO') }}
-                    </td>
-                    <td class="center">
-                        {{ $rangoUnidad('FIBRINOGENO') }}
-                    </td>
-                </tr>
-            @endif
             @if($canServicios('RECUENTO DE RETICULOCITOS'))
                 <tr>
                     <td>Reticulocitos</td>
@@ -448,7 +490,7 @@
                     <td class="center">{{ $rangoUnidad('Reticulocitos') }}</td>
                 </tr>
                 <tr>
-                    <td>RC</td>
+                    <td>IRC</td>
                     <td class="center">
                         {{--                        {{ $hematologia->ipr2 ?? '' }}--}}
                         {{ round($hematologia->rc, 1) ?? '' }}
@@ -469,7 +511,7 @@
     @endif
 
     @if($showFrotis)
-        <div class="section-title">Frotis</div>
+        <div class="section-title">FROTIS DE SANGRE PERIFERICA</div>
         <table>
             <thead>
             <tr>
