@@ -931,8 +931,14 @@
               <tr v-if="canServicios('REACCIÓN DE WIDAL')">
                 <td>Reacción de Widal O</td>
                 <td>
-<!--                  <q-input v-model="form.reaccion_widal_o" dense outlined placeholder="Valor para O" />-->
-                  <q-select v-model="form.reaccion_widal_o" :options="['Negativo', 'Positivo']" dense outlined clearable />
+                  <div class="row q-col-gutter-sm">
+                    <div class="col-6">
+                      <q-select v-model="form.reaccion_widal_o" :options="['Negativo', 'Positivo']" dense outlined clearable />
+                    </div>
+                    <div class="col-6">
+                      <q-input v-model="form.reaccion_widal_o_valor" dense outlined placeholder="Valor para O" />
+                    </div>
+                  </div>
                 </td>
                 <td>{{ rangoTexto('Reacción de Widal O') }}</td>
                 <td>{{ rangoUnidad('Reacción de Widal O') }}</td>
@@ -940,8 +946,14 @@
               <tr v-if="canServicios('REACCIÓN DE WIDAL')">
                 <td>Reacción de Widal H</td>
                 <td>
-<!--                  <q-input v-model="form.reaccion_widal_h" dense outlined placeholder="Valor para H" />-->
-                  <q-select v-model="form.reaccion_widal_h" :options="['Negativo', 'Positivo']" dense outlined clearable />
+                  <div class="row q-col-gutter-sm">
+                    <div class="col-6">
+                      <q-select v-model="form.reaccion_widal_h" :options="['Negativo', 'Positivo']" dense outlined clearable />
+                    </div>
+                    <div class="col-6">
+                      <q-input v-model="form.reaccion_widal_h_valor" dense outlined placeholder="Valor para H" />
+                    </div>
+                  </div>
                 </td>
                 <td>{{ rangoTexto('Reacción de Widal H') }}</td>
                 <td>{{ rangoUnidad('Reacción de Widal H') }}</td>
@@ -949,8 +961,14 @@
               <tr v-if="canServicios('REACCIÓN DE WIDAL')">
                 <td>Reacción de Widal A</td>
                 <td>
-<!--                  <q-input v-model="form.reaccion_widal_a" dense outlined placeholder="Valor para A" />-->
-                  <q-select v-model="form.reaccion_widal_a" :options="['Negativo', 'Positivo']" dense outlined clearable />
+                  <div class="row q-col-gutter-sm">
+                    <div class="col-6">
+                      <q-select v-model="form.reaccion_widal_a" :options="['Negativo', 'Positivo']" dense outlined clearable />
+                    </div>
+                    <div class="col-6">
+                      <q-input v-model="form.reaccion_widal_a_valor" dense outlined placeholder="Valor para A" />
+                    </div>
+                  </div>
                 </td>
                 <td>{{ rangoTexto('Reacción de Widal A') }}</td>
                 <td>{{ rangoUnidad('Reacción de Widal A') }}</td>
@@ -958,8 +976,14 @@
               <tr v-if="canServicios('REACCIÓN DE WIDAL')">
                 <td>Reacción de Widal B</td>
                 <td>
-<!--                  <q-input v-model="form.reaccion_widal_b" dense outlined placeholder="Valor para B" />-->
-                  <q-select v-model="form.reaccion_widal_b" :options="['Negativo', 'Positivo']" dense outlined clearable />
+                  <div class="row q-col-gutter-sm">
+                    <div class="col-6">
+                      <q-select v-model="form.reaccion_widal_b" :options="['Negativo', 'Positivo']" dense outlined clearable />
+                    </div>
+                    <div class="col-6">
+                      <q-input v-model="form.reaccion_widal_b_valor" dense outlined placeholder="Valor para B" />
+                    </div>
+                  </div>
                 </td>
                 <td>{{ rangoTexto('Reacción de Widal B') }}</td>
                 <td>{{ rangoUnidad('Reacción de Widal B') }}</td>
@@ -1327,6 +1351,14 @@ export default {
         prueba_rapida_vih: '',
         rpr: '',
         reaccion_widal: '',
+        reaccion_widal_o: '',
+        reaccion_widal_o_valor: '',
+        reaccion_widal_h: '',
+        reaccion_widal_h_valor: '',
+        reaccion_widal_a: '',
+        reaccion_widal_a_valor: '',
+        reaccion_widal_b: '',
+        reaccion_widal_b_valor: '',
         tipo_de_muestra: '',
         observaciones: '',
         metodo: '',

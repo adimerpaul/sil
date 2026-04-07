@@ -100,9 +100,13 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'citoquimico_densidad',
 
         'reaccion_widal_o',
+        'reaccion_widal_o_valor',
         'reaccion_widal_h',
+        'reaccion_widal_h_valor',
         'reaccion_widal_a',
+        'reaccion_widal_a_valor',
         'reaccion_widal_b',
+        'reaccion_widal_b_valor',
 
 
         'prueba_rapida_hepatitis_b',

@@ -916,6 +916,46 @@
                                                 <td class="center">{{ rangoUnidad('Reacción de Widal',$rangosMap) }}</td>
                                             </tr>
                                         @endif
+                                        @if($canServicios('REACCIÓN DE WIDAL') || hasVal($q,'reaccion_widal_o'))
+                                            <tr>
+                                                <td>Widal O</td>
+                                                <td class="center">
+                                                    {{ val($q,'reaccion_widal_o') }}{{ hasVal($q,'reaccion_widal_o_valor') ? ' / '.val($q,'reaccion_widal_o_valor') : '' }}
+                                                </td>
+                                                <td class="center">{{ rangoTexto('Reacción de Widal O',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoUnidad('Reacción de Widal O',$rangosMap) }}</td>
+                                            </tr>
+                                        @endif
+                                        @if($canServicios('REACCIÓN DE WIDAL') || hasVal($q,'reaccion_widal_h'))
+                                            <tr>
+                                                <td>Widal H</td>
+                                                <td class="center">
+                                                    {{ val($q,'reaccion_widal_h') }}{{ hasVal($q,'reaccion_widal_h_valor') ? ' / '.val($q,'reaccion_widal_h_valor') : '' }}
+                                                </td>
+                                                <td class="center">{{ rangoTexto('Reacción de Widal H',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoUnidad('Reacción de Widal H',$rangosMap) }}</td>
+                                            </tr>
+                                        @endif
+                                        @if($canServicios('REACCIÓN DE WIDAL') || hasVal($q,'reaccion_widal_a'))
+                                            <tr>
+                                                <td>Widal A</td>
+                                                <td class="center">
+                                                    {{ val($q,'reaccion_widal_a') }}{{ hasVal($q,'reaccion_widal_a_valor') ? ' / '.val($q,'reaccion_widal_a_valor') : '' }}
+                                                </td>
+                                                <td class="center">{{ rangoTexto('Reacción de Widal A',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoUnidad('Reacción de Widal A',$rangosMap) }}</td>
+                                            </tr>
+                                        @endif
+                                        @if($canServicios('REACCIÓN DE WIDAL') || hasVal($q,'reaccion_widal_b'))
+                                            <tr>
+                                                <td>Widal B</td>
+                                                <td class="center">
+                                                    {{ val($q,'reaccion_widal_b') }}{{ hasVal($q,'reaccion_widal_b_valor') ? ' / '.val($q,'reaccion_widal_b_valor') : '' }}
+                                                </td>
+                                                <td class="center">{{ rangoTexto('Reacción de Widal B',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoUnidad('Reacción de Widal B',$rangosMap) }}</td>
+                                            </tr>
+                                        @endif
 
                                         @if($canServicios('CLEARENCE DE CREATININA') || hasVal($q,'dce'))
                                             <tr>
