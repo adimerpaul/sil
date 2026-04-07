@@ -115,6 +115,11 @@
         return isset($obj->$field) && $obj->$field !== '';
     }
 
+    function valorConFormato($obj, $field, $suffix = ''){
+        if(!$obj || !isset($obj->$field) || $obj->$field === '') return '';
+        return trim($obj->$field . ($suffix ? ' ' . $suffix : ''));
+    }
+
     /* =========================
        HELPERS: SERVICIOS (igual que el front)
        ========================= */
@@ -773,20 +778,43 @@
                                         @if($canServicios('ASTO O ASO') || hasVal($q,'aso'))
                                             <tr>
                                                 <td>ASO</td>
-                                                <td class="center">{{ val($q,'aso') }}</td>
+                                                <td class="center">
+{{--                                                    {{ val($q,'aso_valor') }} sin decimales--}}
+                                                    {{ round(val($q,'aso_valor')) }}
+                                                    {{ val($q,'aso') }}
+                                                </td>
                                                 <td class="center">{{ rangoTexto('ASO',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('ASO',$rangosMap) }}</td>
                                             </tr>
                                         @endif
+{{--                                        @if($canServicios('ASTO O ASO') || hasVal($q,'aso_valor'))--}}
+{{--                                            <tr>--}}
+{{--                                                <td>ASO valor</td>--}}
+{{--                                                <td class="center">{{ valorConFormato($q,'aso_valor') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('ASO',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('ASO',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
+{{--                                        @endif--}}
 
                                         @if($canServicios('FACTOR REUMATOIDEO (FR)') || hasVal($q,'fr'))
                                             <tr>
                                                 <td>FR</td>
-                                                <td class="center">{{ val($q,'fr') }}</td>
+                                                <td class="center">
+                                                    {{ round(val($q,'fr_valor')) }}
+                                                    {{ val($q,'fr') }}
+                                                </td>
                                                 <td class="center">{{ rangoTexto('FR',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('FR',$rangosMap) }}</td>
                                             </tr>
                                         @endif
+{{--                                        @if($canServicios('FACTOR REUMATOIDEO (FR)') || hasVal($q,'fr_valor'))--}}
+{{--                                            <tr>--}}
+{{--                                                <td>FR valor</td>--}}
+{{--                                                <td class="center">{{ valorConFormato($q,'fr_valor') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('FR',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('FR',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
+{{--                                        @endif--}}
 {{--                                        Test de embarazo--}}
                                         @if($canServicios('TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)') || hasVal($q,'test_embarazo'))
                                             <tr>
@@ -800,11 +828,22 @@
                                         @if($canServicios(['PCR CUALITATIVO (PROTEÍNA C REACTIVA)']) || hasVal($q,'pcr'))
                                             <tr>
                                                 <td>PCR</td>
-                                                <td class="center">{{ val($q,'pcr') }}</td>
+                                                <td class="center">
+                                                    {{ round(val($q,'pcr_valor')) }}
+                                                    {{ val($q,'pcr') }}
+                                                </td>
                                                 <td class="center">{{ rangoTexto('PCR',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('PCR',$rangosMap) }}</td>
                                             </tr>
                                         @endif
+{{--                                        @if($canServicios(['PCR CUALITATIVO (PROTEÍNA C REACTIVA)']) || hasVal($q,'pcr_valor'))--}}
+{{--                                            <tr>--}}
+{{--                                                <td>PCR valor</td>--}}
+{{--                                                <td class="center">{{ valorConFormato($q,'pcr_valor') }}</td>--}}
+{{--                                                <td class="center">{{ rangoTexto('PCR',$rangosMap) }}</td>--}}
+{{--                                                <td class="center">{{ rangoUnidad('PCR',$rangosMap) }}</td>--}}
+{{--                                            </tr>--}}
+{{--                                        @endif--}}
 
                                         @if($canServicios(['PRUEBA RAPIDA PARA VIH']) || hasVal($q,'prueba_rapida_vih'))
                                             <tr>

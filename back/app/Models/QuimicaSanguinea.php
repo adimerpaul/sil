@@ -65,8 +65,11 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'volumen_24h',
 
         'aso',
+        'aso_valor',
         'fr',
+        'fr_valor',
         'pcr',
+        'pcr_valor',
 
         'prueba_rapida_vih',
         'rpr',

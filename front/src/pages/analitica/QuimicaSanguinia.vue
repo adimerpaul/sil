@@ -765,33 +765,80 @@
 <!--                  <q-input v-model.number="form.aso" dense outlined type="number" step="0.01"-->
 <!--                           :input-class="inputRangeClass('ASO', form.aso)" />-->
 <!--                  select positivo negativo-->
-                  <q-select v-model="form.aso" :options="['Positivo', 'Negativo']" dense outlined clearable />
+                  <div class="row">
+                    <div class="col-6">
+                      <q-select v-model="form.aso" :options="['Positivo', 'Negativo']" dense outlined clearable />
+                    </div>
+                    <div class="col-6">
+                      <q-input v-model.number="form.aso_valor" dense outlined type="number" step="0.01" />
+                    </div>
+                  </div>
                 </td>
                 <td>{{ rangoTexto('ASO') }}</td>
                 <td>{{ rangoUnidad('ASO') }}</td>
               </tr>
+<!--              <tr v-if="canServicios('ASTO O ASO')">-->
+<!--                <td>ASO valor</td>-->
+<!--                <td>-->
+<!--                  <q-input v-model.number="form.aso_valor" dense outlined type="number" step="0.01" />-->
+<!--                </td>-->
+<!--                <td>{{ rangoTexto('ASO') }}</td>-->
+<!--                <td>{{ rangoUnidad('ASO') }}</td>-->
+<!--              </tr>-->
 
               <tr v-if="canServicios('FACTOR REUMATOIDEO (FR)')">
                 <td>FR</td>
                 <td>
 <!--                  <q-input v-model.number="form.fr" dense outlined type="number" step="0.01"-->
 <!--                           :input-class="inputRangeClass('FR', form.fr)" />-->
-                  <q-select v-model="form.fr" :options="['Positivo', 'Negativo']" dense outlined clearable />
+<!--                  <q-select v-model="form.fr" :options="['Positivo', 'Negativo']" dense outlined clearable />-->
+                  <div class="row">
+                    <div class="col-6">
+                      <q-select v-model="form.fr" :options="['Positivo', 'Negativo']" dense outlined clearable />
+                    </div>
+                    <div class="col-6">
+                      <q-input v-model.number="form.fr_valor" dense outlined type="number" step="0.01" />
+                    </div>
+                  </div>
                 </td>
                 <td>{{ rangoTexto('FR') }}</td>
                 <td>{{ rangoUnidad('FR') }}</td>
               </tr>
+<!--              <tr v-if="canServicios('FACTOR REUMATOIDEO (FR)')">-->
+<!--                <td>FR valor</td>-->
+<!--                <td>-->
+<!--                  <q-input v-model.number="form.fr_valor" dense outlined type="number" step="0.01" />-->
+<!--                </td>-->
+<!--                <td>{{ rangoTexto('FR') }}</td>-->
+<!--                <td>{{ rangoUnidad('FR') }}</td>-->
+<!--              </tr>-->
 
               <tr v-if="canServicios(['PCR CUALITATIVO (PROTEÍNA C REACTIVA)'])">
                 <td>PCR</td>
                 <td>
 <!--                  <q-input v-model.number="form.pcr" dense outlined type="number" step="0.01"-->
 <!--                           :input-class="inputRangeClass('PCR', form.pcr)" />-->
-                  <q-select v-model="form.pcr" :options="['Positivo', 'Negativo']" dense outlined clearable />
+<!--                  <q-select v-model="form.pcr" :options="['Positivo', 'Negativo']" dense outlined clearable />-->
+                  <div class="row">
+                    <div class="col-6">
+                      <q-select v-model="form.pcr" :options="['Positivo', 'Negativo']" dense outlined clearable />
+                    </div>
+                    <div class="col-6">
+                      <q-input v-model.number="form.pcr_valor" dense outlined type="number" step="0.01" />
+                    </div>
+                  </div>
                 </td>
                 <td>{{ rangoTexto('PCR') }}</td>
                 <td>{{ rangoUnidad('PCR') }}</td>
               </tr>
+<!--              <tr v-if="canServicios(['PCR CUALITATIVO (PROTEÍNA C REACTIVA)'])">-->
+<!--                <td>PCR valor</td>-->
+<!--                <td>-->
+<!--                  <q-input v-model.number="form.pcr_valor" dense outlined type="number" step="0.01" />-->
+<!--                </td>-->
+<!--                <td>{{ rangoTexto('PCR') }}</td>-->
+<!--                <td>{{ rangoUnidad('PCR') }}</td>-->
+<!--              </tr>-->
 <!--              TEST de embraza-->
               <tr v-if="canServicios('TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)')">
                 <td>Test de embarazo</td>
@@ -1272,8 +1319,11 @@ export default {
         proteinuria_24h: null,
         volumen_24h: null,
         aso: null,
+        aso_valor: null,
         fr: null,
+        fr_valor: null,
         pcr: null,
+        pcr_valor: null,
         prueba_rapida_vih: '',
         rpr: '',
         reaccion_widal: '',
