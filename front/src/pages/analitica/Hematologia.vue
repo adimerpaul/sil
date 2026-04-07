@@ -339,11 +339,11 @@
             </tbody>
           </q-markup-table>
           <div class="section-title q-mb-xs"
-               v-if="canServicios('ÍNDICES HEMATIMÉTRICOS')"
+               v-if="canServicios(['ÍNDICES HEMATIMÉTRICOS','HEMOGRAMA COMPLETO+ PLAQUETAS'])"
           >Indices hematimetricos</div>
 
           <q-markup-table dense flat bordered square class="bg-white q-mb-md"
-                          v-if="canServicios('ÍNDICES HEMATIMÉTRICOS')"
+                          v-if="canServicios(['ÍNDICES HEMATIMÉTRICOS','HEMOGRAMA COMPLETO+ PLAQUETAS'])"
           >
             <thead>
             <tr>
@@ -450,7 +450,7 @@
 <!--              <td>{{ rangoUnidad('Hematocrito') }}</td>-->
 <!--            </tr>-->
 
-            <tr v-if="canServicios('ÍNDICES HEMATIMÉTRICOS')">
+            <tr v-if="canServicios(['ÍNDICES HEMATIMÉTRICOS','HEMOGRAMA COMPLETO+ PLAQUETAS'])">
               <td>VCM</td>
               <td>
                 <q-input
@@ -469,7 +469,7 @@
               <td>{{ rangoUnidad('V.C.M.') }}</td>
             </tr>
 
-            <tr v-if="canServicios('ÍNDICES HEMATIMÉTRICOS')">
+            <tr v-if="canServicios(['ÍNDICES HEMATIMÉTRICOS','HEMOGRAMA COMPLETO+ PLAQUETAS'])">
               <td>HBCM</td>
               <td>
                 <q-input
@@ -488,7 +488,7 @@
               <td>{{ rangoUnidad('Hb.C.M.') }}</td>
             </tr>
 
-            <tr v-if="canServicios('ÍNDICES HEMATIMÉTRICOS')">
+            <tr v-if="canServicios(['ÍNDICES HEMATIMÉTRICOS','HEMOGRAMA COMPLETO+ PLAQUETAS'])">
               <td>CHCM</td>
               <td>
                 <q-input
@@ -757,7 +757,7 @@
                   dense
                   outlined
                   label="Equipo"
-                  :options="['Mindray BC 3510','Mindray BC 5130', 'Mindray BC 3000 Plus', 'Otro']"
+                  :options="['Mindray BC 3510','Coatro', 'Otro']"
                 />
                 <!--                Moundray c-3510-->
               </div>
@@ -783,7 +783,7 @@
                 <q-select v-model.number="form.tiempo_protrombina" dense outlined input-class="text-right"
                           :options="tiempos"
                           @update:model-value="
-        form.actividad_protrombina= tablaTP.find(item => item.segundos === form.tiempo_protrombina)?.porcentaje || null;
+        form.actividad_protrombina= tablaTP.find(item => item.segundos === form.tiempo_protrombina)?.porcentaje?.toFixed(1) || null;
         form.inr= tablaTP.find(item => item.segundos === form.tiempo_protrombina)?.inr || null;
 "
                 />
@@ -810,14 +810,14 @@
               <td>-</td>
             </tr>
 <!--            ves-->
-            <tr v-if="canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO DE PROTROMBINA (TP)'])">
-              <td>V.E.S</td>
-              <td>
-                <q-input v-model.number="form.ves" dense outlined type="number" step="0.01" input-class="text-right" />
-              </td>
-              <td>&lt; 20</td>
-              <td>mm/h</td>
-            </tr>
+<!--            <tr v-if="canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO DE PROTROMBINA (TP)'])">-->
+<!--              <td>V.E.S</td>-->
+<!--              <td>-->
+<!--                <q-input v-model.number="form.ves" dense outlined type="number" step="0.01" input-class="text-right" />-->
+<!--              </td>-->
+<!--              <td>&lt; 20</td>-->
+<!--              <td>mm/h</td>-->
+<!--            </tr>-->
 
             <tr v-if="canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)'])">
               <td>APTT</td>
@@ -838,7 +838,7 @@
 <!--            </tr>-->
 
             <tr v-if="canServicios('ERITROSEDIMENTACIÓN (VSG- VES)')">
-              <td>V.E.S</td>
+              <td>V.S.G</td>
               <td>
                 <q-input v-model.number="form.ves" dense outlined type="number" step="0.01" input-class="text-right" />
               </td>
@@ -969,7 +969,7 @@
               </td>
             </tr>
             <tr v-if="canServicios('RECUENTO DE RETICULOCITOS')">
-              <td>RC</td>
+              <td>IRC</td>
               <td>
                 <q-input
                   v-model.number="form.rc" dense outlined type="number" step="0.1" readonly
@@ -1001,7 +1001,7 @@
 
             </tbody>
           </q-markup-table>
-            <div class="section-title q-mb-xs">FROTIS</div>
+            <div class="section-title q-mb-xs">FROTIS DE SANGRE PERIFERICA</div>
             <div class="row">
               <div class="col-12 col-md-4">
                 <q-input
@@ -1352,19 +1352,19 @@ export default {
       const ht = parseFloat(this.form.hematocrito)
       if (!isNaN(ht) && !isNaN(gr) && gr !== 0) {
         // this.form.vcm = ((gr * 10) / ht) redondear a 2 decimales
-        this.form.vcm = parseFloat(((ht * 10) / gr).toFixed(1))
+        this.form.vcm = parseFloat(((ht * 1000) / gr).toFixed(1))
       } else {
         this.form.vcm = null
       }
       if (!isNaN(hb) && !isNaN(gr) && gr !== 0) {
         // this.form.hbcm = (hb / ht) / 10
-        this.form.hbcm = parseFloat(((hb * 10) / gr).toFixed(1))
+        this.form.hbcm = parseFloat(((hb * 1) / gr).toFixed(1))
       } else {
         this.form.hbcm = null
       }
       if (!isNaN(hb) && !isNaN(ht) && ht !== 0) {
         // this.form.chcm = (gr * 10) / hb
-        this.form.chcm = parseFloat(((hb * 100) / ht).toFixed(1))
+        this.form.chcm = parseFloat(((hb * 1) / ht).toFixed(1))
       } else {
         this.form.chcm = null
       }
@@ -1372,9 +1372,9 @@ export default {
     getReticulocitoFactorCorreccion () {
       const ht = parseFloat(this.form.hematocrito)
       if (isNaN(ht)) return null
-      if (ht >= 40) return 1.0
-      if (ht >= 30) return 1.5
-      if (ht >= 20) return 2.0
+      if (ht >= 0.40) return 1.0
+      if (ht >= 0.30) return 1.5
+      if (ht >= 0.20) return 2.0
       return 2.5
     },
     calculateReticulocitos () {
@@ -1383,13 +1383,13 @@ export default {
       const factorCorreccion = this.getReticulocitoFactorCorreccion()
 
       if (!isNaN(reticulocitos) && !isNaN(hematocrito)) {
-        this.form.rc = parseFloat((reticulocitos * (hematocrito / 45)).toFixed(1))
+        this.form.rc = parseFloat(((reticulocitos/100) * (hematocrito / 0.45)).toFixed(2))
       } else {
         this.form.rc = null
       }
 
       if (this.form.rc !== null && factorCorreccion) {
-        this.form.ipr = parseFloat((this.form.rc / factorCorreccion).toFixed(1))
+        this.form.ipr = parseFloat((this.form.rc / factorCorreccion).toFixed(2))
       } else {
         this.form.ipr = null
       }
