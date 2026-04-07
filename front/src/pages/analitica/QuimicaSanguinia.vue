@@ -125,7 +125,7 @@
               'ÁCIDO ÚRICO',
               'ALBUMINA',
               'PROTEINAS TOTALES',
-              'GLICEMIA',
+              'Glucosa (glicemia)',
               'UREA',
               'NITROGENO UREICO SERICO (NUS)',
               'CREATININA SÉRICA',
@@ -185,7 +185,7 @@
                 <td>{{ rangoUnidad('Proteinas totales') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['GLICEMIA','PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)','PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)','GLUCOSA'])">
+              <tr v-if="canServicios(['Glucosa (glicemia)','PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)','PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)','GLUCOSA'])">
                 <td>Glucosa</td>
                 <td>
                   <q-input v-model.number="form.glucosa" dense outlined type="number" step="0.01"
@@ -258,7 +258,7 @@
           <div
             v-if="hasAnyServicios([
               'BILIRRUBINAS TOTALES Y FRACCIONADAS',
-              'TRANSAMINASAS GOT',
+              'TRANSAMINASAS GOT- (ALT)',
               'TRANSAMINASAS GPT',
               'FOSFATASA ALCALINA',
               'GAMA GLUTAMIL TRANSFERASA (GGT)',
@@ -315,7 +315,7 @@
                 <td>{{ rangoUnidad('Bilirrubina Indirecta') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['TRANSAMINASAS GOT','PERFIL HEPÁTICO O HEPATOGRAMA (BILIRRUBINAS TOTALES Y FRACCIONADAS, FOSFATASA ALCALINA, GOT, GPT, GGT, TP)'])">
+              <tr v-if="canServicios(['TRANSAMINASAS GOT- (ALT)','PERFIL HEPÁTICO O HEPATOGRAMA (BILIRRUBINAS TOTALES Y FRACCIONADAS, FOSFATASA ALCALINA, GOT, GPT, GGT, TP)'])">
                 <td>G.O.T. (TGO)</td>
                 <td>
                   <q-input v-model.number="form.got" dense outlined type="number" step="0.01"
@@ -644,20 +644,20 @@
                 <td>CK-Total</td>
                 <td>
                   <q-input v-model.number="form.ck_total" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('CK-Total', form.ck_total)" />
+                           :input-class="inputRangeClass('CK Total', form.ck_total)" />
                 </td>
-                <td>{{ rangoTexto('CK-Total') }}</td>
-                <td>{{ rangoUnidad('CK-Total') }}</td>
+                <td>{{ rangoTexto('CK Total') }}</td>
+                <td>{{ rangoUnidad('CK Total') }}</td>
               </tr>
 
               <tr v-if="canServicios('CK MB')">
                 <td>CK MB</td>
                 <td>
                   <q-input v-model.number="form.ck_mb" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('CK MB', form.ck_mb)" />
+                           :input-class="inputRangeClass('CK-MB', form.ck_mb)" />
                 </td>
-                <td>{{ rangoTexto('CK MB') }}</td>
-                <td>{{ rangoUnidad('CK MB') }}</td>
+                <td>{{ rangoTexto('CK-MB') }}</td>
+                <td>{{ rangoUnidad('CK-MB') }}</td>
               </tr>
               <tr v-if="canServicios('LACTATO DESHIDROGENASA ( LDH )')">
                 <td>LDH</td>
@@ -707,20 +707,20 @@
                 <td>Hb A1C</td>
                 <td>
                   <q-input v-model.number="form.hb_a1c" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('Hb A1C', form.hb_a1c)" />
+                           :input-class="inputRangeClass('Hb glicosilada (HbA1c)', form.hb_a1c)" />
                 </td>
-                <td>{{ rangoTexto('Hb A1C') }}</td>
-                <td>{{ rangoUnidad('Hb A1C') }}</td>
+                <td>{{ rangoTexto('Hb glicosilada (HbA1c)') }}</td>
+                <td>{{ rangoUnidad('Hb glicosilada (HbA1c)') }}</td>
               </tr>
 <!--              hb_glicosilada-->
               <tr v-if="canServicios('HEMOGLOBINA GLICOSILADA A1c')">
                 <td>Hb Glicosilada</td>
                 <td>
                   <q-input v-model.number="form.hb_glicosilada" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('Hb Glicosilada', form.hb_glicosilada)" />
+                           :input-class="inputRangeClass('Hb glicosilada (HbA1c)', form.hb_glicosilada)" />
                 </td>
-                <td>{{ rangoTexto('Hb Glicosilada') }}</td>
-                <td>{{ rangoUnidad('Hb Glicosilada') }}</td>
+                <td>{{ rangoTexto('Hb glicosilada (HbA1c)') }}</td>
+                <td>{{ rangoUnidad('Hb glicosilada (HbA1c)') }}</td>
               </tr>
               </tbody>
             </q-markup-table>

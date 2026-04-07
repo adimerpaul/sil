@@ -153,7 +153,7 @@
         'ÁCIDO ÚRICO',
         'ALBUMINA',
         'PROTEINAS TOTALES',
-        'GLICEMIA',
+        'Glucosa (glicemia)',
         'UREA',
         'NITROGENO UREICO SERICO (NUS)',
         'CREATININA SÉRICA',
@@ -164,7 +164,7 @@
 
     $showHepatico = $hasAnyServicios([
         'BILIRRUBINAS TOTALES Y FRACCIONADAS',
-        'TRANSAMINASAS GOT',
+        'TRANSAMINASAS GOT- (ALT)',
         'TRANSAMINASAS GPT',
         'FOSFATASA ALCALINA',
         'GAMA GLUTAMIL TRANSFERASA (GGT)',
@@ -228,7 +228,7 @@
         'IONOGRAMA (NA,K,CL,CA,Mg,P)',
         'ELECTROLITOS (SODIO, POTASIO, CLORO) (NA,K,CL)',
         'ÁCIDO ÚRICO','ALBUMINA','PROTEINAS TOTALES','GLICEMIA','UREA','NITROGENO UREICO SERICO (NUS)','CREATININA SÉRICA',
-        'BILIRRUBINAS TOTALES Y FRACCIONADAS','TRANSAMINASAS GOT','TRANSAMINASAS GPT','FOSFATASA ALCALINA','GAMA GLUTAMIL TRANSFERASA (GGT)','AMILASA',
+        'BILIRRUBINAS TOTALES Y FRACCIONADAS','TRANSAMINASAS GOT- (ALT)','TRANSAMINASAS GPT','FOSFATASA ALCALINA','GAMA GLUTAMIL TRANSFERASA (GGT)','AMILASA',
         'COLESTEROL','TRIGLICÉRIDOS','HDLc, LDLc, VLDLc','HEMOGLOBINA GLICOSILADA A1c',
         'ASTO O ASO','FACTOR REUMATOIDEO (FR)','PCR CUALITATIVO (PROTEÍNA C REACTIVA)','PRUEBA RAPIDA PARA VIH','RPR- VDRL','REACCIÓN DE WIDAL'
     ]);
@@ -319,7 +319,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios(['GLICEMIA','PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)','PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)','GLUCOSA']))
+                                        @if($canServicios(['Glucosa (glicemia)','PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)','PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)','GLUCOSA']))
                                             <tr>
                                                 <td>Glucosa</td>
                                                 <td class="center">{{ val($q,'glucosa') }}</td>
@@ -520,7 +520,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios(['TRANSAMINASAS GOT','PERFIL HEPÁTICO O HEPATOGRAMA (BILIRRUBINAS TOTALES Y FRACCIONADAS, FOSFATASA ALCALINA, GOT, GPT, GGT, TP)']))
+                                        @if($canServicios(['TRANSAMINASAS GOT- (ALT)','PERFIL HEPÁTICO O HEPATOGRAMA (BILIRRUBINAS TOTALES Y FRACCIONADAS, FOSFATASA ALCALINA, GOT, GPT, GGT, TP)']))
                                             <tr>
                                                 <td>G.O.T. (TGO)</td>
                                                 <td class="center">{{ val($q,'got') }}</td>
