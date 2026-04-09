@@ -288,7 +288,7 @@ export default {
       rows: [],
       columns: [
         { name: 'actions', label: 'Acciones', align: 'center' },
-        { name: 'id', label: 'ID', field: 'id', align: 'left' },
+        // { name: 'id', label: 'ID', field: 'id', align: 'left' },
         { name: 'codigo', label: 'Codigo', field: row => `${row.codigo || ''}${row.nro_registro || ''}` },
         { name: 'fecha_solicitud', label: 'Fecha', field: row => row.fecha_solicitud, format: v => v || '' },
         { name: 'paciente', label: 'Paciente', field: row => row?.paciente_nombre || '' },

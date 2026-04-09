@@ -97,7 +97,6 @@
                     'Mindray 240 –STAT FAX 4500-RADIOMETER',
                     'Otros',
                     'A25',
-                    'Juan Studio',
                     'EDAN',
                     'EASIS',
                   ]"
