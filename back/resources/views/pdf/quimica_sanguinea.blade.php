@@ -987,7 +987,7 @@
                         @endif
 
                         {{-- ===================== OBSERVACIONES ===================== --}}
-                        @if($showObs)
+                        @if(false && $showObs)
                             <div class="block">
                                 <div class="title">Observaciones / Método / Equipo</div>
                                 <div class="body">
@@ -1139,6 +1139,21 @@
                             </div>
                         @endif
 
+
+                        {{-- ===================== OBSERVACIONES ===================== --}}
+{{--                        @if($showObs)--}}
+                            <div class="block">
+                                <div class="title">Observaciones </div>
+                                <div class="body">
+                                    <table class="tbl">
+                                        <tr>
+                                            <td style="width:16%" class="bold">Observaciones</td>
+                                            <td style="width:86%">{{ val($q,'observaciones') }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+{{--                        @endif--}}
 
                         {{-- ===================== FIRMAS + QR ===================== --}}
                         <table class="no-border" style="margin-top:4px;">

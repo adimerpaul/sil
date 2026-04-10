@@ -94,11 +94,18 @@
                 <q-select
                   v-model="form.equipo"
                   :options="[
-                    'Mindray 240 –STAT FAX 4500-RADIOMETER',
+                    'EASIS LYTE PLUS',
                     'Otros',
                     'A25',
                     'EDAN',
                     'EASIS',
+                    'Mindray BS-240 Pro',
+                    'A25',
+                    'Star fax 4500',
+                    'GasometroRamiometer ABL800',
+                    'Lector de electrolitos Easy Lyte Plus',
+                    'Nefelometro Nephstar',
+                    'Gasómetro Edan i15'
                   ]"
                   dense outlined
                   label="Equipo"
@@ -702,18 +709,18 @@
               </thead>
 
               <tbody>
-              <tr v-if="canServicios('HEMOGLOBINA GLICOSILADA A1c')">
-                <td>Hb A1C</td>
-                <td>
-                  <q-input v-model.number="form.hb_a1c" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('Hb glicosilada (HbA1c)', form.hb_a1c)" />
-                </td>
-                <td>{{ rangoTexto('Hb glicosilada (HbA1c)') }}</td>
-                <td>{{ rangoUnidad('Hb glicosilada (HbA1c)') }}</td>
-              </tr>
+<!--              <tr v-if="canServicios('HEMOGLOBINA GLICOSILADA A1c')">-->
+<!--                <td>Hb A1C</td>-->
+<!--                <td>-->
+<!--                  <q-input v-model.number="form.hb_a1c" dense outlined type="number" step="0.01"-->
+<!--                           :input-class="inputRangeClass('Hb glicosilada (HbA1c)', form.hb_a1c)" />-->
+<!--                </td>-->
+<!--                <td>{{ rangoTexto('Hb glicosilada (HbA1c)') }}</td>-->
+<!--                <td>{{ rangoUnidad('Hb glicosilada (HbA1c)') }}</td>-->
+<!--              </tr>-->
 <!--              hb_glicosilada-->
               <tr v-if="canServicios('HEMOGLOBINA GLICOSILADA A1c')">
-                <td>Hb Glicosilada</td>
+                <td>Hb Glicosilada A1C</td>
                 <td>
                   <q-input v-model.number="form.hb_glicosilada" dense outlined type="number" step="0.01"
                            :input-class="inputRangeClass('Hb glicosilada (HbA1c)', form.hb_glicosilada)" />
