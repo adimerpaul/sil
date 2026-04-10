@@ -103,6 +103,7 @@ class DatabaseSeeder extends Seeder
         $sql = file_get_contents($path);
         \DB::unprepared($sql);
         $this->call([
+            UnidadSolicitanteSeeder::class,
             ServiciosSeeder::class,
             AreaTipoMuestraSeeder::class,
             AreaRangoSeeder::class,

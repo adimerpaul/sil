@@ -21,6 +21,7 @@ use App\Models\SolicitudePropiedad;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use App\Models\UnidadSolicitante;
 
 class SolicitudeController extends Controller
 {
@@ -907,7 +908,7 @@ class SolicitudeController extends Controller
 
     public function show($id)
     {
-        return Solicitude::with(['paciente', 'doctor', 'servicios.tiposMuestra', 'consentimiento'])->findOrFail($id);
+        return Solicitude::with(['paciente', 'doctor', 'servicios.tiposMuestra', 'consentimiento', 'unidadSolicitante'])->findOrFail($id);
     }
 
     public function store(Request $request)
@@ -922,6 +923,8 @@ class SolicitudeController extends Controller
         if ($request->user()) {
             $data['user_id'] = $request->user()->id;
         }
+
+        $this->resolverUnidadSolicitante($data, $request);
 
 //        error_log('establecimiento_salud: ' . $request->establecimiento_salud);
         $establecimientoSalud = \App\Models\Establecimiento::where('nombre', $request->establecimiento_salud)->first();
@@ -1052,6 +1055,7 @@ class SolicitudeController extends Controller
 //            return response()->json(['message' => 'No se puede modificar una solicitud que ya tiene código asignado'], 422);
 //        }
         $data = $request->all();
+        $this->resolverUnidadSolicitante($data, $request);
 
         $ci = $request->paciente_ci;
         if (!empty($ci)) {
@@ -1091,7 +1095,34 @@ class SolicitudeController extends Controller
 //        solitud uupte
         $solicitud->update($data);
 
-        return response()->json($solicitud->load(['paciente', 'doctor', 'servicios.tiposMuestra', 'consentimiento']));
+        return response()->json($solicitud->load(['paciente', 'doctor', 'servicios.tiposMuestra', 'consentimiento', 'unidadSolicitante']));
+    }
+
+    protected function resolverUnidadSolicitante(array &$data, Request $request): void
+    {
+        $unidadId = $request->input('unidad_solicitante_id');
+
+        if ($unidadId) {
+            $unidad = UnidadSolicitante::find($unidadId);
+
+            if ($unidad) {
+                $data['unidad_solicitante_id'] = $unidad->id;
+                $data['sala'] = $unidad->nombre;
+                return;
+            }
+        }
+
+        $sala = trim((string) ($request->input('sala') ?? ''));
+
+        if ($sala === '') {
+            $data['unidad_solicitante_id'] = null;
+            $data['sala'] = null;
+            return;
+        }
+
+        $unidad = UnidadSolicitante::firstOrCreate(['nombre' => $sala]);
+        $data['unidad_solicitante_id'] = $unidad->id;
+        $data['sala'] = $unidad->nombre;
     }
 
     protected function syncServicios(Solicitude $solicitud, array $servicios)

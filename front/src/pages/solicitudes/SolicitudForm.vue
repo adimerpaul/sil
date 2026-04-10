@@ -393,24 +393,33 @@
             </div>
 
             <div class="col-6">
-              <q-select v-model="solicitud.sala"
-                        use-input
-                        @filter="(val, update) => {
-                          update(() => {
-                            const text = (val || '').toLowerCase().trim()
-
-                            if (!text) {
-                              this.salas = this.salasAll
-                              return
-                            }
-
-                            this.salas = this.salasAll
-                              .filter(s => s.toLowerCase().includes(text))
-                              .slice(0, 50) // 🔥 limita resultados (performance)
-                          })
-                        }"
-                        :options="salas"
-                        label="Unidad solicitante" dense outlined clearable />
+              <q-select
+                v-model="solicitud.unidad_solicitante_id"
+                :options="unidadesSolicitantes"
+                option-label="nombre"
+                option-value="id"
+                use-input
+                emit-value
+                map-options
+                label="Unidad solicitante"
+                dense
+                outlined
+                clearable
+                @filter="filterUnidadesSolicitantes"
+                @update:model-value="onSelectUnidadSolicitante"
+              >
+                <template #after>
+                  <q-btn
+                    flat
+                    dense
+                    color="primary"
+                    icon="edit"
+                    label="Editar"
+                    no-caps
+                    @click="abrirDialogUnidadSolicitante"
+                  />
+                </template>
+              </q-select>
             </div>
 
             <div class="col-4">
@@ -1078,6 +1087,90 @@
       </q-card-section>
     </q-card>
   </q-dialog>
+  <q-dialog v-model="dialogUnidadSolicitante">
+    <q-card style="min-width: 760px; max-width: 960px; width: 92vw;">
+      <q-card-section class="row items-center">
+        <div class="text-h6">Unidades solicitantes</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
+      </q-card-section>
+      <q-separator />
+      <q-card-section>
+        <div class="row q-col-gutter-sm q-mb-md">
+          <div class="col-12 col-md-7">
+            <q-input
+              v-model="unidadSolicitanteForm.nombre"
+              label="Nombre de la unidad solicitante"
+              dense
+              outlined
+              autofocus
+            />
+          </div>
+          <div class="col-12 col-md-5 row items-center justify-end q-gutter-sm">
+            <q-btn
+              flat
+              no-caps
+              label="Limpiar"
+              @click="resetUnidadSolicitanteForm"
+              :disable="unidadSolicitanteLoading"
+            />
+            <q-btn
+              color="primary"
+              no-caps
+              :label="unidadSolicitanteEditando ? 'Actualizar' : 'Crear'"
+              @click="guardarUnidadSolicitante"
+              :loading="unidadSolicitanteLoading"
+            />
+          </div>
+          <div class="col-12">
+            <q-input
+              v-model="unidadSolicitanteSearch"
+              label="Buscar unidad solicitante"
+              dense
+              outlined
+              debounce="250"
+            >
+              <template #append>
+                <q-icon name="search" />
+              </template>
+            </q-input>
+          </div>
+        </div>
+
+        <q-table
+          :rows="unidadesSolicitantesFiltradas"
+          :columns="unidadSolicitanteColumns"
+          row-key="id"
+          flat
+          bordered
+          dense
+          :loading="unidadSolicitanteLoading"
+          :rows-per-page-options="[10, 20, 50, 0]"
+        >
+          <template #body-cell-actions="props">
+            <q-td :props="props" class="q-gutter-xs">
+              <q-btn
+                flat
+                dense
+                round
+                color="primary"
+                icon="edit"
+                @click="editarUnidadSolicitante(props.row)"
+              />
+              <q-btn
+                flat
+                dense
+                round
+                color="negative"
+                icon="delete"
+                @click="eliminarUnidadSolicitante(props.row)"
+              />
+            </q-td>
+          </template>
+        </q-table>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
   <q-dialog v-model="dialogPaciente" persistent max-width="600px">
     <q-card style="min-width: 400px; max-width: 90vh;">
       <q-card-section class="row items-center q-pa-md">
@@ -1150,7 +1243,6 @@
 
 <script>
 import moment from 'moment'
-import salasJson from 'src/data/salas.json'
 
 export default {
   name: 'SolicitudForm',
@@ -1166,7 +1258,20 @@ export default {
       moment: moment,
       dialogDoctorNew: false,
       dialogEstablecimientoNew: false,
+      dialogUnidadSolicitante: false,
       savingEstablecimiento: false,
+      unidadSolicitanteLoading: false,
+      unidadSolicitanteEditando: false,
+      unidadSolicitanteSearch: '',
+      unidadSolicitanteColumns: [
+        { name: 'actions', label: 'Acciones', align: 'center' },
+        { name: 'id', label: 'ID', field: 'id', align: 'left' },
+        { name: 'nombre', label: 'Nombre', field: 'nombre', align: 'left' }
+      ],
+      unidadSolicitanteForm: {
+        id: null,
+        nombre: ''
+      },
       doctor: {
         estado: 'ACTIVO'
       },
@@ -1183,8 +1288,8 @@ export default {
       },
       loading: false,
       solicitud: {},
-      salas : [...Object.values(salasJson)],
-      salasAll: [...Object.values(salasJson)],
+      unidadesSolicitantes: [],
+      unidadesSolicitantesAll: [],
       doctoresOptions: [],
       doctoresOptionsAll: [],
       codigosSugeridos: {
@@ -1285,6 +1390,16 @@ export default {
       let total = 0
       this.areas.forEach(a => (a.servicios || []).forEach(s => { if (s.seleccionado) total++ }))
       return total
+    },
+    unidadesSolicitantesFiltradas () {
+      const text = String(this.unidadSolicitanteSearch || '').trim().toLowerCase()
+
+      if (!text) return this.unidadesSolicitantesAll
+
+      return this.unidadesSolicitantesAll.filter(item => {
+        const nombre = String(item.nombre || '').toLowerCase()
+        return nombre.includes(text) || String(item.id).includes(text)
+      })
     }
   },
   mounted () {
@@ -1320,11 +1435,16 @@ export default {
       this.establecimientosPublicosAll = establecimientos.filter(e => e.tipo === 'PUBLICO')
       this.establecimientosPrivados = establecimientos.filter(e => e.tipo === 'PRIVADO')
       this.establecimientosPrivadosAll = establecimientos.filter(e => e.tipo === 'PRIVADO')
+
+      const unidadesSolicitantes = data.unidades_solicitantes || []
+      this.unidadesSolicitantes = unidadesSolicitantes
+      this.unidadesSolicitantesAll = unidadesSolicitantes
     },
     inicializarSolicitudDesdeCatalogos () {
       console.log('SolicitudForm mounted with solicitudProp:', this.solicitudProp)
       if (this.solicitudProp) {
         this.solicitud = { ...this.solicitudProp }
+        this.sincronizarUnidadSolicitanteSeleccionada()
         this.codigoEditadoManual = true
         this.nroRegistroEditadoManual = true
         this.areas.forEach(area => {
@@ -1339,7 +1459,144 @@ export default {
       this.initSolicitud()
       this.aplicarCodigoSugerido()
       this.aplicarNroRegistroSugerido()
+      this.sincronizarUnidadSolicitanteSeleccionada()
       this.resetServiciosSelection()
+    },
+    sincronizarUnidadSolicitanteSeleccionada () {
+      if (this.solicitud.unidad_solicitante_id) {
+        this.onSelectUnidadSolicitante(this.solicitud.unidad_solicitante_id)
+        return
+      }
+
+      const sala = String(this.solicitud.sala || '').trim().toLowerCase()
+      if (!sala) return
+
+      const encontrada = this.unidadesSolicitantesAll.find(item => String(item.nombre || '').trim().toLowerCase() === sala)
+      if (!encontrada) return
+
+      this.solicitud.unidad_solicitante_id = encontrada.id
+      this.solicitud.sala = encontrada.nombre
+    },
+    filterUnidadesSolicitantes (val, update) {
+      update(() => {
+        const text = (val || '').toLowerCase().trim()
+
+        if (!text) {
+          this.unidadesSolicitantes = this.unidadesSolicitantesAll
+          return
+        }
+
+        this.unidadesSolicitantes = this.unidadesSolicitantesAll
+          .filter(item => String(item.nombre || '').toLowerCase().includes(text))
+          .slice(0, 50)
+      })
+    },
+    onSelectUnidadSolicitante (id) {
+      if (!id) {
+        this.solicitud.unidad_solicitante_id = null
+        this.solicitud.sala = ''
+        return
+      }
+
+      const unidad = this.unidadesSolicitantesAll.find(item => item.id === id)
+      if (!unidad) return
+
+      this.solicitud.unidad_solicitante_id = unidad.id
+      this.solicitud.sala = unidad.nombre
+    },
+    abrirDialogUnidadSolicitante () {
+      this.dialogUnidadSolicitante = true
+      this.resetUnidadSolicitanteForm()
+    },
+    resetUnidadSolicitanteForm () {
+      this.unidadSolicitanteEditando = false
+      this.unidadSolicitanteForm = {
+        id: null,
+        nombre: ''
+      }
+    },
+    editarUnidadSolicitante (row) {
+      this.unidadSolicitanteEditando = true
+      this.unidadSolicitanteForm = {
+        id: row.id,
+        nombre: row.nombre
+      }
+    },
+    guardarUnidadSolicitante () {
+      const nombre = String(this.unidadSolicitanteForm.nombre || '').trim()
+
+      if (!nombre) {
+        this.$alert?.error ? this.$alert.error('Ingrese el nombre de la unidad solicitante') : null
+        return
+      }
+
+      this.unidadSolicitanteLoading = true
+      const payload = { nombre }
+
+      const request = this.unidadSolicitanteEditando
+        ? this.$axios.put(`unidad-solicitantes/${this.unidadSolicitanteForm.id}`, payload)
+        : this.$axios.post('unidad-solicitantes', payload)
+
+      request
+        .then(res => {
+          const item = res.data
+          const index = this.unidadesSolicitantesAll.findIndex(x => x.id === item.id)
+
+          if (index >= 0) {
+            this.unidadesSolicitantesAll.splice(index, 1, item)
+          } else {
+            this.unidadesSolicitantesAll.unshift(item)
+          }
+
+          this.unidadesSolicitantesAll = [...this.unidadesSolicitantesAll].sort((a, b) => a.nombre.localeCompare(b.nombre))
+          this.unidadesSolicitantes = this.unidadesSolicitantesAll
+
+          if (this.solicitud.unidad_solicitante_id === item.id || !this.solicitud.unidad_solicitante_id) {
+            this.onSelectUnidadSolicitante(item.id)
+          }
+
+          this.resetUnidadSolicitanteForm()
+          this.$alert?.success ? this.$alert.success('Unidad solicitante guardada') : null
+        })
+        .catch(e => {
+          const msg = e.response?.data?.message || e.message
+          this.$alert?.error ? this.$alert.error('Error al guardar unidad solicitante: ' + msg) : null
+        })
+        .finally(() => {
+          this.unidadSolicitanteLoading = false
+        })
+    },
+    eliminarUnidadSolicitante (row) {
+      this.$q.dialog({
+        title: 'Confirmar',
+        message: `¿Eliminar la unidad solicitante "${row.nombre}"?`,
+        cancel: true,
+        persistent: true
+      }).onOk(() => {
+        this.unidadSolicitanteLoading = true
+        this.$axios.delete(`unidad-solicitantes/${row.id}`)
+          .then(() => {
+            this.unidadesSolicitantesAll = this.unidadesSolicitantesAll.filter(item => item.id !== row.id)
+            this.unidadesSolicitantes = this.unidadesSolicitantesAll
+
+            if (this.solicitud.unidad_solicitante_id === row.id) {
+              this.onSelectUnidadSolicitante(null)
+            }
+
+            if (this.unidadSolicitanteForm.id === row.id) {
+              this.resetUnidadSolicitanteForm()
+            }
+
+            this.$alert?.success ? this.$alert.success('Unidad solicitante eliminada') : null
+          })
+          .catch(e => {
+            const msg = e.response?.data?.message || e.message
+            this.$alert?.error ? this.$alert.error('Error al eliminar unidad solicitante: ' + msg) : null
+          })
+          .finally(() => {
+            this.unidadSolicitanteLoading = false
+          })
+      })
     },
     onCodigoManualChange () {
       this.codigoEditadoManual = true
@@ -1636,6 +1893,7 @@ export default {
       this.solicitud = {
         paciente_id: null,
         doctor_id: null,
+        unidad_solicitante_id: null,
         codigo_solicitud: '',
         codigo: '',
         nro_registro: '',

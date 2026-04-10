@@ -1087,7 +1087,7 @@
                 <td>
 <!--                  <q-input v-model="form.citoquimico_aspecto" dense outlined placeholder="Ejemplo: Límpido, turbio" />-->
 <!--                  ['Límpido', 'Turbio', 'Opalescente']-->
-                  <q-select v-model="form.citoquimico_aspecto" :options="['Límpido', 'Turbio', 'Opalescente']" dense outlined
+                  <q-select v-model="form.citoquimico_aspecto" :options="['Límpido', 'Turbio', 'Opalescente','Cristal Agua de roca']" dense outlined
                             placeholder="Seleccione el aspecto" />
                 </td>
                 <td>{{ rangoTexto('Aspecto') }}</td>

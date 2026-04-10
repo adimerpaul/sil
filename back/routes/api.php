@@ -9,6 +9,7 @@ use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\ConsentimientoController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\SolicitudeController;
+use App\Http\Controllers\UnidadSolicitanteController;
 use App\Http\Controllers\AreaTipoMuestraController; // <-- NUEVO
 use App\Http\Controllers\SolicitudePropiedadController;
 use App\Http\Controllers\SolicitudCatalogoController;
@@ -50,6 +51,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('pacientes', PacienteController::class);
 
     Route::apiResource('establecimientos', EstablecimientoController::class);
+    Route::apiResource('unidad-solicitantes', UnidadSolicitanteController::class);
 
     Route::apiResource('areas', AreaController::class);
 //    areasCreateSolicitud

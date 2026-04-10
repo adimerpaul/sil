@@ -66,6 +66,7 @@ class Solicitude extends Model implements AuditableContract
         'user_preanalitica_id',
         'user_analitica_id',
         'sala',
+        'unidad_solicitante_id',
         'cama',
 
         // ---- NUEVOS CAMPOS: calidad de muestra + equipo ----
@@ -130,6 +131,11 @@ class Solicitude extends Model implements AuditableContract
     public function doctor()
     {
         return $this->belongsTo(Doctor::class);
+    }
+
+    public function unidadSolicitante()
+    {
+        return $this->belongsTo(UnidadSolicitante::class, 'unidad_solicitante_id');
     }
 
     public function user()

@@ -7,6 +7,7 @@ use App\Models\Diagnostico;
 use App\Models\Doctor;
 use App\Models\Establecimiento;
 use App\Models\Solicitude;
+use App\Models\UnidadSolicitante;
 use Illuminate\Http\Request;
 
 class SolicitudCatalogoController extends Controller
@@ -24,6 +25,7 @@ class SolicitudCatalogoController extends Controller
                 ->each(function ($establecimiento) {
                     $establecimiento->servicio_ids = $establecimiento->servicios->pluck('id');
                 }),
+            'unidades_solicitantes' => UnidadSolicitante::orderBy('nombre')->get(),
             'areas' => $this->areasParaCrearSolicitud($request),
             'codigos_sugeridos' => [
                 'SI' => $this->siguienteCodigoSugerido('SI', $request),
