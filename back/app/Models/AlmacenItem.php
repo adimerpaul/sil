@@ -5,28 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Subpartida extends Model
+class AlmacenItem extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
-        'partida_id',
-        'num',
-        'codigo',
+        'subpartida_id',
         'nombre',
+        'unidad_medida',
+        'precio_unitario',
+    ];
+
+    protected $casts = [
+        'precio_unitario' => 'decimal:4',
     ];
 
     protected $hidden = [
         'created_at', 'updated_at', 'deleted_at',
     ];
 
-    public function partida()
+    public function subpartida()
     {
-        return $this->belongsTo(Partida::class);
-    }
-
-    public function almacenItems()
-    {
-        return $this->hasMany(AlmacenItem::class);
+        return $this->belongsTo(Subpartida::class);
     }
 }
