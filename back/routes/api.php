@@ -9,6 +9,7 @@ use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\PartidaController;
 use App\Http\Controllers\ConsentimientoController;
+use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\SolicitudeController;
 use App\Http\Controllers\SubpartidaController;
@@ -55,6 +56,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::apiResource('establecimientos', EstablecimientoController::class);
     Route::apiResource('unidad-solicitantes', UnidadSolicitanteController::class);
+    Route::apiResource('proveedores', ProveedorController::class);
 
     Route::apiResource('grupos', GrupoController::class);
     Route::apiResource('partidas', PartidaController::class);
