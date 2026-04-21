@@ -99,8 +99,8 @@
               <q-img src="/logo.png" width="72px" />
             </q-avatar>
             <div class="drawer-brand__text">
-              <div class="drawer-brand__title">SIL</div>
-              <div class="drawer-brand__caption">Hospital General San Juan de Dios</div>
+<!--              <div class="drawer-brand__title">SIL</div>-->
+              <div class="drawer-brand__caption">Hospital General <br>San Juan de Dios</div>
             </div>
           </div>
 
@@ -313,7 +313,7 @@ const roleText = computed(() => {
 
 <style>
 .app-drawer {
-  background: linear-gradient(180deg, #0d3b4c 0%, #12333b 55%, #172f2b 100%);
+  background: linear-gradient(180deg, #0b5ea8 0%, #0a477f 48%, #08355f 100%);
   color: #ffffff;
 }
 
@@ -322,22 +322,22 @@ const roleText = computed(() => {
 .app-drawer .q-scrollarea,
 .app-drawer .q-scrollarea__container,
 .app-drawer .q-scrollarea__content {
-  background: linear-gradient(180deg, #0d3b4c 0%, #12333b 55%, #172f2b 100%) !important;
+  background: linear-gradient(180deg, #0b5ea8 0%, #0a477f 48%, #08355f 100%) !important;
 }
 
 .drawer-shell {
   min-height: 100%;
-  padding: 10px 8px 12px;
+  padding: 8px 7px 10px;
 }
 
 .drawer-brand {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 8px;
-  margin-bottom: 8px;
+  gap: 8px;
+  padding: 7px;
+  margin-bottom: 6px;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 12px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.09);
 }
 
@@ -352,19 +352,19 @@ const roleText = computed(() => {
 }
 
 .drawer-brand__title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
 }
 
 .drawer-brand__caption {
   margin-top: 2px;
   color: rgba(255, 255, 255, 0.72);
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.15;
 }
 
 .drawer-eyebrow {
-  padding: 4px 8px 6px;
+  padding: 3px 8px 5px;
   color: rgba(255, 255, 255, 0.66);
   font-size: 10px;
   font-weight: 800;
@@ -375,29 +375,29 @@ const roleText = computed(() => {
 .drawer-menu {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .drawer-section-header {
-  min-height: 34px;
-  padding: 0 8px;
+  min-height: 30px;
+  padding: 0 7px;
   margin: 1px 2px;
-  border-radius: 10px;
+  border-radius: 9px;
   color: #ffffff;
   background: rgba(255, 255, 255, 0.08);
 }
 
 .drawer-section-header--active {
-  background: rgba(48, 181, 161, 0.26);
-  box-shadow: inset 3px 0 0 #36d1ad;
+  background: rgba(87, 185, 255, 0.24);
+  box-shadow: inset 3px 0 0 #8fd3ff;
 }
 
 .drawer-section__icon {
-  min-width: 28px;
+  min-width: 26px;
 }
 
 .drawer-section__label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0;
 }
@@ -411,23 +411,23 @@ const roleText = computed(() => {
 }
 
 .drawer-submenu {
-  padding: 2px 0 4px;
+  padding: 1px 0 3px;
 }
 
 .drawer-menu-link {
-  min-height: 32px;
-  margin: 1px 6px 1px 14px;
-  padding: 0 8px;
-  border-radius: 9px;
+  min-height: 28px;
+  margin: 1px 5px 1px 13px;
+  padding: 0 7px;
+  border-radius: 8px;
   color: rgba(255, 255, 255, 0.86);
 }
 
 .drawer-menu-link__avatar {
-  min-width: 26px;
+  min-width: 24px;
 }
 
 .drawer-menu-link__label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 650;
   line-height: 1.1;
   letter-spacing: 0;
@@ -440,9 +440,9 @@ const roleText = computed(() => {
 }
 
 .drawer-menu-link--active {
-  background: #1f7a8c;
+  background: #0b76c5;
   color: #ffffff !important;
-  box-shadow: inset 3px 0 0 #f2c94c;
+  box-shadow: inset 3px 0 0 #ffd166;
 }
 
 .drawer-menu-link.q-item--disabled {
@@ -450,17 +450,17 @@ const roleText = computed(() => {
 }
 
 .drawer-footer {
-  padding: 10px 10px 8px;
-  margin-top: 10px;
+  padding: 8px 9px 6px;
+  margin-top: 8px;
   color: rgba(255, 255, 255, 0.58);
   font-size: 10px;
   line-height: 1.35;
 }
 
 .drawer-logout {
-  min-height: 34px;
-  margin: 2px 6px 0;
-  border-radius: 10px;
+  min-height: 30px;
+  margin: 2px 5px 0;
+  border-radius: 9px;
   color: #ffe6e3;
   background: rgba(229, 57, 53, 0.16);
 }
