@@ -14,6 +14,7 @@ class AlmacenItem extends Model
         'nombre',
         'unidad_medida',
         'precio_unitario',
+        'imagen',
     ];
 
     protected $casts = [

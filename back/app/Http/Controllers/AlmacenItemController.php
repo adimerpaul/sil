@@ -6,6 +6,8 @@ use App\Models\AlmacenItem;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class AlmacenItemController extends Controller
 {
@@ -91,6 +93,7 @@ class AlmacenItemController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate($this->rules());
+        $data['imagen'] = $this->saveImage($request);
 
         $item = AlmacenItem::create($data);
 
@@ -101,6 +104,9 @@ class AlmacenItemController extends Controller
     {
         $item = AlmacenItem::findOrFail($id);
         $data = $request->validate($this->rules(true));
+        if ($request->hasFile('imagen')) {
+            $data['imagen'] = $this->saveImage($request);
+        }
         $item->update($data);
 
         return response()->json($item->load('subpartida.partida.grupo'));
@@ -123,7 +129,31 @@ class AlmacenItemController extends Controller
             'nombre' => "{$required}|string|max:255",
             'unidad_medida' => 'nullable|string|max:100',
             'precio_unitario' => 'nullable|numeric|min:0',
+            'imagen' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
         ];
+    }
+
+    private function saveImage(Request $request): string
+    {
+        if (! $request->hasFile('imagen')) {
+            return 'default.png';
+        }
+
+        $directory = public_path('images/productos');
+        if (! is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        $filename = uniqid('producto_', true).'.png';
+        $path = $directory.DIRECTORY_SEPARATOR.$filename;
+        $manager = new ImageManager(new Driver());
+
+        $manager->read($request->file('imagen')->getPathname())
+            ->cover(420, 420)
+            ->toPng()
+            ->save($path);
+
+        return $filename;
     }
 
     private function applyFilters($query, Request $request): void
@@ -275,6 +305,7 @@ class AlmacenItemController extends Controller
                 'almacen_items.nombre',
                 'almacen_items.unidad_medida',
                 'almacen_items.precio_unitario',
+                'almacen_items.imagen',
                 'subpartidas.codigo as subpartida_codigo',
                 'subpartidas.nombre as subpartida_nombre',
                 'partidas.codigo as partida_codigo',
@@ -288,6 +319,7 @@ class AlmacenItemController extends Controller
                 'almacen_items.nombre',
                 'almacen_items.unidad_medida',
                 'almacen_items.precio_unitario',
+                'almacen_items.imagen',
                 'subpartidas.codigo',
                 'subpartidas.nombre',
                 'partidas.codigo',

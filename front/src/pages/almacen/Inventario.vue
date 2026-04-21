@@ -148,6 +148,14 @@
         binary-state-sort
         @request="onTableRequest"
       >
+        <template #body-cell-imagen="props">
+          <q-td :props="props">
+            <q-avatar rounded size="42px" class="item-image">
+              <q-img :src="itemImageUrl(props.row)" ratio="1" fit="cover" />
+            </q-avatar>
+          </q-td>
+        </template>
+
         <template #body-cell-actions="props">
           <q-td :props="props">
             <q-btn-dropdown dense color="primary" label="Opciones" no-caps size="sm">
@@ -376,6 +384,28 @@
             <q-input v-model="itemForm.nombre" dense outlined label="Nombre" :rules="[val => !!val || 'Campo requerido']" />
             <q-input v-model="itemForm.unidad_medida" dense outlined label="Unidad de medida" />
             <q-input v-model.number="itemForm.precio_unitario" dense outlined type="number" step="0.01" label="Precio unitario" />
+            <div class="row q-col-gutter-sm items-center">
+              <div class="col-auto">
+                <q-avatar rounded size="74px" class="item-image-preview">
+                  <q-img :src="itemPreviewUrl" ratio="1" fit="cover" />
+                </q-avatar>
+              </div>
+              <div class="col">
+                <q-file
+                  v-model="itemImageFile"
+                  dense
+                  outlined
+                  clearable
+                  accept="image/*"
+                  label="Imagen producto"
+                  @update:model-value="onItemImageChange"
+                >
+                  <template #prepend>
+                    <q-icon name="image" />
+                  </template>
+                </q-file>
+              </div>
+            </div>
             <div class="text-right q-mt-sm">
               <q-btn flat color="negative" label="Cancelar" no-caps @click="itemDialog = false" />
               <q-btn color="primary" label="Guardar" no-caps type="submit" :loading="savingItem" class="q-ml-sm" />
@@ -403,6 +433,8 @@ export default {
       itemSubpartidaOptionsFiltered: [],
       itemGrupoId: null,
       itemPartidaId: null,
+      itemImageFile: null,
+      itemPreviewUrl: '',
       summary: {
         items: 0,
         cantidad: 0,
@@ -429,6 +461,7 @@ export default {
       },
       columns: [
         { name: 'actions', label: 'Acciones', field: 'id', align: 'left' },
+        { name: 'imagen', label: 'Imagen', field: 'imagen', align: 'left' },
         { name: 'nombre', label: 'Item', field: 'nombre', align: 'left', sortable: true },
         { name: 'unidad_medida', label: 'Unidad', field: 'unidad_medida', align: 'left', sortable: true },
         { name: 'cantidad', label: 'Cantidad', field: 'cantidad', align: 'right', sortable: true },
@@ -631,6 +664,8 @@ export default {
       this.itemPartidaId = subpartida?.partida_id || this.filters.partida_id || null
       this.itemPartidaOptionsFiltered = []
       this.itemSubpartidaOptionsFiltered = []
+      this.itemImageFile = null
+      this.itemPreviewUrl = this.itemImageUrl(row || {})
       this.itemForm = row
         ? { ...row }
         : {
@@ -644,14 +679,13 @@ export default {
     async saveItem () {
       this.savingItem = true
       try {
-        const payload = {
-          subpartida_id: this.itemForm.subpartida_id,
-          nombre: this.itemForm.nombre,
-          unidad_medida: this.itemForm.unidad_medida,
-          precio_unitario: this.itemForm.precio_unitario,
-        }
+        const payload = this.itemPayload()
         if (this.itemForm.id) {
-          await this.$axios.put(`almacen-items/${this.itemForm.id}`, payload)
+          if (payload instanceof FormData) {
+            await this.$axios.post(`almacen-items/${this.itemForm.id}`, payload)
+          } else {
+            await this.$axios.put(`almacen-items/${this.itemForm.id}`, payload)
+          }
         } else {
           await this.$axios.post('almacen-items', payload)
         }
@@ -663,6 +697,34 @@ export default {
       } finally {
         this.savingItem = false
       }
+    },
+    itemPayload () {
+      if (!this.itemImageFile) {
+        return {
+          subpartida_id: this.itemForm.subpartida_id,
+          nombre: this.itemForm.nombre,
+          unidad_medida: this.itemForm.unidad_medida,
+          precio_unitario: this.itemForm.precio_unitario,
+        }
+      }
+
+      const form = new FormData()
+      form.append('subpartida_id', this.itemForm.subpartida_id || '')
+      form.append('nombre', this.itemForm.nombre || '')
+      form.append('unidad_medida', this.itemForm.unidad_medida || '')
+      form.append('precio_unitario', this.itemForm.precio_unitario || 0)
+      form.append('imagen', this.itemImageFile)
+      if (this.itemForm.id) form.append('_method', 'PUT')
+      return form
+    },
+    onItemImageChange (file) {
+      if (this.itemPreviewUrl && this.itemPreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(this.itemPreviewUrl)
+      }
+      this.itemPreviewUrl = file ? URL.createObjectURL(file) : this.itemImageUrl(this.itemForm)
+    },
+    itemImageUrl (row) {
+      return `${this.$url}/../images/productos/${row?.imagen || 'default.png'}`
     },
     deleteItem (row) {
       this.$alert.dialog(`Desea eliminar ${row.nombre}?`).onOk(async () => {
@@ -759,5 +821,11 @@ export default {
   max-width: 520px;
   white-space: normal;
   line-height: 1.2;
+}
+
+.item-image,
+.item-image-preview {
+  border: 1px solid #d9e2ec;
+  background: #f5f8fb;
 }
 </style>
