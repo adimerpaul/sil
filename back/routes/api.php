@@ -3,6 +3,7 @@
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\AreaRangoController;
 use App\Http\Controllers\AlmacenItemController;
+use App\Http\Controllers\CompraController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\EstablecimientoController;
 use App\Http\Controllers\FormulariosController;
@@ -64,6 +65,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('subpartidas', SubpartidaController::class);
     Route::get('almacen-items/reporte/pdf', [AlmacenItemController::class, 'reportPdf']);
     Route::apiResource('almacen-items', AlmacenItemController::class);
+    Route::apiResource('compras', CompraController::class)->only(['index', 'show', 'store', 'destroy']);
 
     Route::apiResource('areas', AreaController::class);
 //    areasCreateSolicitud

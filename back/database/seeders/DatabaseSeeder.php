@@ -181,6 +181,8 @@ class DatabaseSeeder extends Seeder
             'Analitica',
             'Formularios',
             'Módulo inventario',
+            'Modulo compras',
+            'Modulo detalle compras',
             'Módulo movimiento',
             'Módulo de faltantes y sobrantes',
         ];

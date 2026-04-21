@@ -198,10 +198,18 @@ class AlmacenItemController extends Controller
     private function cantidadSubquery()
     {
         return DB::table('compra_detalles')
-            ->selectRaw('COALESCE(SUM(COALESCE(cantidad, 0) - COALESCE(cantidad_venta, 0)), 0)')
+            ->join('compras', 'compras.id', '=', 'compra_detalles.compra_id')
+            ->selectRaw($this->cantidadExpression())
             ->whereColumn('compra_detalles.producto_id', 'almacen_items.id')
             ->whereNull('compra_detalles.deleted_at')
+            ->whereNull('compras.deleted_at')
+            ->where('compras.estado', 'ACTIVO')
             ->whereRaw("UPPER(COALESCE(compra_detalles.estado, '')) = 'ACTIVO'");
+    }
+
+    private function cantidadExpression(string $detalleAlias = 'compra_detalles', string $compraAlias = 'compras'): string
+    {
+        return "COALESCE(SUM(CASE WHEN {$compraAlias}.id IS NULL THEN 0 WHEN {$compraAlias}.tipo_registro = 'SALIDA' THEN -COALESCE({$detalleAlias}.cantidad, 0) ELSE COALESCE({$detalleAlias}.cantidad, 0) - COALESCE({$detalleAlias}.cantidad_venta, 0) END), 0)";
     }
 
     private function summary(Request $request): array
@@ -211,6 +219,11 @@ class AlmacenItemController extends Controller
                 $join->on('compra_detalles.producto_id', '=', 'almacen_items.id')
                     ->whereNull('compra_detalles.deleted_at')
                     ->whereRaw("UPPER(COALESCE(compra_detalles.estado, '')) = 'ACTIVO'");
+            })
+            ->leftJoin('compras', function ($join) {
+                $join->on('compras.id', '=', 'compra_detalles.compra_id')
+                    ->whereNull('compras.deleted_at')
+                    ->where('compras.estado', '=', 'ACTIVO');
             })
             ->join('subpartidas', 'subpartidas.id', '=', 'almacen_items.subpartida_id')
             ->join('partidas', 'partidas.id', '=', 'subpartidas.partida_id')
@@ -244,12 +257,12 @@ class AlmacenItemController extends Controller
         }
 
         if ($request->boolean('existente')) {
-            $query->havingRaw('SUM(COALESCE(compra_detalles.cantidad, 0) - COALESCE(compra_detalles.cantidad_venta, 0)) > 0');
+            $query->havingRaw($this->cantidadExpression().' > 0');
         }
 
         $row = $query
             ->selectRaw('COUNT(DISTINCT almacen_items.id) as items')
-            ->selectRaw('COALESCE(SUM(COALESCE(compra_detalles.cantidad, 0) - COALESCE(compra_detalles.cantidad_venta, 0)), 0) as cantidad')
+            ->selectRaw($this->cantidadExpression().' as cantidad')
             ->first();
 
         return [
@@ -260,13 +273,18 @@ class AlmacenItemController extends Controller
 
     private function reportQuery(Request $request)
     {
-        $cantidad = "COALESCE(SUM(COALESCE(compra_detalles.cantidad, 0) - COALESCE(compra_detalles.cantidad_venta, 0)), 0)";
+        $cantidad = $this->cantidadExpression();
 
         $query = DB::table('almacen_items')
             ->leftJoin('compra_detalles', function ($join) {
                 $join->on('compra_detalles.producto_id', '=', 'almacen_items.id')
                     ->whereNull('compra_detalles.deleted_at')
                     ->whereRaw("UPPER(COALESCE(compra_detalles.estado, '')) = 'ACTIVO'");
+            })
+            ->leftJoin('compras', function ($join) {
+                $join->on('compras.id', '=', 'compra_detalles.compra_id')
+                    ->whereNull('compras.deleted_at')
+                    ->where('compras.estado', '=', 'ACTIVO');
             })
             ->join('subpartidas', 'subpartidas.id', '=', 'almacen_items.subpartida_id')
             ->join('partidas', 'partidas.id', '=', 'subpartidas.partida_id')

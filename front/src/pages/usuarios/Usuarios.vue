@@ -339,6 +339,8 @@ const HOSPITAL_PERMISSION_NAMES = [
 
 const ALMACEN_PERMISSION_NAMES = [
   'Módulo inventario',
+  'Modulo compras',
+  'Modulo detalle compras',
   'Módulo movimiento',
   'Módulo de faltantes y sobrantes',
 ]
