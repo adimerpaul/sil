@@ -179,6 +179,9 @@ class DatabaseSeeder extends Seeder
             'Area preanalitica',
             'Analitica',
             'Formularios',
+            'Módulo inventario',
+            'Módulo movimiento',
+            'Módulo de faltantes y sobrantes',
         ];
 //        protected $fillable = [
 //        'fecha_recepcion', 'hora_recepcion',

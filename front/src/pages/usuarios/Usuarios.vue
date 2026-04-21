@@ -219,30 +219,105 @@
         </q-card-section>
       </q-card>
     </q-dialog>
-    <q-dialog v-model="dialogPermisos" persistent>
-      <q-card style="min-width: 420px">
-        <q-card-section class="q-pb-none row items-center text-bold">
-          Permisos de {{ user.username }}
-          <q-space />
-          <q-btn icon="close" flat round dense @click="dialogPermisos = false" />
+    <q-dialog v-model="dialogPermisos" persistent :maximized="$q.screen.lt.sm">
+      <q-card class="permission-card">
+        <q-card-section class="permission-card__header">
+          <div class="row items-center no-wrap full-width">
+            <q-icon name="admin_panel_settings" size="22px" class="text-primary q-mr-sm" />
+            <div class="permission-card__title">
+              <div class="text-weight-bold">Permisos</div>
+              <div class="text-caption text-grey-7 ellipsis">
+                {{ user.username }}
+              </div>
+            </div>
+            <q-space />
+            <q-badge color="primary" outline class="q-mr-sm">
+              {{ selectedPermissionsCount }} activos
+            </q-badge>
+            <q-btn icon="close" flat round dense @click="dialogPermisos = false" />
+          </div>
         </q-card-section>
 
-        <q-card-section class="q-pt-none">
-          <q-input v-model="permFilter" dense outlined placeholder="Filtrar permisos..." class="q-mb-sm">
-            <template v-slot:append><q-icon name="search" /></template>
+        <q-card-section class="permission-card__filters">
+          <q-input v-model="permFilter" dense outlined clearable placeholder="Filtrar permisos...">
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
           </q-input>
-
-          <q-list dense bordered>
-            <q-item v-for="perm in filteredPermissions" :key="perm.id">
-              <q-item-section>{{ perm.name }}</q-item-section>
-              <q-item-section side>
-                <q-toggle v-model="perm.checked" />
-              </q-item-section>
-            </q-item>
-          </q-list>
         </q-card-section>
 
-        <q-card-actions align="right">
+        <q-separator />
+
+        <q-card-section class="permission-card__body">
+          <q-list dense class="permission-groups">
+            <q-expansion-item
+              v-for="group in filteredPermissionGroups"
+              :key="group.key"
+              dense
+              dense-toggle
+              expand-separator
+              :default-opened="group.defaultOpened || Boolean(permFilter)"
+              header-class="permission-group-header"
+            >
+              <template v-slot:header>
+                <q-item-section avatar class="permission-group-header__icon">
+                  <q-icon :name="group.icon" size="19px" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-weight-bold">
+                    {{ group.label }}
+                  </q-item-label>
+                  <q-item-label caption>
+                    {{ group.checkedCount }}/{{ group.permissions.length }} activos
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <div class="row no-wrap">
+                    <q-btn dense flat round icon="done_all" size="sm" @click.stop="setGroupPermissions(group, true)">
+                      <q-tooltip>Activar grupo</q-tooltip>
+                    </q-btn>
+                    <q-btn dense flat round icon="remove_done" size="sm" @click.stop="setGroupPermissions(group, false)">
+                      <q-tooltip>Desactivar grupo</q-tooltip>
+                    </q-btn>
+                  </div>
+                </q-item-section>
+              </template>
+
+              <div class="permission-grid">
+                <q-item
+                  v-for="perm in group.permissions"
+                  :key="perm.id"
+                  dense
+                  clickable
+                  class="permission-row"
+                  @click="perm.checked = !perm.checked"
+                >
+                  <q-item-section avatar class="permission-row__icon">
+                    <q-icon
+                      :name="perm.checked ? 'check_circle' : 'radio_button_unchecked'"
+                      :color="perm.checked ? 'primary' : 'grey-5'"
+                      size="18px"
+                    />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label lines="2" class="permission-row__label">
+                      {{ perm.name }}
+                    </q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-toggle v-model="perm.checked" dense color="primary" @click.stop />
+                  </q-item-section>
+                </q-item>
+              </div>
+            </q-expansion-item>
+          </q-list>
+
+          <div v-if="filteredPermissionGroups.length === 0" class="permission-empty">
+            No hay permisos para mostrar
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right" class="permission-card__actions">
           <q-btn color="negative" label="Cancelar" @click="dialogPermisos = false" no-caps :loading="loading" />
           <q-btn color="primary" label="Guardar" @click="permisosPost" no-caps :loading="loading" />
         </q-card-actions>
@@ -253,6 +328,44 @@
 </template>
 <script>
 import moment from 'moment'
+
+const HOSPITAL_PERMISSION_NAMES = [
+  'Usuarios',
+  'Pacientes',
+  'Doctores',
+  'Establecimientos',
+  'Servicios',
+]
+
+const ALMACEN_PERMISSION_NAMES = [
+  'Módulo inventario',
+  'Módulo movimiento',
+  'Módulo de faltantes y sobrantes',
+]
+
+const PERMISSION_GROUPS = [
+  {
+    key: 'hospital',
+    label: 'Hospital',
+    icon: 'local_hospital',
+    defaultOpened: true,
+    names: HOSPITAL_PERMISSION_NAMES,
+  },
+  {
+    key: 'laboratorio',
+    label: 'Laboratorio',
+    icon: 'science',
+    defaultOpened: true,
+    names: [],
+  },
+  {
+    key: 'almacen',
+    label: 'Almacén',
+    icon: 'warehouse',
+    defaultOpened: true,
+    names: ALMACEN_PERMISSION_NAMES,
+  },
+]
 
 export default {
   name: 'UsuariosPage',
@@ -457,6 +570,31 @@ export default {
         this.loading = false
       }
     },
+    permissionGroupFor(permissionName) {
+      if (HOSPITAL_PERMISSION_NAMES.includes(permissionName)) return PERMISSION_GROUPS[0]
+      if (ALMACEN_PERMISSION_NAMES.includes(permissionName)) return PERMISSION_GROUPS[2]
+      return PERMISSION_GROUPS[1]
+    },
+    normalizePermissionText(value) {
+      return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+    },
+    sortPermissionsByGroupOrder(permissions, orderNames) {
+      const order = new Map(orderNames.map((name, index) => [name, index]))
+      return [...permissions].sort((a, b) => {
+        const aIndex = order.has(a.name) ? order.get(a.name) : 999
+        const bIndex = order.has(b.name) ? order.get(b.name) : 999
+        if (aIndex !== bIndex) return aIndex - bIndex
+        return a.name.localeCompare(b.name)
+      })
+    },
+    setGroupPermissions(group, checked) {
+      group.permissions.forEach(permission => {
+        permission.checked = checked
+      })
+    },
     userEditPassword(user) {
       this.user = {...user}
       this.$alert.dialogPrompt('Nueva contraseña', 'Ingrese la nueva contraseña', 'password')
@@ -492,11 +630,149 @@ export default {
     },
   },
   computed: {
-    filteredPermissions() {
-      if (!this.permFilter) return this.permissions
-      const t = this.permFilter.toLowerCase()
-      return this.permissions.filter(p => p.name.toLowerCase().includes(t))
+    permissionGroups() {
+      const groups = PERMISSION_GROUPS.map(group => ({
+        ...group,
+        permissions: [],
+      }))
+      const groupMap = new Map(groups.map(group => [group.key, group]))
+
+      this.permissions.forEach(permission => {
+        const group = this.permissionGroupFor(permission.name)
+        groupMap.get(group.key).permissions.push(permission)
+      })
+
+      return groups
+        .map(group => ({
+          ...group,
+          permissions: this.sortPermissionsByGroupOrder(group.permissions, group.names),
+        }))
+        .filter(group => group.permissions.length > 0)
+    },
+    filteredPermissionGroups() {
+      const filter = this.normalizePermissionText(this.permFilter)
+
+      return this.permissionGroups
+        .map(group => {
+          const permissions = filter
+            ? group.permissions.filter(permission => this.normalizePermissionText(permission.name).includes(filter))
+            : group.permissions
+
+          return {
+            ...group,
+            permissions,
+            checkedCount: permissions.filter(permission => permission.checked).length,
+          }
+        })
+        .filter(group => group.permissions.length > 0)
+    },
+    selectedPermissionsCount() {
+      return this.permissions.filter(permission => permission.checked).length
     }
   },
 }
 </script>
+
+<style scoped>
+.permission-card {
+  width: min(94vw, 780px);
+  max-width: 780px;
+}
+
+.permission-card__header {
+  padding: 12px 14px 8px;
+}
+
+.permission-card__title {
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.permission-card__filters {
+  padding: 6px 14px 12px;
+}
+
+.permission-card__body {
+  max-height: min(62vh, 560px);
+  overflow: auto;
+  padding: 8px 10px;
+  background: #f7fafc;
+}
+
+.permission-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+:deep(.permission-group-header) {
+  min-height: 40px;
+  border: 1px solid #dfe7ee;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.permission-group-header__icon {
+  min-width: 30px;
+}
+
+.permission-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 6px;
+  padding: 8px 2px 2px;
+}
+
+.permission-row {
+  min-height: 36px;
+  padding: 3px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.permission-row__icon {
+  min-width: 28px;
+}
+
+.permission-row__label {
+  font-size: 12px;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.permission-empty {
+  padding: 24px 8px;
+  color: #607d8b;
+  text-align: center;
+}
+
+.permission-card__actions {
+  padding: 10px 14px;
+  background: #ffffff;
+}
+
+@media (max-width: 599px) {
+  .permission-card {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    border-radius: 0;
+  }
+
+  .permission-card__body {
+    max-height: calc(100vh - 176px);
+    padding: 8px;
+  }
+
+  .permission-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .permission-card__actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+  }
+}
+</style>

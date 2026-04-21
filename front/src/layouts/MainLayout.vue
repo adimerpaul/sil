@@ -88,207 +88,100 @@
       v-model="leftDrawerOpen"
       bordered
       show-if-above
-      :width="200"
-      :breakpoint="500"
-      class="bg-primary text-white"
+      :width="236"
+      :breakpoint="700"
+      class="app-drawer text-white"
     >
-      <q-list class="q-pb-none">
-        <q-item-label header class="text-center q-pa-none q-pt-md">
-          <q-avatar size="64px" class="q-mb-sm bg-white" rounded>
-            <q-img src="/logo.png" width="90px" />
-          </q-avatar>
-          <div class="text-weight-bold text-white">SIL</div>
-          <div class="text-caption text-white">Hospital General San Juan de Dios</div>
-        </q-item-label>
+      <q-scroll-area class="fit">
+        <div class="drawer-shell">
+          <div class="drawer-brand">
+            <q-avatar size="42px" class="drawer-brand__logo" rounded>
+              <q-img src="/logo.png" width="72px" />
+            </q-avatar>
+            <div class="drawer-brand__text">
+              <div class="drawer-brand__title">SIL</div>
+              <div class="drawer-brand__caption">Hospital General San Juan de Dios</div>
+            </div>
+          </div>
 
-<!--        <q-separator color="green-8" />-->
+          <div class="drawer-eyebrow">
+            Módulos
+          </div>
 
-        <q-item-label header class="q-px-md text-grey-3 q-mt-sm">
-          Módulos del Sistema
-        </q-item-label>
-        <q-item dense to="/" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Dashboard')">
-          <q-item-section avatar>
-            <q-icon name="dashboard" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Dashboard</q-item-label>
-          </q-item-section>
-        </q-item>
+          <q-list dense class="drawer-menu">
+            <q-expansion-item
+              v-for="section in visibleMenuSections"
+              :key="section.title"
+              dense
+              dense-toggle
+              expand-separator
+              :default-opened="section.defaultOpened || sectionIsActive(section)"
+              :header-class="sectionHeaderClass(section)"
+            >
+              <template v-slot:header>
+                <q-item-section avatar class="drawer-section__icon">
+                  <q-icon :name="section.icon" size="18px" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="drawer-section__label">
+                    {{ section.title }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-badge class="drawer-section__count" rounded>
+                    {{ visibleSectionLinks(section).length }}
+                  </q-badge>
+                </q-item-section>
+              </template>
 
-        <q-item dense to="/usuarios" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Usuarios')">
-          <q-item-section avatar>
-            <q-icon name="people" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Usuarios</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/establecimientos" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Establecimientos')">
-          <q-item-section avatar>
-            <q-icon name="local_hospital" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Establecimientos</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/pacientes" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Pacientes')">
-          <q-item-section avatar>
-            <q-icon name="folder_shared" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Pacientes</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/doctores" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Doctores')">
-          <q-item-section avatar>
-            <q-icon name="medical_services" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Doctores</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/servicios" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Servicios')">
-          <q-item-section avatar>
-            <q-icon name="room_service" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Prestaciones</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/formularios" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Formularios')">
-          <q-item-section avatar>
-            <q-icon name="description" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Formularios</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/consentimientos" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Consentimientos')">
-          <q-item-section avatar>
-            <q-icon name="assignment_turned_in" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Consentimientos</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/solicitudes" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Solicitudes')">
-          <q-item-section avatar>
-            <q-icon name="request_page" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Admision</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/recogidos" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Solicitudes')">
-          <q-item-section avatar>
-            <q-icon name="inventory_2" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Recogidos</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/area-preanalitica" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Area preanalitica')">
-          <q-item-section avatar>
-            <q-icon name="science" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Preanalítica</q-item-label>
-          </q-item-section>
-        </q-item>
-<!--        Preanalitca terminadoas-->
-        <q-item dense to="/area-preanalitica-procesadas" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Area preanalitica')">
-          <q-item-section avatar>
-            <q-icon name="analytics" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Preanalítica estados</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/analitica" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Analitica')">
-          <q-item-section avatar>
-            <q-icon name="biotech" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">
-<!--              si el susatio role es adminsitrador colcaor Analitica-->
-<!--              <span v-if="$store.user.role === 'Administrador'">Analítica</span>-->
-<!--              <template v-else>-->
-<!--                <div v-if="hasPermission('HEMATOLOGÍA')">Hematología</div>-->
-<!--                <div v-if="hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA')">Química Sanguínea y Serología</div>-->
-<!--                <div v-if="hasPermission('UROANÁLISIS')">Uroanálisis</div>-->
-<!--                <div v-if="hasPermission('MICROBIOLOGÍA')">Microbiología</div>-->
-<!--                <div v-if="hasPermission('INMUNOLOGÍA / INFECCIOSOS')">Inmunología / Infecciosos</div>-->
-<!--                <div v-if="hasPermission('BIOLOGÍA MOLECULAR')">Biología Molecular</div>-->
-<!--              </template>-->
-<!--              <span v-else>{{$store.user.area?.title}}</span>-->
-              Analítica
-<!--              <pre>{{$store.user.area}}</pre>-->
-            </q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item dense to="/reportes/servicios-resumen" exact clickable class="menu-item" active-class="menu-active" v-close-popup v-if="hasPermission('Usuarios')">
-          <q-item-section avatar>
-            <q-icon name="bar_chart" class="text-white"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label class="text-white">Servicios Resumen</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-expansion-item dense expand-separator icon="insert_chart" label="Reportes" active-class="menu-active" >
-          <q-list>
-            <q-item :inset-level="0.3" dense to="/reporte/consentimiento" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
-              <q-item-section avatar>
-                <q-icon name="assignment" class="text-white"/>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-white">Reporte de Consentimientos</q-item-label>
-              </q-item-section>
-            </q-item>
-<!--            {-->
-<!--            path: '/reporte/solicitudes',-->
-<!--            component: () => import('pages/solicitudes/SolicitudesReporte.vue'),-->
-<!--            meta: {requiresAuth: true, perm: 'Consentimientos'}-->
-<!--            },-->
-            <q-item :inset-level="0.3" dense to="/reporte/solicitudes" exact clickable class="menu-item" active-class="menu-active" v-close-popup>
-              <q-item-section avatar>
-                <q-icon name="request_page" class="text-white"/>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="text-white">Reporte de Solicitudes</q-item-label>
-              </q-item-section>
-            </q-item>
+              <q-list dense class="drawer-submenu">
+                <q-item
+                  v-for="link in visibleSectionLinks(section)"
+                  :key="link.title"
+                  dense
+                  :clickable="Boolean(link.link)"
+                  :disable="!link.link"
+                  v-bind="link.link ? { to: link.link, exact: link.exact !== false } : {}"
+                  class="drawer-menu-link"
+                  :active="linkIsActive(link)"
+                  active-class="drawer-menu-link--active"
+                >
+                  <q-item-section avatar class="drawer-menu-link__avatar">
+                    <q-icon :name="link.icon" size="17px" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label class="drawer-menu-link__label" lines="1">
+                      {{ link.title }}
+                    </q-item-label>
+                    <q-item-label
+                      v-if="link.caption"
+                      caption
+                      class="drawer-menu-link__caption"
+                      lines="1"
+                    >
+                      {{ link.caption }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-expansion-item>
           </q-list>
-        </q-expansion-item>
-<!--        {-->
-<!--        path: '/formularios',-->
-<!--        component: () => import('pages/formularios/Formularios.vue'),-->
-<!--        meta: { requiresAuth: true, perm: 'Formularios' }-->
-<!--        }-->
-<!--        HEMATOLOGÍA (Area 2)-->
-<!--        QUÍMICA SANGUÍNEA Y SEROLOGÍA (Area 3)-->
-<!--        UROANÁLISIS (Area 4)-->
-<!--        MICROBIOLOGÍA (Area 5)-->
-<!--        INMUNOLOGÍA / INFECCIOSOS (Area 6)-->
-<!--        BIOLOGÍA MOLECULAR (Area 7)-->
 
-        <div class="q-pa-md">
-          <div class="text-white-7 text-caption">
-            SIL v{{ $version }}
+          <div class="drawer-footer">
+            <div>SIL v{{ $version }}</div>
+            <div>© {{ new Date().getFullYear() }} Hospital General San Juan de Dios</div>
           </div>
-          <div class="text-white-7 text-caption">
-            © {{ new Date().getFullYear() }} Hospital General San Juan de Dios
-          </div>
+
+          <q-item clickable class="drawer-logout" @click="logout">
+            <q-item-section avatar class="drawer-menu-link__avatar">
+              <q-icon name="logout" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Salir</q-item-label>
+            </q-item-section>
+          </q-item>
         </div>
-
-        <q-item clickable class="text-white" @click="logout" v-close-popup>
-          <q-item-section avatar>
-            <q-icon name="logout" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Salir</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
+      </q-scroll-area>
     </q-drawer>
 
     <!-- PAGE -->
@@ -300,19 +193,93 @@
 
 <script setup>
 import { computed, getCurrentInstance, ref } from 'vue'
-import { useCounterStore } from 'stores/example-store'
 
 const { proxy } = getCurrentInstance()
-const store = useCounterStore()
 
 const leftDrawerOpen = ref(false)
 
-// Helpers de permisos
+const menuSections = [
+  {
+    title: 'Hospital',
+    icon: 'local_hospital',
+    defaultOpened: true,
+    links: [
+      { title: 'Usuarios', icon: 'people', link: '/usuarios', can: 'Usuarios' },
+      { title: 'Pacientes', icon: 'folder_shared', link: '/pacientes', can: 'Pacientes' },
+      { title: 'Doctores', icon: 'medical_services', link: '/doctores', can: 'Doctores' },
+      { title: 'Establecimientos', icon: 'domain_add', link: '/establecimientos', can: 'Establecimientos' },
+      { title: 'Prestaciones', icon: 'room_service', link: '/servicios', can: 'Servicios' },
+    ],
+  },
+  {
+    title: 'Laboratorio',
+    icon: 'science',
+    defaultOpened: true,
+    links: [
+      { title: 'Dashboard', icon: 'dashboard', link: '/', can: 'Dashboard' },
+      { title: 'Admisión', icon: 'request_page', link: '/solicitudes', can: 'Solicitudes' },
+      { title: 'Recogidos', icon: 'inventory_2', link: '/recogidos', can: 'Solicitudes' },
+      { title: 'Preanalítica', icon: 'science', link: '/area-preanalitica', can: ['Area preanalitica', 'Area Preanalitica'] },
+      { title: 'Estados preanalítica', icon: 'analytics', link: '/area-preanalitica-procesadas', can: ['Area preanalitica', 'Area Preanalitica'] },
+      { title: 'Analítica', icon: 'biotech', link: '/analitica', can: 'Analitica', match: '/analitica' },
+      { title: 'Formularios', icon: 'description', link: '/formularios', can: 'Formularios' },
+      { title: 'Consentimientos', icon: 'assignment_turned_in', link: '/consentimientos', can: 'Consentimientos' },
+    ],
+  },
+  {
+    title: 'Almacén',
+    icon: 'warehouse',
+    defaultOpened: false,
+    links: [
+      { title: 'Inventario', icon: 'inventory', can: 'Módulo inventario', caption: 'Módulo' },
+      { title: 'Movimiento', icon: 'sync_alt', can: 'Módulo movimiento', caption: 'Módulo' },
+      { title: 'Faltantes y sobrantes', icon: 'rule', can: 'Módulo de faltantes y sobrantes', caption: 'Módulo' },
+    ],
+  },
+  {
+    title: 'Reportes',
+    icon: 'insert_chart',
+    defaultOpened: false,
+    links: [
+      { title: 'Servicios resumen', icon: 'bar_chart', link: '/reportes/servicios-resumen', can: ['Reportes', 'Usuarios'] },
+      { title: 'Consentimientos', icon: 'assignment', link: '/reporte/consentimiento', can: 'Consentimientos' },
+      { title: 'Solicitudes', icon: 'summarize', link: '/reporte/solicitudes', can: ['Solicitudes', 'Consentimientos'] },
+    ],
+  },
+]
+
+const userPermissions = computed(() => proxy.$store.permissions || [])
+const visibleMenuSections = computed(() => (
+  menuSections.filter(section => visibleSectionLinks(section).length > 0)
+))
+
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
-function hasPermission(perm) {
-  return proxy.$store.permissions.includes(perm)
+
+function hasPermission (perm) {
+  if (Array.isArray(perm)) return perm.some(item => hasPermission(item))
+  return userPermissions.value.includes(perm)
+}
+
+function visibleSectionLinks (section) {
+  return section.links.filter(link => hasPermission(link.can))
+}
+
+function linkIsActive (link) {
+  if (!link.link) return false
+  if (link.match) return proxy.$route.path.startsWith(link.match)
+  return proxy.$route.path === link.link
+}
+
+function sectionIsActive (section) {
+  return section.links.some(link => linkIsActive(link))
+}
+
+function sectionHeaderClass (section) {
+  return sectionIsActive(section)
+    ? 'drawer-section-header drawer-section-header--active'
+    : 'drawer-section-header'
 }
 function logout () {
   proxy.$alert.dialog('¿Desea salir del sistema?')
@@ -344,15 +311,157 @@ const roleText = computed(() => {
 })
 </script>
 
-<style scoped>
-.menu-item {
-  border-radius: 10px;
-  margin: 4px 8px;
-  padding: 4px 6px;
+<style>
+.app-drawer {
+  background: linear-gradient(180deg, #0d3b4c 0%, #12333b 55%, #172f2b 100%);
+  color: #ffffff;
 }
-.menu-active {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff !important;
+
+.app-drawer,
+.app-drawer .q-drawer__content,
+.app-drawer .q-scrollarea,
+.app-drawer .q-scrollarea__container,
+.app-drawer .q-scrollarea__content {
+  background: linear-gradient(180deg, #0d3b4c 0%, #12333b 55%, #172f2b 100%) !important;
+}
+
+.drawer-shell {
+  min-height: 100%;
+  padding: 10px 8px 12px;
+}
+
+.drawer-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.drawer-brand__logo {
+  flex: 0 0 auto;
+  background: #ffffff;
+}
+
+.drawer-brand__text {
+  min-width: 0;
+  line-height: 1.05;
+}
+
+.drawer-brand__title {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.drawer-brand__caption {
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 11px;
+  line-height: 1.15;
+}
+
+.drawer-eyebrow {
+  padding: 4px 8px 6px;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.drawer-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.drawer-section-header {
+  min-height: 34px;
+  padding: 0 8px;
+  margin: 1px 2px;
   border-radius: 10px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.drawer-section-header--active {
+  background: rgba(48, 181, 161, 0.26);
+  box-shadow: inset 3px 0 0 #36d1ad;
+}
+
+.drawer-section__icon {
+  min-width: 28px;
+}
+
+.drawer-section__label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.drawer-section__count {
+  min-width: 20px;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 10px;
+}
+
+.drawer-submenu {
+  padding: 2px 0 4px;
+}
+
+.drawer-menu-link {
+  min-height: 32px;
+  margin: 1px 6px 1px 14px;
+  padding: 0 8px;
+  border-radius: 9px;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.drawer-menu-link__avatar {
+  min-width: 26px;
+}
+
+.drawer-menu-link__label {
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.drawer-menu-link__caption {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.drawer-menu-link--active {
+  background: #1f7a8c;
+  color: #ffffff !important;
+  box-shadow: inset 3px 0 0 #f2c94c;
+}
+
+.drawer-menu-link.q-item--disabled {
+  opacity: 0.62 !important;
+}
+
+.drawer-footer {
+  padding: 10px 10px 8px;
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.drawer-logout {
+  min-height: 34px;
+  margin: 2px 6px 0;
+  border-radius: 10px;
+  color: #ffe6e3;
+  background: rgba(229, 57, 53, 0.16);
 }
 </style>
