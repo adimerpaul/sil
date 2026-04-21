@@ -5,10 +5,13 @@ use App\Http\Controllers\AreaRangoController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\EstablecimientoController;
 use App\Http\Controllers\FormulariosController;
+use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\PacienteController;
+use App\Http\Controllers\PartidaController;
 use App\Http\Controllers\ConsentimientoController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\SolicitudeController;
+use App\Http\Controllers\SubpartidaController;
 use App\Http\Controllers\UnidadSolicitanteController;
 use App\Http\Controllers\AreaTipoMuestraController; // <-- NUEVO
 use App\Http\Controllers\SolicitudePropiedadController;
@@ -52,6 +55,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::apiResource('establecimientos', EstablecimientoController::class);
     Route::apiResource('unidad-solicitantes', UnidadSolicitanteController::class);
+
+    Route::apiResource('grupos', GrupoController::class);
+    Route::apiResource('partidas', PartidaController::class);
+    Route::apiResource('subpartidas', SubpartidaController::class);
 
     Route::apiResource('areas', AreaController::class);
 //    areasCreateSolicitud

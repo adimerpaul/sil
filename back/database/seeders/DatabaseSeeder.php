@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(ClasificadorPresupuestarioSeeder::class);
 
         $establecimiento = \App\Models\Establecimiento::create([
             'nombre' => 'Hospital General',
