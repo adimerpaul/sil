@@ -83,6 +83,11 @@ const routes = [
         meta: {requiresAuth: true, perm: 'Modulo compras'}
       },
       {
+        path: '/pedidos',
+        component: () => import('pages/almacen/Pedidos.vue'),
+        meta: {requiresAuth: true, perm: 'Ver Pedidos'}
+      },
+      {
         path: '/area-preanalitica',
         component: () => import('pages/areaPreanalitica/AreaPreanalitica.vue'),
         meta: {requiresAuth: true, perm: 'Area Preanalitica'}

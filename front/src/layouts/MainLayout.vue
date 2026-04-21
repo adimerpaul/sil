@@ -234,6 +234,7 @@ const menuSections = [
       { title: 'Inventario', icon: 'inventory', link: '/almacen/inventario', can: 'Módulo inventario' },
       { title: 'Compras nuevas', icon: 'add_shopping_cart', link: '/almacen/compras/nueva', can: ['Modulo compras', 'Módulo movimiento'] },
       { title: 'Detalle compras', icon: 'receipt_long', link: '/almacen/compras', can: ['Modulo detalle compras', 'Módulo movimiento'] },
+      { title: 'Pedidos', icon: 'shopping_bag', link: '/pedidos', can: 'Ver Pedidos' },
       { title: 'Faltantes y sobrantes', icon: 'rule', can: 'Módulo de faltantes y sobrantes', caption: 'Módulo' },
     ],
   },
