@@ -68,6 +68,11 @@ const routes = [
         meta: {requiresAuth: true, perm: 'Servicios'}
       },
       {
+        path: '/almacen/inventario',
+        component: () => import('pages/almacen/Inventario.vue'),
+        meta: {requiresAuth: true, perm: 'Módulo inventario'}
+      },
+      {
         path: '/area-preanalitica',
         component: () => import('pages/areaPreanalitica/AreaPreanalitica.vue'),
         meta: {requiresAuth: true, perm: 'Area Preanalitica'}

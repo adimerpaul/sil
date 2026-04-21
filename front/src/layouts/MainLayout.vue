@@ -231,7 +231,7 @@ const menuSections = [
     icon: 'warehouse',
     defaultOpened: false,
     links: [
-      { title: 'Inventario', icon: 'inventory', can: 'Módulo inventario', caption: 'Módulo' },
+      { title: 'Inventario', icon: 'inventory', link: '/almacen/inventario', can: 'Módulo inventario' },
       { title: 'Movimiento', icon: 'sync_alt', can: 'Módulo movimiento', caption: 'Módulo' },
       { title: 'Faltantes y sobrantes', icon: 'rule', can: 'Módulo de faltantes y sobrantes', caption: 'Módulo' },
     ],
