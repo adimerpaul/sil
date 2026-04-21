@@ -53,19 +53,24 @@ class AlmacenItemController extends Controller
 
     public function reportPdf(Request $request)
     {
-        $existente = $request->boolean('existente');
-        $query = AlmacenItem::with('subpartida.partida.grupo')
-            ->select('almacen_items.*')
-            ->selectSub($this->cantidadSubquery(), 'cantidad');
+        return $this->buildReportPdf($request);
+    }
 
-        $this->applyFilters($query, $request);
+    private function buildReportPdf(Request $request)
+    {
+        $existente = $request->boolean('existente');
+        @set_time_limit(240);
+        @ini_set('memory_limit', '768M');
+
+        $query = $this->reportQuery($request);
+
 
         if ($existente) {
             $query->havingRaw('cantidad > 0');
         }
 
         $items = $query
-            ->orderBy('nombre')
+            ->orderBy('almacen_items.nombre')
             ->get();
 
         $summary = $this->summary($request);
@@ -106,7 +111,7 @@ class AlmacenItemController extends Controller
         $item = AlmacenItem::findOrFail($id);
         $item->delete();
 
-        return response()->json(['message' => 'Ítem eliminado correctamente']);
+        return response()->json(['message' => 'Item eliminado correctamente']);
     }
 
     private function rules(bool $updating = false): array
@@ -221,6 +226,75 @@ class AlmacenItemController extends Controller
             'items' => (int) ($row->items ?? 0),
             'cantidad' => (float) ($row->cantidad ?? 0),
         ];
+    }
+
+    private function reportQuery(Request $request)
+    {
+        $cantidad = "COALESCE(SUM(COALESCE(compra_detalles.cantidad, 0) - COALESCE(compra_detalles.cantidad_venta, 0)), 0)";
+
+        $query = DB::table('almacen_items')
+            ->leftJoin('compra_detalles', function ($join) {
+                $join->on('compra_detalles.producto_id', '=', 'almacen_items.id')
+                    ->whereNull('compra_detalles.deleted_at')
+                    ->whereRaw("UPPER(COALESCE(compra_detalles.estado, '')) = 'ACTIVO'");
+            })
+            ->join('subpartidas', 'subpartidas.id', '=', 'almacen_items.subpartida_id')
+            ->join('partidas', 'partidas.id', '=', 'subpartidas.partida_id')
+            ->join('grupos', 'grupos.id', '=', 'partidas.grupo_id')
+            ->whereNull('almacen_items.deleted_at');
+
+        if ($request->filled('grupo_id')) {
+            $query->where('partidas.grupo_id', $request->grupo_id);
+        }
+
+        if ($request->filled('partida_id')) {
+            $query->where('subpartidas.partida_id', $request->partida_id);
+        }
+
+        if ($request->filled('subpartida_id')) {
+            $query->where('almacen_items.subpartida_id', $request->subpartida_id);
+        }
+
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function ($query) use ($q) {
+                $query->where('almacen_items.nombre', 'like', "%{$q}%")
+                    ->orWhere('almacen_items.unidad_medida', 'like', "%{$q}%")
+                    ->orWhere('subpartidas.codigo', 'like', "%{$q}%")
+                    ->orWhere('subpartidas.nombre', 'like', "%{$q}%")
+                    ->orWhere('partidas.codigo', 'like', "%{$q}%")
+                    ->orWhere('partidas.nombre', 'like', "%{$q}%")
+                    ->orWhere('grupos.codigo', 'like', "%{$q}%")
+                    ->orWhere('grupos.nombre', 'like', "%{$q}%");
+            });
+        }
+
+        return $query
+            ->select([
+                'almacen_items.id',
+                'almacen_items.nombre',
+                'almacen_items.unidad_medida',
+                'almacen_items.precio_unitario',
+                'subpartidas.codigo as subpartida_codigo',
+                'subpartidas.nombre as subpartida_nombre',
+                'partidas.codigo as partida_codigo',
+                'partidas.nombre as partida_nombre',
+                'grupos.codigo as grupo_codigo',
+                'grupos.nombre as grupo_nombre',
+            ])
+            ->selectRaw("{$cantidad} as cantidad")
+            ->groupBy(
+                'almacen_items.id',
+                'almacen_items.nombre',
+                'almacen_items.unidad_medida',
+                'almacen_items.precio_unitario',
+                'subpartidas.codigo',
+                'subpartidas.nombre',
+                'partidas.codigo',
+                'partidas.nombre',
+                'grupos.codigo',
+                'grupos.nombre',
+            );
     }
 
     private function filterLabels(Request $request): array

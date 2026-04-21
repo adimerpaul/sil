@@ -4,23 +4,41 @@
       <q-card-section class="inventory-toolbar">
         <div>
           <div class="text-h6 text-weight-bold">Inventario</div>
-          <div class="text-caption text-grey-7">Ãtems del clasificador presupuestario</div>
+          <div class="text-caption text-grey-7">Items del clasificador presupuestario</div>
         </div>
         <q-space />
-        <q-btn-dropdown color="primary" icon="bar_chart" label="Reportes" no-caps dense>
+        <q-btn-dropdown
+          color="primary"
+          icon="bar_chart"
+          label="Reportes"
+          no-caps
+          dense
+          :loading="!!reportLoading"
+          :disable="!!reportLoading"
+        >
           <q-list dense style="min-width: 190px">
-            <q-item clickable v-close-popup @click="printReport(false)">
-              <q-item-section avatar><q-icon name="print" /></q-item-section>
-              <q-item-section>Imprimir todo</q-item-section>
+            <q-item clickable v-close-popup :disable="!!reportLoading" @click="printReport(false)">
+              <q-item-section avatar>
+                <q-spinner v-if="reportLoading === 'all'" color="primary" size="20px" />
+                <q-icon v-else name="print" />
+              </q-item-section>
+              <q-item-section>
+                {{ reportLoading === 'all' ? 'Generando todo...' : 'Imprimir todo' }}
+              </q-item-section>
             </q-item>
-            <q-item clickable v-close-popup @click="printReport(true)">
-              <q-item-section avatar><q-icon name="inventory" /></q-item-section>
-              <q-item-section>Imprimir existente</q-item-section>
+            <q-item clickable v-close-popup :disable="!!reportLoading" @click="printReport(true)">
+              <q-item-section avatar>
+                <q-spinner v-if="reportLoading === 'existing'" color="primary" size="20px" />
+                <q-icon v-else name="inventory" />
+              </q-item-section>
+              <q-item-section>
+                {{ reportLoading === 'existing' ? 'Generando existente...' : 'Imprimir existente' }}
+              </q-item-section>
             </q-item>
           </q-list>
         </q-btn-dropdown>
-        <q-btn color="indigo" icon="account_tree" label="CatÃ¡logo" no-caps dense @click="openCatalogManager" />
-        <q-btn color="positive" icon="add_circle_outline" label="Nuevo Ã­tem" no-caps dense @click="openItemDialog()" />
+        <q-btn color="indigo" icon="account_tree" label="Catalogo" no-caps dense @click="openCatalogManager" />
+        <q-btn color="positive" icon="add_circle_outline" label="Nuevo item" no-caps dense @click="openItemDialog()" />
         <q-btn dense flat round icon="refresh" :loading="loading" @click="reloadAll">
           <q-tooltip>Actualizar</q-tooltip>
         </q-btn>
@@ -103,8 +121,8 @@
             <div class="summary-card summary-card--strong">
               <div class="row items-center no-wrap">
                 <div>
-                  <div class="text-caption text-grey-7">Ãtems / Existencia</div>
-                  <div class="summary-title">{{ summary.items }} Ã­tems</div>
+                  <div class="text-caption text-grey-7">Items / Existencia</div>
+                  <div class="summary-title">{{ summary.items }} items</div>
                 </div>
                 <q-space />
                 <q-badge color="primary" class="text-bold">
@@ -191,7 +209,7 @@
       <q-card>
         <q-card-section class="row items-center q-py-sm">
           <div>
-            <div class="text-subtitle1 text-weight-bold">CatÃ¡logo presupuestario</div>
+            <div class="text-subtitle1 text-weight-bold">Catalogo presupuestario</div>
             <div class="text-caption text-grey-7">Grupos, partidas y subpartidas</div>
           </div>
           <q-space />
@@ -216,7 +234,7 @@
               />
             </div>
             <div class="col-12 col-md">
-              <q-input v-model="catalogFilter" dense outlined clearable label="Buscar catÃ¡logo">
+              <q-input v-model="catalogFilter" dense outlined clearable label="Buscar catalogo">
                 <template #prepend><q-icon name="search" /></template>
               </q-input>
             </div>
@@ -292,7 +310,7 @@
               :rules="[val => !!val || 'Campo requerido']"
             />
             <q-input v-model.number="catalogForm.num" dense outlined type="number" label="Num" :rules="[val => val !== null && val !== '' || 'Campo requerido']" />
-            <q-input v-model="catalogForm.codigo" dense outlined label="CÃ³digo" :rules="[val => !!val || 'Campo requerido']" />
+            <q-input v-model="catalogForm.codigo" dense outlined label="Codigo" :rules="[val => !!val || 'Campo requerido']" />
             <q-input v-model="catalogForm.nombre" dense outlined label="Nombre" :rules="[val => !!val || 'Campo requerido']" />
             <div class="text-right q-mt-sm">
               <q-btn flat color="negative" label="Cancelar" no-caps @click="catalogFormDialog = false" />
@@ -307,7 +325,7 @@
       <q-card style="width: min(92vw, 560px)">
         <q-card-section class="row items-center q-pb-none">
           <div class="text-subtitle1 text-weight-bold">
-            {{ itemForm.id ? 'Editar Ã­tem' : 'Nuevo Ã­tem' }}
+            {{ itemForm.id ? 'Editar item' : 'Nuevo item' }}
           </div>
           <q-space />
           <q-btn dense flat round icon="close" @click="itemDialog = false" />
@@ -375,6 +393,7 @@ export default {
   data () {
     return {
       loading: false,
+      reportLoading: null,
       savingCatalog: false,
       savingItem: false,
       items: [],
@@ -410,7 +429,7 @@ export default {
       },
       columns: [
         { name: 'actions', label: 'Acciones', field: 'id', align: 'left' },
-        { name: 'nombre', label: 'Ãtem', field: 'nombre', align: 'left', sortable: true },
+        { name: 'nombre', label: 'Item', field: 'nombre', align: 'left', sortable: true },
         { name: 'unidad_medida', label: 'Unidad', field: 'unidad_medida', align: 'left', sortable: true },
         { name: 'cantidad', label: 'Cantidad', field: 'cantidad', align: 'right', sortable: true },
         { name: 'precio_unitario', label: 'P.U.', field: 'precio_unitario', align: 'right', sortable: true },
@@ -492,7 +511,7 @@ export default {
     catalogColumns () {
       const columns = [
         { name: 'actions', label: 'Acciones', field: 'id', align: 'left' },
-        { name: 'codigo', label: 'CÃ³digo', field: 'codigo', align: 'left', sortable: true },
+        { name: 'codigo', label: 'Codigo', field: 'codigo', align: 'left', sortable: true },
         { name: 'nombre', label: 'Nombre', field: 'nombre', align: 'left', sortable: true },
       ]
       if (this.catalogTab !== 'grupos') columns.push({ name: 'padre', label: 'Padre', field: 'id', align: 'left' })
@@ -584,7 +603,7 @@ export default {
           await this.$axios.post(this.catalogEndpoint, payload)
         }
         this.catalogFormDialog = false
-        this.$alert.success('CatÃ¡logo actualizado')
+        this.$alert.success('Catalogo actualizado')
         await this.reloadAll()
       } catch (e) {
         this.$alert.error(e.response?.data?.message || 'No se pudo guardar')
@@ -593,7 +612,7 @@ export default {
       }
     },
     deleteCatalog (row) {
-      this.$alert.dialog(`Â¿Desea eliminar ${row.codigo} - ${row.nombre}?`).onOk(async () => {
+      this.$alert.dialog(`Desea eliminar ${row.codigo} - ${row.nombre}?`).onOk(async () => {
         try {
           await this.$axios.delete(`${this.catalogEndpoint}/${row.id}`)
           this.$alert.success('Registro eliminado')
@@ -637,7 +656,7 @@ export default {
           await this.$axios.post('almacen-items', payload)
         }
         this.itemDialog = false
-        this.$alert.success('Ãtem guardado')
+        this.$alert.success('Item guardado')
         await this.fetchItems()
       } catch (e) {
         this.$alert.error(e.response?.data?.message || 'No se pudo guardar')
@@ -646,10 +665,10 @@ export default {
       }
     },
     deleteItem (row) {
-      this.$alert.dialog(`Â¿Desea eliminar ${row.nombre}?`).onOk(async () => {
+      this.$alert.dialog(`Desea eliminar ${row.nombre}?`).onOk(async () => {
         try {
           await this.$axios.delete(`almacen-items/${row.id}`)
-          this.$alert.success('Ãtem eliminado')
+          this.$alert.success('Item eliminado')
           await this.fetchItems()
         } catch (e) {
           this.$alert.error(e.response?.data?.message || 'No se pudo eliminar')
@@ -657,6 +676,7 @@ export default {
       })
     },
     async printReport (existente) {
+      this.reportLoading = existente ? 'existing' : 'all'
       try {
         const res = await this.$axios.get('almacen-items/reporte/pdf', {
           params: {
@@ -671,6 +691,8 @@ export default {
         window.setTimeout(() => window.URL.revokeObjectURL(url), 60000)
       } catch (e) {
         this.$alert.error(e.response?.data?.message || 'No se pudo generar el reporte')
+      } finally {
+        this.reportLoading = null
       }
     },
     onItemGrupoChange () {
