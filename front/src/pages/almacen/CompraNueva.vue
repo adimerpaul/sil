@@ -217,96 +217,98 @@
           </div>
         </div>
 
-        <!-- Metadatos -->
-        <q-card-section class="q-pa-md">
-          <div class="meta-grid">
-            <div class="meta-item">
-              <q-icon name="event" size="20px" class="meta-icon" />
-              <div class="meta-content">
-                <div class="meta-label">Fecha y hora</div>
-                <div class="meta-value">{{ formatDateTime(confirmData?.fecha_hora) }}</div>
-              </div>
-            </div>
-            <div class="meta-item">
-              <q-icon name="local_shipping" size="20px" class="meta-icon" />
-              <div class="meta-content">
-                <div class="meta-label">Proveedor</div>
-                <div class="meta-value">{{ confirmData?.proveedor_nombre || 'Sin proveedor' }}</div>
-              </div>
-            </div>
-            <div class="meta-item">
-              <q-icon name="assignment" size="20px" class="meta-icon" />
-              <div class="meta-content">
-                <div class="meta-label">Motivo</div>
-                <div class="meta-value">{{ confirmData?.motivo_registro || '-' }}</div>
-              </div>
-            </div>
-            <div class="meta-item">
-              <q-icon name="payments" size="20px" class="meta-icon" />
-              <div class="meta-content">
-                <div class="meta-label">Tipo de pago</div>
-                <div class="meta-value">{{ pagoLabel(confirmData?.tipo_pago) }}</div>
-              </div>
-            </div>
-          </div>
-        </q-card-section>
-
-        <q-separator />
-
-        <!-- Productos -->
-        <q-card-section class="q-pa-md">
-          <div class="row items-center q-mb-sm">
-            <q-icon name="inventory_2" size="18px" color="primary" class="q-mr-xs" />
-            <div class="text-subtitle2 text-weight-bold">Productos</div>
-            <q-space />
-            <q-chip dense color="primary" text-color="white" :label="`${selectedItems.length} ${selectedItems.length === 1 ? 'item' : 'items'}`" />
-          </div>
-          <div class="confirm-items">
-            <div v-for="(item, idx) in selectedItems" :key="idx" class="confirm-item">
-              <q-img
-                :src="itemImageUrl(item)"
-                class="confirm-item-img"
-                fit="cover"
-                no-spinner
-              />
-              <div class="confirm-item-info">
-                <div class="confirm-item-name">{{ item.nombre }}</div>
-                <div class="confirm-item-meta">
-                  {{ item.cantidad }} × {{ money(item.precio) }} Bs
+        <div class="confirm-content">
+          <!-- Metadatos -->
+          <q-card-section class="q-pa-md">
+            <div class="meta-grid">
+              <div class="meta-item">
+                <q-icon name="event" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">Fecha y hora</div>
+                  <div class="meta-value">{{ formatDateTime(confirmData?.fecha_hora) }}</div>
                 </div>
               </div>
-              <div class="confirm-item-total">{{ money(item.total) }} Bs</div>
+              <div class="meta-item">
+                <q-icon name="local_shipping" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">Proveedor</div>
+                  <div class="meta-value">{{ confirmData?.proveedor_nombre || 'Sin proveedor' }}</div>
+                </div>
+              </div>
+              <div class="meta-item">
+                <q-icon name="assignment" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">Motivo</div>
+                  <div class="meta-value">{{ confirmData?.motivo_registro || '-' }}</div>
+                </div>
+              </div>
+              <div class="meta-item">
+                <q-icon name="payments" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">Tipo de pago</div>
+                  <div class="meta-value">{{ pagoLabel(confirmData?.tipo_pago) }}</div>
+                </div>
+              </div>
             </div>
-          </div>
-        </q-card-section>
+          </q-card-section>
 
-        <q-separator />
+          <q-separator />
 
-        <!-- Resumen -->
-        <q-card-section class="q-pa-md confirm-summary">
-          <div class="summary-row">
-            <span class="summary-label">Subtotal</span>
-            <span class="summary-value">{{ money(total) }} Bs</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-label">Items</span>
-            <span class="summary-value">{{ selectedItems.length }}</span>
-          </div>
-          <q-separator class="q-my-sm" />
-          <div class="summary-row total-row">
-            <span class="total-label">Total a registrar</span>
-            <span class="total-value">{{ money(total) }} Bs</span>
-          </div>
-          <div v-if="confirmData?.comentario" class="summary-comment">
-            <div class="summary-comment-label">Comentario</div>
-            <div class="summary-comment-value">{{ confirmData.comentario }}</div>
-          </div>
-        </q-card-section>
+          <!-- Productos -->
+          <q-card-section class="q-pa-md">
+            <div class="row items-center q-mb-sm">
+              <q-icon name="inventory_2" size="18px" color="primary" class="q-mr-xs" />
+              <div class="text-subtitle2 text-weight-bold">Productos</div>
+              <q-space />
+              <q-chip dense color="primary" text-color="white" :label="`${selectedItems.length} ${selectedItems.length === 1 ? 'item' : 'items'}`" />
+            </div>
+            <div class="confirm-items">
+              <div v-for="(item, idx) in selectedItems" :key="idx" class="confirm-item">
+                <q-img
+                  :src="itemImageUrl(item)"
+                  class="confirm-item-img"
+                  fit="cover"
+                  no-spinner
+                />
+                <div class="confirm-item-info">
+                  <div class="confirm-item-name">{{ item.nombre }}</div>
+                  <div class="confirm-item-meta">
+                    {{ item.cantidad }} × {{ money(item.precio) }} Bs
+                  </div>
+                </div>
+                <div class="confirm-item-total">{{ money(item.total) }} Bs</div>
+              </div>
+            </div>
+          </q-card-section>
+
+          <q-separator />
+
+          <!-- Resumen -->
+          <q-card-section class="q-pa-md confirm-summary">
+            <div class="summary-row">
+              <span class="summary-label">Subtotal</span>
+              <span class="summary-value">{{ money(total) }} Bs</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Items</span>
+              <span class="summary-value">{{ selectedItems.length }}</span>
+            </div>
+            <q-separator class="q-my-sm" />
+            <div class="summary-row total-row">
+              <span class="total-label">Total a registrar</span>
+              <span class="total-value">{{ money(total) }} Bs</span>
+            </div>
+            <div v-if="confirmData?.comentario" class="summary-comment">
+              <div class="summary-comment-label">Comentario</div>
+              <div class="summary-comment-value">{{ confirmData.comentario }}</div>
+            </div>
+          </q-card-section>
+        </div>
 
         <q-separator />
 
         <!-- Acciones -->
-        <q-card-actions class="q-pa-md">
+        <q-card-actions class="q-pa-md confirm-actions">
           <q-space />
           <q-btn label="Cancelar" flat no-caps color="grey-8" @click="showConfirmDialog = false" />
           <q-btn :label="isEditMode ? 'Guardar cambios' : 'Confirmar registro'" no-caps unelevated color="primary" icon="check_circle" :loading="saving" @click="save" />
@@ -794,8 +796,25 @@ export default {
 .confirm-dialog {
   width: 680px;
   max-width: 92vw;
+  max-height: 92vh;
   border-radius: 10px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.confirm-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.confirm-actions {
+  flex: 0 0 auto;
+  background: #fff;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
 }
 
 .confirm-header {

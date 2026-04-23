@@ -192,48 +192,50 @@
           </div>
         </div>
 
-        <q-card-section class="q-pa-md">
-          <div class="row items-center q-mb-sm">
-            <q-icon name="inventory_2" size="18px" color="primary" class="q-mr-xs" />
-            <div class="text-subtitle2 text-weight-bold">PRODUCTOS</div>
-            <q-space />
-            <q-chip dense color="primary" text-color="white" :label="`${selectedItems.length} ITEMS`" />
-          </div>
-
-          <div class="confirm-items">
-            <div v-for="(item, idx) in selectedItems" :key="idx" class="confirm-item">
-              <q-img :src="itemImageUrl(item)" class="confirm-item-img" fit="cover" no-spinner />
-              <div class="confirm-item-info">
-                <div class="confirm-item-name">{{ item.nombre }}</div>
-                <div class="confirm-item-meta">
-                  {{ item.cantidad }} × {{ money(item.precio_unitario) }} Bs
-                </div>
-              </div>
-              <div class="confirm-item-total">{{ money(item.subtotal) }} Bs</div>
+        <div class="confirm-content">
+          <q-card-section class="q-pa-md">
+            <div class="row items-center q-mb-sm">
+              <q-icon name="inventory_2" size="18px" color="primary" class="q-mr-xs" />
+              <div class="text-subtitle2 text-weight-bold">PRODUCTOS</div>
+              <q-space />
+              <q-chip dense color="primary" text-color="white" :label="`${selectedItems.length} ITEMS`" />
             </div>
-          </div>
-        </q-card-section>
+
+            <div class="confirm-items">
+              <div v-for="(item, idx) in selectedItems" :key="idx" class="confirm-item">
+                <q-img :src="itemImageUrl(item)" class="confirm-item-img" fit="cover" no-spinner />
+                <div class="confirm-item-info">
+                  <div class="confirm-item-name">{{ item.nombre }}</div>
+                  <div class="confirm-item-meta">
+                    {{ item.cantidad }} × {{ money(item.precio_unitario) }} Bs
+                  </div>
+                </div>
+                <div class="confirm-item-total">{{ money(item.subtotal) }} Bs</div>
+              </div>
+            </div>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-section class="q-pa-md confirm-summary">
+            <div class="summary-row">
+              <span class="summary-label">ITEMS</span>
+              <span class="summary-value">{{ selectedItems.length }}</span>
+            </div>
+            <div class="summary-row total-row">
+              <span class="total-label">TOTAL A REGISTRAR</span>
+              <span class="total-value">{{ money(total) }} Bs</span>
+            </div>
+            <div v-if="confirmData?.comentario" class="summary-comment">
+              <div class="summary-comment-label">COMENTARIO</div>
+              <div class="summary-comment-value">{{ confirmData.comentario }}</div>
+            </div>
+          </q-card-section>
+        </div>
 
         <q-separator />
 
-        <q-card-section class="q-pa-md confirm-summary">
-          <div class="summary-row">
-            <span class="summary-label">ITEMS</span>
-            <span class="summary-value">{{ selectedItems.length }}</span>
-          </div>
-          <div class="summary-row total-row">
-            <span class="total-label">TOTAL A REGISTRAR</span>
-            <span class="total-value">{{ money(total) }} Bs</span>
-          </div>
-          <div v-if="confirmData?.comentario" class="summary-comment">
-            <div class="summary-comment-label">COMENTARIO</div>
-            <div class="summary-comment-value">{{ confirmData.comentario }}</div>
-          </div>
-        </q-card-section>
-
-        <q-separator />
-
-        <q-card-actions class="q-pa-md">
+        <q-card-actions class="q-pa-md confirm-actions">
           <q-space />
           <q-btn label="Cancelar" flat color="grey-8" @click="showConfirmDialog = false" no-caps />
           <q-btn label="Guardar" unelevated color="primary" icon="check_circle" :loading="saving" @click="save" no-caps />
@@ -542,8 +544,25 @@ export default {
 .confirm-dialog {
   width: 680px;
   max-width: 92vw;
+  max-height: 92vh;
   border-radius: 10px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.confirm-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.confirm-actions {
+  flex: 0 0 auto;
+  background: #fff;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
 }
 
 .confirm-header {
