@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AlmacenItem;
 use App\Models\Pedido;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -18,6 +19,7 @@ class PedidoController extends Controller
     public function index(Request $request)
     {
         $this->authorize('Ver Pedidos');
+
         $query = Pedido::with(['user:id,name'])
             ->withCount('detalles');
 
@@ -57,7 +59,7 @@ class PedidoController extends Controller
     public function show($id)
     {
         $this->authorize('Ver Pedidos');
-        
+
         $pedido = Pedido::with(['user:id,name', 'detalles.producto'])->findOrFail($id);
 
         $isAdmin = auth()->user()->hasAnyRole(['admin', 'jefe-almacen']);
@@ -71,14 +73,8 @@ class PedidoController extends Controller
     public function store(Request $request)
     {
         $this->authorize('Crear Pedidos');
-        
-        $data = $request->validate([
-            'nombre_usuario' => 'required|string|max:255',
-            'items' => 'required|array|min:1',
-            'items.*.producto_id' => 'required|exists:almacen_items,id',
-            'items.*.cantidad' => 'required|integer|min:1',
-            'items.*.precio_unitario' => 'nullable|numeric|min:0',
-        ]);
+
+        $data = $this->validateData($request);
 
         return DB::transaction(function () use ($data, $request) {
             $productos = AlmacenItem::whereIn('id', collect($data['items'])->pluck('producto_id'))->get()->keyBy('id');
@@ -89,7 +85,7 @@ class PedidoController extends Controller
 
             $pedido = Pedido::create([
                 'user_id' => $request->user()->id,
-                'fecha_hora' => now(),
+                'fecha_hora' => $data['fecha_hora'] ?? now(),
                 'nombre_usuario' => $data['nombre_usuario'],
                 'estado' => 'PENDIENTE',
                 'total' => $total,
@@ -117,30 +113,75 @@ class PedidoController extends Controller
     public function update(Request $request, $id)
     {
         $this->authorize('Editar Pedidos');
-        
-        $pedido = Pedido::findOrFail($id);
+
+        $pedido = Pedido::with('detalles')->findOrFail($id);
 
         $isAdmin = auth()->user()->hasAnyRole(['admin', 'jefe-almacen']);
-        if (!$isAdmin) {
-            abort(403, 'No autorizado para actualizar este pedido');
+        if (!$isAdmin && $pedido->user_id !== auth()->id()) {
+            abort(403, 'No autorizado para modificar este pedido');
         }
 
-        $data = $request->validate([
-            'estado' => ['required', Rule::in(['PENDIENTE', 'ACEPTADO', 'RECHAZADO'])],
-        ]);
+        // Cambio de estado solamente (acción rápida desde el listado)
+        if ($request->has('estado') && !$request->has('items')) {
+            $request->validate([
+                'estado' => ['required', Rule::in(['PENDIENTE', 'ACEPTADO', 'RECHAZADO'])],
+            ]);
 
-        $pedido->update([
-            'estado' => $data['estado'],
-            'modificado' => true,
-        ]);
+            $pedido->update([
+                'estado' => $request->estado,
+                'modificado' => true,
+            ]);
 
-        return response()->json($pedido->load(['user:id,name', 'detalles.producto']));
+            return response()->json($pedido->load(['user:id,name', 'detalles.producto']));
+        }
+
+        // Edición completa: solo permitida cuando está PENDIENTE
+        if ($pedido->estado !== 'PENDIENTE') {
+            return response()->json([
+                'message' => 'Solo se pueden modificar pedidos en estado PENDIENTE.',
+            ], 422);
+        }
+
+        $data = $this->validateData($request);
+
+        return DB::transaction(function () use ($pedido, $data) {
+            $productos = AlmacenItem::whereIn('id', collect($data['items'])->pluck('producto_id'))->get()->keyBy('id');
+            $total = collect($data['items'])->sum(function ($item) use ($productos) {
+                $precio = (float) ($item['precio_unitario'] ?? $productos[$item['producto_id']]->precio_unitario ?? 0);
+                return $precio * (int) $item['cantidad'];
+            });
+
+            $pedido->update([
+                'fecha_hora' => $data['fecha_hora'] ?? $pedido->fecha_hora,
+                'nombre_usuario' => $data['nombre_usuario'],
+                'total' => $total,
+                'modificado' => true,
+            ]);
+
+            $pedido->detalles()->delete();
+
+            foreach ($data['items'] as $item) {
+                $producto = $productos[$item['producto_id']];
+                $precio = (float) ($item['precio_unitario'] ?? $producto->precio_unitario ?? 0);
+                $cantidad = (int) $item['cantidad'];
+                $subtotal = round($precio * $cantidad, 2);
+
+                $pedido->detalles()->create([
+                    'producto_id' => $producto->id,
+                    'cantidad' => $cantidad,
+                    'precio_unitario' => $precio,
+                    'subtotal' => $subtotal,
+                ]);
+            }
+
+            return response()->json($pedido->load(['user:id,name', 'detalles.producto']));
+        });
     }
 
     public function destroy($id)
     {
         $this->authorize('Anular Pedidos');
-        
+
         $pedido = Pedido::with('detalles')->findOrFail($id);
 
         $isAdmin = auth()->user()->hasAnyRole(['admin', 'jefe-almacen']);
@@ -148,9 +189,47 @@ class PedidoController extends Controller
             abort(403, 'No autorizado para anular este pedido');
         }
 
+        if ($pedido->estado !== 'PENDIENTE') {
+            return response()->json([
+                'message' => 'Solo se pueden anular pedidos en estado PENDIENTE.',
+            ], 422);
+        }
+
         $pedido->delete();
 
         return response()->json(['message' => 'Pedido anulado correctamente']);
+    }
+
+    public function printPdf($id)
+    {
+        $this->authorize('Imprimir Pedidos');
+
+        $pedido = Pedido::with(['user:id,name', 'detalles.producto'])->findOrFail($id);
+
+        $isAdmin = auth()->user()->hasAnyRole(['admin', 'jefe-almacen']);
+        if (!$isAdmin && $pedido->user_id !== auth()->id()) {
+            abort(403, 'No autorizado para imprimir este pedido');
+        }
+
+        $pdf = Pdf::loadView('reportes.pedido_detalle', [
+            'pedido' => $pedido,
+        ])->setPaper('letter', 'portrait');
+
+        $filename = 'pedido_'.$pedido->id.'_'.now()->format('Ymd_His').'.pdf';
+
+        return $pdf->stream($filename);
+    }
+
+    private function validateData(Request $request): array
+    {
+        return $request->validate([
+            'nombre_usuario' => 'required|string|max:255',
+            'fecha_hora' => 'nullable|date',
+            'items' => 'required|array|min:1',
+            'items.*.producto_id' => 'required|exists:almacen_items,id',
+            'items.*.cantidad' => 'required|integer|min:1',
+            'items.*.precio_unitario' => 'nullable|numeric|min:0',
+        ]);
     }
 
     private function applyFilters($query, Request $request): void

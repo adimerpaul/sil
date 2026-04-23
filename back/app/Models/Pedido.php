@@ -20,12 +20,6 @@ class Pedido extends Model
         'modificado',
     ];
 
-    protected $casts = [
-        'fecha_hora' => 'datetime',
-        'total' => 'decimal:2',
-        'modificado' => 'boolean',
-    ];
-
     public function detalles()
     {
         return $this->hasMany(DetallePedido::class);

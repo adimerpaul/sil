@@ -68,6 +68,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('almacen-items', AlmacenItemController::class);
     Route::get('compras/{id}/pdf', [CompraController::class, 'printPdf']);
     Route::apiResource('compras', CompraController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
+    Route::get('pedidos/{id}/pdf', [PedidoController::class, 'printPdf']);
     Route::apiResource('pedidos', PedidoController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
 
     Route::apiResource('areas', AreaController::class);
