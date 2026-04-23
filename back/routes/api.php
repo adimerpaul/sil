@@ -12,6 +12,7 @@ use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\PartidaController;
 use App\Http\Controllers\ConsentimientoController;
 use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\ProductoPorVencerController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\SolicitudeController;
@@ -66,6 +67,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('subpartidas', SubpartidaController::class);
     Route::get('almacen-items/reporte/pdf', [AlmacenItemController::class, 'reportPdf']);
     Route::apiResource('almacen-items', AlmacenItemController::class);
+    Route::get('almacen/productos-por-vencer', [ProductoPorVencerController::class, 'index']);
     Route::get('compras/{id}/pdf', [CompraController::class, 'printPdf']);
     Route::apiResource('compras', CompraController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
     Route::get('pedidos/{id}/pdf', [PedidoController::class, 'printPdf']);

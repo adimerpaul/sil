@@ -204,6 +204,7 @@ const menuSections = [
     icon: 'local_hospital',
     defaultOpened: true,
     links: [
+      { title: 'Dashboard', icon: 'dashboard', link: '/', can: 'Dashboard' },
       { title: 'Usuarios', icon: 'people', link: '/usuarios', can: 'Usuarios' },
       { title: 'Pacientes', icon: 'folder_shared', link: '/pacientes', can: 'Pacientes' },
       { title: 'Doctores', icon: 'medical_services', link: '/doctores', can: 'Doctores' },
@@ -216,7 +217,6 @@ const menuSections = [
     icon: 'science',
     defaultOpened: true,
     links: [
-      { title: 'Dashboard', icon: 'dashboard', link: '/', can: 'Dashboard' },
       { title: 'Admisión', icon: 'request_page', link: '/solicitudes', can: 'Solicitudes' },
       { title: 'Recogidos', icon: 'inventory_2', link: '/recogidos', can: 'Solicitudes' },
       { title: 'Preanalítica', icon: 'science', link: '/area-preanalitica', can: ['Area preanalitica', 'Area Preanalitica'] },
@@ -232,9 +232,11 @@ const menuSections = [
     defaultOpened: false,
     links: [
       { title: 'Inventario', icon: 'inventory', link: '/almacen/inventario', can: 'Módulo inventario' },
+      { title: 'Productos por vencer', icon: 'hourglass_bottom', link: '/almacen/productos-por-vencer', can: 'Módulo inventario' },
       { title: 'Compras nuevas', icon: 'add_shopping_cart', link: '/almacen/compras/nueva', can: ['Modulo compras', 'Módulo movimiento'] },
-      { title: 'Detalle compras', icon: 'receipt_long', link: '/almacen/compras', can: ['Modulo detalle compras', 'Módulo movimiento'] },
-      { title: 'Pedidos', icon: 'shopping_bag', link: '/pedidos', can: 'Ver Pedidos' },
+      { title: 'Compras detalle', icon: 'receipt_long', link: '/almacen/compras', can: ['Modulo detalle compras', 'Módulo movimiento'] },
+      { title: 'Pedidos nuevos', icon: 'post_add', link: '/pedidos/nuevo', can: 'Crear Pedidos' },
+      { title: 'Pedidos detalles', icon: 'shopping_bag', link: '/pedidos', can: 'Ver Pedidos' },
       { title: 'Faltantes y sobrantes', icon: 'rule', can: 'Módulo de faltantes y sobrantes', caption: 'Módulo' },
     ],
   },

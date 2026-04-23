@@ -11,14 +11,9 @@ use Illuminate\Validation\Rule;
 
 class PedidoController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:sanctum');
-    }
 
     public function index(Request $request)
     {
-        $this->authorize('Ver Pedidos');
 
         $query = Pedido::with(['user:id,name'])
             ->withCount('detalles');
@@ -58,7 +53,6 @@ class PedidoController extends Controller
 
     public function show($id)
     {
-        $this->authorize('Ver Pedidos');
 
         $pedido = Pedido::with(['user:id,name', 'detalles.producto'])->findOrFail($id);
 
@@ -72,7 +66,6 @@ class PedidoController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorize('Crear Pedidos');
 
         $data = $this->validateData($request);
 
@@ -83,10 +76,13 @@ class PedidoController extends Controller
                 return $precio * (int) $item['cantidad'];
             });
 
+            $currentUser = $request->user();
+            $nombreUsuario = $currentUser->username ?: $currentUser->name;
+
             $pedido = Pedido::create([
-                'user_id' => $request->user()->id,
-                'fecha_hora' => $data['fecha_hora'] ?? now(),
-                'nombre_usuario' => $data['nombre_usuario'],
+                'user_id' => $currentUser->id,
+                'fecha_hora' => now(),
+                'nombre_usuario' => $nombreUsuario,
                 'estado' => 'PENDIENTE',
                 'total' => $total,
                 'modificado' => false,
@@ -112,7 +108,6 @@ class PedidoController extends Controller
 
     public function update(Request $request, $id)
     {
-        $this->authorize('Editar Pedidos');
 
         $pedido = Pedido::with('detalles')->findOrFail($id);
 
@@ -152,8 +147,6 @@ class PedidoController extends Controller
             });
 
             $pedido->update([
-                'fecha_hora' => $data['fecha_hora'] ?? $pedido->fecha_hora,
-                'nombre_usuario' => $data['nombre_usuario'],
                 'total' => $total,
                 'modificado' => true,
             ]);
@@ -180,7 +173,6 @@ class PedidoController extends Controller
 
     public function destroy($id)
     {
-        $this->authorize('Anular Pedidos');
 
         $pedido = Pedido::with('detalles')->findOrFail($id);
 
@@ -202,7 +194,6 @@ class PedidoController extends Controller
 
     public function printPdf($id)
     {
-        $this->authorize('Imprimir Pedidos');
 
         $pedido = Pedido::with(['user:id,name', 'detalles.producto'])->findOrFail($id);
 
@@ -223,8 +214,6 @@ class PedidoController extends Controller
     private function validateData(Request $request): array
     {
         return $request->validate([
-            'nombre_usuario' => 'required|string|max:255',
-            'fecha_hora' => 'nullable|date',
             'items' => 'required|array|min:1',
             'items.*.producto_id' => 'required|exists:almacen_items,id',
             'items.*.cantidad' => 'required|integer|min:1',

@@ -78,6 +78,11 @@ const routes = [
         meta: {requiresAuth: true, perm: 'Modulo detalle compras'}
       },
       {
+        path: '/almacen/productos-por-vencer',
+        component: () => import('pages/almacen/ProductosPorVencer.vue'),
+        meta: {requiresAuth: true, perm: 'Módulo inventario'}
+      },
+      {
         path: '/almacen/compras/nueva',
         component: () => import('pages/almacen/CompraNueva.vue'),
         meta: {requiresAuth: true, perm: 'Modulo compras'}
@@ -92,6 +97,11 @@ const routes = [
         path: '/pedidos',
         component: () => import('pages/almacen/Pedidos.vue'),
         meta: {requiresAuth: true, perm: 'Ver Pedidos'}
+      },
+      {
+        path: '/pedidos/nuevo',
+        component: () => import('pages/almacen/PedidosNueva.vue'),
+        meta: {requiresAuth: true, perm: 'Crear Pedidos'}
       },
       {
         path: '/area-preanalitica',

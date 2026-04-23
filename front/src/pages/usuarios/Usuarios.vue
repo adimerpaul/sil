@@ -343,6 +343,11 @@ const ALMACEN_PERMISSION_NAMES = [
   'Modulo detalle compras',
   'Módulo movimiento',
   'Módulo de faltantes y sobrantes',
+  'Ver Pedidos',
+  'Crear Pedidos',
+  'Editar Pedidos',
+  'Anular Pedidos',
+  'Imprimir Pedidos',
 ]
 
 const PERMISSION_GROUPS = [

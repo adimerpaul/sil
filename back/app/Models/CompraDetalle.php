@@ -9,6 +9,10 @@ class CompraDetalle extends Model
 {
     use SoftDeletes;
 
+    protected $appends = [
+        'existencia',
+    ];
+
     protected $fillable = [
         'compra_id',
         'user_id',
@@ -37,5 +41,13 @@ class CompraDetalle extends Model
     public function producto()
     {
         return $this->belongsTo(AlmacenItem::class, 'producto_id');
+    }
+
+    public function getExistenciaAttribute(): int
+    {
+        $cantidad = (int) ($this->cantidad ?? 0);
+        $cantidadVenta = (int) ($this->cantidad_venta ?? 0);
+
+        return max($cantidad - $cantidadVenta, 0);
     }
 }
