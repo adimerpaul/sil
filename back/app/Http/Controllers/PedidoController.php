@@ -18,7 +18,9 @@ class PedidoController extends Controller
         $query = Pedido::with(['user:id,name'])
             ->withCount('detalles');
 
-        $isAdmin = auth()->user()->hasAnyRole(['admin', 'jefe-almacen']);
+        $user = auth()->user();
+        $isAdmin = ($user->role ?? null) === 'Administrador'
+            || (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['admin', 'jefe-almacen']));
         if (!$isAdmin) {
             $query->deUsuario();
         }
@@ -56,7 +58,9 @@ class PedidoController extends Controller
 
         $pedido = Pedido::with(['user:id,name', 'detalles.producto'])->findOrFail($id);
 
-        $isAdmin = auth()->user()->hasAnyRole(['admin', 'jefe-almacen']);
+        $user = auth()->user();
+        $isAdmin = ($user->role ?? null) === 'Administrador'
+            || (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['admin', 'jefe-almacen']));
         if (!$isAdmin && $pedido->user_id !== auth()->id()) {
             abort(403, 'No autorizado para ver este pedido');
         }
@@ -111,7 +115,9 @@ class PedidoController extends Controller
 
         $pedido = Pedido::with('detalles')->findOrFail($id);
 
-        $isAdmin = auth()->user()->hasAnyRole(['admin', 'jefe-almacen']);
+        $user = auth()->user();
+        $isAdmin = ($user->role ?? null) === 'Administrador'
+            || (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['admin', 'jefe-almacen']));
         if (!$isAdmin && $pedido->user_id !== auth()->id()) {
             abort(403, 'No autorizado para modificar este pedido');
         }
@@ -176,7 +182,9 @@ class PedidoController extends Controller
 
         $pedido = Pedido::with('detalles')->findOrFail($id);
 
-        $isAdmin = auth()->user()->hasAnyRole(['admin', 'jefe-almacen']);
+        $user = auth()->user();
+        $isAdmin = ($user->role ?? null) === 'Administrador'
+            || (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['admin', 'jefe-almacen']));
         if (!$isAdmin && $pedido->user_id !== auth()->id()) {
             abort(403, 'No autorizado para anular este pedido');
         }
@@ -200,7 +208,9 @@ class PedidoController extends Controller
 
         $pedido = Pedido::with(['user:id,name', 'detalles.producto'])->findOrFail($id);
 
-        $isAdmin = auth()->user()->hasAnyRole(['admin', 'jefe-almacen']);
+        $user = auth()->user();
+        $isAdmin = ($user->role ?? null) === 'Administrador'
+            || (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['admin', 'jefe-almacen']));
         if (!$isAdmin && $pedido->user_id !== auth()->id()) {
             abort(403, 'No autorizado para imprimir este pedido');
         }

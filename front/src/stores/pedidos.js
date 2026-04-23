@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import http from 'src/services/http'
 
 export const usePedidosStore = defineStore('pedidos', {
   state: () => ({
@@ -38,7 +38,7 @@ export const usePedidosStore = defineStore('pedidos', {
     async fetchPedidos(params = {}) {
       this.loading = true
       try {
-        const response = await axios.get('/api/pedidos', {
+        const response = await http.get('pedidos', {
           params: {
             page: this.pagination.page,
             rowsPerPage: this.pagination.rowsPerPage,
@@ -63,7 +63,7 @@ export const usePedidosStore = defineStore('pedidos', {
     async fetchPedido(id) {
       this.loading = true
       try {
-        const response = await axios.get(`/api/pedidos/${id}`)
+        const response = await http.get(`pedidos/${id}`)
         this.selectedPedido = response.data
         return response.data
       } catch (error) {
@@ -77,7 +77,7 @@ export const usePedidosStore = defineStore('pedidos', {
     async createPedido(data) {
       this.loading = true
       try {
-        const response = await axios.post('/api/pedidos', data)
+        const response = await http.post('pedidos', data)
         this.pedidos.unshift(response.data)
         return response.data
       } catch (error) {
@@ -91,7 +91,7 @@ export const usePedidosStore = defineStore('pedidos', {
     async updatePedido(id, data) {
       this.loading = true
       try {
-        const response = await axios.put(`/api/pedidos/${id}`, data)
+        const response = await http.put(`pedidos/${id}`, data)
         const index = this.pedidos.findIndex((p) => p.id === id)
         if (index !== -1) {
           this.pedidos[index] = response.data
@@ -109,7 +109,7 @@ export const usePedidosStore = defineStore('pedidos', {
     async deletePedido(id) {
       this.loading = true
       try {
-        await axios.delete(`/api/pedidos/${id}`)
+        await http.delete(`pedidos/${id}`)
         this.pedidos = this.pedidos.filter((p) => p.id !== id)
       } catch (error) {
         console.error('Error deleting pedido:', error)

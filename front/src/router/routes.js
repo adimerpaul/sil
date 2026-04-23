@@ -88,6 +88,11 @@ const routes = [
         meta: {requiresAuth: true, perm: 'Módulo inventario'}
       },
       {
+        path: '/almacen/proveedores',
+        component: () => import('pages/almacen/Proveedores.vue'),
+        meta: {requiresAuth: true, perm: 'Módulo inventario'}
+      },
+      {
         path: '/almacen/compras/nueva',
         component: () => import('pages/almacen/CompraNueva.vue'),
         meta: {requiresAuth: true, perm: 'Modulo compras'}
