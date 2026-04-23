@@ -83,6 +83,12 @@ const routes = [
         meta: {requiresAuth: true, perm: 'Modulo compras'}
       },
       {
+        path: '/almacen/compras/:id/editar',
+        component: () => import('pages/almacen/CompraNueva.vue'),
+        props: true,
+        meta: {requiresAuth: true, perm: 'Modulo compras'}
+      },
+      {
         path: '/pedidos',
         component: () => import('pages/almacen/Pedidos.vue'),
         meta: {requiresAuth: true, perm: 'Ver Pedidos'}

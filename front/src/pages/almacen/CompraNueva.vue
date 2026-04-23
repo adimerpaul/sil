@@ -2,8 +2,8 @@
   <q-page class="q-pa-sm bg-grey-2">
     <div class="row items-center q-mb-sm">
       <div>
-        <div class="text-h6 text-weight-bold">Compras nuevas</div>
-        <div class="text-caption text-grey-7">Registro de entradas de almacén</div>
+        <div class="text-h6 text-weight-bold">{{ isEditMode ? `Editar compra #${editId}` : 'Compras nuevas' }}</div>
+        <div class="text-caption text-grey-7">{{ isEditMode ? 'Modificación de una entrada de almacén' : 'Registro de entradas de almacén' }}</div>
       </div>
       <q-space />
       <q-btn flat icon="arrow_back" label="Volver" no-caps to="/almacen/compras" />
@@ -21,9 +21,11 @@
           <q-separator />
           <q-card-section class="product-grid q-pa-sm">
             <div v-for="item in products" :key="item.id" class="product-card" @click="addItem(item)">
-              <q-img :src="itemImageUrl(item)" class="product-image" fit="cover" />
+              <div class="product-image-wrapper">
+                <q-img :src="itemImageUrl(item)" class="product-image" fit="cover" />
+                <div class="product-name-overlay" :title="item.nombre">{{ item.nombre }}</div>
+              </div>
               <div class="product-info">
-                <div class="product-name">{{ item.nombre }}</div>
                 <div class="product-qty">{{ item.unidad_medida || '-' }}</div>
                 <div class="product-price">{{ money(item.precio_unitario) }} Bs</div>
               </div>
@@ -57,15 +59,15 @@
           <q-card-section class="q-pa-xs">
             <div class="row q-col-gutter-xs items-end">
               <div class="col-12 col-sm-8">
-                <q-select 
-                  v-model="form.proveedor_id" 
-                  dense outlined 
-                  emit-value 
-                  map-options 
+                <q-select
+                  v-model="form.proveedor_id"
+                  dense outlined
+                  emit-value
+                  map-options
                   use-input
                   clearable
-                  label="Proveedor" 
-                  :options="proveedorOptions" 
+                  label="Proveedor"
+                  :options="proveedorOptions"
                   @update:model-value="onProveedorChange"
                 >
                   <template #append>
@@ -81,12 +83,31 @@
 
           <q-separator />
 
+          <!-- Toolbar de la tabla -->
+          <div class="row items-center q-px-sm q-pt-sm">
+            <div class="text-caption text-grey-7">
+              {{ selectedItems.length }} producto{{ selectedItems.length === 1 ? '' : 's' }} en la compra
+            </div>
+            <q-space />
+            <q-btn
+              flat
+              dense
+              no-caps
+              size="sm"
+              color="negative"
+              icon="delete_sweep"
+              label="Borrar todos"
+              :disable="selectedItems.length === 0"
+              @click="clearAllItems"
+            />
+          </div>
+
           <!-- Tabla de Productos -->
           <div class="table-container q-pa-sm">
             <table class="items-table">
               <thead>
                 <tr>
-                  <th style="width: 28%">Producto</th>
+                  <th style="width: 32%">Producto</th>
                   <th style="width: 8%">Cant.</th>
                   <th style="width: 8%">P. Unit.</th>
                   <th style="width: 10%">Total</th>
@@ -98,7 +119,17 @@
               </thead>
               <tbody>
                 <tr v-for="item in selectedItems" :key="item.producto_id">
-                  <td class="producto-cell" :title="item.nombre">{{ item.nombre }}</td>
+                  <td class="producto-cell" :title="item.nombre">
+                    <div class="producto-cell-content">
+                      <q-img
+                        :src="itemImageUrl(item)"
+                        class="producto-cell-img"
+                        fit="cover"
+                        no-spinner
+                      />
+                      <span class="producto-cell-nombre">{{ item.nombre }}</span>
+                    </div>
+                  </td>
                   <td><input v-model.number="item.cantidad" type="number" min="0" class="input-inline" @change="recalculate(item)" /></td>
                   <td><input v-model.number="item.precio" type="number" step="0.01" class="input-inline" @change="recalculate(item)" /></td>
                   <td><input v-model.number="item.total" type="number" step="0.01" class="input-inline" @change="recalculatePrice(item)" /></td>
@@ -121,7 +152,7 @@
           <q-card-section class="row items-center q-pa-sm bg-blue-1">
             <div class="text-subtitle2 text-weight-bold">Total: <span class="text-primary text-h6">{{ money(total) }} Bs</span></div>
             <q-space />
-            <q-btn color="primary" icon="add_circle" label="Registrar compra" no-caps :loading="saving" :disable="selectedItems.length === 0" @click="confirmSave" />
+            <q-btn color="primary" :icon="isEditMode ? 'save' : 'add_circle'" :label="isEditMode ? 'Guardar cambios' : 'Registrar compra'" no-caps :loading="saving" :disable="selectedItems.length === 0" @click="confirmSave" />
           </q-card-section>
         </q-card>
       </div>
@@ -150,70 +181,118 @@
 
         <q-card-section class="row q-gutter-sm">
           <q-space />
-          <q-btn label="Cancelar" flat @click="showProveedorDialog = false" />
-          <q-btn label="Crear proveedor" color="primary" :loading="savingProveedor" @click="saveProveedor" />
+          <q-btn label="Cancelar" flat no-caps color="grey-8" @click="showProveedorDialog = false" />
+          <q-btn label="Crear proveedor" no-caps unelevated color="primary" :loading="savingProveedor" @click="saveProveedor" />
         </q-card-section>
       </q-card>
     </q-dialog>
 
     <!-- Diálogo: Confirmación -->
     <q-dialog v-model="showConfirmDialog" @hide="confirmData = null">
-      <q-card style="width: 650px; max-width: 90vw">
-        <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">Confirmar registro de compra</div>
-          <q-space />
-          <q-btn icon="close" flat round dense @click="showConfirmDialog = false" />
-        </q-card-section>
-
-        <q-separator />
-
-        <q-card-section class="q-gutter-lg">
-          <div class="row q-col-gutter-lg">
-            <div class="col-6">
-              <div class="text-caption text-grey-7">Fecha y hora</div>
-              <div class="text-subtitle2 text-weight-bold">{{ formatDateTime(confirmData?.fecha_hora) }}</div>
+      <q-card class="confirm-dialog">
+        <!-- Encabezado -->
+        <div class="confirm-header">
+          <div class="row items-center no-wrap">
+            <q-icon name="receipt_long" size="28px" class="q-mr-sm" />
+            <div>
+              <div class="text-h6 text-weight-bold">{{ isEditMode ? 'Confirmar cambios de la compra' : 'Confirmar registro de compra' }}</div>
+              <div class="text-caption text-grey-3">Revisá los datos antes de guardar</div>
             </div>
-            <div class="col-6">
-              <div class="text-caption text-grey-7">Proveedor</div>
-              <div class="text-subtitle2 text-weight-bold">{{ confirmData?.proveedor_nombre || 'Sin proveedor' }}</div>
-            </div>
-            <div class="col-6">
-              <div class="text-caption text-grey-7">Motivo</div>
-              <div class="text-subtitle2 text-weight-bold">{{ confirmData?.motivo_registro }}</div>
-            </div>
-            <div class="col-6">
-              <div class="text-caption text-grey-7">Tipo de pago</div>
-              <div class="text-subtitle2 text-weight-bold">{{ confirmData?.tipo_pago || 'Ninguno' }}</div>
-            </div>
+            <q-space />
+            <q-btn icon="close" flat round dense color="white" @click="showConfirmDialog = false" />
           </div>
+        </div>
 
-          <q-separator />
-
-          <div>
-            <div class="text-caption text-grey-7 q-mb-md">Productos ({{ selectedItems.length }})</div>
-            <div class="confirm-items">
-              <div v-for="(item, idx) in selectedItems" :key="idx" class="confirm-item">
-                <span>{{ item.nombre }}</span>
-                <span class="text-grey">{{ item.cantidad }}x @ {{ money(item.precio) }} = <strong>{{ money(item.total) }}</strong></span>
+        <!-- Metadatos -->
+        <q-card-section class="q-pa-md">
+          <div class="meta-grid">
+            <div class="meta-item">
+              <q-icon name="event" size="20px" class="meta-icon" />
+              <div class="meta-content">
+                <div class="meta-label">Fecha y hora</div>
+                <div class="meta-value">{{ formatDateTime(confirmData?.fecha_hora) }}</div>
+              </div>
+            </div>
+            <div class="meta-item">
+              <q-icon name="local_shipping" size="20px" class="meta-icon" />
+              <div class="meta-content">
+                <div class="meta-label">Proveedor</div>
+                <div class="meta-value">{{ confirmData?.proveedor_nombre || 'Sin proveedor' }}</div>
+              </div>
+            </div>
+            <div class="meta-item">
+              <q-icon name="assignment" size="20px" class="meta-icon" />
+              <div class="meta-content">
+                <div class="meta-label">Motivo</div>
+                <div class="meta-value">{{ confirmData?.motivo_registro || '-' }}</div>
+              </div>
+            </div>
+            <div class="meta-item">
+              <q-icon name="payments" size="20px" class="meta-icon" />
+              <div class="meta-content">
+                <div class="meta-label">Tipo de pago</div>
+                <div class="meta-value">{{ pagoLabel(confirmData?.tipo_pago) }}</div>
               </div>
             </div>
           </div>
+        </q-card-section>
 
-          <q-separator />
+        <q-separator />
 
-          <div class="row items-center justify-between">
-            <div class="text-subtitle1 text-weight-bold">Total a registrar</div>
-            <div class="text-h6 text-primary">{{ money(total) }} Bs</div>
+        <!-- Productos -->
+        <q-card-section class="q-pa-md">
+          <div class="row items-center q-mb-sm">
+            <q-icon name="inventory_2" size="18px" color="primary" class="q-mr-xs" />
+            <div class="text-subtitle2 text-weight-bold">Productos</div>
+            <q-space />
+            <q-chip dense color="primary" text-color="white" :label="`${selectedItems.length} ${selectedItems.length === 1 ? 'item' : 'items'}`" />
+          </div>
+          <div class="confirm-items">
+            <div v-for="(item, idx) in selectedItems" :key="idx" class="confirm-item">
+              <q-img
+                :src="itemImageUrl(item)"
+                class="confirm-item-img"
+                fit="cover"
+                no-spinner
+              />
+              <div class="confirm-item-info">
+                <div class="confirm-item-name">{{ item.nombre }}</div>
+                <div class="confirm-item-meta">
+                  {{ item.cantidad }} × {{ money(item.precio) }} Bs
+                </div>
+              </div>
+              <div class="confirm-item-total">{{ money(item.total) }} Bs</div>
+            </div>
           </div>
         </q-card-section>
 
         <q-separator />
 
-        <q-card-section class="row q-gutter-md q-pt-md">
-          <q-space />
-          <q-btn label="Cancelar" flat @click="showConfirmDialog = false" />
-          <q-btn label="Confirmar registro" color="primary" :loading="saving" @click="save" />
+        <!-- Resumen -->
+        <q-card-section class="q-pa-md confirm-summary">
+          <div class="summary-row">
+            <span class="summary-label">Subtotal</span>
+            <span class="summary-value">{{ money(total) }} Bs</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Items</span>
+            <span class="summary-value">{{ selectedItems.length }}</span>
+          </div>
+          <q-separator class="q-my-sm" />
+          <div class="summary-row total-row">
+            <span class="total-label">Total a registrar</span>
+            <span class="total-value">{{ money(total) }} Bs</span>
+          </div>
         </q-card-section>
+
+        <q-separator />
+
+        <!-- Acciones -->
+        <q-card-actions class="q-pa-md">
+          <q-space />
+          <q-btn label="Cancelar" flat no-caps color="grey-8" @click="showConfirmDialog = false" />
+          <q-btn :label="isEditMode ? 'Guardar cambios' : 'Confirmar registro'" no-caps unelevated color="primary" icon="check_circle" :loading="saving" @click="save" />
+        </q-card-actions>
       </q-card>
     </q-dialog>
   </q-page>
@@ -224,9 +303,13 @@ import moment from 'moment'
 
 export default {
   name: 'CompraNuevaPage',
+  props: {
+    id: { type: [String, Number], default: null },
+  },
   data () {
     return {
       loadingProducts: false,
+      loadingCompra: false,
       saving: false,
       savingProveedor: false,
       products: [],
@@ -269,10 +352,18 @@ export default {
     motivoOptions () {
       return this.entradaMotivos.map(value => ({ label: value, value }))
     },
+    isEditMode () {
+      return !!this.editId
+    },
+    editId () {
+      return this.id || this.$route.params.id || null
+    },
   },
-  mounted () {
-    this.fetchProducts()
-    this.fetchProveedores()
+  async mounted () {
+    await Promise.all([this.fetchProducts(), this.fetchProveedores()])
+    if (this.editId) {
+      await this.loadCompra(this.editId)
+    }
   },
   methods: {
     async fetchProducts () {
@@ -374,6 +465,18 @@ export default {
     removeItem (item) {
       this.selectedItems = this.selectedItems.filter(row => row.producto_id !== item.producto_id)
     },
+    clearAllItems () {
+      if (this.selectedItems.length === 0) return
+      this.$q.dialog({
+        title: 'Borrar todos los productos',
+        message: `¿Quitar los ${this.selectedItems.length} productos de la compra?`,
+        cancel: true,
+        persistent: true,
+        ok: { label: 'Borrar todos', color: 'negative', noCaps: true },
+      }).onOk(() => {
+        this.selectedItems = []
+      })
+    },
     confirmSave () {
       const proveedor = this.proveedores.find(p => p.id === this.form.proveedor_id)
       this.confirmData = {
@@ -387,18 +490,60 @@ export default {
     async save () {
       this.saving = true
       try {
-        await this.$axios.post('compras', {
+        const payload = {
           ...this.form,
           fecha_hora: this.form.fecha_hora ? this.form.fecha_hora.replace('T', ' ') : null,
           items: this.selectedItems,
-        })
-        this.$alert.success('Compra registrada correctamente')
+        }
+        if (this.isEditMode) {
+          await this.$axios.put(`compras/${this.editId}`, payload)
+          this.$alert.success('Compra actualizada correctamente')
+        } else {
+          await this.$axios.post('compras', payload)
+          this.$alert.success('Compra registrada correctamente')
+        }
         this.$router.push('/almacen/compras')
       } catch (e) {
-        this.$alert.error(e.response?.data?.message || 'No se pudo registrar')
+        this.$alert.error(e.response?.data?.message || 'No se pudo guardar')
       } finally {
         this.saving = false
         this.showConfirmDialog = false
+      }
+    },
+    async loadCompra (id) {
+      this.loadingCompra = true
+      try {
+        const res = await this.$axios.get(`compras/${id}`)
+        const compra = res.data
+        this.form.proveedor_id = compra.proveedor_id || null
+        this.form.fecha_hora = compra.fecha_hora ? moment(compra.fecha_hora).format('YYYY-MM-DDTHH:mm') : moment().format('YYYY-MM-DDTHH:mm')
+        this.form.tipo_registro = compra.tipo_registro || 'ENTRADA'
+        this.form.motivo_registro = compra.motivo_registro || 'COMPRA'
+        this.form.tipo_pago = compra.tipo_pago || ''
+        this.form.nro_factura = compra.nro_factura || ''
+        this.form.carnet = compra.carnet || ''
+        this.form.nombre = compra.nombre || ''
+        this.onProveedorChange()
+        this.selectedItems = (compra.detalles || []).map(d => ({
+          producto_id: d.producto_id,
+          imagen: d.producto?.imagen,
+          nombre: d.nombre || d.producto?.nombre,
+          unidad_medida: d.producto?.unidad_medida,
+          cantidad: Number(d.cantidad || 0),
+          precio: Number(d.precio || 0),
+          total: Number(d.total || 0),
+          factor: Number(d.factor || 1.25),
+          precio_venta: Number(d.precio_venta || 0),
+          lote: d.lote || '',
+          fecha_vencimiento: d.fecha_vencimiento ? moment(d.fecha_vencimiento).format('YYYY-MM-DD') : '',
+          dias_restantes: null,
+        }))
+        this.selectedItems.forEach(item => this.updateDaysLeft(item))
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'No se pudo cargar la compra')
+        this.$router.push('/almacen/compras')
+      } finally {
+        this.loadingCompra = false
       }
     },
     itemImageUrl (row) {
@@ -411,6 +556,11 @@ export default {
       if (!datetime) return '-'
       return moment(datetime).format('DD/MM/YYYY HH:mm')
     },
+    pagoLabel (value) {
+      if (!value) return 'Ninguno'
+      const opt = this.pagoOptions.find(p => p.value === value)
+      return opt ? opt.label : value
+    },
   },
 }
 </script>
@@ -418,16 +568,17 @@ export default {
 <style scoped>
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 8px;
   max-height: calc(100vh - 230px);
   overflow: auto;
 }
 
 .product-card {
   position: relative;
-  min-height: 130px;
+  min-height: 170px;
   border: 1px solid #d8e0e8;
+  border-radius: 6px;
   cursor: pointer;
   overflow: hidden;
   background: #fff;
@@ -436,42 +587,60 @@ export default {
 
 .product-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.product-image-wrapper {
+  position: relative;
+  height: 120px;
+  background: #f5f5f5;
+  overflow: hidden;
 }
 
 .product-image {
-  height: 70px;
+  height: 120px;
+  width: 100%;
   background: #f5f5f5;
 }
 
+.product-name-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 18px 6px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #fff;
+  text-transform: capitalize;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.6) 55%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  word-break: break-word;
+  white-space: normal;
+}
+
 .product-info {
-  padding: 6px;
+  padding: 6px 8px;
   display: flex;
   flex-direction: column;
   gap: 3px;
-  height: 60px;
   justify-content: space-between;
-}
-
-.product-name {
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.1;
-  color: #333;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
 }
 
 .product-qty {
   font-size: 10px;
   color: #999;
+  text-transform: capitalize;
 }
 
 .product-price {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: #1976d2;
 }
@@ -516,11 +685,34 @@ export default {
 }
 
 .producto-cell {
-  max-width: 180px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  max-width: 220px;
   font-weight: 500;
+  padding: 4px 6px !important;
+}
+
+.producto-cell-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.producto-cell-img {
+  flex: 0 0 auto;
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #f5f5f5;
+}
+
+.producto-cell-nombre {
+  flex: 1 1 auto;
+  text-transform: capitalize;
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: normal;
+  word-break: break-word;
 }
 
 /* Columna Días */
@@ -577,24 +769,159 @@ export default {
   border-radius: 3px;
 }
 
+/* Diálogo de confirmación */
+.confirm-dialog {
+  width: 680px;
+  max-width: 92vw;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.confirm-header {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  color: #fff;
+  padding: 16px 18px;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #f7f9fc;
+  border: 1px solid #e5eaf2;
+  border-radius: 8px;
+}
+
+.meta-icon {
+  color: #1976d2;
+  margin-top: 2px;
+}
+
+.meta-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.meta-label {
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 600;
+}
+
+.meta-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  text-transform: capitalize;
+  word-break: break-word;
+}
+
 .confirm-items {
-  border: 1px solid #eee;
-  border-radius: 3px;
-  background: #fafafa;
-  padding: 8px;
-  max-height: 200px;
+  border: 1px solid #e5eaf2;
+  border-radius: 8px;
+  background: #fff;
+  padding: 4px;
+  max-height: 260px;
   overflow-y: auto;
 }
 
 .confirm-item {
   display: flex;
-  justify-content: space-between;
-  padding: 6px 4px;
-  border-bottom: 1px solid #eee;
-  font-size: 13px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0f2f5;
 }
 
 .confirm-item:last-child {
   border-bottom: none;
+}
+
+.confirm-item-img {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  border: 1px solid #e5eaf2;
+  background: #f5f5f5;
+}
+
+.confirm-item-info {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.confirm-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+  text-transform: capitalize;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.confirm-item-meta {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.confirm-item-total {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1976d2;
+  white-space: nowrap;
+}
+
+.confirm-summary {
+  background: #f7f9fc;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.summary-label {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.summary-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.total-row {
+  padding: 6px 12px;
+  background: #e3f2fd;
+  border-radius: 8px;
+}
+
+.total-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0d47a1;
+}
+
+.total-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1976d2;
 }
 </style>

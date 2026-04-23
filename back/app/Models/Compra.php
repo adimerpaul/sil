@@ -23,11 +23,6 @@ class Compra extends Model
         'nro_factura',
     ];
 
-    protected $casts = [
-        'fecha_hora' => 'datetime',
-        'total' => 'decimal:2',
-    ];
-
     public function detalles()
     {
         return $this->hasMany(CompraDetalle::class);

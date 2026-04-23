@@ -29,16 +29,6 @@ class CompraDetalle extends Model
         'nro_factura',
     ];
 
-    protected $casts = [
-        'precio' => 'decimal:2',
-        'total' => 'decimal:2',
-        'factor' => 'decimal:4',
-        'precio13' => 'decimal:2',
-        'total13' => 'decimal:2',
-        'precio_venta' => 'decimal:2',
-        'fecha_vencimiento' => 'date',
-    ];
-
     public function compra()
     {
         return $this->belongsTo(Compra::class);
