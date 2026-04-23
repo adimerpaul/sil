@@ -351,6 +351,46 @@
               <q-chip dense color="primary" text-color="white" :label="`${detailItems.length} items`" />
             </div>
 
+            <div v-if="editingItems" class="row q-col-gutter-sm items-end q-mb-sm">
+              <div class="col-12 col-sm">
+                <q-select
+                  v-model="productToAdd"
+                  dense
+                  outlined
+                  clearable
+                  use-input
+                  fill-input
+                  hide-selected
+                  input-debounce="300"
+                  label="Agregar producto"
+                  :options="productOptions"
+                  option-label="label"
+                  :loading="loadingProductOptions"
+                  @filter="filterAddProducts"
+                />
+              </div>
+              <div class="col-6 col-sm-2">
+                <q-input
+                  v-model.number="productAddQty"
+                  dense
+                  outlined
+                  type="number"
+                  min="1"
+                  label="Cantidad"
+                />
+              </div>
+              <div class="col-6 col-sm-auto">
+                <q-btn
+                  unelevated
+                  no-caps
+                  color="primary"
+                  icon="add"
+                  label="Agregar"
+                  @click="addProductToDraft"
+                />
+              </div>
+            </div>
+
             <div class="detail-items">
               <div
                 v-for="det in detailItems"
@@ -364,7 +404,7 @@
                   no-spinner
                 />
                 <div class="detail-item-info">
-                  <div class="detail-item-name">{{ det.producto?.nombre || '-' }}</div>
+                  <div class="detail-item-name">{{ det.producto?.nombre || det.nombre || '-' }}</div>
                   <div class="detail-item-meta">
                     <template v-if="editingItems">
                       <q-input
@@ -380,7 +420,19 @@
                     <span v-else>{{ det.cantidad }} x {{ money(det.precio_unitario) }} Bs</span>
                   </div>
                 </div>
-                <div class="detail-item-total">{{ money(lineSubtotal(det)) }} Bs</div>
+                <div class="detail-item-actions">
+                  <div class="detail-item-total">{{ money(lineSubtotal(det)) }} Bs</div>
+                  <q-btn
+                    v-if="editingItems"
+                    flat
+                    dense
+                    round
+                    color="negative"
+                    icon="delete"
+                    size="sm"
+                    @click="removeDraftItem(det)"
+                  />
+                </div>
               </div>
               <div v-if="detailItems.length === 0" class="text-center text-grey-7 q-pa-md">
                 Sin productos
@@ -521,6 +573,10 @@ const printingId = ref(null)
 const whatsappId = ref(null)
 const editingItems = ref(false)
 const itemsDraft = ref([])
+const productOptions = ref([])
+const loadingProductOptions = ref(false)
+const productToAdd = ref(null)
+const productAddQty = ref(1)
 const savingDetail = ref(false)
 const savingEstado = ref(null)
 
@@ -660,6 +716,7 @@ async function viewPedido (pedido) {
   selectedPedido.value = res.data
   editingItems.value = false
   itemsDraft.value = []
+  resetDraftProductForm()
   showDetailDialog.value = true
 }
 
@@ -674,11 +731,14 @@ function startEditItems () {
     precio_unitario: Number(d.precio_unitario || 0),
   }))
   editingItems.value = true
+  resetDraftProductForm()
+  loadProductOptions().catch(() => {})
 }
 
 function cancelEditItems () {
   editingItems.value = false
   itemsDraft.value = []
+  resetDraftProductForm()
 }
 
 function hasItemChanges () {
@@ -710,6 +770,11 @@ async function saveItemChanges () {
     precio_unitario: Number(d.precio_unitario || 0),
   }))
 
+  if (items.length === 0) {
+    $q.notify({ color: 'negative', message: 'Debe haber al menos un producto en el pedido', position: 'top' })
+    return
+  }
+
   const missing = items.find((i) => !i.producto_id || i.cantidad < 1)
   if (missing) {
     $q.notify({ color: 'negative', message: 'Revisa las cantidades (mínimo 1) y productos', position: 'top' })
@@ -727,6 +792,75 @@ async function saveItemChanges () {
   } finally {
     savingDetail.value = false
   }
+}
+
+function resetDraftProductForm () {
+  productToAdd.value = null
+  productAddQty.value = 1
+}
+
+async function loadProductOptions (q = '') {
+  loadingProductOptions.value = true
+  try {
+    const res = await proxy.$axios.get('almacen-items', {
+      params: {
+        q,
+        page: 1,
+        rowsPerPage: 30,
+      },
+    })
+    const rows = res?.data?.data || []
+    productOptions.value = rows.map((item) => ({
+      label: `${item.nombre} (${item.unidad_medida || '-'})`,
+      value: item.id,
+      nombre: item.nombre,
+      precio_unitario: Number(item.precio_unitario || 0),
+      unidad_medida: item.unidad_medida,
+      imagen: item.imagen,
+    }))
+  } finally {
+    loadingProductOptions.value = false
+  }
+}
+
+function filterAddProducts (val, update) {
+  loadProductOptions(val)
+    .then(() => update(() => {}))
+    .catch(() => update(() => {}))
+}
+
+function addProductToDraft () {
+  const selected = productToAdd.value
+  if (!selected?.value) {
+    $q.notify({ color: 'negative', message: 'Selecciona un producto', position: 'top' })
+    return
+  }
+
+  const cantidad = Math.max(1, Number(productAddQty.value || 1))
+  const existing = itemsDraft.value.find((d) => Number(d.producto_id) === Number(selected.value))
+  if (existing) {
+    existing.cantidad = Number(existing.cantidad || 0) + cantidad
+  } else {
+    itemsDraft.value.unshift({
+      id: `new-${selected.value}-${Date.now()}`,
+      producto_id: selected.value,
+      producto: {
+        nombre: selected.nombre,
+        unidad_medida: selected.unidad_medida,
+        imagen: selected.imagen,
+      },
+      cantidad,
+      precio_unitario: Number(selected.precio_unitario || 0),
+    })
+  }
+
+  resetDraftProductForm()
+}
+
+function removeDraftItem (item) {
+  const itemId = item?.id
+  const itemProductoId = item?.producto_id
+  itemsDraft.value = itemsDraft.value.filter((d) => d.id !== itemId && d.producto_id !== itemProductoId)
 }
 
 async function setEstadoFromDetail (estado) {
@@ -1017,6 +1151,13 @@ function itemImageUrl (det) {
   font-weight: 700;
   color: #1976d2;
   white-space: nowrap;
+}
+
+.detail-item-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
 }
 
 .detail-summary {
