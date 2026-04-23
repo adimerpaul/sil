@@ -83,6 +83,11 @@ const routes = [
         meta: {requiresAuth: true, perm: 'Módulo inventario'}
       },
       {
+        path: '/almacen/productos-vencidos',
+        component: () => import('pages/almacen/ProductosVencidos.vue'),
+        meta: {requiresAuth: true, perm: 'Módulo inventario'}
+      },
+      {
         path: '/almacen/compras/nueva',
         component: () => import('pages/almacen/CompraNueva.vue'),
         meta: {requiresAuth: true, perm: 'Modulo compras'}

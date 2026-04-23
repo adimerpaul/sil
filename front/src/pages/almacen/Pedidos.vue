@@ -316,7 +316,11 @@
             </div>
           </div>
 
-          <q-separator class="q-my-md" />
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-section v-if="selectedPedido" class="q-pa-md">
 
           <div class="row items-center q-mb-sm">
             <q-icon name="inventory_2" size="18px" color="primary" class="q-mr-xs" />
@@ -340,7 +344,7 @@
               <div class="detail-item-info">
                 <div class="detail-item-name">{{ det.producto?.nombre || '-' }}</div>
                 <div class="detail-item-meta">
-                  <span>{{ det.cantidad }} Ã— {{ money(det.precio_unitario) }} Bs</span>
+                  <span>{{ det.cantidad }} x {{ money(det.precio_unitario) }} Bs</span>
                 </div>
               </div>
               <div class="detail-item-total">{{ money(det.subtotal) }} Bs</div>

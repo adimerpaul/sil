@@ -194,6 +194,9 @@ class PedidoController extends Controller
 
     public function printPdf($id)
     {
+        if (auth()->check() && method_exists(auth()->user(), 'can') && !auth()->user()->can('Imprimir Pedidos')) {
+            abort(403, 'No autorizado para imprimir este pedido');
+        }
 
         $pedido = Pedido::with(['user:id,name', 'detalles.producto'])->findOrFail($id);
 
