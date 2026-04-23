@@ -291,123 +291,125 @@
           </div>
         </div>
 
-        <q-card-section v-if="selectedPedido" class="q-pa-sm">
-          <div class="meta-grid">
-            <div class="meta-item">
-              <q-icon name="badge" size="20px" class="meta-icon" />
-              <div class="meta-content">
-                <div class="meta-label">ID</div>
-                <div class="meta-value">#{{ selectedPedido.id }}</div>
-              </div>
-            </div>
-            <div class="meta-item">
-              <q-icon name="person" size="20px" class="meta-icon" />
-              <div class="meta-content">
-                <div class="meta-label">Usuario</div>
-                <div class="meta-value">{{ selectedPedido.nombre_usuario || selectedPedido.user?.name || '-' }}</div>
-              </div>
-            </div>
-            <div class="meta-item">
-              <q-icon name="event" size="20px" class="meta-icon" />
-              <div class="meta-content">
-                <div class="meta-label">Fecha y hora</div>
-                <div class="meta-value">{{ formatDateTime(selectedPedido.fecha_hora) }}</div>
-              </div>
-            </div>
-            <div class="meta-item">
-              <q-icon name="edit_note" size="20px" class="meta-icon" />
-              <div class="meta-content">
-                <div class="meta-label">Modificado</div>
-                <div class="meta-value">{{ selectedPedido.modificado ? 'Sí' : 'No' }}</div>
-              </div>
-            </div>
-            <div class="meta-item">
-              <q-icon name="payments" size="20px" class="meta-icon" />
-              <div class="meta-content">
-                <div class="meta-label">Total</div>
-                <div class="meta-value">{{ money(selectedPedido.total) }} Bs</div>
-              </div>
-            </div>
-            <div v-if="selectedPedido.comentario" class="meta-item">
-              <q-icon name="comment" size="20px" class="meta-icon" />
-              <div class="meta-content">
-                <div class="meta-label">Comentario</div>
-                <div class="meta-value">{{ selectedPedido.comentario }}</div>
-              </div>
-            </div>
-          </div>
-
-        </q-card-section>
-
-        <q-separator />
-
-        <q-card-section v-if="selectedPedido" class="q-pa-sm">
-
-          <div class="row items-center q-mb-sm">
-            <q-icon name="inventory_2" size="18px" color="primary" class="q-mr-xs" />
-            <div class="text-subtitle2 text-weight-bold">Productos</div>
-            <q-space />
-            <q-chip dense color="primary" text-color="white" :label="`${detailItems.length} items`" />
-          </div>
-
-          <div class="detail-items">
-            <div
-              v-for="det in detailItems"
-              :key="det.id"
-              class="detail-item"
-            >
-              <q-img
-                :src="itemImageUrl(det)"
-                class="detail-item-img"
-                fit="cover"
-                no-spinner
-              />
-              <div class="detail-item-info">
-                <div class="detail-item-name">{{ det.producto?.nombre || '-' }}</div>
-                <div class="detail-item-meta">
-                  <template v-if="editingItems">
-                    <q-input
-                      v-model.number="det.cantidad"
-                      dense
-                      outlined
-                      type="number"
-                      min="1"
-                      class="qty-input"
-                    />
-                    <span>x {{ money(det.precio_unitario) }} Bs</span>
-                  </template>
-                  <span v-else>{{ det.cantidad }} x {{ money(det.precio_unitario) }} Bs</span>
+        <div class="detail-content">
+          <q-card-section v-if="selectedPedido" class="q-pa-sm">
+            <div class="meta-grid">
+              <div class="meta-item">
+                <q-icon name="badge" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">ID</div>
+                  <div class="meta-value">#{{ selectedPedido.id }}</div>
                 </div>
               </div>
-              <div class="detail-item-total">{{ money(lineSubtotal(det)) }} Bs</div>
+              <div class="meta-item">
+                <q-icon name="person" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">Usuario</div>
+                  <div class="meta-value">{{ selectedPedido.nombre_usuario || selectedPedido.user?.name || '-' }}</div>
+                </div>
+              </div>
+              <div class="meta-item">
+                <q-icon name="event" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">Fecha y hora</div>
+                  <div class="meta-value">{{ formatDateTime(selectedPedido.fecha_hora) }}</div>
+                </div>
+              </div>
+              <div class="meta-item">
+                <q-icon name="edit_note" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">Modificado</div>
+                  <div class="meta-value">{{ selectedPedido.modificado ? 'Sí' : 'No' }}</div>
+                </div>
+              </div>
+              <div class="meta-item">
+                <q-icon name="payments" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">Total</div>
+                  <div class="meta-value">{{ money(selectedPedido.total) }} Bs</div>
+                </div>
+              </div>
+              <div v-if="selectedPedido.comentario" class="meta-item">
+                <q-icon name="comment" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">Comentario</div>
+                  <div class="meta-value">{{ selectedPedido.comentario }}</div>
+                </div>
+              </div>
             </div>
-            <div v-if="detailItems.length === 0" class="text-center text-grey-7 q-pa-md">
-              Sin productos
+
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-section v-if="selectedPedido" class="q-pa-sm">
+
+            <div class="row items-center q-mb-sm">
+              <q-icon name="inventory_2" size="18px" color="primary" class="q-mr-xs" />
+              <div class="text-subtitle2 text-weight-bold">Productos</div>
+              <q-space />
+              <q-chip dense color="primary" text-color="white" :label="`${detailItems.length} items`" />
             </div>
-          </div>
-        </q-card-section>
+
+            <div class="detail-items">
+              <div
+                v-for="det in detailItems"
+                :key="det.id"
+                class="detail-item"
+              >
+                <q-img
+                  :src="itemImageUrl(det)"
+                  class="detail-item-img"
+                  fit="cover"
+                  no-spinner
+                />
+                <div class="detail-item-info">
+                  <div class="detail-item-name">{{ det.producto?.nombre || '-' }}</div>
+                  <div class="detail-item-meta">
+                    <template v-if="editingItems">
+                      <q-input
+                        v-model.number="det.cantidad"
+                        dense
+                        outlined
+                        type="number"
+                        min="1"
+                        class="qty-input"
+                      />
+                      <span>x {{ money(det.precio_unitario) }} Bs</span>
+                    </template>
+                    <span v-else>{{ det.cantidad }} x {{ money(det.precio_unitario) }} Bs</span>
+                  </div>
+                </div>
+                <div class="detail-item-total">{{ money(lineSubtotal(det)) }} Bs</div>
+              </div>
+              <div v-if="detailItems.length === 0" class="text-center text-grey-7 q-pa-md">
+                Sin productos
+              </div>
+            </div>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-section v-if="selectedPedido" class="q-pa-sm detail-summary">
+            <div class="summary-row">
+              <span class="summary-label">Subtotal</span>
+              <span class="summary-value">{{ money(detailTotal) }} Bs</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Items</span>
+              <span class="summary-value">{{ detailItems.length }}</span>
+            </div>
+            <q-separator class="q-my-sm" />
+            <div class="summary-row total-row">
+              <span class="total-label">Total</span>
+              <span class="total-value">{{ money(detailTotal) }} Bs</span>
+            </div>
+          </q-card-section>
+        </div>
 
         <q-separator />
 
-        <q-card-section v-if="selectedPedido" class="q-pa-sm detail-summary">
-          <div class="summary-row">
-            <span class="summary-label">Subtotal</span>
-            <span class="summary-value">{{ money(detailTotal) }} Bs</span>
-          </div>
-          <div class="summary-row">
-            <span class="summary-label">Items</span>
-            <span class="summary-value">{{ detailItems.length }}</span>
-          </div>
-          <q-separator class="q-my-sm" />
-          <div class="summary-row total-row">
-            <span class="total-label">Total</span>
-            <span class="total-value">{{ money(detailTotal) }} Bs</span>
-          </div>
-        </q-card-section>
-
-        <q-separator />
-
-        <q-card-actions class="q-pa-sm">
+        <q-card-actions class="q-pa-sm detail-actions">
           <q-space />
           <q-btn flat no-caps color="grey-8" label="Cerrar" @click="showDetailDialog = false" />
 
@@ -869,8 +871,25 @@ function itemImageUrl (det) {
 .detail-dialog {
   width: 760px;
   max-width: 94vw;
+  max-height: 92vh;
   border-radius: 10px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.detail-actions {
+  flex: 0 0 auto;
+  background: #fff;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
 }
 
 .detail-header {
