@@ -239,6 +239,19 @@
                   </q-item-section>
                   <q-item-section>Imprimir</q-item-section>
                 </q-item>
+                <q-item
+                  v-if="canPrint"
+                  clickable
+                  v-close-popup
+                  :disable="whatsappId === props.row.id"
+                  @click="sendPedidoWhatsApp(props.row.id)"
+                >
+                  <q-item-section avatar>
+                    <q-spinner v-if="whatsappId === props.row.id" color="green" size="20px" />
+                    <q-icon v-else name="send" color="green" />
+                  </q-item-section>
+                  <q-item-section>Enviar por WhatsApp</q-item-section>
+                </q-item>
                 <q-separator v-if="canDelete" />
                 <q-item
                   v-if="canDelete"
@@ -474,6 +487,17 @@
             :loading="printingId === selectedPedido.id"
             @click="printPedido(selectedPedido.id)"
           />
+          <q-btn
+            v-if="selectedPedido && canPrint"
+            unelevated
+            no-caps
+            color="green"
+            icon="send"
+            label="Enviar WhatsApp"
+            :disable="editingItems"
+            :loading="whatsappId === selectedPedido.id"
+            @click="sendPedidoWhatsApp(selectedPedido.id)"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -492,6 +516,7 @@ const $q = useQuasar()
 const showDetailDialog = ref(false)
 const selectedPedido = ref(null)
 const printingId = ref(null)
+const whatsappId = ref(null)
 const editingItems = ref(false)
 const itemsDraft = ref([])
 const savingDetail = ref(false)
@@ -750,6 +775,27 @@ async function printPedido (id) {
     })
   } finally {
     printingId.value = null
+  }
+}
+
+async function sendPedidoWhatsApp (id) {
+  whatsappId.value = id
+  try {
+    const res = await proxy.$axios.get(`pedidos/${id}/whatsapp-link`)
+    const whatsappUrl = res?.data?.whatsapp_url
+    if (!whatsappUrl) {
+      throw new Error('No se pudo generar el enlace de WhatsApp')
+    }
+
+    window.open(whatsappUrl, '_blank')
+  } catch (error) {
+    $q.notify({
+      color: 'negative',
+      message: error?.response?.data?.message || 'No se pudo enviar por WhatsApp',
+      position: 'top'
+    })
+  } finally {
+    whatsappId.value = null
   }
 }
 
