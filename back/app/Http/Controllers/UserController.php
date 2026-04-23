@@ -97,6 +97,9 @@ class UserController extends Controller{
     }
     function update(Request $request, $id){
         $user = User::find($id);
+        $request->validate([
+            'celular' => 'nullable|string|max:50',
+        ]);
         $user->update($request->except('password'));
         error_log('User' . json_encode($user));
         return $user;
@@ -113,6 +116,7 @@ class UserController extends Controller{
             'username' => 'required',
             'password' => 'required',
             'name' => 'required',
+            'celular' => 'nullable|string|max:50',
 //            'email' => 'required|email|unique:users',
         ]);
         if (User::where('username', $request->username)->exists()) {

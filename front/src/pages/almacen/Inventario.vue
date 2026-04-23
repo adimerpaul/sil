@@ -406,6 +406,41 @@
                 </q-file>
               </div>
             </div>
+            <div
+              class="item-image-dropzone q-mt-sm"
+              :class="{ 'item-image-dropzone--over': draggingItemImage }"
+              ref="itemImageDropzone"
+              tabindex="0"
+              @click="focusItemImageDropzone"
+              @dragover.prevent="onItemImageDragOver"
+              @dragleave.prevent="onItemImageDragLeave"
+              @drop.prevent="onItemImageDrop"
+              @paste="onItemImagePaste"
+            >
+              <input
+                ref="itemImageInput"
+                type="file"
+                accept="image/*"
+                class="hidden"
+                @change="onItemImageInputChange"
+              >
+              <div class="column items-center justify-center full-height">
+                <q-icon name="add_photo_alternate" size="34px" color="grey-7" />
+                <div class="text-caption text-grey-7 q-mt-xs">
+                  Cambiar foto: arrastra o pega (Ctrl+V)
+                </div>
+                <q-btn
+                  class="q-mt-sm"
+                  dense
+                  outline
+                  no-caps
+                  color="primary"
+                  icon="upload"
+                  label="Seleccionar"
+                  @click.stop="pickItemImageFile"
+                />
+              </div>
+            </div>
             <div class="text-right q-mt-sm">
               <q-btn flat color="negative" label="Cancelar" no-caps @click="itemDialog = false" />
               <q-btn color="primary" label="Guardar" no-caps type="submit" :loading="savingItem" class="q-ml-sm" />
@@ -435,6 +470,7 @@ export default {
       itemPartidaId: null,
       itemImageFile: null,
       itemPreviewUrl: '',
+      draggingItemImage: false,
       summary: {
         items: 0,
         cantidad: 0,
@@ -723,6 +759,69 @@ export default {
       }
       this.itemPreviewUrl = file ? URL.createObjectURL(file) : this.itemImageUrl(this.itemForm)
     },
+    pickItemImageFile () {
+      this.$refs.itemImageInput?.click()
+    },
+    focusItemImageDropzone () {
+      this.$refs.itemImageDropzone?.focus?.()
+    },
+    onItemImageInputChange (e) {
+      const file = e?.target?.files?.[0]
+      if (!file) return
+      this.itemImageFile = file
+      this.onItemImageChange(file)
+      e.target.value = ''
+    },
+    onItemImageDragOver () {
+      this.draggingItemImage = true
+    },
+    onItemImageDragLeave () {
+      this.draggingItemImage = false
+    },
+    onItemImageDrop (e) {
+      this.draggingItemImage = false
+      const file = e?.dataTransfer?.files?.[0]
+      if (!file) return
+      if (!String(file.type || '').startsWith('image/')) {
+        this.$alert?.error && this.$alert.error('Solo se permiten imágenes')
+        return
+      }
+      this.itemImageFile = file
+      this.onItemImageChange(file)
+    },
+    async onItemImagePaste (e) {
+      try {
+        const items = Array.from(e?.clipboardData?.items || [])
+        const imageItem = items.find(it => String(it.type || '').startsWith('image/'))
+        if (imageItem) {
+          const file = imageItem.getAsFile()
+          if (!file) return
+          this.itemImageFile = file
+          this.onItemImageChange(file)
+          return
+        }
+
+        const text = (e?.clipboardData?.getData('text/plain') || '').trim()
+        if (/^https?:\/\//i.test(text)) {
+          const res = await fetch(text)
+          const blob = await res.blob()
+          if (!String(blob.type || '').startsWith('image/')) {
+            this.$alert?.error && this.$alert.error('El enlace pegado no es una imagen')
+            return
+          }
+          const ext = (blob.type || 'image/png').split('/')[1] || 'png'
+          const file = new File([blob], `imagen.${ext}`, { type: blob.type || 'image/png' })
+          this.itemImageFile = file
+          this.onItemImageChange(file)
+          return
+        }
+
+        this.$alert?.error && this.$alert.error('Pega una imagen (copiada) o un enlace directo a imagen')
+      } catch (err) {
+        console.log(err)
+        this.$alert?.error && this.$alert.error('No se pudo pegar la imagen (puede ser por permisos del navegador)')
+      }
+    },
     itemImageUrl (row) {
       return `${this.$url}/../images/productos/${row?.imagen || 'default.png'}`
     },
@@ -827,5 +926,19 @@ export default {
 .item-image-preview {
   border: 1px solid #d9e2ec;
   background: #f5f8fb;
+}
+
+.item-image-dropzone {
+  height: 92px;
+  border: 2px dashed rgba(0, 0, 0, 0.18);
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  outline: none;
+}
+
+.item-image-dropzone--over {
+  border-color: #1976d2;
+  background: #e3f2fd;
 }
 </style>

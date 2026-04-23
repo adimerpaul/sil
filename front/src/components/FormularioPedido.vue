@@ -117,12 +117,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { usePedidosStore } from 'src/stores/pedidos'
-import axios from 'axios'
+import { ref, computed, getCurrentInstance, onMounted } from 'vue'
 
 const emit = defineEmits(['saved', 'cancel'])
-const store = usePedidosStore()
+const { proxy } = getCurrentInstance()
 
 const loading = ref(false)
 const productos = ref([])
@@ -147,7 +145,7 @@ const totalAmount = computed(() => {
 
 onMounted(async () => {
   try {
-    const response = await axios.get('/api/almacen-items')
+    const response = await proxy.$axios.get('almacen-items')
     productos.value = response.data.data || response.data
   } catch (error) {
     console.error('Error loading products:', error)
@@ -171,7 +169,7 @@ const removeItem = (index) => {
 const updateProduct = (item) => {
   const producto = productos.value.find(p => p.id === item.producto_id)
   if (producto) {
-    item.precio_unitario = producto.precio || 0
+    item.precio_unitario = Number(producto.precio_unitario ?? producto.precio ?? 0)
     calculateSubtotal(item)
   }
 }
@@ -187,14 +185,11 @@ const savePedido = async () => {
 
   loading.value = true
   try {
-    await store.createPedido({
-      nombre_usuario: form.value.nombre_usuario,
-      fecha_hora: form.value.fecha_hora,
+    await proxy.$axios.post('pedidos', {
       items: form.value.items.map(item => ({
         producto_id: item.producto_id,
         cantidad: item.cantidad,
         precio_unitario: item.precio_unitario,
-        subtotal: item.subtotal
       }))
     })
     emit('saved')

@@ -17,6 +17,7 @@ class Compra extends Model
         'motivo_registro',
         'carnet',
         'nombre',
+        'comentario',
         'estado',
         'total',
         'tipo_pago',

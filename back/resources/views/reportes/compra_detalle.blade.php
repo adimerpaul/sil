@@ -236,6 +236,14 @@
             <span class="meta-value">{{ count($compra->detalles) }} producto(s)</span>
         </div>
     </div>
+    @if ($compra->comentario)
+        <div class="meta-row">
+            <div class="meta-cell" style="width:100%;">
+                <span class="meta-label">Comentario</span>
+                <span class="meta-value">{{ $compra->comentario }}</span>
+            </div>
+        </div>
+    @endif
 </div>
 
 <h2>Detalle de productos</h2>

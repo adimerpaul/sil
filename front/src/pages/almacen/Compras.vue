@@ -99,6 +99,9 @@
               <div>
                 <div class="text-weight-medium text-capitalize">{{ props.row.proveedor?.nombre || props.row.nombre || 'Sin proveedor' }}</div>
                 <div v-if="props.row.nro_factura" class="text-caption text-grey-7">Factura: {{ props.row.nro_factura }}</div>
+                <div v-if="props.row.comentario" class="text-caption text-grey-7" :title="props.row.comentario">
+                  {{ props.row.comentario }}
+                </div>
               </div>
             </div>
           </q-td>
@@ -262,6 +265,13 @@
               <div class="meta-content">
                 <div class="meta-label">Tipo</div>
                 <div class="meta-value">{{ (selected.tipo_registro || '-').toLowerCase() }}</div>
+              </div>
+            </div>
+            <div v-if="selected.comentario" class="meta-item">
+              <q-icon name="comment" size="20px" class="meta-icon" />
+              <div class="meta-content">
+                <div class="meta-label">Comentario</div>
+                <div class="meta-value">{{ selected.comentario }}</div>
               </div>
             </div>
           </div>

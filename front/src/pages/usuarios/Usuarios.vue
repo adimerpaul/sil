@@ -140,6 +140,7 @@
             <q-input v-model="user.username" label="Usuario" dense outlined
                      :rules="[val => !!val || 'Campo requerido']"/>
             <q-input v-model="user.email" label="Email" dense outlined hint="" />
+            <q-input v-model="user.celular" label="Celular" dense outlined />
             <q-input v-model="user.password" label="Contraseña" dense outlined
                      :rules="[val => !!val || 'Campo requerido']" v-if="!user.id"/>
             <q-select v-model="user.role" label="Rol" dense outlined :options="roles"
@@ -400,6 +401,7 @@ export default {
         {name: 'username', label: 'Usuario', align: 'left', field: 'username'},
         {name: 'avatar', label: 'Avatar', align: 'left', field: (row) => row.avatar},
         {name: 'role', label: 'Rol', align: 'left', field: 'role'},
+        {name: 'celular', label: 'Celular', align: 'left', field: 'celular'},
         { name: 'permissions', label: 'Permisos', align: 'left',
           field: row => (row.permissions || []).map(p => p.name).join(', ')
         },
@@ -486,6 +488,7 @@ export default {
       this.user = {
         name: '',
         email: '',
+        celular: '',
         password: '',
         area_id: 1,
         username: '',

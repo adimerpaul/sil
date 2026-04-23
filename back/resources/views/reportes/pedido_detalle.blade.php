@@ -19,6 +19,13 @@
             margin-bottom: 12px;
         }
 
+        .logo {
+            height: 36px;
+            width: auto;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
         .brand {
             color: #0f5ea8;
             font-size: 10px;
@@ -49,6 +56,7 @@
         .badge-pendiente { background: #fef3c7; color: #92400e; }
         .badge-aceptado { background: #dcfce7; color: #166534; }
         .badge-rechazado { background: #fee2e2; color: #991b1b; }
+        .badge-anulado { background: #e5e7eb; color: #374151; }
 
         .meta {
             border: 1px solid #dbe4ee;
@@ -187,6 +195,10 @@
 <div class="header">
     <div class="row">
         <div class="col-left">
+            @php $logoPath = public_path('img/logo-hospital.png'); @endphp
+            @if (file_exists($logoPath))
+                <img class="logo" src="{{ $logoPath }}" alt="Logo">
+            @endif
             <div class="brand">SILL · Almacén</div>
             <h1>Comprobante de pedido #{{ $pedido->id }}</h1>
             <div class="muted">
@@ -198,6 +210,7 @@
             @php $estadoClass = 'badge-pendiente'; @endphp
             @if ($pedido->estado === 'ACEPTADO') @php $estadoClass = 'badge-aceptado'; @endphp
             @elseif ($pedido->estado === 'RECHAZADO') @php $estadoClass = 'badge-rechazado'; @endphp
+            @elseif ($pedido->estado === 'ANULADO') @php $estadoClass = 'badge-anulado'; @endphp
             @endif
             <span class="badge {{ $estadoClass }}">{{ $pedido->estado }}</span>
             @if ($pedido->modificado)
@@ -222,6 +235,14 @@
             <span class="meta-value">{{ count($pedido->detalles) }} producto(s)</span>
         </div>
     </div>
+    @if ($pedido->comentario)
+        <div class="meta-row">
+            <div class="meta-cell" style="width:100%;">
+                <span class="meta-label">Comentario</span>
+                <span class="meta-value">{{ $pedido->comentario }}</span>
+            </div>
+        </div>
+    @endif
 </div>
 
 <h2>Detalle de productos</h2>

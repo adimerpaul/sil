@@ -81,6 +81,20 @@
             </div>
           </q-card-section>
 
+          <!-- Comentario -->
+          <q-card-section class="q-pa-xs">
+            <q-input
+              v-model="form.comentario"
+              dense
+              outlined
+              type="textarea"
+              autogrow
+              label="Comentario (opcional)"
+            >
+              <template #prepend><q-icon name="comment" /></template>
+            </q-input>
+          </q-card-section>
+
           <q-separator />
 
           <!-- Toolbar de la tabla -->
@@ -234,6 +248,13 @@
                 <div class="meta-value">{{ pagoLabel(confirmData?.tipo_pago) }}</div>
               </div>
             </div>
+            <div v-if="confirmData?.comentario" class="meta-item">
+              <q-icon name="comment" size="20px" class="meta-icon" />
+              <div class="meta-content">
+                <div class="meta-label">Comentario</div>
+                <div class="meta-value">{{ confirmData.comentario }}</div>
+              </div>
+            </div>
           </div>
         </q-card-section>
 
@@ -331,6 +352,7 @@ export default {
         nro_factura: '',
         carnet: '',
         nombre: '',
+        comentario: '',
       },
       entradaMotivos: ['COMPRA', 'DONACION', 'TRANSFERENCIA', 'JUSTO'],
       pagoOptions: [
@@ -484,6 +506,7 @@ export default {
         proveedor_nombre: proveedor?.nombre,
         motivo_registro: this.form.motivo_registro,
         tipo_pago: this.form.tipo_pago,
+        comentario: this.form.comentario || '',
       }
       this.showConfirmDialog = true
     },
@@ -523,6 +546,7 @@ export default {
         this.form.nro_factura = compra.nro_factura || ''
         this.form.carnet = compra.carnet || ''
         this.form.nombre = compra.nombre || ''
+        this.form.comentario = compra.comentario || ''
         this.onProveedorChange()
         this.selectedItems = (compra.detalles || []).map(d => ({
           producto_id: d.producto_id,

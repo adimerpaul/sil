@@ -15,6 +15,7 @@ class Pedido extends Model
         'user_id',
         'fecha_hora',
         'nombre_usuario',
+        'comentario',
         'estado',
         'total',
         'modificado',

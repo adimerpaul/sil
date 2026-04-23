@@ -54,6 +54,21 @@
       <!-- Formulario y Tabla -->
       <div class="col-12 col-md-7">
         <q-card flat bordered>
+          <q-card-section class="q-pa-sm">
+            <q-input
+              v-model="comentario"
+              dense
+              outlined
+              type="textarea"
+              autogrow
+              label="Comentario (opcional)"
+            >
+              <template #prepend><q-icon name="comment" /></template>
+            </q-input>
+          </q-card-section>
+
+          <q-separator />
+
           <!-- Header: Datos -->
 <!--          <q-card-section class="q-pa-xs">-->
 <!--            <div class="row q-col-gutter-xs">-->
@@ -177,26 +192,19 @@
           </div>
         </div>
 
-<!--        <q-card-section class="q-pa-md">-->
-<!--          <div class="meta-grid">-->
-<!--&lt;!&ndash;            <div class="meta-item">&ndash;&gt;-->
-<!--&lt;!&ndash;              <q-icon name="event" size="20px" class="meta-icon" />&ndash;&gt;-->
-<!--&lt;!&ndash;              <div class="meta-content">&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="meta-label">FECHA Y HORA</div>&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="meta-value">AUTOMATICO</div>&ndash;&gt;-->
-<!--&lt;!&ndash;              </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            </div>&ndash;&gt;-->
-<!--            <div class="meta-item">-->
-<!--              <q-icon name="person" size="20px" class="meta-icon" />-->
-<!--              <div class="meta-content">-->
-<!--                <div class="meta-label">USUARIO</div>-->
-<!--                <div class="meta-value">{{ currentUsername }}</div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </q-card-section>-->
+        <q-card-section v-if="confirmData?.comentario" class="q-pa-md">
+          <div class="meta-grid">
+            <div class="meta-item">
+              <q-icon name="comment" size="20px" class="meta-icon" />
+              <div class="meta-content">
+                <div class="meta-label">COMENTARIO</div>
+                <div class="meta-value">{{ confirmData.comentario }}</div>
+              </div>
+            </div>
+          </div>
+        </q-card-section>
 
-<!--        <q-separator />-->
+        <q-separator v-if="confirmData?.comentario" />
 
         <q-card-section class="q-pa-md">
           <div class="row items-center q-mb-sm">
@@ -256,6 +264,7 @@ export default {
       saving: false,
       products: [],
       selectedItems: [],
+      comentario: '',
       productFilter: '',
       productPagination: { page: 1, rowsPerPage: 30, rowsNumber: 0 },
       showConfirmDialog: false,
@@ -331,7 +340,7 @@ export default {
         this.$q.notify({ color: 'negative', message: 'AGREGA AL MENOS UN PRODUCTO', position: 'top' })
         return
       }
-      this.confirmData = { ok: true }
+      this.confirmData = { comentario: this.comentario || '' }
       this.showConfirmDialog = true
     },
     async save () {
@@ -339,6 +348,7 @@ export default {
       this.saving = true
       try {
         await this.$axios.post('pedidos', {
+          comentario: this.comentario || null,
           items: this.selectedItems.map(item => ({
             producto_id: item.producto_id,
             cantidad: item.cantidad,

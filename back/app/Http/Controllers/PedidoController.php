@@ -15,7 +15,7 @@ class PedidoController extends Controller
     public function index(Request $request)
     {
 
-        $query = Pedido::with(['user:id,name'])
+        $query = Pedido::with(['user:id,name', 'detalles.producto:id,nombre'])
             ->withCount('detalles');
 
         $user = auth()->user();
@@ -87,6 +87,7 @@ class PedidoController extends Controller
                 'user_id' => $currentUser->id,
                 'fecha_hora' => now(),
                 'nombre_usuario' => $nombreUsuario,
+                'comentario' => $data['comentario'] ?? null,
                 'estado' => 'PENDIENTE',
                 'total' => $total,
                 'modificado' => false,
@@ -128,9 +129,14 @@ class PedidoController extends Controller
                 'estado' => ['required', Rule::in(['PENDIENTE', 'ACEPTADO', 'RECHAZADO'])],
             ]);
 
+            if ($pedido->estado !== 'PENDIENTE') {
+                return response()->json([
+                    'message' => 'Solo se puede cambiar el estado cuando el pedido está PENDIENTE.',
+                ], 422);
+            }
+
             $pedido->update([
                 'estado' => $request->estado,
-                'modificado' => true,
             ]);
 
             return response()->json($pedido->load(['user:id,name', 'detalles.producto']));
@@ -153,6 +159,7 @@ class PedidoController extends Controller
             });
 
             $pedido->update([
+                'comentario' => $data['comentario'] ?? $pedido->comentario,
                 'total' => $total,
                 'modificado' => true,
             ]);
@@ -195,16 +202,16 @@ class PedidoController extends Controller
             ], 422);
         }
 
-        $pedido->delete();
+        $pedido->update(['estado' => 'ANULADO']);
 
-        return response()->json(['message' => 'Pedido anulado correctamente']);
+        return response()->json($pedido->load(['user:id,name', 'detalles.producto']));
     }
 
     public function printPdf($id)
     {
-        if (auth()->check() && method_exists(auth()->user(), 'can') && !auth()->user()->can('Imprimir Pedidos')) {
-            abort(403, 'No autorizado para imprimir este pedido');
-        }
+//        if (auth()->check() && method_exists(auth()->user(), 'can') && !auth()->user()->can('Imprimir Pedidos')) {
+//            abort(403, 'No autorizado para imprimir este pedido');
+//        }
 
         $pedido = Pedido::with(['user:id,name', 'detalles.producto'])->findOrFail($id);
 
@@ -227,6 +234,7 @@ class PedidoController extends Controller
     private function validateData(Request $request): array
     {
         return $request->validate([
+            'comentario' => 'nullable|string|max:500',
             'items' => 'required|array|min:1',
             'items.*.producto_id' => 'required|exists:almacen_items,id',
             'items.*.cantidad' => 'required|integer|min:1',

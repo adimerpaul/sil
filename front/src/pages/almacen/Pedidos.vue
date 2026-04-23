@@ -91,7 +91,7 @@
         <div class="col-12 col-sm-2">
           <q-select
             v-model="filters.estado"
-            :options="estadoOptions"
+            :options="estadoFilterOptions"
             dense
             outlined
             clearable
@@ -120,7 +120,7 @@
             icon="search"
             label="Buscar"
             no-caps
-            :loading="store.loading"
+            :loading="loading"
             @click="applyFilters"
           />
         </div>
@@ -139,12 +139,12 @@
       <q-separator />
 
       <q-table
-        v-model:pagination="store.pagination"
+        v-model:pagination="pagination"
         flat
         row-key="id"
-        :rows="store.pedidos"
+        :rows="rows"
         :columns="columns"
-        :loading="store.loading"
+        :loading="loading"
         :rows-per-page-options="[10, 15, 25, 50]"
         @request="onRequest"
       >
@@ -160,7 +160,18 @@
           <q-td :props="props">
             <div class="row items-center no-wrap">
               <q-avatar size="32px" color="primary" text-color="white" icon="person" class="q-mr-sm" />
-              <div class="text-weight-medium">{{ props.row.nombre_usuario || '-' }}</div>
+              <div class="column">
+                <div class="text-weight-medium">{{ props.row.nombre_usuario || '-' }}</div>
+                <div class="text-caption text-grey-7">
+                  {{ props.row.detalles_count || 0 }} items · {{ money(props.row.total) }} Bs
+                </div>
+                <div v-if="detallesPreview(props.row)" class="text-caption text-grey-7 preview-text">
+                  {{ detallesPreview(props.row) }}
+                </div>
+                <div v-if="props.row.comentario" class="text-caption text-grey-7 comment-text" :title="props.row.comentario">
+                  {{ props.row.comentario }}
+                </div>
+              </div>
             </div>
           </q-td>
         </template>
@@ -228,16 +239,6 @@
                   </q-item-section>
                   <q-item-section>Imprimir</q-item-section>
                 </q-item>
-                <q-item
-                  v-if="canEdit"
-                  clickable
-                  v-close-popup
-                  :disable="props.row.estado !== 'PENDIENTE'"
-                  @click="editPedido(props.row)"
-                >
-                  <q-item-section avatar><q-icon name="edit" color="amber-9" /></q-item-section>
-                  <q-item-section>Editar estado</q-item-section>
-                </q-item>
                 <q-separator v-if="canDelete" />
                 <q-item
                   v-if="canDelete"
@@ -277,7 +278,7 @@
           </div>
         </div>
 
-        <q-card-section v-if="selectedPedido" class="q-pa-md">
+        <q-card-section v-if="selectedPedido" class="q-pa-sm">
           <div class="meta-grid">
             <div class="meta-item">
               <q-icon name="badge" size="20px" class="meta-icon" />
@@ -314,24 +315,31 @@
                 <div class="meta-value">{{ money(selectedPedido.total) }} Bs</div>
               </div>
             </div>
+            <div v-if="selectedPedido.comentario" class="meta-item">
+              <q-icon name="comment" size="20px" class="meta-icon" />
+              <div class="meta-content">
+                <div class="meta-label">Comentario</div>
+                <div class="meta-value">{{ selectedPedido.comentario }}</div>
+              </div>
+            </div>
           </div>
 
         </q-card-section>
 
         <q-separator />
 
-        <q-card-section v-if="selectedPedido" class="q-pa-md">
+        <q-card-section v-if="selectedPedido" class="q-pa-sm">
 
           <div class="row items-center q-mb-sm">
             <q-icon name="inventory_2" size="18px" color="primary" class="q-mr-xs" />
             <div class="text-subtitle2 text-weight-bold">Productos</div>
             <q-space />
-            <q-chip dense color="primary" text-color="white" :label="`${(selectedPedido.detalles || []).length} items`" />
+            <q-chip dense color="primary" text-color="white" :label="`${detailItems.length} items`" />
           </div>
 
           <div class="detail-items">
             <div
-              v-for="det in selectedPedido.detalles || []"
+              v-for="det in detailItems"
               :key="det.id"
               class="detail-item"
             >
@@ -344,12 +352,23 @@
               <div class="detail-item-info">
                 <div class="detail-item-name">{{ det.producto?.nombre || '-' }}</div>
                 <div class="detail-item-meta">
-                  <span>{{ det.cantidad }} x {{ money(det.precio_unitario) }} Bs</span>
+                  <template v-if="editingItems">
+                    <q-input
+                      v-model.number="det.cantidad"
+                      dense
+                      outlined
+                      type="number"
+                      min="1"
+                      class="qty-input"
+                    />
+                    <span>x {{ money(det.precio_unitario) }} Bs</span>
+                  </template>
+                  <span v-else>{{ det.cantidad }} x {{ money(det.precio_unitario) }} Bs</span>
                 </div>
               </div>
-              <div class="detail-item-total">{{ money(det.subtotal) }} Bs</div>
+              <div class="detail-item-total">{{ money(lineSubtotal(det)) }} Bs</div>
             </div>
-            <div v-if="(selectedPedido.detalles || []).length === 0" class="text-center text-grey-7 q-pa-md">
+            <div v-if="detailItems.length === 0" class="text-center text-grey-7 q-pa-md">
               Sin productos
             </div>
           </div>
@@ -357,27 +376,93 @@
 
         <q-separator />
 
-        <q-card-section v-if="selectedPedido" class="q-pa-md detail-summary">
+        <q-card-section v-if="selectedPedido" class="q-pa-sm detail-summary">
           <div class="summary-row">
             <span class="summary-label">Subtotal</span>
-            <span class="summary-value">{{ money(selectedPedido.total) }} Bs</span>
+            <span class="summary-value">{{ money(detailTotal) }} Bs</span>
           </div>
           <div class="summary-row">
             <span class="summary-label">Items</span>
-            <span class="summary-value">{{ (selectedPedido.detalles || []).length }}</span>
+            <span class="summary-value">{{ detailItems.length }}</span>
           </div>
           <q-separator class="q-my-sm" />
           <div class="summary-row total-row">
             <span class="total-label">Total</span>
-            <span class="total-value">{{ money(selectedPedido.total) }} Bs</span>
+            <span class="total-value">{{ money(detailTotal) }} Bs</span>
           </div>
         </q-card-section>
 
         <q-separator />
 
-        <q-card-actions class="q-pa-md">
+        <q-card-actions class="q-pa-sm">
           <q-space />
           <q-btn flat no-caps color="grey-8" label="Cerrar" @click="showDetailDialog = false" />
+
+          <q-btn
+            v-if="selectedPedido && canEdit && !editingItems"
+            unelevated
+            no-caps
+            color="green"
+            icon="task_alt"
+            label="Aceptar"
+            :disable="selectedPedido.estado !== 'PENDIENTE'"
+            :loading="savingEstado === 'ACEPTADO'"
+            @click="setEstadoFromDetail('ACEPTADO')"
+          />
+          <q-btn
+            v-if="selectedPedido && canEdit && !editingItems"
+            unelevated
+            no-caps
+            color="red"
+            icon="cancel"
+            label="Rechazar"
+            :disable="selectedPedido.estado !== 'PENDIENTE'"
+            :loading="savingEstado === 'RECHAZADO'"
+            @click="setEstadoFromDetail('RECHAZADO')"
+          />
+
+          <q-btn
+            v-if="selectedPedido && canEdit && !editingItems"
+            unelevated
+            no-caps
+            color="primary"
+            icon="edit"
+            label="Modificar"
+            :disable="selectedPedido.estado !== 'PENDIENTE'"
+            @click="startEditItems"
+          />
+          <q-btn
+            v-if="selectedPedido && canEdit && editingItems"
+            flat
+            no-caps
+            color="grey-8"
+            icon="close"
+            label="Cancelar"
+            :disable="savingDetail"
+            @click="cancelEditItems"
+          />
+          <q-btn
+            v-if="selectedPedido && canEdit && editingItems"
+            unelevated
+            no-caps
+            color="primary"
+            icon="save"
+            label="Guardar"
+            :loading="savingDetail"
+            @click="saveItemChanges"
+          />
+
+          <q-btn
+            v-if="selectedPedido && canDelete && !editingItems"
+            unelevated
+            no-caps
+            color="negative"
+            icon="cancel"
+            label="Anular"
+            :disable="selectedPedido.estado !== 'PENDIENTE'"
+            @click="deletePedido(selectedPedido.id)"
+          />
+
           <q-btn
             v-if="selectedPedido && canPrint"
             unelevated
@@ -385,67 +470,49 @@
             color="teal"
             icon="print"
             label="Imprimir"
+            :disable="editingItems"
             :loading="printingId === selectedPedido.id"
             @click="printPedido(selectedPedido.id)"
-          />
-          <q-btn
-            v-if="selectedPedido && canEdit"
-            unelevated
-            no-caps
-            color="primary"
-            icon="edit"
-            label="Editar estado"
-            :disable="selectedPedido.estado !== 'PENDIENTE'"
-            @click="editFromDetail(selectedPedido)"
           />
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="showEditDialog" position="right">
-      <q-card style="min-width: 420px">
-        <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">Editar estado del pedido</div>
-          <q-space />
-          <q-btn icon="close" flat round dense @click="showEditDialog = false" />
-        </q-card-section>
-        <q-separator />
-        <q-card-section class="q-gutter-md">
-          <div class="text-caption text-grey-7">Pedido #{{ editingPedido?.id }}</div>
-          <q-select
-            v-model="editingPedido.estado"
-            :options="estadoOptions"
-            label="Estado"
-            outlined
-            dense
-            emit-value
-            map-options
-          />
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="Cancelar" no-caps @click="showEditDialog = false" />
-          <q-btn color="primary" label="Guardar" no-caps :loading="store.loading" @click="saveEdit" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </q-page>
 </template>
 
 <script setup>
 import { computed, getCurrentInstance, onMounted, ref } from 'vue'
 import { useQuasar } from 'quasar'
-import { usePedidosStore } from 'stores/pedidos.js'
 import moment from 'moment'
 
 const { proxy } = getCurrentInstance()
 const $q = useQuasar()
-const store = usePedidosStore()
 
 const showDetailDialog = ref(false)
-const showEditDialog = ref(false)
 const selectedPedido = ref(null)
-const editingPedido = ref(null)
 const printingId = ref(null)
+const editingItems = ref(false)
+const itemsDraft = ref([])
+const savingDetail = ref(false)
+const savingEstado = ref(null)
+
+const loading = ref(false)
+const rows = ref([])
+const summary = ref({
+  total_pendientes: 0,
+  total_aceptados: 0,
+  total_rechazados: 0,
+  cantidad: 0,
+})
+
+const pagination = ref({
+  sortBy: 'id',
+  descending: true,
+  page: 1,
+  rowsPerPage: 15,
+  rowsNumber: 0,
+})
 
 const filters = ref({
   date_from: moment().format('YYYY-MM-DD'),
@@ -454,42 +521,96 @@ const filters = ref({
   q: ''
 })
 
-const estadoOptions = [
+const estadoEditOptions = [
   { label: 'Pendiente', value: 'PENDIENTE' },
   { label: 'Aceptado', value: 'ACEPTADO' },
   { label: 'Rechazado', value: 'RECHAZADO' }
 ]
 
+const estadoFilterOptions = [
+  ...estadoEditOptions,
+  { label: 'Anulado', value: 'ANULADO' }
+]
+
 const columns = [
-  { name: 'id', label: 'ID', field: 'id', align: 'left' },
-  { name: 'nombre_usuario', label: 'Usuario', field: 'nombre_usuario', align: 'left' },
+  { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'left', style: 'width: 130px' },
+  { name: 'id', label: 'ID', field: 'id', align: 'left', style: 'width: 80px' },
   { name: 'fecha_hora', label: 'Fecha', field: 'fecha_hora', align: 'left' },
+  { name: 'nombre_usuario', label: 'Usuario', field: 'nombre_usuario', align: 'left' },
   { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
   { name: 'modificado', label: 'Modificado', field: 'modificado', align: 'left' },
-  { name: 'total', label: 'Total', field: 'total', align: 'right' },
-  { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' }
+  { name: 'total', label: 'Total', field: 'total', align: 'right' }
 ]
 
 const userPermissions = computed(() => proxy.$store.permissions || [])
-const canCreate = computed(() => userPermissions.value.includes('Crear Pedidos'))
-const canEdit = computed(() => userPermissions.value.includes('Editar Pedidos'))
-const canDelete = computed(() => userPermissions.value.includes('Anular Pedidos'))
-const canPrint = computed(() => userPermissions.value.includes('Imprimir Pedidos'))
+const currentUser = computed(() => proxy.$store.user || {})
+const isAdminUser = computed(() => currentUser.value?.role === 'Administrador')
+
+const canCreate = computed(() => isAdminUser.value || userPermissions.value.includes('Crear Pedidos'))
+const canEdit = computed(() => isAdminUser.value || userPermissions.value.includes('Editar Pedidos'))
+const canDelete = computed(() => isAdminUser.value || userPermissions.value.includes('Anular Pedidos'))
+const canPrint = computed(() => isAdminUser.value || userPermissions.value.includes('Imprimir Pedidos'))
 
 const summaryData = computed(() => ({
-  total_pendientes: store.summary.total_pendientes ?? store.pedidos.filter(p => p.estado === 'PENDIENTE').length,
-  total_aceptados: store.summary.total_aceptados ?? store.pedidos.filter(p => p.estado === 'ACEPTADO').length,
-  total_rechazados: store.summary.total_rechazados ?? store.pedidos.filter(p => p.estado === 'RECHAZADO').length,
-  cantidad: store.summary.cantidad ?? store.pedidos.length
+  total_pendientes: summary.value.total_pendientes ?? rows.value.filter(p => p.estado === 'PENDIENTE').length,
+  total_aceptados: summary.value.total_aceptados ?? rows.value.filter(p => p.estado === 'ACEPTADO').length,
+  total_rechazados: summary.value.total_rechazados ?? rows.value.filter(p => p.estado === 'RECHAZADO').length,
+  cantidad: summary.value.cantidad ?? rows.value.length
 }))
 
-onMounted(async () => {
-  await store.fetchPedidos(filters.value)
+const detailItems = computed(() => {
+  return editingItems.value ? itemsDraft.value : (selectedPedido.value?.detalles || [])
 })
 
+function lineSubtotal (det) {
+  const cantidad = Number(det?.cantidad || 0)
+  const precio = Number(det?.precio_unitario || 0)
+  return Number.isFinite(cantidad) && Number.isFinite(precio) ? cantidad * precio : 0
+}
+
+const detailTotal = computed(() => {
+  return detailItems.value.reduce((sum, det) => sum + lineSubtotal(det), 0)
+})
+
+function detallesPreview (pedido) {
+  const detalles = pedido?.detalles || []
+  if (!Array.isArray(detalles) || detalles.length === 0) return ''
+
+  const parts = detalles.slice(0, 3).map((d) => {
+    const nombre = d?.producto?.nombre || d?.nombre || '-'
+    const cantidad = Number(d?.cantidad || 0)
+    return `${nombre} x${cantidad}`
+  })
+
+  return detalles.length > 3 ? `${parts.join(', ')}...` : parts.join(', ')
+}
+
+onMounted(async () => {
+  await fetchRows()
+})
+
+async function fetchRows () {
+  loading.value = true
+  try {
+    const res = await proxy.$axios.get('pedidos', {
+      params: {
+        page: pagination.value.page,
+        rowsPerPage: pagination.value.rowsPerPage,
+        ...filters.value,
+      },
+    })
+
+    rows.value = res.data.data || []
+    pagination.value.rowsNumber = res.data.total || 0
+    summary.value = res.data.summary || summary.value
+  } finally {
+    loading.value = false
+  }
+}
+
 async function applyFilters () {
-  store.pagination.page = 1
-  await store.fetchPedidos(filters.value)
+  pagination.value.page = 1
+  await fetchRows()
 }
 
 function clearFilters () {
@@ -503,41 +624,95 @@ function clearFilters () {
 }
 
 async function onRequest (props) {
-  const { page, rowsPerPage, sortBy, descending } = props.pagination
-  store.pagination = {
-    ...store.pagination,
-    page,
-    rowsPerPage,
-    sortBy,
-    descending
-  }
-  await store.fetchPedidos(filters.value)
+  pagination.value = props.pagination
+  await fetchRows()
 }
 
 async function viewPedido (pedido) {
-  selectedPedido.value = await store.fetchPedido(pedido.id)
+  const res = await proxy.$axios.get(`pedidos/${pedido.id}`)
+  selectedPedido.value = res.data
+  editingItems.value = false
+  itemsDraft.value = []
   showDetailDialog.value = true
 }
 
-function editPedido (pedido) {
-  editingPedido.value = { ...pedido }
-  showEditDialog.value = true
+function startEditItems () {
+  if (!selectedPedido.value) return
+  const detalles = selectedPedido.value.detalles || []
+  itemsDraft.value = detalles.map((d) => ({
+    id: d.id,
+    producto_id: d.producto_id ?? d.producto?.id,
+    producto: d.producto,
+    cantidad: Number(d.cantidad || 0),
+    precio_unitario: Number(d.precio_unitario || 0),
+  }))
+  editingItems.value = true
 }
 
-function editFromDetail (pedido) {
-  showDetailDialog.value = false
-  editPedido(pedido)
+function cancelEditItems () {
+  editingItems.value = false
+  itemsDraft.value = []
 }
 
-async function saveEdit () {
-  await store.updatePedido(editingPedido.value.id, { estado: editingPedido.value.estado })
-  showEditDialog.value = false
-  await applyFilters()
-  $q.notify({
-    color: 'positive',
-    message: 'Pedido actualizado',
-    position: 'top'
-  })
+function hasItemChanges () {
+  const original = selectedPedido.value?.detalles || []
+  if (original.length !== itemsDraft.value.length) return true
+
+  const originalById = new Map(original.map((d) => [d.id, d]))
+  for (const draft of itemsDraft.value) {
+    const orig = originalById.get(draft.id)
+    if (!orig) return true
+    if (Number(orig.cantidad || 0) !== Number(draft.cantidad || 0)) return true
+    if (Number(orig.precio_unitario || 0) !== Number(draft.precio_unitario || 0)) return true
+  }
+
+  return false
+}
+
+async function saveItemChanges () {
+  if (!selectedPedido.value?.id) return
+  if (!hasItemChanges()) {
+    cancelEditItems()
+    $q.notify({ color: 'info', message: 'Sin cambios', position: 'top' })
+    return
+  }
+
+  const items = itemsDraft.value.map((d) => ({
+    producto_id: d.producto_id,
+    cantidad: Number(d.cantidad || 0),
+    precio_unitario: Number(d.precio_unitario || 0),
+  }))
+
+  const missing = items.find((i) => !i.producto_id || i.cantidad < 1)
+  if (missing) {
+    $q.notify({ color: 'negative', message: 'Revisa las cantidades (mínimo 1) y productos', position: 'top' })
+    return
+  }
+
+  savingDetail.value = true
+  try {
+    const res = await proxy.$axios.put(`pedidos/${selectedPedido.value.id}`, { items })
+    selectedPedido.value = res.data
+    editingItems.value = false
+    itemsDraft.value = []
+    await applyFilters()
+    $q.notify({ color: 'positive', message: 'Pedido modificado', position: 'top' })
+  } finally {
+    savingDetail.value = false
+  }
+}
+
+async function setEstadoFromDetail (estado) {
+  if (!selectedPedido.value?.id) return
+  savingEstado.value = estado
+  try {
+    const res = await proxy.$axios.put(`pedidos/${selectedPedido.value.id}`, { estado })
+    selectedPedido.value = res.data
+    await applyFilters()
+    $q.notify({ color: 'positive', message: `Pedido ${estado.toLowerCase()}`, position: 'top' })
+  } finally {
+    savingEstado.value = null
+  }
 }
 
 function deletePedido (id) {
@@ -546,7 +721,10 @@ function deletePedido (id) {
     message: '¿Deseas anular este pedido?',
     cancel: true
   }).onOk(async () => {
-    await store.deletePedido(id)
+    const res = await proxy.$axios.delete(`pedidos/${id}`)
+    if (selectedPedido.value?.id === id) {
+      selectedPedido.value = res.data
+    }
     await applyFilters()
     $q.notify({
       color: 'positive',
@@ -578,7 +756,8 @@ async function printPedido (id) {
 function estadoColor (estado) {
   if (estado === 'ACEPTADO') return 'green'
   if (estado === 'RECHAZADO') return 'red'
-  return 'blue'
+  if (estado === 'ANULADO') return 'grey-7'
+  return 'amber-8'
 }
 
 function money (value) {
@@ -728,6 +907,22 @@ function itemImageUrl (det) {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+.qty-input {
+  width: 84px;
+}
+
+.qty-input :deep(.q-field__control) {
+  height: 32px;
+}
+
+.preview-text,
+.comment-text {
+  max-width: 520px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .detail-item-total {
