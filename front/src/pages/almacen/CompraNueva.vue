@@ -248,13 +248,6 @@
                 <div class="meta-value">{{ pagoLabel(confirmData?.tipo_pago) }}</div>
               </div>
             </div>
-            <div v-if="confirmData?.comentario" class="meta-item">
-              <q-icon name="comment" size="20px" class="meta-icon" />
-              <div class="meta-content">
-                <div class="meta-label">Comentario</div>
-                <div class="meta-value">{{ confirmData.comentario }}</div>
-              </div>
-            </div>
           </div>
         </q-card-section>
 
@@ -303,6 +296,10 @@
           <div class="summary-row total-row">
             <span class="total-label">Total a registrar</span>
             <span class="total-value">{{ money(total) }} Bs</span>
+          </div>
+          <div v-if="confirmData?.comentario" class="summary-comment">
+            <div class="summary-comment-label">Comentario</div>
+            <div class="summary-comment-value">{{ confirmData.comentario }}</div>
           </div>
         </q-card-section>
 
@@ -947,5 +944,28 @@ export default {
   font-size: 22px;
   font-weight: 800;
   color: #1976d2;
+}
+
+.summary-comment {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #eef2f7;
+  border: 1px solid #dbe4ef;
+}
+
+.summary-comment-label {
+  font-size: 11px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 600;
+}
+
+.summary-comment-value {
+  margin-top: 2px;
+  font-size: 14px;
+  color: #1f2937;
+  word-break: break-word;
 }
 </style>

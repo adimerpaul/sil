@@ -194,9 +194,9 @@ class CompraController extends Controller
 
     public function printPdf($id)
     {
-        if (auth()->check() && method_exists(auth()->user(), 'can') && !auth()->user()->can('Imprimir Compras')) {
-            abort(403, 'No autorizado para imprimir esta compra');
-        }
+//        if (auth()->check() && method_exists(auth()->user(), 'can') && !auth()->user()->can('Imprimir Compras')) {
+//            abort(403, 'No autorizado para imprimir esta compra');
+//        }
 
         $compra = Compra::with(['proveedor', 'user:id,name', 'detalles.producto'])->findOrFail($id);
 
