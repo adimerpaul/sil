@@ -2,313 +2,287 @@
 <html lang="es">
 <head>
     <meta charset="utf-8">
-    <title>Pedido #{{ $pedido->id }}</title>
+    <title>Pedido interno #{{ $pedido->id }}</title>
     <style>
-        @page { margin: 22px 24px; }
+        @page { margin: 16px 20px; }
 
         body {
-            font-family: Helvetica, Arial, sans-serif;
+            font-family: "DejaVu Sans", Helvetica, Arial, sans-serif;
             color: #172033;
             font-size: 10px;
-            line-height: 1.3;
+            line-height: 1.2;
         }
 
-        .header {
-            border-bottom: 2px solid #0f5ea8;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-        }
-
-        .logo {
-            height: 36px;
-            width: auto;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-
-        .brand {
-            color: #0f5ea8;
-            font-size: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: .6px;
-        }
-
-        h1 {
-            margin: 2px 0 0;
-            font-size: 18px;
-            color: #111827;
-        }
-
-        .row { clear: both; width: 100%; }
-        .row:after { clear: both; content: ""; display: block; }
-        .col-left { float: left; width: 65%; }
-        .col-right { float: right; width: 35%; text-align: right; color: #64748b; }
-
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 3px;
-            font-size: 9px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .badge-pendiente { background: #fef3c7; color: #92400e; }
-        .badge-aceptado { background: #dcfce7; color: #166534; }
-        .badge-rechazado { background: #fee2e2; color: #991b1b; }
-        .badge-anulado { background: #e5e7eb; color: #374151; }
-
-        .meta {
-            border: 1px solid #dbe4ee;
-            background: #f8fafc;
-            padding: 8px 10px;
-            margin: 10px 0;
-        }
-
-        .meta-row { width: 100%; }
-        .meta-row:after { clear: both; content: ""; display: block; }
-        .meta-cell {
-            float: left;
-            width: 33%;
-            padding: 3px 4px;
-            box-sizing: border-box;
-        }
-        .meta-label {
-            color: #64748b;
-            font-size: 8px;
-            text-transform: uppercase;
-            letter-spacing: .4px;
-            font-weight: bold;
-            display: block;
-        }
-        .meta-value {
-            color: #0f172a;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: capitalize;
-            display: block;
-        }
-
-        h2 {
-            margin: 12px 0 6px;
-            font-size: 12px;
-            color: #0f5ea8;
-            border-bottom: 1px solid #c8e0f7;
-            padding-bottom: 3px;
-        }
-
-        table.items {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 4px;
-        }
-        table.items th {
-            background: #0f5ea8;
-            color: #fff;
-            text-align: left;
-            padding: 5px 6px;
-            font-size: 9px;
-            text-transform: uppercase;
-        }
-        table.items td {
-            padding: 5px 6px;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: 10px;
-            vertical-align: middle;
-        }
-        table.items tr:nth-child(even) td { background: #f8fafc; }
-        .right { text-align: right; }
+        table { width: 100%; border-collapse: collapse; }
         .center { text-align: center; }
-        .producto-nombre { text-transform: capitalize; font-weight: bold; }
-        .muted { color: #64748b; font-size: 8px; }
+        .right { text-align: right; }
+        .bold { font-weight: bold; }
+        .uppercase { text-transform: uppercase; }
+        .small { font-size: 8px; }
+        .tiny { font-size: 7px; }
+        .cell { border: 1px solid #7fa1ca; padding: 3px 5px; vertical-align: middle; }
 
-        .totals-wrap { width: 100%; margin-top: 14px; }
-        .totals-wrap:after { clear: both; content: ""; display: block; }
-        table.totals {
-            width: 50%;
-            float: right;
-            border-collapse: collapse;
-            border: 1px solid #c8e0f7;
-        }
-        table.totals td {
-            padding: 6px 10px;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: 11px;
-        }
-        table.totals tr:last-child td { border-bottom: none; }
-        table.totals td.label { color: #475569; }
-        table.totals td.value {
-            text-align: right;
+        .top-brand {
+            text-align: center;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #0f5ea8;
+            line-height: 1.25;
+            margin-bottom: 8px;
             font-weight: bold;
-            color: #0f172a;
-            white-space: nowrap;
         }
-        table.totals tr.total td {
-            background: #0f5ea8;
-            color: #fff;
+        .top-brand .city {
+            color: #475569;
+            font-size: 11px;
+            text-transform: none;
+            font-weight: normal;
+        }
+
+        .pedido-nro {
+            width: 34%;
+            margin-left: auto;
+            margin-bottom: 8px;
+        }
+        .pedido-nro td {
+            border: 1px solid #0f5ea8;
+            background: #edf5ff;
+            color: #0f5ea8;
+            padding: 6px 8px;
             font-size: 14px;
             font-weight: bold;
-            padding: 8px 10px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
         }
-        table.totals tr.total td.value { color: #fff; }
-
-        .footer {
-            margin-top: 30px;
-            clear: both;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 8px;
+        .pedido-nro td.value {
+            width: 38%;
             text-align: center;
+            color: #172033;
+            background: #fff;
         }
-        .footer-brand {
+
+        .title {
+            text-align: center;
+            font-size: 34px;
+            letter-spacing: .5px;
+            margin: 4px 0 6px;
+            text-transform: uppercase;
+            text-decoration: underline;
             color: #0f5ea8;
-            font-size: 11px;
+        }
+
+        .subtitle-meta {
+            text-align: center;
+            font-size: 9px;
+            color: #475569;
+            margin-bottom: 7px;
+            border-bottom: 1px solid #c8e0f7;
+            padding-bottom: 4px;
+        }
+        .subtitle-meta .highlight {
+            color: #0f5ea8;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
-        .footer-meta {
-            color: #64748b;
-            font-size: 8px;
-            margin-top: 2px;
+
+        .info td.label {
+            width: 19%;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+            color: #0f5ea8;
+            background: #edf5ff;
+        }
+
+        .items th {
+            border: 1px solid #0f5ea8;
+            background: #0f5ea8;
+            color: #fff;
+            padding: 4px 3px;
+            font-size: 9px;
+            text-transform: uppercase;
+        }
+        .items td {
+            border: 1px solid #7fa1ca;
+            padding: 4px 4px;
+            vertical-align: top;
+        }
+        .items tbody tr:nth-child(even) td { background: #f8fbff; }
+
+        .total-row td {
+            border: 1px solid #7fa1ca;
+            padding: 5px 6px;
+            font-size: 12px;
+        }
+        .total-row td.label {
+            width: 90%;
+            text-align: right;
+            color: #0f5ea8;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .total-row td.value {
+            background: #0f5ea8;
+            color: #fff;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .print-date {
+            margin-top: 6px;
+            text-align: right;
+            color: #475569;
+            font-size: 9px;
         }
 
         .signatures {
-            margin-top: 50px;
-            clear: both;
             width: 100%;
+            margin-top: 40px;
         }
-        .signatures:after { clear: both; content: ""; display: block; }
-        .sign-box {
-            float: left;
-            width: 45%;
+        .signatures td {
+            width: 25%;
             text-align: center;
-            border-top: 1px solid #475569;
-            padding-top: 4px;
-            font-size: 9px;
-            color: #475569;
+            vertical-align: bottom;
+            padding-top: 42px;
         }
-        .sign-box.right { float: right; }
+        .line {
+            width: 82%;
+            margin: 0 auto 4px;
+            border-top: 1px solid #0f5ea8;
+        }
+        .sign-title {
+            color: #0f5ea8;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .sign-name {
+            color: #334155;
+            font-size: 8px;
+            margin-top: 2px;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
+@php
+    $fechaPedido = $pedido->fecha_hora ? \Carbon\Carbon::parse($pedido->fecha_hora) : null;
+    $solicitante = $pedido->nombre_usuario ?: '-';
+    $servicioSolicitante = $pedido->comentario ?: '-';
+    $respPedido = optional($pedido->user)->name ?: '-';
+@endphp
 
-<div class="header">
-    <div class="row">
-        <div class="col-left">
-            @php $logoPath = public_path('img/logo-hospital.png'); @endphp
-            @if (file_exists($logoPath))
-                <img class="logo" src="{{ $logoPath }}" alt="Logo">
-            @endif
-            <div class="brand">SILL · Almacén</div>
-            <h1>Comprobante de pedido #{{ $pedido->id }}</h1>
-            <div class="muted">
-                Emitido el {{ \Carbon\Carbon::parse($pedido->fecha_hora)->format('d/m/Y H:i') }}
-                @if ($pedido->user) · Solicitado por {{ $pedido->user->name }} @endif
+<table>
+    <tr>
+        <td style="width:60%;">
+            <div class="top-brand">
+                Hospital General San Juan de Dios<br>
+                Almacen Central<br>
+                <span class="city">Oruro-Bolivia</span>
             </div>
-        </div>
-        <div class="col-right">
-            @php $estadoClass = 'badge-pendiente'; @endphp
-            @if ($pedido->estado === 'ACEPTADO') @php $estadoClass = 'badge-aceptado'; @endphp
-            @elseif ($pedido->estado === 'RECHAZADO') @php $estadoClass = 'badge-rechazado'; @endphp
-            @elseif ($pedido->estado === 'ANULADO') @php $estadoClass = 'badge-anulado'; @endphp
-            @endif
-            <span class="badge {{ $estadoClass }}">{{ $pedido->estado }}</span>
-            @if ($pedido->modificado)
-                <div class="muted" style="margin-top:4px;">Modificado</div>
-            @endif
-        </div>
-    </div>
+        </td>
+        <td style="width:40%; vertical-align: top;">
+            <table class="pedido-nro">
+                <tr>
+                    <td>Pedido N&deg;</td>
+                    <td class="value">{{ $pedido->id }}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<div class="title">Pedido interno de materiales</div>
+<div class="subtitle-meta">
+    Creado: <span class="highlight">{{ $fechaPedido ? $fechaPedido->format('d/m/Y H:i') : '-' }}</span>
+    &nbsp;|&nbsp;
+    Usuario: <span class="highlight">{{ optional($pedido->user)->name ?: '-' }}</span>
+    &nbsp;|&nbsp;
+    Estado: <span class="highlight">{{ $pedido->estado }}</span>
 </div>
 
-<div class="meta">
-    <div class="meta-row">
-        <div class="meta-cell">
-            <span class="meta-label">Solicitante</span>
-            <span class="meta-value">{{ $pedido->nombre_usuario ?: '-' }}</span>
-        </div>
-        <div class="meta-cell">
-            <span class="meta-label">Registrado por</span>
-            <span class="meta-value">{{ optional($pedido->user)->name ?: '-' }}</span>
-        </div>
-        <div class="meta-cell">
-            <span class="meta-label">Items</span>
-            <span class="meta-value">{{ count($pedido->detalles) }} producto(s)</span>
-        </div>
-    </div>
-    @if ($pedido->comentario)
-        <div class="meta-row">
-            <div class="meta-cell" style="width:100%;">
-                <span class="meta-label">Comentario</span>
-                <span class="meta-value">{{ $pedido->comentario }}</span>
-            </div>
-        </div>
-    @endif
-</div>
+<table class="info">
+    <tr>
+        <td class="cell label">Lugar</td>
+        <td class="cell uppercase">Oruro</td>
+        <td class="cell label">Fecha del pedido</td>
+        <td class="cell">{{ $fechaPedido ? $fechaPedido->format('d - M - Y') : '-' }}</td>
+    </tr>
+    <tr>
+        <td class="cell label">Solicitante</td>
+        <td class="cell uppercase">{{ $solicitante }}</td>
+        <td class="cell label">Servicio solicitante</td>
+        <td class="cell uppercase">{{ $servicioSolicitante }}</td>
+    </tr>
+    <tr>
+        <td class="cell label">Resp. de pedido</td>
+        <td class="cell uppercase">{{ $respPedido }}</td>
+        <td class="cell label">Items</td>
+        <td class="cell">{{ count($pedido->detalles) }}</td>
+    </tr>
+</table>
 
-<h2>Detalle de productos</h2>
-
-<table class="items">
+<table class="items" style="margin-top:8px;">
     <thead>
         <tr>
-            <th style="width: 6%;">#</th>
-            <th style="width: 50%;">Producto</th>
-            <th style="width: 10%;" class="center">Cant.</th>
-            <th style="width: 14%;" class="right">P. unit.</th>
-            <th style="width: 20%;" class="right">Subtotal</th>
+            <th style="width:6%;">Item</th>
+            <th style="width:10%;">Cantidad</th>
+            <th style="width:10%;">Unidad</th>
+            <th style="width:50%;">Articulo</th>
+            <th style="width:12%;">Precio Unit.</th>
+            <th style="width:12%;">Total</th>
         </tr>
     </thead>
     <tbody>
         @forelse ($pedido->detalles as $idx => $det)
             <tr>
-                <td>{{ $idx + 1 }}</td>
-                <td>
-                    <div class="producto-nombre">{{ optional($det->producto)->nombre ?? '-' }}</div>
-                    @if (optional($det->producto)->unidad_medida)
-                        <div class="muted">{{ $det->producto->unidad_medida }}</div>
-                    @endif
-                </td>
-                <td class="center">{{ $det->cantidad }}</td>
-                <td class="right">{{ number_format((float) $det->precio_unitario, 2, ',', '.') }} Bs</td>
-                <td class="right"><b>{{ number_format((float) $det->subtotal, 2, ',', '.') }} Bs</b></td>
+                <td class="right">{{ $idx + 1 }}</td>
+                <td class="right">{{ $det->cantidad }}</td>
+                <td class="uppercase">{{ optional($det->producto)->unidad_medida ?: 'UND' }}</td>
+                <td class="uppercase">{{ optional($det->producto)->nombre ?? '-' }}</td>
+                <td class="right">{{ number_format((float) $det->precio_unitario, 2, ',', '.') }}</td>
+                <td class="right">{{ number_format((float) $det->subtotal, 2, ',', '.') }}</td>
             </tr>
         @empty
             <tr>
-                <td colspan="5" class="center muted">Sin productos</td>
+                <td colspan="6" class="center">Sin productos</td>
             </tr>
         @endforelse
     </tbody>
 </table>
 
-<div class="totals-wrap">
-    <table class="totals">
-        <tr>
-            <td class="label">Subtotal</td>
-            <td class="value">{{ number_format((float) $pedido->total, 2, ',', '.') }} Bs</td>
-        </tr>
-        <tr>
-            <td class="label">Items</td>
-            <td class="value">{{ count($pedido->detalles) }}</td>
-        </tr>
-        <tr class="total">
-            <td class="label">Total</td>
-            <td class="value">{{ number_format((float) $pedido->total, 2, ',', '.') }} Bs</td>
-        </tr>
-    </table>
-</div>
+<table class="total-row">
+    <tr>
+        <td class="label">Total:</td>
+        <td class="value">{{ number_format((float) $pedido->total, 2, ',', '.') }}</td>
+    </tr>
+</table>
 
-<div class="signatures">
-    <div class="sign-box">
-        Firma del solicitante
-    </div>
-    <div class="sign-box right">
-        Firma del responsable de almacén
-    </div>
-</div>
+<div class="print-date">Fecha de Impresion: {{ now()->format('m/d/Y h:i A') }}</div>
 
-<div class="footer">
-    <div class="footer-brand">Hospital General</div>
-    <div class="footer-meta">Documento generado el {{ now()->format('d/m/Y H:i') }}</div>
-</div>
+<table class="signatures">
+    <tr>
+        <td>
+            <div class="line"></div>
+            <div class="sign-title">Servicio solicitantes</div>
+            <div class="sign-name">{{ $solicitante }}</div>
+        </td>
+        <td>
+            <div class="line"></div>
+            <div class="sign-title">Resp. de almacen</div>
+            <div class="sign-name">Juan Mario Rocha Arispe</div>
+        </td>
+        <td>
+            <div class="line"></div>
+            <div class="sign-title">Resp. de recepcion</div>
+            <div class="sign-name">{{ optional($pedido->user)->name ?: '-' }}</div>
+        </td>
+        <td>
+            <div class="line"></div>
+            <div class="sign-title">Administrador</div>
+            <div class="sign-name">Hospital General</div>
+        </td>
+    </tr>
+</table>
 
 </body>
 </html>

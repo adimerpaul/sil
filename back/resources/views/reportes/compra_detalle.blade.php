@@ -2,318 +2,298 @@
 <html lang="es">
 <head>
     <meta charset="utf-8">
-    <title>Compra #{{ $compra->id }}</title>
+    <title>Ingreso de materiales #{{ $compra->id }}</title>
     <style>
-        @page { margin: 22px 24px; }
+        @page { margin: 16px 20px; }
 
         body {
-            font-family: Helvetica, Arial, sans-serif;
+            font-family: "DejaVu Sans", Helvetica, Arial, sans-serif;
             color: #172033;
             font-size: 10px;
-            line-height: 1.3;
+            line-height: 1.2;
         }
 
-        .header {
-            border-bottom: 2px solid #0f5ea8;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-        }
+        table { width: 100%; border-collapse: collapse; }
+        .center { text-align: center; }
+        .right { text-align: right; }
+        .bold { font-weight: bold; }
+        .uppercase { text-transform: uppercase; }
+        .small { font-size: 8px; }
+        .tiny { font-size: 7px; }
+        .mt-6 { margin-top: 6px; }
+        .mt-10 { margin-top: 10px; }
+        .mt-14 { margin-top: 14px; }
+        .border { border: 1px solid #7fa1ca; }
+        .cell { border: 1px solid #7fa1ca; padding: 3px 5px; vertical-align: middle; }
+        .header-cell { border: 1px solid #7fa1ca; padding: 4px 5px; font-weight: bold; text-transform: uppercase; }
+        .logo { height: 58px; width: auto; display: block; margin-bottom: 3px; }
+        .city { font-style: italic; font-size: 11px; color: #0f5ea8; }
 
-        .brand {
-            color: #0f5ea8;
-            font-size: 10px;
-            font-weight: bold;
+        .doc-head td { vertical-align: top; }
+        .doc-number-table { width: 70%; margin-left: auto; border-collapse: collapse; }
+        .doc-number-table td { border: 1px solid #0f5ea8; padding: 4px 6px; font-size: 12px; }
+        .doc-number-table td:first-child { background: #e8f1fb; color: #0f5ea8; }
+        .title {
+            text-align: center;
+            font-size: 31px;
+            letter-spacing: .5px;
+            margin-top: 10px;
+            margin-bottom: 4px;
             text-transform: uppercase;
-            letter-spacing: .6px;
+            text-decoration: underline;
+            color: #0f5ea8;
         }
-
-        h1 {
-            margin: 2px 0 0;
-            font-size: 18px;
-            color: #111827;
-        }
-
-        .row { clear: both; width: 100%; }
-        .row:after { clear: both; content: ""; display: block; }
-        .col-left { float: left; width: 65%; }
-        .col-right { float: right; width: 35%; text-align: right; color: #64748b; }
-
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 3px;
+        .subtitle-meta {
+            text-align: center;
             font-size: 9px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .badge-activo { background: #dcfce7; color: #166534; }
-        .badge-anulado { background: #fee2e2; color: #991b1b; }
-
-        .meta {
-            border: 1px solid #dbe4ee;
-            background: #f8fafc;
-            padding: 8px 10px;
-            margin: 10px 0;
-        }
-
-        .meta-row { width: 100%; }
-        .meta-row:after { clear: both; content: ""; display: block; }
-        .meta-cell {
-            float: left;
-            width: 33%;
-            padding: 3px 4px;
-            box-sizing: border-box;
-        }
-        .meta-label {
-            color: #64748b;
-            font-size: 8px;
-            text-transform: uppercase;
-            letter-spacing: .4px;
-            font-weight: bold;
-            display: block;
-        }
-        .meta-value {
-            color: #0f172a;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: capitalize;
-            display: block;
-        }
-
-        h2 {
-            margin: 12px 0 6px;
-            font-size: 12px;
-            color: #0f5ea8;
+            color: #475569;
+            margin-bottom: 6px;
             border-bottom: 1px solid #c8e0f7;
-            padding-bottom: 3px;
+            padding-bottom: 4px;
+        }
+        .subtitle-meta .highlight {
+            color: #0f5ea8;
+            font-weight: bold;
+            text-transform: uppercase;
         }
 
-        table.items {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 4px;
+        .info-table td.label {
+            width: 18%;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+            color: #0f5ea8;
+            background: #edf5ff;
         }
-        table.items th {
+
+        .items-table th {
+            border: 1px solid #0f5ea8;
             background: #0f5ea8;
             color: #fff;
-            text-align: left;
-            padding: 5px 6px;
+            padding: 4px 3px;
             font-size: 9px;
             text-transform: uppercase;
         }
-        table.items td {
-            padding: 5px 6px;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: 10px;
-            vertical-align: middle;
+        .items-table td {
+            border: 1px solid #7fa1ca;
+            padding: 4px 4px;
+            vertical-align: top;
         }
-        table.items tr:nth-child(even) td { background: #f8fafc; }
-        .right { text-align: right; }
-        .center { text-align: center; }
-        .producto-nombre { text-transform: capitalize; font-weight: bold; }
-        .muted { color: #64748b; font-size: 8px; }
+        .items-table tbody tr:nth-child(even) td { background: #f8fbff; }
+
+        .obs td {
+            border: 1px solid #7fa1ca;
+            padding: 4px 5px;
+        }
+        .obs-label { color: #0f5ea8; background: #edf5ff; }
 
         .totals-wrap {
-            width: 100%;
-            margin-top: 14px;
+            width: 44%;
+            margin-left: auto;
+            margin-top: 10px;
+            margin-bottom: 8px;
         }
-        .totals-wrap:after { clear: both; content: ""; display: block; }
-        table.totals {
-            width: 50%;
-            float: right;
-            border-collapse: collapse;
-            border: 1px solid #c8e0f7;
+        .totals-wrap td {
+            border: 1px solid #7fa1ca;
+            padding: 5px 7px;
+            font-size: 10px;
         }
-        table.totals td {
-            padding: 6px 10px;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: 11px;
+        .totals-wrap td.label {
+            color: #475569;
+            background: #f8fbff;
         }
-        table.totals tr:last-child td { border-bottom: none; }
-        table.totals td.label { color: #475569; }
-        table.totals td.value {
+        .totals-wrap td.value {
             text-align: right;
             font-weight: bold;
             color: #0f172a;
-            white-space: nowrap;
         }
-        table.totals tr.total td {
+        .totals-wrap tr.total td {
             background: #0f5ea8;
             color: #fff;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
-            padding: 8px 10px;
         }
-        table.totals tr.total td.value { color: #fff; }
-
-        .footer {
-            margin-top: 30px;
-            clear: both;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 8px;
-            text-align: center;
-        }
-        .footer-brand {
-            color: #0f5ea8;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .footer-meta {
-            color: #64748b;
-            font-size: 8px;
-            margin-top: 2px;
-        }
+        .clearfix { clear: both; }
 
         .signatures {
-            margin-top: 50px;
-            clear: both;
             width: 100%;
+            margin-top: 42px;
         }
-        .signatures:after { clear: both; content: ""; display: block; }
-        .sign-box {
-            float: left;
-            width: 45%;
+        .signatures td {
+            width: 50%;
             text-align: center;
-            border-top: 1px solid #475569;
-            padding-top: 4px;
-            font-size: 9px;
-            color: #475569;
+            vertical-align: bottom;
+            padding-top: 42px;
         }
-        .sign-box.right { float: right; }
+        .line {
+            width: 70%;
+            margin: 0 auto 4px;
+            border-top: 1px solid #0f5ea8;
+        }
+        .stamp {
+            margin-top: 3px;
+            font-size: 8px;
+            color: #64748b;
+        }
     </style>
 </head>
 <body>
+@php
+    $logoPath = public_path('img/logo-hospital.png');
+    $proveedor = optional($compra->proveedor)->nombre ?? $compra->nombre ?? 'SIN PROVEEDOR';
+    $carnetNit = optional($compra->proveedor)->carnet ?? $compra->carnet ?? '-';
+    $fechaCompra = $compra->fecha_hora ? \Carbon\Carbon::parse($compra->fecha_hora) : null;
+@endphp
 
-<div class="header">
-    <div class="row">
-        <div class="col-left">
-            <div class="brand">SILL · Almacén</div>
-            <h1>Comprobante de compra #{{ $compra->id }}</h1>
-            <div class="muted">
-                Emitido el {{ \Carbon\Carbon::parse($compra->fecha_hora)->format('d/m/Y H:i') }}
-                @if ($compra->user) · Registrado por {{ $compra->user->name }} @endif
-            </div>
-        </div>
-        <div class="col-right">
-            <span class="badge {{ $compra->estado === 'ACTIVO' ? 'badge-activo' : 'badge-anulado' }}">
-                {{ $compra->estado }}
-            </span>
-            <div class="muted" style="margin-top:4px;">
-                {{ $compra->tipo_registro }}
-            </div>
-        </div>
-    </div>
+<table class="doc-head">
+    <tr>
+        <td style="width:33%;">
+            @if (file_exists($logoPath))
+                <img class="logo" src="{{ $logoPath }}" alt="Logo">
+            @endif
+            <div class="city">Oruro - Bolivia</div>
+        </td>
+        <td style="width:34%;"></td>
+        <td style="width:33%;">
+            <table class="doc-number-table">
+                <tr>
+                    <td class="bold uppercase center">N&deg;</td>
+                    <td class="center">{{ $compra->id }}</td>
+                </tr>
+                <tr>
+                    <td class="bold uppercase center">H / Ruta</td>
+                    <td class="center">{{ $compra->nro_factura ?: '-' }}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<div class="title">Ingreso de materiales</div>
+<div class="subtitle-meta">
+    Creado: <span class="highlight">{{ $fechaCompra ? $fechaCompra->format('d/m/Y H:i') : '-' }}</span>
+    &nbsp;|&nbsp;
+    Usuario: <span class="highlight">{{ optional($compra->user)->name ?: '-' }}</span>
 </div>
 
-<div class="meta">
-    <div class="meta-row">
-        <div class="meta-cell">
-            <span class="meta-label">Proveedor</span>
-            <span class="meta-value">{{ optional($compra->proveedor)->nombre ?? $compra->nombre ?? 'Sin proveedor' }}</span>
-        </div>
-        <div class="meta-cell">
-            <span class="meta-label">Carnet / NIT</span>
-            <span class="meta-value">{{ optional($compra->proveedor)->carnet ?? $compra->carnet ?? '-' }}</span>
-        </div>
-        <div class="meta-cell">
-            <span class="meta-label">N° factura</span>
-            <span class="meta-value">{{ $compra->nro_factura ?: '-' }}</span>
-        </div>
-    </div>
-    <div class="meta-row">
-        <div class="meta-cell">
-            <span class="meta-label">Motivo</span>
-            <span class="meta-value">{{ strtolower($compra->motivo_registro ?? '-') }}</span>
-        </div>
-        <div class="meta-cell">
-            <span class="meta-label">Tipo de pago</span>
-            <span class="meta-value">{{ strtolower($compra->tipo_pago ?: 'ninguno') }}</span>
-        </div>
-        <div class="meta-cell">
-            <span class="meta-label">Items</span>
-            <span class="meta-value">{{ count($compra->detalles) }} producto(s)</span>
-        </div>
-    </div>
-    @if ($compra->comentario)
-        <div class="meta-row">
-            <div class="meta-cell" style="width:100%;">
-                <span class="meta-label">Comentario</span>
-                <span class="meta-value">{{ $compra->comentario }}</span>
-            </div>
-        </div>
-    @endif
-</div>
+<table class="info-table mt-6">
+    <tr>
+        <td class="cell label">Factura N&deg;</td>
+        <td class="cell">{{ $compra->nro_factura ?: '-' }}</td>
+        <td class="cell label">Oruro</td>
+        <td class="cell">{{ $fechaCompra ? $fechaCompra->format('d/m/Y') : '-' }}</td>
+    </tr>
+    <tr>
+        <td class="cell label">Categoria</td>
+        <td class="cell">{{ strtoupper($compra->tipo_pago ?: 'NINGUNO') }}</td>
+        <td class="cell label">Proveedor</td>
+        <td class="cell uppercase">{{ $proveedor }}</td>
+    </tr>
+    <tr>
+        <td class="cell label">Orden compra</td>
+        <td class="cell">{{ $compra->id }}</td>
+        <td class="cell label">Fecha O.C.</td>
+        <td class="cell">{{ $fechaCompra ? $fechaCompra->format('d-m-y') : '-' }}</td>
+    </tr>
+    <tr>
+        <td class="cell label">Unidad solicitante</td>
+        <td class="cell uppercase" colspan="3">{{ $compra->motivo_registro ?: '-' }}</td>
+    </tr>
+    <tr>
+        <td class="cell label">Carnet / NIT</td>
+        <td class="cell">{{ $carnetNit }}</td>
+        <td class="cell label">Registrado por</td>
+        <td class="cell">{{ optional($compra->user)->name ?: '-' }}</td>
+    </tr>
+    <tr>
+        <td class="cell label">Estado</td>
+        <td class="cell">{{ $compra->estado }}</td>
+        <td class="cell label">Tipo registro</td>
+        <td class="cell">{{ $compra->tipo_registro }}</td>
+    </tr>
+</table>
 
-<h2>Detalle de productos</h2>
-
-<table class="items">
+<table class="items-table mt-10">
     <thead>
         <tr>
-            <th style="width: 6%;">#</th>
-            <th style="width: 38%;">Producto</th>
-            <th style="width: 8%;" class="center">Cant.</th>
-            <th style="width: 12%;" class="right">P. unit.</th>
-            <th style="width: 14%;" class="right">Total</th>
-            <th style="width: 10%;">Lote</th>
-            <th style="width: 12%;" class="center">Vence</th>
+            <th style="width:5%;">Item</th>
+            <th style="width:8%;">Part. Presup.</th>
+            <th style="width:7%;">Solicit.</th>
+            <th style="width:7%;">Recibida</th>
+            <th style="width:8%;">Unidad</th>
+            <th style="width:35%;">Descripcion</th>
+            <th style="width:9%;">Precio unit.</th>
+            <th style="width:9%;">Total Bs.</th>
+            <th style="width:6%;">Lote</th>
+            <th style="width:6%;">Vence</th>
         </tr>
     </thead>
     <tbody>
         @forelse ($compra->detalles as $idx => $det)
             <tr>
-                <td>{{ $idx + 1 }}</td>
-                <td>
-                    <div class="producto-nombre">{{ $det->nombre ?? optional($det->producto)->nombre ?? '-' }}</div>
-                    @if (optional($det->producto)->unidad_medida)
-                        <div class="muted">{{ $det->producto->unidad_medida }}</div>
-                    @endif
-                </td>
+                <td class="center">{{ $idx + 1 }}</td>
+                <td class="center tiny">32200</td>
                 <td class="center">{{ $det->cantidad }}</td>
-                <td class="right">{{ number_format((float) $det->precio, 2, ',', '.') }} Bs</td>
-                <td class="right"><b>{{ number_format((float) $det->total, 2, ',', '.') }} Bs</b></td>
-                <td>{{ $det->lote ?: '-' }}</td>
-                <td class="center">{{ $det->fecha_vencimiento ? \Carbon\Carbon::parse($det->fecha_vencimiento)->format('d/m/Y') : '-' }}</td>
+                <td class="center">{{ $det->cantidad }}</td>
+                <td class="center">{{ strtoupper(optional($det->producto)->unidad_medida ?: 'PZA') }}</td>
+                <td class="uppercase">
+                    {{ $det->nombre ?? optional($det->producto)->nombre ?? '-' }}
+                </td>
+                <td class="right">{{ number_format((float) $det->precio, 2, ',', '.') }}</td>
+                <td class="right">{{ number_format((float) $det->total, 2, ',', '.') }}</td>
+                <td class="center small">{{ $det->lote ?: '-' }}</td>
+                <td class="center small">{{ $det->fecha_vencimiento ? \Carbon\Carbon::parse($det->fecha_vencimiento)->format('d/m/y') : '-' }}</td>
             </tr>
         @empty
             <tr>
-                <td colspan="7" class="center muted">Sin productos</td>
+                <td class="center" colspan="10">Sin productos</td>
             </tr>
         @endforelse
     </tbody>
 </table>
 
-<div class="totals-wrap">
-    <table class="totals">
-        <tr>
-            <td class="label">Subtotal</td>
-            <td class="value">{{ number_format((float) $compra->total, 2, ',', '.') }} Bs</td>
-        </tr>
-        <tr>
-            <td class="label">Items</td>
-            <td class="value">{{ count($compra->detalles) }}</td>
-        </tr>
-        <tr class="total">
-            <td class="label">Total</td>
-            <td class="value">{{ number_format((float) $compra->total, 2, ',', '.') }} Bs</td>
-        </tr>
-    </table>
-</div>
+<table class="totals-wrap">
+    <tr>
+        <td class="label">Subtotal</td>
+        <td class="value">{{ number_format((float) $compra->total, 2, ',', '.') }} Bs</td>
+    </tr>
+    <tr>
+        <td class="label">Items</td>
+        <td class="value">{{ count($compra->detalles) }}</td>
+    </tr>
+    <tr class="total">
+        <td>Total</td>
+        <td class="value">{{ number_format((float) $compra->total, 2, ',', '.') }} Bs</td>
+    </tr>
+</table>
+<div class="clearfix"></div>
 
-<div class="signatures">
-    <div class="sign-box">
-        Firma del responsable
-    </div>
-    <div class="sign-box right">
-        Firma del proveedor
-    </div>
-</div>
+<table class="obs">
+    <tr>
+        <td style="width:16%;" class="bold uppercase obs-label">Observaciones:</td>
+        <td>{{ $compra->comentario ?: '-' }}</td>
+        <td style="width:13%;" class="right bold">{{ number_format((float) $compra->total, 2, ',', '.') }}</td>
+    </tr>
+    <tr>
+        <td class="bold uppercase obs-label">Son:</td>
+        <td colspan="2" class="uppercase">Total de compra {{ number_format((float) $compra->total, 2, ',', '.') }} bolivianos</td>
+    </tr>
+</table>
 
-<div class="footer">
-    <div class="footer-brand">Hospital General</div>
-    <div class="footer-meta">Documento generado el {{ now()->format('d/m/Y H:i') }}</div>
-</div>
+<table class="signatures">
+    <tr>
+        <td>
+            <div class="line"></div>
+            <div class="bold uppercase">Responsable de la unidad</div>
+            <div class="stamp">{{ optional($compra->user)->name ?: '-' }}</div>
+        </td>
+        <td>
+            <div class="line"></div>
+            <div class="bold uppercase">Administrador</div>
+            <div class="stamp">Hospital General</div>
+        </td>
+    </tr>
+</table>
 
 </body>
 </html>
