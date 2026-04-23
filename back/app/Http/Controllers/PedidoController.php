@@ -7,7 +7,6 @@ use App\Models\Pedido;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\Rule;
 
 class PedidoController extends Controller
@@ -232,58 +231,6 @@ class PedidoController extends Controller
         return $pdf->stream($filename);
     }
 
-    public function printPdfPublic(Request $request, $id)
-    {
-        if (!$request->hasValidSignature()) {
-            abort(403, 'Enlace de PDF inválido o vencido.');
-        }
-
-        $pedido = Pedido::with(['user:id,name', 'detalles.producto'])->findOrFail($id);
-
-        $pdf = Pdf::loadView('reportes.pedido_detalle', [
-            'pedido' => $pedido,
-        ])->setPaper('letter', 'portrait');
-
-        $filename = 'pedido_'.$pedido->id.'_'.now()->format('Ymd_His').'.pdf';
-
-        return $pdf->stream($filename);
-    }
-
-    public function whatsappLink($id)
-    {
-        $pedido = Pedido::with(['user:id,name,celular'])->findOrFail($id);
-
-        $user = auth()->user();
-        $isAdmin = ($user->role ?? null) === 'Administrador'
-            || (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['admin', 'jefe-almacen']));
-        if (!$isAdmin && $pedido->user_id !== auth()->id()) {
-            abort(403, 'No autorizado para enviar este pedido por WhatsApp');
-        }
-
-        $celular = $this->normalizeWhatsappNumber(optional($pedido->user)->celular);
-        if (!$celular) {
-            return response()->json([
-                'message' => 'El usuario del pedido no tiene un celular válido para WhatsApp.',
-            ], 422);
-        }
-
-        $pdfUrl = URL::temporarySignedRoute(
-            'pedidos.pdf.public',
-            now()->addHours(48),
-            ['id' => $pedido->id]
-        );
-
-        $mensaje = "Hola, te comparto el PDF del pedido #{$pedido->id}: {$pdfUrl}";
-        $whatsappUrl = 'https://wa.me/'.$celular.'?text='.rawurlencode($mensaje);
-
-        return response()->json([
-            'pedido_id' => $pedido->id,
-            'celular' => $celular,
-            'pdf_url' => $pdfUrl,
-            'whatsapp_url' => $whatsappUrl,
-        ]);
-    }
-
     private function validateData(Request $request): array
     {
         return $request->validate([
@@ -318,29 +265,4 @@ class PedidoController extends Controller
         }
     }
 
-    private function normalizeWhatsappNumber(?string $celular): ?string
-    {
-        if (!$celular) {
-            return null;
-        }
-
-        $digits = preg_replace('/\D+/', '', $celular);
-        if (!$digits) {
-            return null;
-        }
-
-        if (str_starts_with($digits, '00')) {
-            $digits = substr($digits, 2);
-        }
-
-        if (str_starts_with($digits, '591')) {
-            return $digits;
-        }
-
-        if (strlen($digits) === 8) {
-            return '591'.$digits;
-        }
-
-        return $digits;
-    }
 }

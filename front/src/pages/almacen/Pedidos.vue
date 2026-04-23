@@ -781,17 +781,39 @@ async function printPedido (id) {
 async function sendPedidoWhatsApp (id) {
   whatsappId.value = id
   try {
-    const res = await proxy.$axios.get(`pedidos/${id}/whatsapp-link`)
-    const whatsappUrl = res?.data?.whatsapp_url
-    if (!whatsappUrl) {
-      throw new Error('No se pudo generar el enlace de WhatsApp')
+    const res = await proxy.$axios.get(`pedidos/${id}/pdf`, { responseType: 'blob' })
+    const blob = new Blob([res.data], { type: 'application/pdf' })
+    const disposition = (res && res.headers && res.headers['content-disposition']) || ''
+    const match = disposition.match(/filename="?([^"]+)"?/)
+    const fileName = (match && match[1]) || `pedido_${id}.pdf`
+
+    const file = new File([blob], fileName, { type: 'application/pdf' })
+    if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: fileName
+      })
+      return
     }
 
-    window.open(whatsappUrl, '_blank')
+    const link = document.createElement('a')
+    const fileUrl = window.URL.createObjectURL(blob)
+    link.href = fileUrl
+    link.download = fileName
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(fileUrl)
+
+    $q.notify({
+      color: 'warning',
+      message: 'Tu navegador no permite compartir PDF directo. Se descargó el archivo para enviarlo por WhatsApp.',
+      position: 'top'
+    })
   } catch (error) {
     $q.notify({
       color: 'negative',
-      message: error?.response?.data?.message || 'No se pudo enviar por WhatsApp',
+      message: error?.response?.data?.message || 'No se pudo preparar el PDF para WhatsApp',
       position: 'top'
     })
   } finally {

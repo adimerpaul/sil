@@ -73,7 +73,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('compras/{id}/pdf', [CompraController::class, 'printPdf']);
     Route::apiResource('compras', CompraController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
     Route::get('pedidos/{id}/pdf', [PedidoController::class, 'printPdf']);
-    Route::get('pedidos/{id}/whatsapp-link', [PedidoController::class, 'whatsappLink']);
     Route::apiResource('pedidos', PedidoController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
 
     Route::apiResource('areas', AreaController::class);
@@ -178,9 +177,6 @@ Route::get('solicitudes-area-preanalitica/pdf', [SolicitudeController::class, 'p
 Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);
 Route::get('public/reportes/{codigo}', [SolicitudeController::class, 'imprimirAnaliticaPublica'])
     ->name('solicitudes.analitica.publica');
-Route::get('public/pedidos/{id}/pdf', [PedidoController::class, 'printPdfPublic'])
-    ->middleware('signed')
-    ->name('pedidos.pdf.public');
 
 Route::get('consentimientos/{id}/print', [ConsentimientoController::class, 'print']);
 Route::get('solicitudes/{id}/consentimiento/print', [ConsentimientoController::class, 'printBySolicitude']);
