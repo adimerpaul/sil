@@ -9,13 +9,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('unidad_solicitante_id')
-                ->nullable()
-                ->after('establecimiento_id')
-                ->constrained('unidad_solicitantes')
-                ->nullOnDelete();
-        });
+        if (! Schema::hasColumn('users', 'unidad_solicitante_id')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->foreignId('unidad_solicitante_id')
+                    ->nullable()
+                    ->after('establecimiento_id')
+                    ->constrained('unidad_solicitantes')
+                    ->nullOnDelete();
+            });
+        }
 
         UnidadSolicitante::firstOrCreate(
             ['nombre' => 'DEPTO. DE INGENIERÍA Y MANTENIMIENTO HGSJDD BLOQUE ORURO COREA']
@@ -24,9 +26,10 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['unidad_solicitante_id']);
-            $table->dropColumn('unidad_solicitante_id');
-        });
+        if (Schema::hasColumn('users', 'unidad_solicitante_id')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropConstrainedForeignId('unidad_solicitante_id');
+            });
+        }
     }
 };
