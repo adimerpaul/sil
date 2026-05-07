@@ -615,6 +615,7 @@
 import moment from 'moment'
 
 const HOSPITAL_PERMISSION_NAMES = [
+  'Dashboard',
   'Usuarios',
   'Pacientes',
   'Doctores',
@@ -633,6 +634,18 @@ const ALMACEN_PERMISSION_NAMES = [
   'Editar Pedidos',
   'Anular Pedidos',
   'Imprimir Pedidos',
+  'Ver Despachos',
+  'Crear Despachos',
+  'Editar Despachos',
+  'Anular Despachos',
+  'Imprimir Despachos',
+  'Ver Solicitudes SAP',
+  'Crear Solicitudes SAP',
+  'Editar Solicitudes SAP',
+  'Eliminar Solicitudes SAP',
+  'Anular Solicitudes SAP',
+  'Imprimir Solicitudes SAP',
+  'Ver Herramientas Almacén',
 ]
 
 const PERMISSION_GROUPS = [
@@ -652,7 +665,7 @@ const PERMISSION_GROUPS = [
   },
   {
     key: 'almacen',
-    label: 'Almacén',
+    label: 'Almacén SIA',
     icon: 'warehouse',
     defaultOpened: true,
     names: ALMACEN_PERMISSION_NAMES,
