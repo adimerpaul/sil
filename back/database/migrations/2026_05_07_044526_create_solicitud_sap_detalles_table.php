@@ -22,6 +22,7 @@ return new class extends Migration
             $table->decimal('precio_unitario', 14, 2)->default(0);
             $table->decimal('total', 14, 2)->default(0);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

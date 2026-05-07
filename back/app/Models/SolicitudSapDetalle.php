@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SolicitudSapDetalle extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'solicitud_sap_detalles';
 
     protected $fillable = [
@@ -22,10 +25,12 @@ class SolicitudSapDetalle extends Model
     ];
 
     protected $casts = [
-        'cantidad'       => 'float',
-        'precio_unitario'=> 'float',
-        'total'          => 'float',
+        'cantidad' => 'float',
+        'precio_unitario' => 'float',
+        'total' => 'float',
     ];
+
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
     public function solicitudSap()
     {

@@ -58,6 +58,120 @@ class AlmacenItemController extends Controller
         return $this->buildReportPdf($request);
     }
 
+    public function dashboard(Request $request)
+    {
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+
+        $inventoryQuery = $this->reportQuery(new Request);
+        $inventory = DB::query()
+            ->fromSub(clone $inventoryQuery, 'inventory')
+            ->selectRaw('COUNT(*) as items')
+            ->selectRaw('COALESCE(SUM(cantidad), 0) as existencia_total')
+            ->selectRaw('SUM(CASE WHEN cantidad > 0 THEN 1 ELSE 0 END) as items_con_existencia')
+            ->selectRaw('SUM(CASE WHEN cantidad <= 0 THEN 1 ELSE 0 END) as items_sin_existencia')
+            ->first();
+
+        $pedidosQuery = DB::table('pedidos')->whereNull('deleted_at');
+        if ($dateFrom) {
+            $pedidosQuery->whereDate('fecha_hora', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $pedidosQuery->whereDate('fecha_hora', '<=', $dateTo);
+        }
+
+        $despachosQuery = DB::table('despachos')->whereNull('deleted_at');
+        if ($dateFrom) {
+            $despachosQuery->whereDate('fecha_entrega', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $despachosQuery->whereDate('fecha_entrega', '<=', $dateTo);
+        }
+
+        $solicitudesQuery = DB::table('solicitudes')->whereNull('deleted_at');
+        if ($dateFrom) {
+            $solicitudesQuery->whereDate('fecha_creacion', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $solicitudesQuery->whereDate('fecha_creacion', '<=', $dateTo);
+        }
+
+        $pedidosPorEstado = (clone $pedidosQuery)
+            ->select('estado', DB::raw('COUNT(*) as total'))
+            ->groupBy('estado')
+            ->pluck('total', 'estado');
+
+        $despachosPorEstado = (clone $despachosQuery)
+            ->select('estado', DB::raw('COUNT(*) as total'))
+            ->groupBy('estado')
+            ->pluck('total', 'estado');
+
+        $solicitudesPorEstado = (clone $solicitudesQuery)
+            ->select('estado', DB::raw('COUNT(*) as total'))
+            ->groupBy('estado')
+            ->pluck('total', 'estado');
+
+        $seriePedidos = (clone $pedidosQuery)
+            ->select(DB::raw('DATE(fecha_hora) as fecha'), DB::raw('COUNT(*) as total'))
+            ->whereNotNull('fecha_hora')
+            ->groupBy(DB::raw('DATE(fecha_hora)'))
+            ->orderBy('fecha')
+            ->get();
+
+        $serieDespachos = (clone $despachosQuery)
+            ->select(DB::raw('DATE(fecha_entrega) as fecha'), DB::raw('COUNT(*) as total'))
+            ->whereNotNull('fecha_entrega')
+            ->groupBy(DB::raw('DATE(fecha_entrega)'))
+            ->orderBy('fecha')
+            ->get();
+
+        $ultimosPedidos = (clone $pedidosQuery)
+            ->select('id', 'fecha_hora', 'nombre_usuario', 'estado', 'total')
+            ->orderByDesc('fecha_hora')
+            ->orderByDesc('id')
+            ->limit(8)
+            ->get();
+
+        $ultimosDespachos = (clone $despachosQuery)
+            ->select('id', 'nro', 'pedido_id', 'fecha_entrega', 'solicitante', 'servicio', 'estado', 'total')
+            ->orderByDesc('fecha_entrega')
+            ->orderByDesc('id')
+            ->limit(8)
+            ->get();
+
+        $inventarioCritico = DB::query()
+            ->fromSub(clone $inventoryQuery, 'inventory')
+            ->select('id', 'nombre', 'unidad_medida', 'cantidad', 'precio_unitario')
+            ->orderBy('cantidad')
+            ->orderBy('nombre')
+            ->limit(10)
+            ->get();
+
+        return response()->json([
+            'resumen' => [
+                'pedidos' => (int) (clone $pedidosQuery)->count(),
+                'pedidos_pendientes' => (int) ($pedidosPorEstado['PENDIENTE'] ?? 0),
+                'despachos' => (int) (clone $despachosQuery)->count(),
+                'despachos_anulados' => (int) ($despachosPorEstado['ANULADO'] ?? 0),
+                'solicitudes' => (int) (clone $solicitudesQuery)->count(),
+                'inventario_items' => (int) ($inventory->items ?? 0),
+                'existencia_total' => (float) ($inventory->existencia_total ?? 0),
+                'items_con_existencia' => (int) ($inventory->items_con_existencia ?? 0),
+                'items_sin_existencia' => (int) ($inventory->items_sin_existencia ?? 0),
+                'total_pedidos_bs' => (float) (clone $pedidosQuery)->sum('total'),
+                'total_despachos_bs' => (float) (clone $despachosQuery)->where('estado', '!=', 'ANULADO')->sum('total'),
+            ],
+            'pedidos_por_estado' => $pedidosPorEstado,
+            'despachos_por_estado' => $despachosPorEstado,
+            'solicitudes_por_estado' => $solicitudesPorEstado,
+            'serie_pedidos' => $seriePedidos,
+            'serie_despachos' => $serieDespachos,
+            'ultimos_pedidos' => $ultimosPedidos,
+            'ultimos_despachos' => $ultimosDespachos,
+            'inventario_critico' => $inventarioCritico,
+        ]);
+    }
+
     private function buildReportPdf(Request $request)
     {
         $existente = $request->boolean('existente');
@@ -65,7 +179,6 @@ class AlmacenItemController extends Controller
         @ini_set('memory_limit', '768M');
 
         $query = $this->reportQuery($request);
-
 
         if ($existente) {
             $query->havingRaw('cantidad > 0');
@@ -146,7 +259,7 @@ class AlmacenItemController extends Controller
 
         $filename = uniqid('producto_', true).'.png';
         $path = $directory.DIRECTORY_SEPARATOR.$filename;
-        $manager = new ImageManager(new Driver());
+        $manager = new ImageManager(new Driver);
 
         $manager->read($request->file('imagen')->getPathname())
             ->cover(420, 420)
@@ -159,7 +272,10 @@ class AlmacenItemController extends Controller
     private function userSubpartidaIds(Request $request): array
     {
         $user = $request->user();
-        if (!$user) return [];
+        if (! $user) {
+            return [];
+        }
+
         return DB::table('subpartida_user')
             ->where('user_id', $user->id)
             ->pluck('subpartida_id')
@@ -168,8 +284,10 @@ class AlmacenItemController extends Controller
 
     private function applyFilters($query, Request $request): void
     {
-        // Siempre filtrar: si el usuario no tiene subpartidas asignadas no ve nada
-        $query->whereIn('subpartida_id', $this->userSubpartidaIds($request));
+        // Filtrar por subpartidas del usuario solo en contexto de pedidos
+        if ($request->boolean('solo_mis_subpartidas')) {
+            $query->whereIn('subpartida_id', $this->userSubpartidaIds($request));
+        }
 
         if ($request->filled('grupo_id')) {
             $query->whereHas('subpartida.partida', function ($query) use ($request) {
@@ -222,63 +340,28 @@ class AlmacenItemController extends Controller
 
     private function cantidadExpression(string $detalleAlias = 'compra_detalles', string $compraAlias = 'compras'): string
     {
-        return "COALESCE(SUM(CASE WHEN {$compraAlias}.id IS NULL THEN 0 WHEN {$compraAlias}.tipo_registro = 'SALIDA' THEN -COALESCE({$detalleAlias}.cantidad, 0) ELSE COALESCE({$detalleAlias}.cantidad, 0) - COALESCE({$detalleAlias}.cantidad_venta, 0) END), 0)";
+        $despachos = $this->despachoSalidaExpression();
+
+        return "COALESCE(SUM(CASE WHEN {$compraAlias}.id IS NULL THEN 0 WHEN {$compraAlias}.tipo_registro = 'SALIDA' THEN -COALESCE({$detalleAlias}.cantidad, 0) ELSE COALESCE({$detalleAlias}.cantidad, 0) - COALESCE({$detalleAlias}.cantidad_venta, 0) END), 0) - {$despachos}";
+    }
+
+    private function despachoSalidaExpression(): string
+    {
+        return "COALESCE((SELECT SUM(dd.cantidad) FROM despacho_detalles dd INNER JOIN despachos d ON d.id = dd.despacho_id WHERE dd.almacen_item_id = almacen_items.id AND dd.compra_detalle_id IS NULL AND dd.deleted_at IS NULL AND d.estado <> 'ANULADO' AND d.deleted_at IS NULL), 0)";
     }
 
     private function summary(Request $request): array
     {
-        $query = DB::table('almacen_items')
-            ->leftJoin('compra_detalles', function ($join) {
-                $join->on('compra_detalles.producto_id', '=', 'almacen_items.id')
-                    ->whereNull('compra_detalles.deleted_at')
-                    ->whereRaw("UPPER(COALESCE(compra_detalles.estado, '')) = 'ACTIVO'");
-            })
-            ->leftJoin('compras', function ($join) {
-                $join->on('compras.id', '=', 'compra_detalles.compra_id')
-                    ->whereNull('compras.deleted_at')
-                    ->where('compras.estado', '=', 'ACTIVO');
-            })
-            ->join('subpartidas', 'subpartidas.id', '=', 'almacen_items.subpartida_id')
-            ->join('partidas', 'partidas.id', '=', 'subpartidas.partida_id')
-            ->join('grupos', 'grupos.id', '=', 'partidas.grupo_id')
-            ->whereNull('almacen_items.deleted_at');
-
-        // Siempre filtrar: si el usuario no tiene subpartidas asignadas no ve nada
-        $query->whereIn('almacen_items.subpartida_id', $this->userSubpartidaIds($request));
-
-        if ($request->filled('grupo_id')) {
-            $query->where('partidas.grupo_id', $request->grupo_id);
-        }
-
-        if ($request->filled('partida_id')) {
-            $query->where('subpartidas.partida_id', $request->partida_id);
-        }
-
-        if ($request->filled('subpartida_id')) {
-            $query->where('almacen_items.subpartida_id', $request->subpartida_id);
-        }
-
-        if ($request->filled('q')) {
-            $q = $request->q;
-            $query->where(function ($query) use ($q) {
-                $query->where('almacen_items.nombre', 'like', "%{$q}%")
-                    ->orWhere('almacen_items.unidad_medida', 'like', "%{$q}%")
-                    ->orWhere('subpartidas.codigo', 'like', "%{$q}%")
-                    ->orWhere('subpartidas.nombre', 'like', "%{$q}%")
-                    ->orWhere('partidas.codigo', 'like', "%{$q}%")
-                    ->orWhere('partidas.nombre', 'like', "%{$q}%")
-                    ->orWhere('grupos.codigo', 'like', "%{$q}%")
-                    ->orWhere('grupos.nombre', 'like', "%{$q}%");
-            });
-        }
+        $inventoryQuery = $this->reportQuery($request);
 
         if ($request->boolean('existente')) {
-            $query->havingRaw($this->cantidadExpression().' > 0');
+            $inventoryQuery->havingRaw('cantidad > 0');
         }
 
-        $row = $query
-            ->selectRaw('COUNT(DISTINCT almacen_items.id) as items')
-            ->selectRaw($this->cantidadExpression().' as cantidad')
+        $row = DB::query()
+            ->fromSub($inventoryQuery, 'inventory')
+            ->selectRaw('COUNT(*) as items')
+            ->selectRaw('COALESCE(SUM(cantidad), 0) as cantidad')
             ->first();
 
         return [

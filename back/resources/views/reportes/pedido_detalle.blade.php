@@ -136,13 +136,13 @@
 
         .signatures {
             width: 100%;
-            margin-top: 40px;
+            margin-top: 18px;
         }
         .signatures td {
             width: 25%;
             text-align: center;
             vertical-align: bottom;
-            padding-top: 42px;
+            padding-top: 12px;
         }
         .line {
             width: 82%;
@@ -161,6 +161,9 @@
             margin-top: 2px;
             text-transform: uppercase;
         }
+        .firma-img { max-height: 42px; max-width: 130px; margin-bottom: -8px; }
+        .sello-img { max-height: 44px; max-width: 120px; margin-top: 3px; }
+        .firma-space { height: 42px; }
     </style>
 </head>
 <body>
@@ -169,6 +172,9 @@
     $solicitante = $pedido->nombre_usuario ?: '-';
     $servicioSolicitante = $pedido->comentario ?: '-';
     $respPedido = optional($pedido->user)->name ?: '-';
+    $pedidoUser = $pedido->user;
+    $firmaPedidoPath = $pedidoUser && $pedidoUser->mostrar_firma && $pedidoUser->firma ? public_path('images/'.$pedidoUser->firma) : null;
+    $selloPedidoPath = $pedidoUser && $pedidoUser->mostrar_sello && $pedidoUser->sello ? public_path('images/'.$pedidoUser->sello) : null;
 @endphp
 
 <table>
@@ -262,9 +268,17 @@
 <table class="signatures">
     <tr>
         <td>
+            @if($firmaPedidoPath && file_exists($firmaPedidoPath))
+                <img class="firma-img" src="{{ $firmaPedidoPath }}" alt="Firma">
+            @else
+                <div class="firma-space"></div>
+            @endif
             <div class="line"></div>
             <div class="sign-title">Servicio solicitantes</div>
             <div class="sign-name">{{ $solicitante }}</div>
+            @if($selloPedidoPath && file_exists($selloPedidoPath))
+                <img class="sello-img" src="{{ $selloPedidoPath }}" alt="Sello">
+            @endif
         </td>
         <td>
             <div class="line"></div>

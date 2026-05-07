@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class VentanaPedido extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'ventana_pedidos';
 
     protected $fillable = [
@@ -16,10 +19,12 @@ class VentanaPedido extends Model
         'activo',
     ];
 
+    protected $hidden = ['deleted_at'];
+
     protected $casts = [
         'fecha_inicio' => 'date',
-        'fecha_fin'    => 'date',
-        'activo'       => 'boolean',
+        'fecha_fin' => 'date',
+        'activo' => 'boolean',
     ];
 
     public function user()

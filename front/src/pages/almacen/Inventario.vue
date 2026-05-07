@@ -164,6 +164,10 @@
                   <q-item-section avatar><q-icon name="edit" /></q-item-section>
                   <q-item-section>Editar</q-item-section>
                 </q-item>
+                <q-item clickable v-close-popup @click="openHistoryDialog(props.row)">
+                  <q-item-section avatar><q-icon name="history" color="primary" /></q-item-section>
+                  <q-item-section>Historial</q-item-section>
+                </q-item>
                 <q-item clickable v-close-popup @click="deleteItem(props.row)">
                   <q-item-section avatar><q-icon name="delete" color="negative" /></q-item-section>
                   <q-item-section class="text-negative">Eliminar</q-item-section>
@@ -449,6 +453,106 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="historyDialog">
+      <q-card class="history-dialog">
+        <q-card-section class="history-header">
+          <div class="row items-center no-wrap">
+            <q-icon name="history" size="28px" class="q-mr-sm" />
+            <div>
+              <div class="text-subtitle1 text-weight-bold">Historial</div>
+              <div class="text-caption text-grey-3">{{ historyItem?.nombre }}</div>
+            </div>
+            <q-space />
+            <q-btn dense flat round icon="close" color="white" @click="historyDialog = false" />
+          </div>
+        </q-card-section>
+
+        <q-tabs
+          v-model="historyTab"
+          dense
+          active-color="primary"
+          indicator-color="primary"
+          align="justify"
+        >
+          <q-tab name="despachos" icon="local_shipping" label="Despachos" />
+          <q-tab name="pedidos" icon="shopping_bag" label="Pedidos" />
+        </q-tabs>
+        <q-separator />
+
+        <q-tab-panels v-model="historyTab" animated class="history-panels">
+          <q-tab-panel name="despachos" class="q-pa-none">
+            <div v-if="historyLoading.despachos" class="history-empty">
+              <q-spinner color="primary" size="32px" />
+              <div class="q-mt-sm">Cargando despachos...</div>
+            </div>
+            <div v-else-if="historyDespachos.length === 0" class="history-empty text-grey-7">
+              <q-icon name="local_shipping" size="34px" />
+              <div class="q-mt-sm">Sin despachos registrados para este producto</div>
+            </div>
+            <q-list v-else separator>
+              <q-item v-for="row in historyDespachos" :key="row.id" class="history-item">
+                <q-item-section>
+                  <div class="row items-center q-col-gutter-sm">
+                    <div class="col">
+                      <div class="text-weight-bold">{{ row.nro || `#${row.id}` }}</div>
+                      <div class="text-caption text-grey-7">
+                        {{ formatDateTime(row.fecha_entrega) }} · {{ row.solicitante || '-' }}
+                      </div>
+                      <div v-if="row.servicio" class="text-caption text-grey-7">{{ row.servicio }}</div>
+                    </div>
+                    <div class="col-auto text-right">
+                      <q-badge :color="row.estado === 'ANULADO' ? 'red' : 'green'" class="q-mb-xs">
+                        {{ row.estado }}
+                      </q-badge>
+                      <div class="text-weight-bold text-primary">
+                        {{ quantity(productDespachoDetalle(row)?.cantidad) }} {{ productDespachoDetalle(row)?.unidad || historyItem?.unidad_medida || '' }}
+                      </div>
+                      <div class="text-caption text-grey-7">{{ money(productDespachoDetalle(row)?.total) }} Bs</div>
+                    </div>
+                  </div>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-tab-panel>
+
+          <q-tab-panel name="pedidos" class="q-pa-none">
+            <div v-if="historyLoading.pedidos" class="history-empty">
+              <q-spinner color="primary" size="32px" />
+              <div class="q-mt-sm">Cargando pedidos...</div>
+            </div>
+            <div v-else-if="historyPedidos.length === 0" class="history-empty text-grey-7">
+              <q-icon name="shopping_bag" size="34px" />
+              <div class="q-mt-sm">Sin pedidos registrados para este producto</div>
+            </div>
+            <q-list v-else separator>
+              <q-item v-for="row in historyPedidos" :key="row.id" class="history-item">
+                <q-item-section>
+                  <div class="row items-center q-col-gutter-sm">
+                    <div class="col">
+                      <div class="text-weight-bold">Pedido #{{ row.id }}</div>
+                      <div class="text-caption text-grey-7">
+                        {{ formatDateTime(row.fecha_hora) }} · {{ row.nombre_usuario || row.user?.name || '-' }}
+                      </div>
+                      <div v-if="row.comentario" class="text-caption text-grey-7">{{ row.comentario }}</div>
+                    </div>
+                    <div class="col-auto text-right">
+                      <q-badge :color="pedidoEstadoColor(row.estado)" class="q-mb-xs">
+                        {{ row.estado }}
+                      </q-badge>
+                      <div class="text-weight-bold text-primary">
+                        {{ quantity(productPedidoDetalle(row)?.cantidad) }} {{ historyItem?.unidad_medida || '' }}
+                      </div>
+                      <div class="text-caption text-grey-7">{{ money(productPedidoDetalle(row)?.subtotal) }} Bs</div>
+                    </div>
+                  </div>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-tab-panel>
+        </q-tab-panels>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -478,6 +582,15 @@ export default {
       catalogManagerDialog: false,
       catalogFormDialog: false,
       itemDialog: false,
+      historyDialog: false,
+      historyTab: 'despachos',
+      historyItem: null,
+      historyDespachos: [],
+      historyPedidos: [],
+      historyLoading: {
+        despachos: false,
+        pedidos: false,
+      },
       catalogTab: 'grupos',
       catalogFilter: '',
       catalogForm: {},
@@ -836,6 +949,60 @@ export default {
         }
       })
     },
+    async openHistoryDialog (row) {
+      this.historyItem = row
+      this.historyTab = 'despachos'
+      this.historyDespachos = []
+      this.historyPedidos = []
+      this.historyDialog = true
+      await Promise.all([
+        this.fetchHistoryDespachos(row.id),
+        this.fetchHistoryPedidos(row.id),
+      ])
+    },
+    async fetchHistoryDespachos (productoId) {
+      this.historyLoading.despachos = true
+      try {
+        const res = await this.$axios.get('despachos', {
+          params: {
+            producto_id: productoId,
+            rowsPerPage: 50,
+          },
+        })
+        this.historyDespachos = res.data.data || []
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'No se pudo cargar historial de despachos')
+      } finally {
+        this.historyLoading.despachos = false
+      }
+    },
+    async fetchHistoryPedidos (productoId) {
+      this.historyLoading.pedidos = true
+      try {
+        const res = await this.$axios.get('pedidos', {
+          params: {
+            producto_id: productoId,
+            rowsPerPage: 50,
+          },
+        })
+        this.historyPedidos = res.data.data || []
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'No se pudo cargar historial de pedidos')
+      } finally {
+        this.historyLoading.pedidos = false
+      }
+    },
+    productDespachoDetalle (row) {
+      return (row?.detalles || [])[0] || null
+    },
+    productPedidoDetalle (row) {
+      return (row?.detalles || [])[0] || null
+    },
+    pedidoEstadoColor (estado) {
+      if (estado === 'ACEPTADO') return 'green'
+      if (estado === 'RECHAZADO' || estado === 'ANULADO') return 'red'
+      return 'orange'
+    },
     async printReport (existente) {
       this.reportLoading = existente ? 'existing' : 'all'
       try {
@@ -899,6 +1066,16 @@ export default {
       const number = Number(value || 0)
       return number.toLocaleString('es-BO', { maximumFractionDigits: 2 })
     },
+    formatDateTime (value) {
+      if (!value) return '-'
+      return new Date(value).toLocaleString('es-BO', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    },
   },
 }
 </script>
@@ -926,6 +1103,42 @@ export default {
 .item-image-preview {
   border: 1px solid #d9e2ec;
   background: #f5f8fb;
+}
+
+.history-dialog {
+  width: 820px;
+  max-width: 96vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.history-header {
+  background: #1565c0;
+  color: #fff;
+  padding: 14px 16px;
+}
+
+.history-panels {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.history-empty {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.history-item {
+  padding: 10px 14px;
 }
 
 .item-image-dropzone {

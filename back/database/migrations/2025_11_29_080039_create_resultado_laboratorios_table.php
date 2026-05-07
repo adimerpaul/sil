@@ -44,6 +44,7 @@ return new class extends Migration
             $table->string('nombre');        // 'HEMOGRAMA', 'QUIMICA SANGUINEA'
             $table->string('codigo')->unique(); // 'HEMOGRAMA', 'QUIMICA'
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('perfil_impresion_items', function (Blueprint $table) {
@@ -58,6 +59,7 @@ return new class extends Migration
             $table->boolean('mostrar_en_paciente')->default(true);
 
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('perfil_id')->references('id')->on('perfiles_impresion')->onDelete('cascade');
             $table->foreign('area_rango_id')->references('id')->on('area_rangos')->onDelete('cascade');

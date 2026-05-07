@@ -117,13 +117,13 @@
 
         .signatures {
             width: 100%;
-            margin-top: 42px;
+            margin-top: 18px;
         }
         .signatures td {
             width: 50%;
             text-align: center;
             vertical-align: bottom;
-            padding-top: 42px;
+            padding-top: 12px;
         }
         .line {
             width: 70%;
@@ -135,6 +135,9 @@
             font-size: 8px;
             color: #64748b;
         }
+        .firma-img { max-height: 42px; max-width: 130px; margin-bottom: -8px; }
+        .sello-img { max-height: 44px; max-width: 120px; margin-top: 3px; }
+        .firma-space { height: 42px; }
     </style>
 </head>
 <body>
@@ -143,6 +146,9 @@
     $proveedor = optional($compra->proveedor)->nombre ?? $compra->nombre ?? 'SIN PROVEEDOR';
     $carnetNit = optional($compra->proveedor)->carnet ?? $compra->carnet ?? '-';
     $fechaCompra = $compra->fecha_hora ? \Carbon\Carbon::parse($compra->fecha_hora) : null;
+    $compraUser = $compra->user;
+    $firmaCompraPath = $compraUser && $compraUser->mostrar_firma && $compraUser->firma ? public_path('images/'.$compraUser->firma) : null;
+    $selloCompraPath = $compraUser && $compraUser->mostrar_sello && $compraUser->sello ? public_path('images/'.$compraUser->sello) : null;
 @endphp
 
 <table class="doc-head">
@@ -283,9 +289,17 @@
 <table class="signatures">
     <tr>
         <td>
+            @if($firmaCompraPath && file_exists($firmaCompraPath))
+                <img class="firma-img" src="{{ $firmaCompraPath }}" alt="Firma">
+            @else
+                <div class="firma-space"></div>
+            @endif
             <div class="line"></div>
             <div class="bold uppercase">Responsable de la unidad</div>
             <div class="stamp">{{ optional($compra->user)->name ?: '-' }}</div>
+            @if($selloCompraPath && file_exists($selloCompraPath))
+                <img class="sello-img" src="{{ $selloCompraPath }}" alt="Sello">
+            @endif
         </td>
         <td>
             <div class="line"></div>

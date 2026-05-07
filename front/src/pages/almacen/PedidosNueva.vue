@@ -287,6 +287,7 @@ export default {
             page: this.productPagination.page,
             rowsPerPage: this.productPagination.rowsPerPage,
             q: this.productFilter,
+            solo_mis_subpartidas: true,
           },
         })
         this.products = res.data.data || []

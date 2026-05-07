@@ -239,6 +239,8 @@ const menuSections = [
       { title: 'Compras detalle', icon: 'receipt_long', link: '/almacen/compras', can: ['Modulo detalle compras', 'Módulo movimiento'] },
       { title: 'Pedidos nuevos', icon: 'post_add', link: '/pedidos/nuevo', can: 'Crear Pedidos' },
       { title: 'Pedidos detalles', icon: 'shopping_bag', link: '/pedidos', can: 'Ver Pedidos' },
+      { title: 'Nuevo despacho', icon: 'local_shipping', link: '/despachos/nuevo', can: 'Crear Despachos' },
+      { title: 'Despachos', icon: 'inventory', link: '/despachos', can: 'Ver Despachos' },
       { title: 'Solicitudes SAP', icon: 'description', link: '/solicitudes-sap', can: 'Ver Solicitudes SAP' },
       { title: 'Nueva solicitud SAP', icon: 'post_add', link: '/solicitudes-sap/nueva', can: 'Crear Solicitudes SAP' },
       { title: 'Herramientas', icon: 'build', link: '/almacen/herramientas', can: 'Ver Herramientas Almacén' },

@@ -135,6 +135,16 @@ const routes = [
         meta: {requiresAuth: true, perm: 'Ver Herramientas Almacén'}
       },
       {
+        path: '/despachos',
+        component: () => import('pages/almacen/Despachos.vue'),
+        meta: {requiresAuth: true, perm: 'Ver Despachos'}
+      },
+      {
+        path: '/despachos/nuevo',
+        component: () => import('pages/almacen/DespachoNuevo.vue'),
+        meta: {requiresAuth: true, perm: 'Crear Despachos'}
+      },
+      {
         path: '/area-preanalitica',
         component: () => import('pages/areaPreanalitica/AreaPreanalitica.vue'),
         meta: {requiresAuth: true, perm: 'Area Preanalitica'}

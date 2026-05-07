@@ -48,6 +48,7 @@ export default boot(({ app, router }) => {
     },
     color(role) {
       if (role === 'Administrador') return 'red'
+      if (role === 'Almacén' || role === 'Almacen') return 'teal'
       if (role === 'Docente') return 'green'
       if (role === 'Estudiante') return 'blue'
       return 'grey'

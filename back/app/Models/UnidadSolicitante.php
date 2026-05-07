@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Auditable as AuditableTrait;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
 class UnidadSolicitante extends Model implements AuditableContract
 {
-    use AuditableTrait;
+    use AuditableTrait, SoftDeletes;
 
     protected $fillable = [
         'nombre',
@@ -17,6 +18,7 @@ class UnidadSolicitante extends Model implements AuditableContract
     protected $hidden = [
         'created_at',
         'updated_at',
+        'deleted_at',
     ];
 
     public function solicitudes()

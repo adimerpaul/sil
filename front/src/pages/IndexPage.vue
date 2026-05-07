@@ -1,5 +1,189 @@
 <template>
   <q-page class="q-pa-md bg-grey-2">
+    <template v-if="isAlmacenRole">
+      <div class="row items-center q-mb-md">
+        <div class="col-12 col-md-6">
+          <div class="text-h5 text-weight-bold">Dashboard de Almacén</div>
+          <div class="text-caption text-grey-7">
+            Seguimiento de pedidos, despachos, solicitudes e inventario
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="row items-center q-gutter-sm justify-end">
+            <div class="col-12 col-sm-4">
+              <q-input v-model="filters.date_from" type="date" dense outlined label="Desde" />
+            </div>
+            <div class="col-12 col-sm-4">
+              <q-input v-model="filters.date_to" type="date" dense outlined label="Hasta" />
+            </div>
+            <div class="col-auto">
+              <q-btn
+                color="primary"
+                icon="refresh"
+                label="Actualizar"
+                no-caps
+                :loading="loading"
+                @click="fetchDashboard"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row q-col-gutter-md q-mb-md">
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card flat bordered class="q-pa-md">
+            <div class="row items-center no-wrap">
+              <div class="col">
+                <div class="text-caption text-grey-7">Pedidos</div>
+                <div class="text-h5 text-weight-bold">{{ almacenResumen.pedidos || 0 }}</div>
+              </div>
+              <q-icon name="shopping_bag" size="36px" class="text-primary" />
+            </div>
+            <div class="text-caption text-grey-6 q-mt-sm">
+              Pendientes: {{ almacenResumen.pedidos_pendientes || 0 }}
+            </div>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card flat bordered class="q-pa-md">
+            <div class="row items-center no-wrap">
+              <div class="col">
+                <div class="text-caption text-grey-7">Despachos</div>
+                <div class="text-h5 text-weight-bold">{{ almacenResumen.despachos || 0 }}</div>
+              </div>
+              <q-icon name="local_shipping" size="36px" class="text-positive" />
+            </div>
+            <div class="text-caption text-grey-6 q-mt-sm">
+              Anulados: {{ almacenResumen.despachos_anulados || 0 }}
+            </div>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card flat bordered class="q-pa-md">
+            <div class="row items-center no-wrap">
+              <div class="col">
+                <div class="text-caption text-grey-7">Solicitudes</div>
+                <div class="text-h5 text-weight-bold">{{ almacenResumen.solicitudes || 0 }}</div>
+              </div>
+              <q-icon name="receipt_long" size="36px" class="text-indigo" />
+            </div>
+            <div class="text-caption text-grey-6 q-mt-sm">Solicitudes registradas en el rango.</div>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card flat bordered class="q-pa-md">
+            <div class="row items-center no-wrap">
+              <div class="col">
+                <div class="text-caption text-grey-7">Inventario</div>
+                <div class="text-h5 text-weight-bold">{{ almacenResumen.inventario_items || 0 }}</div>
+              </div>
+              <q-icon name="inventory_2" size="36px" class="text-teal" />
+            </div>
+            <div class="text-caption text-grey-6 q-mt-sm">
+              Sin existencia: {{ almacenResumen.items_sin_existencia || 0 }}
+            </div>
+          </q-card>
+        </div>
+      </div>
+
+      <div class="row q-col-gutter-md q-mb-md">
+        <div class="col-12 col-md-8">
+          <q-card flat bordered class="q-pa-md">
+            <div class="text-subtitle1 text-weight-bold q-mb-sm">Movimiento diario</div>
+            <apexchart
+              type="area"
+              height="320"
+              :options="chartAlmacenMovimiento.options"
+              :series="chartAlmacenMovimiento.series"
+            />
+          </q-card>
+        </div>
+        <div class="col-12 col-md-4">
+          <q-card flat bordered class="q-pa-md">
+            <div class="text-subtitle1 text-weight-bold q-mb-sm">Estados de solicitudes</div>
+            <apexchart
+              type="donut"
+              height="320"
+              :options="chartAlmacenSolicitudes.options"
+              :series="chartAlmacenSolicitudes.series"
+            />
+          </q-card>
+        </div>
+      </div>
+
+      <div class="row q-col-gutter-md">
+        <div class="col-12 col-lg-4">
+          <q-card flat bordered>
+            <q-card-section>
+              <div class="text-subtitle1 text-weight-bold">Últimos pedidos</div>
+              <div class="text-caption text-grey-7">Pedidos recientes del rango seleccionado.</div>
+            </q-card-section>
+            <q-table
+              dense
+              flat
+              :rows="almacenUltimosPedidos"
+              :columns="columnsPedidos"
+              row-key="id"
+              :rows-per-page-options="[8]"
+              hide-bottom
+            >
+              <template #body-cell-estado="props">
+                <q-td :props="props">
+                  <q-badge :color="pedidoEstadoColor(props.row.estado)">{{ props.row.estado }}</q-badge>
+                </q-td>
+              </template>
+            </q-table>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <q-card flat bordered>
+            <q-card-section>
+              <div class="text-subtitle1 text-weight-bold">Últimos despachos</div>
+              <div class="text-caption text-grey-7">Entregas recientes desde almacén.</div>
+            </q-card-section>
+            <q-table
+              dense
+              flat
+              :rows="almacenUltimosDespachos"
+              :columns="columnsDespachos"
+              row-key="id"
+              :rows-per-page-options="[8]"
+              hide-bottom
+            >
+              <template #body-cell-estado="props">
+                <q-td :props="props">
+                  <q-badge :color="props.row.estado === 'ANULADO' ? 'red' : 'green'">{{ props.row.estado }}</q-badge>
+                </q-td>
+              </template>
+            </q-table>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <q-card flat bordered>
+            <q-card-section>
+              <div class="text-subtitle1 text-weight-bold">Inventario crítico</div>
+              <div class="text-caption text-grey-7">Items con menor existencia.</div>
+            </q-card-section>
+            <q-table
+              dense
+              flat
+              :rows="almacenInventarioCritico"
+              :columns="columnsInventario"
+              row-key="id"
+              :rows-per-page-options="[10]"
+              hide-bottom
+            />
+          </q-card>
+        </div>
+      </div>
+    </template>
+    <template v-else>
     <!-- HEADER -->
     <div class="row items-center q-mb-md">
 
@@ -248,6 +432,7 @@
         </q-table>
       </q-card-section>
     </q-card>
+    </template>
   </q-page>
 </template>
 
@@ -265,6 +450,10 @@ export default {
       },
       resumen: {},
       ultimas: [],
+      almacenResumen: {},
+      almacenUltimosPedidos: [],
+      almacenUltimosDespachos: [],
+      almacenInventarioCritico: [],
       columnsUltimas: [
         { name: 'nro_registro', label: 'Nro Registro', field: 'nro_registro', align: 'left' },
         { name: 'codigo_solicitud', label: 'Código', field: 'codigo_solicitud', align: 'left' },
@@ -276,6 +465,23 @@ export default {
         { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
         { name: 'fecha_solicitud', label: 'Fecha', field: 'fecha_solicitud', align: 'left' },
         { name: 'hora_solicitud', label: 'Hora', field: 'hora_solicitud', align: 'left' }
+      ],
+      columnsPedidos: [
+        { name: 'id', label: 'Pedido', field: row => `#${row.id}`, align: 'left' },
+        { name: 'fecha_hora', label: 'Fecha', field: row => this.formatDateTime(row.fecha_hora), align: 'left' },
+        { name: 'nombre_usuario', label: 'Usuario', field: row => row.nombre_usuario || '-', align: 'left' },
+        { name: 'estado', label: 'Estado', field: 'estado', align: 'left' }
+      ],
+      columnsDespachos: [
+        { name: 'nro', label: 'Despacho', field: row => row.nro || `#${row.id}`, align: 'left' },
+        { name: 'fecha_entrega', label: 'Fecha', field: row => this.formatDateTime(row.fecha_entrega), align: 'left' },
+        { name: 'solicitante', label: 'Solicitante', field: row => row.solicitante || '-', align: 'left' },
+        { name: 'estado', label: 'Estado', field: 'estado', align: 'left' }
+      ],
+      columnsInventario: [
+        { name: 'nombre', label: 'Item', field: 'nombre', align: 'left' },
+        { name: 'unidad_medida', label: 'Unidad', field: row => row.unidad_medida || '-', align: 'left' },
+        { name: 'cantidad', label: 'Existencia', field: row => this.quantity(row.cantidad), align: 'right' }
       ],
       // CHARTS
       chartAreas: {
@@ -319,6 +525,39 @@ export default {
           plotOptions: { bar: { horizontal: true } },
           dataLabels: { enabled: false }
         }
+      },
+      chartAlmacenMovimiento: {
+        series: [
+          { name: 'Pedidos', data: [] },
+          { name: 'Despachos', data: [] }
+        ],
+        options: {
+          xaxis: { categories: [] },
+          dataLabels: { enabled: false },
+          stroke: { curve: 'smooth' },
+          legend: { position: 'top' }
+        }
+      },
+      chartAlmacenSolicitudes: {
+        series: [],
+        options: {
+          labels: [],
+          legend: { position: 'bottom' },
+          dataLabels: { enabled: true }
+        }
+      }
+    }
+  },
+  computed: {
+    isAlmacenRole () {
+      const user = this.$store?.user?.role ? this.$store.user : JSON.parse(localStorage.getItem('user') || '{}')
+      return ['Almacén', 'Almacen'].includes(user?.role)
+    }
+  },
+  watch: {
+    isAlmacenRole () {
+      if (this.filters.date_from && this.filters.date_to) {
+        this.fetchDashboard()
       }
     }
   },
@@ -334,6 +573,11 @@ export default {
     async fetchDashboard () {
       this.loading = true
       try {
+        if (this.isAlmacenRole) {
+          await this.fetchAlmacenDashboard()
+          return
+        }
+
         const res = await this.$axios.get('reportes/solicitudes-dashboard', {
           params: {
             date_from: this.filters.date_from,
@@ -410,6 +654,55 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+    async fetchAlmacenDashboard () {
+      const res = await this.$axios.get('reportes/almacen-dashboard', {
+        params: {
+          date_from: this.filters.date_from,
+          date_to: this.filters.date_to
+        }
+      })
+
+      const data = res.data || {}
+      this.almacenResumen = data.resumen || {}
+      this.almacenUltimosPedidos = data.ultimos_pedidos || []
+      this.almacenUltimosDespachos = data.ultimos_despachos || []
+      this.almacenInventarioCritico = data.inventario_critico || []
+
+      const fechas = [...new Set([
+        ...(data.serie_pedidos || []).map(row => row.fecha),
+        ...(data.serie_despachos || []).map(row => row.fecha)
+      ])].sort()
+      const pedidosMap = new Map((data.serie_pedidos || []).map(row => [row.fecha, Number(row.total || 0)]))
+      const despachosMap = new Map((data.serie_despachos || []).map(row => [row.fecha, Number(row.total || 0)]))
+
+      this.chartAlmacenMovimiento.series = [
+        { name: 'Pedidos', data: fechas.map(fecha => pedidosMap.get(fecha) || 0) },
+        { name: 'Despachos', data: fechas.map(fecha => despachosMap.get(fecha) || 0) }
+      ]
+      this.chartAlmacenMovimiento.options = {
+        ...this.chartAlmacenMovimiento.options,
+        xaxis: { categories: fechas }
+      }
+
+      const solicitudesEstado = data.solicitudes_por_estado || {}
+      this.chartAlmacenSolicitudes.series = Object.values(solicitudesEstado).map(value => Number(value || 0))
+      this.chartAlmacenSolicitudes.options = {
+        ...this.chartAlmacenSolicitudes.options,
+        labels: Object.keys(solicitudesEstado)
+      }
+    },
+    pedidoEstadoColor (estado) {
+      if (estado === 'ACEPTADO') return 'green'
+      if (estado === 'RECHAZADO' || estado === 'ANULADO') return 'red'
+      return 'orange'
+    },
+    formatDateTime (value) {
+      if (!value) return '-'
+      return moment(value).format('DD/MM/YYYY HH:mm')
+    },
+    quantity (value) {
+      return Number(value || 0).toLocaleString('es-BO', { maximumFractionDigits: 2 })
     },
     colorEstado (estado) {
       switch (estado) {

@@ -670,7 +670,7 @@ export default {
       actionUser: '',
       gestiones: [],
       filter: '',
-      roles: ['Medico', 'Admision', 'Preanalitica', 'Analitica', 'Administrador'],
+      roles: ['Medico', 'Admision', 'Preanalitica', 'Analitica', 'Almacén', 'Administrador'],
       // areas : [
       //   'Administracion',
       //   'Hematologia',

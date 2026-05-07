@@ -28,6 +28,7 @@ use App\Http\Controllers\RecogidoController;
 use App\Http\Controllers\SolicitudSapController;
 use App\Http\Controllers\UnidadController;
 use App\Http\Controllers\HerramientasAlmacenController;
+use App\Http\Controllers\DespachoController;
 
 Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
 
@@ -75,6 +76,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('partidas', PartidaController::class);
     Route::apiResource('subpartidas', SubpartidaController::class);
     Route::get('almacen-items/reporte/pdf', [AlmacenItemController::class, 'reportPdf']);
+    Route::get('reportes/almacen-dashboard', [AlmacenItemController::class, 'dashboard']);
     Route::apiResource('almacen-items', AlmacenItemController::class);
     Route::get('almacen/productos-por-vencer', [ProductoPorVencerController::class, 'index']);
     Route::get('almacen/productos-vencidos', [ProductoVencidoController::class, 'index']);
@@ -86,6 +88,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('solicitudes-sap/{id}/pdf', [SolicitudSapController::class, 'printPdf']);
     Route::get('herramientas-almacen', [HerramientasAlmacenController::class, 'index']);
     Route::put('herramientas-almacen', [HerramientasAlmacenController::class, 'update']);
+
+    Route::get('despachos/pedido-lookup/{id}', [DespachoController::class, 'pedidoLookup']);
+    Route::get('despachos/{id}/pdf', [DespachoController::class, 'printPdf']);
+    Route::post('despachos/{id}/anular', [DespachoController::class, 'anular']);
+    Route::apiResource('despachos', DespachoController::class)->only(['index', 'show', 'store', 'destroy']);
 
     Route::apiResource('areas', AreaController::class);
 //    areasCreateSolicitud

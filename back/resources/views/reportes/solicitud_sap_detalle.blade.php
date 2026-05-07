@@ -98,7 +98,7 @@
 
         /* Firmas */
         .firma-section {
-            margin-top: 10px;
+            margin-top: 8px;
             border: 1px solid #aac8e0;
             padding: 4px 6px;
         }
@@ -115,12 +115,15 @@
         .firma-grid td {
             width: 50%;
             text-align: center;
-            padding-top: 36px;
+            padding-top: 8px;
             vertical-align: bottom;
         }
         .firma-line { width: 65%; border-top: 1px solid #0f5ea8; margin: 0 auto 3px; }
         .firma-role { font-size: 8px; font-weight: bold; text-transform: uppercase; color: #0f5ea8; }
         .firma-name { font-size: 8px; color: #666; margin-top: 2px; }
+        .firma-img { max-height: 38px; max-width: 120px; margin-bottom: -7px; }
+        .sello-img { max-height: 40px; max-width: 115px; margin-top: 3px; }
+        .firma-space { height: 38px; }
 
         .cert-section {
             margin-top: 6px;
@@ -141,7 +144,7 @@
         .cert-grid td {
             width: 50%;
             text-align: center;
-            padding-top: 36px;
+            padding-top: 14px;
             vertical-align: bottom;
         }
 
@@ -153,6 +156,9 @@
     $logoPath  = public_path('img/logo-hospital.png');
     $fecha     = $solicitud->fecha ? \Carbon\Carbon::parse($solicitud->fecha) : null;
     $createdAt = $solicitud->created_at ? \Carbon\Carbon::parse($solicitud->created_at) : null;
+    $sapUser = $solicitud->user;
+    $firmaSapPath = $sapUser && $sapUser->mostrar_firma && $sapUser->firma ? public_path('images/'.$sapUser->firma) : null;
+    $selloSapPath = $sapUser && $sapUser->mostrar_sello && $sapUser->sello ? public_path('images/'.$sapUser->sello) : null;
 @endphp
 
 {{-- CABECERA --}}
@@ -271,14 +277,22 @@
 @endif
 
 {{-- FIRMAS DE LA UNIDAD SOLICITANTE --}}
-<div class="firma-section" style="margin-top:14px;">
+<div class="firma-section" style="margin-top:8px;">
     <div class="firma-title">Firmas de la Unidad Solicitante</div>
     <table class="firma-grid">
         <tr>
             <td>
+                @if($firmaSapPath && file_exists($firmaSapPath))
+                    <img class="firma-img" src="{{ $firmaSapPath }}" alt="Firma">
+                @else
+                    <div class="firma-space"></div>
+                @endif
                 <div class="firma-line"></div>
                 <div class="firma-role">Elaborado por</div>
-                <div class="firma-name">(Encargado de Proyecto / Técnico Operativo)</div>
+                <div class="firma-name">{{ optional($solicitud->user)->name ?: '-' }}</div>
+                @if($selloSapPath && file_exists($selloSapPath))
+                    <img class="sello-img" src="{{ $selloSapPath }}" alt="Sello">
+                @endif
             </td>
             <td>
                 <div class="firma-line"></div>

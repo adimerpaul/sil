@@ -12,7 +12,6 @@ use Illuminate\Validation\Rule;
 
 class PedidoController extends Controller
 {
-
     public function index(Request $request)
     {
 
@@ -22,7 +21,7 @@ class PedidoController extends Controller
         $user = auth()->user();
         $isAdmin = ($user->role ?? null) === 'Administrador'
             || (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['admin', 'jefe-almacen']));
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $query->deUsuario();
         }
 
@@ -32,7 +31,7 @@ class PedidoController extends Controller
         $rowsPerPage = $rowsPerPage > 0 ? $rowsPerPage : 15;
 
         $summaryQuery = Pedido::query();
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $summaryQuery->deUsuario();
         }
         $this->applyFilters($summaryQuery, $request);
@@ -57,12 +56,12 @@ class PedidoController extends Controller
     public function show($id)
     {
 
-        $pedido = Pedido::with(['user:id,name', 'detalles.producto'])->findOrFail($id);
+        $pedido = Pedido::with(['user:id,name,firma,sello,mostrar_firma,mostrar_sello', 'detalles.producto'])->findOrFail($id);
 
         $user = auth()->user();
         $isAdmin = ($user->role ?? null) === 'Administrador'
             || (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['admin', 'jefe-almacen']));
-        if (!$isAdmin && $pedido->user_id !== auth()->id()) {
+        if (! $isAdmin && $pedido->user_id !== auth()->id()) {
             abort(403, 'No autorizado para ver este pedido');
         }
 
@@ -78,7 +77,7 @@ class PedidoController extends Controller
         $isAdmin = ($currentUser->role ?? null) === 'Administrador'
             || (method_exists($currentUser, 'hasAnyRole') && $currentUser->hasAnyRole(['admin', 'jefe-almacen']));
 
-        if (!$isAdmin && !HerramientaAlmacen::pedidosHabilitados()) {
+        if (! $isAdmin && ! HerramientaAlmacen::pedidosHabilitados()) {
             return response()->json([
                 'message' => 'Los pedidos no están habilitados en este momento. Consulta con el administrador.',
             ], 422);
@@ -88,6 +87,7 @@ class PedidoController extends Controller
             $productos = AlmacenItem::whereIn('id', collect($data['items'])->pluck('producto_id'))->get()->keyBy('id');
             $total = collect($data['items'])->sum(function ($item) use ($productos) {
                 $precio = (float) ($item['precio_unitario'] ?? $productos[$item['producto_id']]->precio_unitario ?? 0);
+
                 return $precio * (int) $item['cantidad'];
             });
 
@@ -129,12 +129,12 @@ class PedidoController extends Controller
         $user = auth()->user();
         $isAdmin = ($user->role ?? null) === 'Administrador'
             || (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['admin', 'jefe-almacen']));
-        if (!$isAdmin && $pedido->user_id !== auth()->id()) {
+        if (! $isAdmin && $pedido->user_id !== auth()->id()) {
             abort(403, 'No autorizado para modificar este pedido');
         }
 
         // Cambio de estado solamente (acción rápida desde el listado)
-        if ($request->has('estado') && !$request->has('items')) {
+        if ($request->has('estado') && ! $request->has('items')) {
             $request->validate([
                 'estado' => ['required', Rule::in(['PENDIENTE', 'ACEPTADO', 'RECHAZADO'])],
             ]);
@@ -165,6 +165,7 @@ class PedidoController extends Controller
             $productos = AlmacenItem::whereIn('id', collect($data['items'])->pluck('producto_id'))->get()->keyBy('id');
             $total = collect($data['items'])->sum(function ($item) use ($productos) {
                 $precio = (float) ($item['precio_unitario'] ?? $productos[$item['producto_id']]->precio_unitario ?? 0);
+
                 return $precio * (int) $item['cantidad'];
             });
 
@@ -202,7 +203,7 @@ class PedidoController extends Controller
         $user = auth()->user();
         $isAdmin = ($user->role ?? null) === 'Administrador'
             || (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['admin', 'jefe-almacen']));
-        if (!$isAdmin && $pedido->user_id !== auth()->id()) {
+        if (! $isAdmin && $pedido->user_id !== auth()->id()) {
             abort(403, 'No autorizado para anular este pedido');
         }
 
@@ -219,16 +220,16 @@ class PedidoController extends Controller
 
     public function printPdf($id)
     {
-//        if (auth()->check() && method_exists(auth()->user(), 'can') && !auth()->user()->can('Imprimir Pedidos')) {
-//            abort(403, 'No autorizado para imprimir este pedido');
-//        }
+        //        if (auth()->check() && method_exists(auth()->user(), 'can') && !auth()->user()->can('Imprimir Pedidos')) {
+        //            abort(403, 'No autorizado para imprimir este pedido');
+        //        }
 
         $pedido = Pedido::with(['user:id,name', 'detalles.producto'])->findOrFail($id);
 
         $user = auth()->user();
         $isAdmin = ($user->role ?? null) === 'Administrador'
             || (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['admin', 'jefe-almacen']));
-        if (!$isAdmin && $pedido->user_id !== auth()->id()) {
+        if (! $isAdmin && $pedido->user_id !== auth()->id()) {
             abort(403, 'No autorizado para imprimir este pedido');
         }
 
@@ -254,6 +255,16 @@ class PedidoController extends Controller
 
     private function applyFilters($query, Request $request): void
     {
+        if ($request->filled('producto_id')) {
+            $productoId = $request->input('producto_id');
+            $query->whereHas('detalles', function ($query) use ($productoId) {
+                $query->where('producto_id', $productoId);
+            })->with(['detalles' => function ($query) use ($productoId) {
+                $query->where('producto_id', $productoId)
+                    ->with('producto:id,nombre,imagen');
+            }]);
+        }
+
         if ($request->filled('date_from')) {
             $query->whereDate('fecha_hora', '>=', $request->date_from);
         }
@@ -274,5 +285,4 @@ class PedidoController extends Controller
             });
         }
     }
-
 }
