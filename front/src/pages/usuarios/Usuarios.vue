@@ -646,6 +646,7 @@ const ALMACEN_PERMISSION_NAMES = [
   'Anular Solicitudes SAP',
   'Imprimir Solicitudes SAP',
   'Ver Herramientas Almacén',
+  'Herramientas de Almacén',
 ]
 
 const PERMISSION_GROUPS = [

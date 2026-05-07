@@ -74,12 +74,10 @@ class PedidoController extends Controller
         $data = $this->validateData($request);
 
         $currentUser = $request->user();
-        $isAdmin = ($currentUser->role ?? null) === 'Administrador'
-            || (method_exists($currentUser, 'hasAnyRole') && $currentUser->hasAnyRole(['admin', 'jefe-almacen']));
 
-        if (! $isAdmin && ! HerramientaAlmacen::pedidosHabilitados()) {
+        if (! HerramientaAlmacen::pedidosHabilitados()) {
             return response()->json([
-                'message' => 'Los pedidos no están habilitados en este momento. Consulta con el administrador.',
+                'message' => 'Los pedidos no están habilitados. Configura una fecha de inicio y una fecha de finalización activas en Herramientas de Almacén.',
             ], 422);
         }
 

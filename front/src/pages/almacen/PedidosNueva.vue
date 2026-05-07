@@ -9,6 +9,21 @@
       <q-btn flat icon="arrow_back" label="Volver" to="/pedidos" no-caps />
     </div>
 
+    <q-banner
+      v-if="!loadingVentana && !pedidosPermitidos"
+      rounded
+      class="bg-orange-1 text-orange-10 q-mb-sm"
+      style="border: 1px solid #ffcc80;"
+    >
+      <template #avatar>
+        <q-icon name="block" color="orange-7" size="26px" />
+      </template>
+      <div class="text-weight-bold">Pedidos deshabilitados</div>
+      <div class="text-body2">
+        {{ ventanaPedidoMensaje }}
+      </div>
+    </q-banner>
+
     <div class="row q-col-gutter-sm">
       <!-- Carrusel de Productos -->
       <div class="col-12 col-md-5">
@@ -28,7 +43,13 @@
           </q-card-section>
           <q-separator />
           <q-card-section class="product-grid q-pa-sm">
-            <div v-for="item in products" :key="item.id" class="product-card" @click="addItem(item)">
+            <div
+              v-for="item in products"
+              :key="item.id"
+              class="product-card"
+              :class="{ 'product-card--disabled': !pedidosPermitidos }"
+              @click="addItem(item)"
+            >
               <div class="product-image-wrapper">
                 <q-img :src="itemImageUrl(item)" class="product-image" fit="cover" />
                 <div class="product-name-overlay" :title="item.nombre">{{ item.nombre }}</div>
@@ -169,7 +190,7 @@
               label="Confimar registro"
               :loading="saving"
               no-caps
-              :disable="selectedItems.length === 0"
+              :disable="selectedItems.length === 0 || !pedidosPermitidos"
               @click="confirmSave"
             />
           </q-card-section>
@@ -253,6 +274,7 @@ export default {
   data () {
     return {
       loadingProducts: false,
+      loadingVentana: false,
       saving: false,
       products: [],
       selectedItems: [],
@@ -261,6 +283,11 @@ export default {
       productPagination: { page: 1, rowsPerPage: 30, rowsNumber: 0 },
       showConfirmDialog: false,
       confirmData: null,
+      ventanaPedido: {
+        fecha_inicio_pedido_almacen: null,
+        fecha_fin_pedido_almacen: null,
+        pedidos_habilitados: false,
+      },
       form: {},
     }
   },
@@ -274,11 +301,34 @@ export default {
     productPages () {
       return Math.max(1, Math.ceil(this.productPagination.rowsNumber / this.productPagination.rowsPerPage))
     },
+    fechasVentanaConfiguradas () {
+      return !!this.ventanaPedido.fecha_inicio_pedido_almacen && !!this.ventanaPedido.fecha_fin_pedido_almacen
+    },
+    pedidosPermitidos () {
+      return this.fechasVentanaConfiguradas && !!this.ventanaPedido.pedidos_habilitados
+    },
+    ventanaPedidoMensaje () {
+      if (!this.fechasVentanaConfiguradas) {
+        return 'No se puede crear un pedido porque falta configurar la fecha de inicio y la fecha de finalización en Herramientas de Almacén.'
+      }
+
+      return `La ventana configurada es del ${this.formatDate(this.ventanaPedido.fecha_inicio_pedido_almacen)} al ${this.formatDate(this.ventanaPedido.fecha_fin_pedido_almacen)}.`
+    },
   },
   async mounted () {
+    await this.fetchVentanaPedido()
     await this.fetchProducts()
   },
   methods: {
+    async fetchVentanaPedido () {
+      this.loadingVentana = true
+      try {
+        const res = await this.$axios.get('herramientas-almacen')
+        this.ventanaPedido = res.data || this.ventanaPedido
+      } finally {
+        this.loadingVentana = false
+      }
+    },
     async fetchProducts () {
       this.loadingProducts = true
       try {
@@ -297,6 +347,10 @@ export default {
       }
     },
     addItem (product) {
+      if (!this.pedidosPermitidos) {
+        this.$q.notify({ color: 'negative', message: this.ventanaPedidoMensaje, position: 'top' })
+        return
+      }
       const productoId = product.id
       const existing = this.selectedItems.find(i => i.producto_id === productoId)
       if (existing) {
@@ -329,6 +383,10 @@ export default {
       this.selectedItems = []
     },
     confirmSave () {
+      if (!this.pedidosPermitidos) {
+        this.$q.notify({ color: 'negative', message: this.ventanaPedidoMensaje, position: 'top' })
+        return
+      }
       if (!this.selectedItems.length) {
         this.$q.notify({ color: 'negative', message: 'AGREGA AL MENOS UN PRODUCTO', position: 'top' })
         return
@@ -368,6 +426,10 @@ export default {
       if (!datetime) return '-'
       return moment(datetime).format('DD/MM/YYYY HH:mm')
     },
+    formatDate (date) {
+      if (!date) return '-'
+      return moment(date).format('DD/MM/YYYY')
+    },
   },
 }
 </script>
@@ -395,6 +457,16 @@ export default {
 .product-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.product-card--disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.product-card--disabled:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 .product-image-wrapper {

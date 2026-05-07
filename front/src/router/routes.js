@@ -132,7 +132,7 @@ const routes = [
       {
         path: '/almacen/herramientas',
         component: () => import('pages/almacen/HerramientasAlmacen.vue'),
-        meta: {requiresAuth: true, perm: 'Ver Herramientas Almacén'}
+        meta: {requiresAuth: true, perm: ['Ver Herramientas Almacén', 'Herramientas de Almacén']}
       },
       {
         path: '/despachos',

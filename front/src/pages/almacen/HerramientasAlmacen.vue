@@ -168,7 +168,11 @@ const form = ref({
 
 const userPermissions = computed(() => proxy.$store.permissions || [])
 const isAdmin = computed(() => proxy.$store.user?.role === 'Administrador')
-const canManage = computed(() => isAdmin.value || userPermissions.value.includes('Gestionar Ventana Pedidos'))
+const canManage = computed(() => (
+  isAdmin.value ||
+  userPermissions.value.includes('Herramientas de Almacén') ||
+  userPermissions.value.includes('Gestionar Ventana Pedidos')
+))
 
 onMounted(fetchSettings)
 

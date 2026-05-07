@@ -8,15 +8,15 @@ return new class extends Migration
     public function up(): void
     {
         $guard = 'web';
-        $now   = now();
+        $now = now();
         $perms = [
             'Ver Herramientas Almacén',
-            'Gestionar Ventana Pedidos',
+            'Herramientas de Almacén',
         ];
 
         foreach ($perms as $name) {
             DB::table('permissions')->insertOrIgnore([
-                'name'       => $name,
+                'name' => $name,
                 'guard_name' => $guard,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -28,7 +28,7 @@ return new class extends Migration
     {
         DB::table('permissions')->whereIn('name', [
             'Ver Herramientas Almacén',
-            'Gestionar Ventana Pedidos',
+            'Herramientas de Almacén',
         ])->delete();
     }
 };
