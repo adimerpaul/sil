@@ -74,6 +74,6 @@ class User extends Authenticatable implements Auditable
         return $this->belongsTo(Unidad::class);
     }
     function subpartidas(){
-        return $this->belongsToMany(Subpartida::class)->withTimestamps();
+        return $this->belongsToMany(Subpartida::class);
     }
 }

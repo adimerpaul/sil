@@ -271,11 +271,11 @@
             <div class="sign-title">Resp. de almacen</div>
             <div class="sign-name">Juan Mario Rocha Arispe</div>
         </td>
-        <td>
-            <div class="line"></div>
-            <div class="sign-title">Resp. de recepcion</div>
-            <div class="sign-name">{{ optional($pedido->user)->name ?: '-' }}</div>
-        </td>
+{{--        <td>--}}
+{{--            <div class="line"></div>--}}
+{{--            <div class="sign-title">Resp. de recepcion</div>--}}
+{{--            <div class="sign-name">{{ optional($pedido->user)->name ?: '-' }}</div>--}}
+{{--        </td>--}}
         <td>
             <div class="line"></div>
             <div class="sign-title">Administrador</div>

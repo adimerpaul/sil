@@ -15,7 +15,7 @@ class PedidoController extends Controller
     public function index(Request $request)
     {
 
-        $query = Pedido::with(['user:id,name', 'detalles.producto:id,nombre'])
+        $query = Pedido::with(['user:id,name', 'detalles.producto:id,nombre,imagen'])
             ->withCount('detalles');
 
         $user = auth()->user();

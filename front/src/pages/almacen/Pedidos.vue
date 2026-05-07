@@ -303,22 +303,24 @@
               </div>
               <div class="meta-item">
                 <q-icon name="person" size="20px" class="meta-icon" />
-<!--                <q-btn-->
-<!--                  v-if="props.row.nombre_usuario"-->
-<!--                  flat-->
-<!--                  round-->
-<!--                  dense-->
-<!--                  icon="history"-->
-<!--                  color="blue-7"-->
-<!--                  size="sm"-->
-<!--                  class="q-ml-sm"-->
-<!--                  @click.stop="openHistorial(props.row)"-->
-<!--                >-->
-<!--                  <q-tooltip>Ver historial del usuario</q-tooltip>-->
-<!--                </q-btn>-->
                 <div class="meta-content">
                   <div class="meta-label">Usuario</div>
-                  <div class="meta-value">{{ selectedPedido.nombre_usuario || selectedPedido.user?.name || '-' }}</div>
+                  <div class="row items-center no-wrap">
+                    <div class="meta-value">{{ selectedPedido.nombre_usuario || selectedPedido.user?.name || '-' }}</div>
+                    <q-btn
+                      v-if="selectedPedido.nombre_usuario"
+                      flat
+                      round
+                      dense
+                      icon="history"
+                      color="blue-7"
+                      size="sm"
+                      class="q-ml-xs"
+                      @click="openHistorial(selectedPedido)"
+                    >
+                      <q-tooltip>Ver historial del usuario</q-tooltip>
+                    </q-btn>
+                  </div>
                 </div>
               </div>
               <div class="meta-item">
@@ -579,47 +581,66 @@
               <div class="text-caption text-grey-3">{{ historialUser }}</div>
             </div>
             <q-space />
-            <q-btn flat round dense icon="close" color="white" @click="showHistorialDialog = false" />
+            <q-chip dense color="white" text-color="blue-9" :label="`${historialPagination.rowsNumber} pedidos`" />
+            <q-btn flat round dense icon="close" color="white" class="q-ml-xs" @click="showHistorialDialog = false" />
           </div>
         </div>
-        <q-card-section class="q-pa-sm">
-          <q-table
-            flat
-            dense
-            row-key="id"
-            :rows="historialRows"
-            :columns="historialColumns"
-            :loading="loadingHistorial"
-            :rows-per-page-options="[10, 25, 50]"
-            v-model:pagination="historialPagination"
-            @request="onHistorialRequest"
-          >
-            <template #body-cell-id="props">
-              <q-td :props="props">
-                <q-badge color="grey-3" text-color="grey-9">#{{ props.row.id }}</q-badge>
-              </q-td>
-            </template>
-            <template #body-cell-fecha_hora="props">
-              <q-td :props="props">
-                <div>{{ formatDate(props.row.fecha_hora) }}</div>
-                <div class="text-caption text-grey-7">{{ formatTime(props.row.fecha_hora) }}</div>
-              </q-td>
-            </template>
-            <template #body-cell-estado="props">
-              <q-td :props="props">
-                <q-badge :color="estadoColor(props.row.estado)" class="q-pa-xs text-weight-bold">
-                  {{ props.row.estado }}
-                </q-badge>
-              </q-td>
-            </template>
-            <template #body-cell-total="props">
-              <q-td :props="props" class="text-right">
-                <span class="text-weight-bold text-primary">{{ money(props.row.total) }} Bs</span>
-              </q-td>
-            </template>
-          </q-table>
-        </q-card-section>
-        <q-card-actions align="right" class="q-pa-sm">
+
+        <div class="historial-content">
+          <div v-if="loadingHistorial" class="text-center q-pa-lg">
+            <q-spinner size="40px" color="primary" />
+          </div>
+
+          <div v-else-if="historialRows.length === 0" class="text-center text-grey-6 q-pa-lg">
+            <q-icon name="inbox" size="40px" class="q-mb-sm" />
+            <div>Sin pedidos registrados</div>
+          </div>
+
+          <div v-else class="historial-list">
+            <div v-for="pedido in historialRows" :key="pedido.id" class="historial-item">
+              <div class="row items-center no-wrap q-mb-xs">
+                <q-badge color="grey-3" text-color="grey-9" class="q-mr-sm text-weight-medium">#{{ pedido.id }}</q-badge>
+                <div class="text-caption text-grey-8">{{ formatDate(pedido.fecha_hora) }} · {{ formatTime(pedido.fecha_hora) }}</div>
+                <q-space />
+                <q-badge :color="estadoColor(pedido.estado)" class="q-pa-xs text-weight-bold q-mr-sm">{{ pedido.estado }}</q-badge>
+                <span class="text-weight-bold text-primary text-body2">{{ money(pedido.total) }} Bs</span>
+              </div>
+              <div class="historial-products">
+                <div
+                  v-for="det in (pedido.detalles || []).slice(0, 7)"
+                  :key="det.id"
+                  class="historial-product-chip"
+                >
+                  <q-img
+                    :src="itemImageUrl(det)"
+                    width="38px"
+                    height="38px"
+                    fit="cover"
+                    class="historial-product-img"
+                  >
+                    <q-tooltip>{{ det.producto?.nombre || '-' }} × {{ det.cantidad }}</q-tooltip>
+                  </q-img>
+                  <div class="historial-product-name">{{ det.producto?.nombre || '-' }}</div>
+                </div>
+                <div v-if="(pedido.detalles || []).length > 7" class="historial-product-more">
+                  +{{ pedido.detalles.length - 7 }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <q-separator />
+
+        <q-card-actions class="q-pa-sm row items-center">
+          <q-pagination
+            v-if="historialPagination.rowsNumber > historialPagination.rowsPerPage"
+            v-model="historialPagination.page"
+            :max="Math.ceil(historialPagination.rowsNumber / historialPagination.rowsPerPage)"
+            size="sm"
+            @update:model-value="fetchHistorial"
+          />
+          <q-space />
           <q-btn flat no-caps color="grey-8" label="Cerrar" @click="showHistorialDialog = false" />
         </q-card-actions>
       </q-card>
@@ -700,13 +721,6 @@ const columns = [
   { name: 'total', label: 'Total', field: 'total', align: 'right' }
 ]
 
-const historialColumns = [
-  { name: 'id', label: 'ID', field: 'id', align: 'left', style: 'width: 60px' },
-  { name: 'fecha_hora', label: 'Fecha', field: 'fecha_hora', align: 'left' },
-  { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
-  { name: 'detalles_count', label: 'Items', field: 'detalles_count', align: 'center' },
-  { name: 'total', label: 'Total', field: 'total', align: 'right' },
-]
 
 const userPermissions = computed(() => proxy.$store.permissions || [])
 const currentUser = computed(() => proxy.$store.user || {})
@@ -1099,10 +1113,6 @@ async function fetchHistorial () {
   }
 }
 
-async function onHistorialRequest (props) {
-  historialPagination.value = props.pagination
-  await fetchHistorial()
-}
 </script>
 
 <style scoped>
@@ -1314,15 +1324,86 @@ async function onHistorialRequest (props) {
 }
 
 .historial-dialog {
-  width: 700px;
-  max-width: 94vw;
+  width: 680px;
+  max-width: 96vw;
   border-radius: 10px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 88vh;
 }
 
 .historial-header {
   background: linear-gradient(135deg, #0277bd 0%, #01579b 100%);
   color: #fff;
   padding: 14px 18px;
+  flex: 0 0 auto;
+}
+
+.historial-content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.historial-list {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.historial-item {
+  background: #fff;
+  border: 1px solid #e5eaf2;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.historial-products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.historial-product-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 56px;
+}
+
+.historial-product-img {
+  border-radius: 6px;
+  border: 1px solid #e5eaf2;
+  background: #f5f5f5;
+}
+
+.historial-product-name {
+  font-size: 10px;
+  color: #4b5563;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 56px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historial-product-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  background: #e3f2fd;
+  color: #1976d2;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid #bbdefb;
+  align-self: flex-start;
 }
 </style>
