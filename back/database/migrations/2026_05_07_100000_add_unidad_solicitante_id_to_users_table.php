@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use App\Models\UnidadSolicitante;
 
 return new class extends Migration
 {
@@ -19,9 +19,18 @@ return new class extends Migration
             });
         }
 
-        UnidadSolicitante::firstOrCreate(
-            ['nombre' => 'DEPTO. DE INGENIERÍA Y MANTENIMIENTO HGSJDD BLOQUE ORURO COREA']
-        );
+        $nombreUnidad = 'DEPTO. DE INGENIERÍA Y MANTENIMIENTO HGSJDD BLOQUE ORURO COREA';
+        $unidadExiste = DB::table('unidad_solicitantes')
+            ->where('nombre', $nombreUnidad)
+            ->exists();
+
+        if (! $unidadExiste) {
+            DB::table('unidad_solicitantes')->insert([
+                'nombre' => $nombreUnidad,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 
     public function down(): void
