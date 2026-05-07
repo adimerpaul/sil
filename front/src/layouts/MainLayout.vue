@@ -213,9 +213,9 @@ const menuSections = [
     ],
   },
   {
-    title: 'Laboratorio',
+    title: 'Laboratorio SIL',
     icon: 'science',
-    defaultOpened: true,
+    defaultOpened: false,
     links: [
       { title: 'Admisión', icon: 'request_page', link: '/solicitudes', can: 'Solicitudes' },
       { title: 'Recogidos', icon: 'inventory_2', link: '/recogidos', can: 'Solicitudes' },
@@ -227,7 +227,7 @@ const menuSections = [
     ],
   },
   {
-    title: 'Almacén',
+    title: 'Almacén SIA',
     icon: 'warehouse',
     defaultOpened: false,
     links: [

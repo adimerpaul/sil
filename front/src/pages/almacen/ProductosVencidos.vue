@@ -151,8 +151,9 @@ export default {
         { name: 'fecha_vencimiento', label: 'Vence', field: 'fecha_vencimiento', align: 'left', sortable: true },
         { name: 'producto', label: 'Producto / Lote', field: row => row.producto?.nombre || row.nombre, align: 'left' },
         { name: 'existencia', label: 'Existencia', field: 'existencia', align: 'right', sortable: true },
-        { name: 'cantidad', label: 'Comprado', field: 'cantidad', align: 'right', sortable: true },
-        { name: 'cantidad_venta', label: 'Vendido', field: 'cantidad_venta', align: 'right', sortable: true },
+        { name: 'cantidad', label: 'Entrada', field: 'cantidad', align: 'right', sortable: true },
+        { name: 'cantidad_venta', label: 'Salida', field: 'cantidad_venta', align: 'right', sortable: true },
+        { name: 'cantidad_venta', label: 'Salida', field: 'cantidad_venta', align: 'right', sortable: true },
         { name: 'compra', label: 'Compra', field: row => row.compra?.id, align: 'left' },
         { name: 'usuario', label: 'Usuario / Proveedor', field: row => row.compra?.user?.name, align: 'left' }
       ]

@@ -58,6 +58,9 @@ class CompraController extends Controller
             'comentario' => 'nullable|string|max:500',
             'tipo_pago' => 'nullable|string|max:50',
             'nro_factura' => 'nullable|string|max:255',
+            'categoria_programatica' => 'nullable|string|max:255',
+            'orden_de_compra' => 'nullable|string|max:255',
+            'codigo_interno' => 'nullable|string|max:255',
             'items' => 'required|array|min:1',
             'items.*.producto_id' => 'required|exists:almacen_items,id',
             'items.*.cantidad' => 'required|integer|min:1',
@@ -85,6 +88,9 @@ class CompraController extends Controller
                 'total' => $total,
                 'tipo_pago' => $data['tipo_pago'] ?? 'EFECTIVO',
                 'nro_factura' => $data['nro_factura'] ?? null,
+                'categoria_programatica' => $data['categoria_programatica'] ?? null,
+                'orden_de_compra' => $data['orden_de_compra'] ?? null,
+                'codigo_interno' => $data['codigo_interno'] ?? null,
             ]);
 
             foreach ($data['items'] as $item) {
@@ -132,6 +138,9 @@ class CompraController extends Controller
             'comentario' => 'nullable|string|max:500',
             'tipo_pago' => 'nullable|string|max:50',
             'nro_factura' => 'nullable|string|max:255',
+            'categoria_programatica' => 'nullable|string|max:255',
+            'orden_de_compra' => 'nullable|string|max:255',
+            'codigo_interno' => 'nullable|string|max:255',
             'items' => 'required|array|min:1',
             'items.*.producto_id' => 'required|exists:almacen_items,id',
             'items.*.cantidad' => 'required|integer|min:1',
@@ -157,6 +166,9 @@ class CompraController extends Controller
                 'total' => $total,
                 'tipo_pago' => $data['tipo_pago'] ?? 'EFECTIVO',
                 'nro_factura' => $data['nro_factura'] ?? null,
+                'categoria_programatica' => $data['categoria_programatica'] ?? null,
+                'orden_de_compra' => $data['orden_de_compra'] ?? null,
+                'codigo_interno' => $data['codigo_interno'] ?? null,
             ]);
 
             $compra->detalles()->delete();

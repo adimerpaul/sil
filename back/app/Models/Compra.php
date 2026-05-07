@@ -22,6 +22,9 @@ class Compra extends Model
         'total',
         'tipo_pago',
         'nro_factura',
+        'categoria_programatica',
+        'orden_de_compra',
+        'codigo_interno',
     ];
 
     public function detalles()

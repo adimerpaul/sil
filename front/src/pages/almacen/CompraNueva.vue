@@ -81,6 +81,21 @@
             </div>
           </q-card-section>
 
+          <!-- Campos documento -->
+          <q-card-section class="q-pa-xs">
+            <div class="row q-col-gutter-xs">
+              <div class="col-12 col-sm-4">
+                <q-input v-model="form.categoria_programatica" dense outlined label="Categoría programática" />
+              </div>
+              <div class="col-12 col-sm-4">
+                <q-input v-model="form.orden_de_compra" dense outlined label="Orden de compra" />
+              </div>
+              <div class="col-12 col-sm-4">
+                <q-input v-model="form.codigo_interno" dense outlined label="Código interno" />
+              </div>
+            </div>
+          </q-card-section>
+
           <!-- Comentario -->
           <q-card-section class="q-pa-xs">
             <q-input
@@ -144,9 +159,9 @@
                       <span class="producto-cell-nombre">{{ item.nombre }}</span>
                     </div>
                   </td>
-                  <td><input v-model.number="item.cantidad" type="number" min="0" class="input-inline" @change="recalculate(item)" /></td>
-                  <td><input v-model.number="item.precio" type="number" step="0.01" class="input-inline" @change="recalculate(item)" /></td>
-                  <td><input v-model.number="item.total" type="number" step="0.01" class="input-inline" @change="recalculatePrice(item)" /></td>
+                  <td><input v-model.number="item.cantidad" type="number" min="0" class="input-inline" @keyup="recalculate(item)" /></td>
+                  <td><input v-model.number="item.precio" type="number" step="0.01" class="input-inline" @keyup="recalculate(item)" /></td>
+                  <td><input v-model.number="item.total" type="number" step="0.01" class="input-inline" @keyup="recalculatePrice(item)" /></td>
                   <td><input v-model="item.lote" type="text" class="input-inline" /></td>
                   <td><input v-model="item.fecha_vencimiento" type="date" class="input-inline" @change="updateDaysLeft(item)" /></td>
                   <td class="dias-cell" :class="getDaysClass(item.dias_restantes)">{{ item.dias_restantes ?? '-' }}</td>
@@ -247,6 +262,27 @@
                 <div class="meta-content">
                   <div class="meta-label">Tipo de pago</div>
                   <div class="meta-value">{{ pagoLabel(confirmData?.tipo_pago) }}</div>
+                </div>
+              </div>
+              <div v-if="confirmData?.categoria_programatica" class="meta-item">
+                <q-icon name="category" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">Cat. programática</div>
+                  <div class="meta-value">{{ confirmData.categoria_programatica }}</div>
+                </div>
+              </div>
+              <div v-if="confirmData?.orden_de_compra" class="meta-item">
+                <q-icon name="description" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">Orden de compra</div>
+                  <div class="meta-value">{{ confirmData.orden_de_compra }}</div>
+                </div>
+              </div>
+              <div v-if="confirmData?.codigo_interno" class="meta-item">
+                <q-icon name="tag" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">Código interno</div>
+                  <div class="meta-value">{{ confirmData.codigo_interno }}</div>
                 </div>
               </div>
             </div>
@@ -352,6 +388,9 @@ export default {
         carnet: '',
         nombre: '',
         comentario: '',
+        categoria_programatica: '',
+        orden_de_compra: '',
+        codigo_interno: '',
       },
       entradaMotivos: ['COMPRA', 'DONACION', 'TRANSFERENCIA', 'JUSTO'],
       pagoOptions: [
@@ -435,12 +474,12 @@ export default {
       }
     },
     addItem (product) {
-      const current = this.selectedItems.find(item => item.producto_id === product.id)
-      if (current) {
-        current.cantidad += 1
-        this.recalculate(current)
-        return
-      }
+      // const current = this.selectedItems.find(item => item.producto_id === product.id)
+      // if (current) {
+      //   current.cantidad += 1
+      //   this.recalculate(current)
+      //   return
+      // }
       const item = {
         producto_id: product.id,
         imagen: product.imagen,
@@ -457,14 +496,17 @@ export default {
       }
       this.selectedItems.push(item)
     },
+    round2 (value) {
+      return Math.round(Number(value || 0) * 100) / 100
+    },
     recalculate (item) {
-      item.total = Number(item.cantidad || 0) * Number(item.precio || 0)
-      item.precio_venta = Number(item.precio || 0) * Number(item.factor || 1)
+      item.total = this.round2(Number(item.cantidad || 0) * Number(item.precio || 0))
+      item.precio_venta = this.round2(Number(item.precio || 0) * Number(item.factor || 1))
     },
     recalculatePrice (item) {
       const cantidad = Number(item.cantidad || 1)
       if (cantidad > 0) {
-        item.precio = Number(item.total || 0) / cantidad
+        item.precio = this.round2(Number(item.total || 0) / cantidad)
       }
     },
     updateDaysLeft (item) {
@@ -506,6 +548,9 @@ export default {
         motivo_registro: this.form.motivo_registro,
         tipo_pago: this.form.tipo_pago,
         comentario: this.form.comentario || '',
+        categoria_programatica: this.form.categoria_programatica || '',
+        orden_de_compra: this.form.orden_de_compra || '',
+        codigo_interno: this.form.codigo_interno || '',
       }
       this.showConfirmDialog = true
     },
@@ -546,6 +591,9 @@ export default {
         this.form.carnet = compra.carnet || ''
         this.form.nombre = compra.nombre || ''
         this.form.comentario = compra.comentario || ''
+        this.form.categoria_programatica = compra.categoria_programatica || ''
+        this.form.orden_de_compra = compra.orden_de_compra || ''
+        this.form.codigo_interno = compra.codigo_interno || ''
         this.onProveedorChange()
         this.selectedItems = (compra.detalles || []).map(d => ({
           producto_id: d.producto_id,
