@@ -27,6 +27,7 @@ use App\Http\Controllers\ReporteServiciosController;
 use App\Http\Controllers\RecogidoController;
 use App\Http\Controllers\SolicitudSapController;
 use App\Http\Controllers\UnidadController;
+use App\Http\Controllers\HerramientasAlmacenController;
 
 Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
 
@@ -83,6 +84,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('pedidos', PedidoController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
     Route::apiResource('solicitudes-sap', SolicitudSapController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
     Route::get('solicitudes-sap/{id}/pdf', [SolicitudSapController::class, 'printPdf']);
+    Route::get('herramientas-almacen', [HerramientasAlmacenController::class, 'index']);
+    Route::put('herramientas-almacen', [HerramientasAlmacenController::class, 'update']);
 
     Route::apiResource('areas', AreaController::class);
 //    areasCreateSolicitud

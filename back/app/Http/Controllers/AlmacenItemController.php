@@ -156,24 +156,20 @@ class AlmacenItemController extends Controller
         return $filename;
     }
 
-    private function userSubpartidaIds(Request $request): ?array
+    private function userSubpartidaIds(Request $request): array
     {
         $user = $request->user();
-        if (!$user) return null;
-        $ids = DB::table('subpartida_user')
+        if (!$user) return [];
+        return DB::table('subpartida_user')
             ->where('user_id', $user->id)
             ->pluck('subpartida_id')
             ->toArray();
-        return count($ids) > 0 ? $ids : null;
     }
 
     private function applyFilters($query, Request $request): void
     {
-        // Restringir por subpartidas permitidas del usuario (si tiene asignadas)
-        $allowedIds = $this->userSubpartidaIds($request);
-        if ($allowedIds !== null) {
-            $query->whereIn('subpartida_id', $allowedIds);
-        }
+        // Siempre filtrar: si el usuario no tiene subpartidas asignadas no ve nada
+        $query->whereIn('subpartida_id', $this->userSubpartidaIds($request));
 
         if ($request->filled('grupo_id')) {
             $query->whereHas('subpartida.partida', function ($query) use ($request) {
@@ -247,11 +243,8 @@ class AlmacenItemController extends Controller
             ->join('grupos', 'grupos.id', '=', 'partidas.grupo_id')
             ->whereNull('almacen_items.deleted_at');
 
-        // Restringir por subpartidas permitidas del usuario (si tiene asignadas)
-        $allowedIds = $this->userSubpartidaIds($request);
-        if ($allowedIds !== null) {
-            $query->whereIn('almacen_items.subpartida_id', $allowedIds);
-        }
+        // Siempre filtrar: si el usuario no tiene subpartidas asignadas no ve nada
+        $query->whereIn('almacen_items.subpartida_id', $this->userSubpartidaIds($request));
 
         if ($request->filled('grupo_id')) {
             $query->where('partidas.grupo_id', $request->grupo_id);

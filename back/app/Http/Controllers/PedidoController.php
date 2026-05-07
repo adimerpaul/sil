@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AlmacenItem;
+use App\Models\HerramientaAlmacen;
 use App\Models\Pedido;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -73,14 +74,23 @@ class PedidoController extends Controller
 
         $data = $this->validateData($request);
 
-        return DB::transaction(function () use ($data, $request) {
+        $currentUser = $request->user();
+        $isAdmin = ($currentUser->role ?? null) === 'Administrador'
+            || (method_exists($currentUser, 'hasAnyRole') && $currentUser->hasAnyRole(['admin', 'jefe-almacen']));
+
+        if (!$isAdmin && !HerramientaAlmacen::pedidosHabilitados()) {
+            return response()->json([
+                'message' => 'Los pedidos no están habilitados en este momento. Consulta con el administrador.',
+            ], 422);
+        }
+
+        return DB::transaction(function () use ($data, $currentUser) {
             $productos = AlmacenItem::whereIn('id', collect($data['items'])->pluck('producto_id'))->get()->keyBy('id');
             $total = collect($data['items'])->sum(function ($item) use ($productos) {
                 $precio = (float) ($item['precio_unitario'] ?? $productos[$item['producto_id']]->precio_unitario ?? 0);
                 return $precio * (int) $item['cantidad'];
             });
 
-            $currentUser = $request->user();
             $nombreUsuario = $currentUser->username ?: $currentUser->name;
 
             $pedido = Pedido::create([

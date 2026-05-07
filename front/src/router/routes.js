@@ -130,6 +130,11 @@ const routes = [
         meta: {requiresAuth: true, perm: 'Editar Solicitudes SAP'}
       },
       {
+        path: '/almacen/herramientas',
+        component: () => import('pages/almacen/HerramientasAlmacen.vue'),
+        meta: {requiresAuth: true, perm: 'Ver Herramientas Almacén'}
+      },
+      {
         path: '/area-preanalitica',
         component: () => import('pages/areaPreanalitica/AreaPreanalitica.vue'),
         meta: {requiresAuth: true, perm: 'Area Preanalitica'}
