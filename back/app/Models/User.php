@@ -25,11 +25,16 @@ class User extends Authenticatable implements Auditable
         'username',
         'role',
         'avatar',
+        'firma',
+        'mostrar_firma',
+        'sello',
+        'mostrar_sello',
         'email',
         'celular',
         'password',
         'area_id',
         'establecimiento_id',
+        'unidad_id',
     ];
 
     /**
@@ -54,14 +59,21 @@ class User extends Authenticatable implements Auditable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
+            'mostrar_firma'     => 'boolean',
+            'mostrar_sello'     => 'boolean',
         ];
     }
     function establecimiento(){
         return $this->belongsTo(Establecimiento::class);
     }
-//    area
     function area(){
         return $this->belongsTo(Area::class);
+    }
+    function unidad(){
+        return $this->belongsTo(Unidad::class);
+    }
+    function subpartidas(){
+        return $this->belongsToMany(Subpartida::class)->withTimestamps();
     }
 }

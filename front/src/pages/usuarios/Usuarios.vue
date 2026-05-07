@@ -5,6 +5,8 @@
       <template v-slot:top-right>
         <q-btn color="positive" label="Nuevo" @click="userNew" no-caps icon="add_circle_outline" :loading="loading"
                class="q-mr-sm"/>
+        <q-btn color="secondary" label="Unidades" @click="abrirUnidades(false)" no-caps icon="business"
+               class="q-mr-sm"/>
         <q-btn color="primary" label="Actualizar" @click="usersGet" no-caps icon="refresh" :loading="loading"/>
         <q-input v-model="filter" label="Buscar" dense outlined>
           <template v-slot:append>
@@ -46,6 +48,30 @@
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>Cambiar avatar</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable @click="abrirFirma(props.row)" v-close-popup>
+                <q-item-section avatar>
+                  <q-icon name="draw"/>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Agregar firma</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable @click="abrirSello(props.row)" v-close-popup>
+                <q-item-section avatar>
+                  <q-icon name="approval"/>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Subir sello</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable @click="subpartidasShow(props.row)" v-close-popup>
+                <q-item-section avatar>
+                  <q-icon name="category"/>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Subpartidas</q-item-label>
                 </q-item-section>
               </q-item>
               <q-item clickable @click="permisosShow(props.row)" v-close-popup>
@@ -154,10 +180,36 @@
 <!--            <pre>{{areas}}</pre>-->
 <!--            <pre>{{user.area_id}}</pre>-->
             <q-select v-model="user.establecimiento_id" label="Establecimiento" dense outlined
-                      :options="establecimientos.map(e => ({ label: e.nombre, value: e.id }))"
+                      :options="filteredEstablecimientos"
+                      option-label="label" option-value="value"
                       emit-value map-options
-                      :rules="[val => !!val || 'Campo requerido']"/>
-            <div class="text-right">
+                      use-input input-debounce="0"
+                      @filter="filterEstablecimientos"
+                      :rules="[val => !!val || 'Campo requerido']">
+              <template v-slot:no-option>
+                <q-item><q-item-section class="text-grey">Sin resultados</q-item-section></q-item>
+              </template>
+            </q-select>
+            <q-select v-model="user.unidad_id" label="Unidad" dense outlined
+                      :options="filteredUnidadesOpts"
+                      option-label="nombre" option-value="id"
+                      emit-value map-options
+                      use-input input-debounce="0"
+                      @filter="filterUnidades"
+                      clearable>
+              <template v-slot:no-option>
+                <q-item><q-item-section class="text-grey">Sin resultados</q-item-section></q-item>
+              </template>
+            </q-select>
+            <div class="row q-col-gutter-sm q-mt-xs">
+              <div class="col-6">
+                <q-checkbox v-model="user.mostrar_firma" label="Mostrar firma" dense/>
+              </div>
+              <div class="col-6">
+                <q-checkbox v-model="user.mostrar_sello" label="Mostrar sello" dense/>
+              </div>
+            </div>
+            <div class="text-right q-mt-sm">
               <q-btn color="negative" label="Cancelar" @click="userDialog = false" no-caps :loading="loading"/>
               <q-btn color="primary" label="Guardar" type="submit" no-caps :loading="loading" class="q-ml-sm"/>
             </div>
@@ -325,6 +377,238 @@
       </q-card>
     </q-dialog>
 
+    <!-- Diálogo de subpartidas -->
+    <q-dialog v-model="dialogSubpartidas" persistent :maximized="$q.screen.lt.sm">
+      <q-card class="subpartida-card">
+        <q-card-section class="row items-center q-pb-none">
+          <q-icon name="category" color="primary" size="22px" class="q-mr-sm"/>
+          <div>
+            <div class="text-weight-bold">Subpartidas</div>
+            <div class="text-caption text-grey-7">{{ user.username }}</div>
+          </div>
+          <q-space/>
+          <q-badge color="primary" outline class="q-mr-sm">
+            {{ subpartidasSeleccionadas.length }} seleccionadas
+          </q-badge>
+          <q-btn icon="close" flat round dense @click="dialogSubpartidas = false"/>
+        </q-card-section>
+
+        <q-card-section class="q-pt-sm q-pb-xs">
+          <q-input v-model="subpartidaFilter" dense outlined clearable placeholder="Buscar subpartida...">
+            <template v-slot:prepend><q-icon name="search"/></template>
+          </q-input>
+        </q-card-section>
+
+        <q-separator/>
+
+        <q-card-section style="max-height: min(65vh, 520px); overflow-y: auto; padding: 8px 12px;">
+          <div v-if="loading" class="text-center q-pa-md">
+            <q-spinner color="primary" size="30px"/>
+          </div>
+          <template v-else>
+            <div v-if="subpartidasAgrupadas.length === 0" class="text-grey-6 text-center q-pa-md">
+              Sin resultados
+            </div>
+            <q-expansion-item
+              v-for="partida in subpartidasAgrupadas"
+              :key="partida.id"
+              dense dense-toggle expand-separator
+              :default-opened="!!subpartidaFilter || partida.tieneSeleccionadas"
+              header-class="text-weight-bold"
+            >
+              <template v-slot:header>
+                <q-item-section avatar style="min-width:28px">
+                  <q-icon name="folder" size="18px" color="amber-8"/>
+                </q-item-section>
+                <q-item-section>
+                  <span>{{ partida.codigo }} — {{ partida.nombre }}</span>
+                </q-item-section>
+                <q-item-section side>
+                  <div class="row no-wrap">
+                    <q-btn dense flat round icon="done_all" size="sm"
+                           @click.stop="marcarGrupo(partida.subpartidas, true)">
+                      <q-tooltip>Marcar todas</q-tooltip>
+                    </q-btn>
+                    <q-btn dense flat round icon="remove_done" size="sm"
+                           @click.stop="marcarGrupo(partida.subpartidas, false)">
+                      <q-tooltip>Desmarcar todas</q-tooltip>
+                    </q-btn>
+                  </div>
+                </q-item-section>
+              </template>
+
+              <div class="subpartida-grid q-pb-sm">
+                <q-item
+                  v-for="sp in partida.subpartidas"
+                  :key="sp.id"
+                  dense clickable
+                  class="subpartida-row"
+                  @click="toggleSubpartida(sp.id)"
+                >
+                  <q-item-section avatar style="min-width:28px">
+                    <q-icon
+                      :name="subpartidasSeleccionadas.includes(sp.id) ? 'check_box' : 'check_box_outline_blank'"
+                      :color="subpartidasSeleccionadas.includes(sp.id) ? 'primary' : 'grey-4'"
+                      size="20px"
+                    />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label class="text-caption">
+                      <span class="text-weight-medium">{{ sp.codigo }}</span> — {{ sp.nombre }}
+                    </q-item-label>
+                  </q-item-section>
+                </q-item>
+              </div>
+            </q-expansion-item>
+          </template>
+        </q-card-section>
+
+        <q-separator/>
+
+        <q-card-actions align="right" class="q-pa-sm">
+          <q-btn label="Cancelar" flat color="negative" @click="dialogSubpartidas = false" no-caps/>
+          <q-btn label="Guardar" color="primary" icon="save" @click="subpartidasPost" no-caps :loading="loading"/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Diálogo de firma -->
+    <q-dialog v-model="firmaDialogo" persistent @show="firmaInit">
+      <q-card style="width: 540px; max-width: 98vw">
+        <q-card-section class="row items-center q-pb-none">
+          <q-icon name="draw" color="primary" class="q-mr-sm"/>
+          <div class="text-weight-bold">Firma — {{ user.name }}</div>
+          <q-space/>
+          <q-btn icon="close" flat round dense @click="firmaDialogo = false"/>
+        </q-card-section>
+
+        <q-card-section>
+          <div class="text-caption text-grey-6 q-mb-xs">Dibuje su firma en el área de abajo (funciona con dedo en celular)</div>
+          <div style="border: 2px solid #90caf9; border-radius: 6px; background: #fff; cursor: crosshair; touch-action: none; overflow: hidden;">
+            <canvas
+              ref="firmaCanvas"
+              style="width: 100%; display: block; height: 200px;"
+              @mousedown="firmaStart"
+              @mousemove="firmaMove"
+              @mouseup="firmaEnd"
+              @mouseleave="firmaEnd"
+              @touchstart.prevent="firmaStart"
+              @touchmove.prevent="firmaMove"
+              @touchend="firmaEnd"
+            />
+          </div>
+
+          <!-- previsualización firma actual -->
+          <div v-if="user.firma" class="q-mt-sm text-caption text-grey-7">
+            Firma actual:
+            <img :src="`${$url}/../images/${user.firma}`" style="max-height: 60px; max-width: 100%; display: block; margin-top: 4px; border: 1px solid #eee;"/>
+          </div>
+        </q-card-section>
+
+        <q-card-actions class="row justify-between q-px-md q-pb-md">
+          <q-btn label="Limpiar" icon="refresh" flat color="grey-7" @click="firmaClear" no-caps/>
+          <div>
+            <q-btn label="Cancelar" flat color="negative" @click="firmaDialogo = false" no-caps class="q-mr-sm"/>
+            <q-btn label="Guardar" icon="save" color="primary" @click="firmaGuardar" no-caps :loading="loading"/>
+          </div>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Diálogo de sello -->
+    <q-dialog v-model="selloDialogo" persistent>
+      <q-card style="width: 360px">
+        <q-card-section class="row items-center q-pb-none">
+          <q-icon name="approval" color="secondary" class="q-mr-sm"/>
+          <div class="text-weight-bold">Sello — {{ user.name }}</div>
+          <q-space/>
+          <q-btn icon="close" flat round dense @click="selloDialogo = false"/>
+        </q-card-section>
+
+        <q-card-section class="text-center">
+          <div style="position: relative; display: inline-block;">
+            <img v-if="user.sello" :src="`${$url}/../images/${user.sello}`"
+                 style="max-width: 280px; max-height: 280px; object-fit: contain; border: 1px solid #eee; display: block;"/>
+            <div v-else class="q-pa-lg text-grey-4">
+              <q-icon name="approval" size="80px"/>
+              <div class="text-caption q-mt-sm">Sin sello</div>
+            </div>
+          </div>
+          <div class="q-mt-md">
+            <q-btn icon="upload" label="Seleccionar imagen" no-caps outline color="primary"
+                   @click="$refs.selloInput.click()"/>
+            <input ref="selloInput" type="file" style="display: none;" @change="onSelloChange" accept="image/*"/>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn label="Cerrar" flat @click="selloDialogo = false" no-caps/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Diálogo de unidades: selección + CRUD -->
+    <q-dialog v-model="dialogoUnidades" persistent>
+      <q-card style="width: 520px; max-width: 95vw">
+        <q-card-section class="row items-center q-pb-none">
+          <q-icon name="business" color="secondary" class="q-mr-sm"/>
+          <div class="text-weight-bold">Unidades</div>
+          <q-space/>
+          <q-btn icon="close" flat round dense @click="dialogoUnidades = false"/>
+        </q-card-section>
+
+        <!-- Agregar nueva unidad -->
+        <q-card-section class="q-pt-sm q-pb-none">
+          <q-form @submit.prevent="unidadPost" class="row q-col-gutter-xs items-center">
+            <div class="col">
+              <q-input v-model="nuevaUnidad.nombre" label="Nueva unidad" dense outlined
+                       placeholder="Nombre de la unidad"/>
+            </div>
+            <div class="col-auto">
+              <q-btn type="submit" icon="add" color="positive" dense :loading="loading">
+                <q-tooltip>Agregar</q-tooltip>
+              </q-btn>
+            </div>
+          </q-form>
+        </q-card-section>
+
+        <!-- Filtro -->
+        <q-card-section class="q-pt-sm q-pb-xs">
+          <q-input v-model="unidadFilter" dense outlined clearable placeholder="Buscar...">
+            <template v-slot:prepend><q-icon name="search"/></template>
+          </q-input>
+        </q-card-section>
+
+        <!-- Lista -->
+        <q-card-section style="max-height: 340px; overflow-y: auto; padding-top: 0">
+          <q-list bordered separator dense>
+            <q-item v-if="filteredUnidades.length === 0" class="text-grey-6 text-caption">
+              <q-item-section>Sin resultados</q-item-section>
+            </q-item>
+            <q-item v-for="u in filteredUnidades" :key="u.id" dense>
+              <q-item-section>
+                <q-item-label class="text-caption">{{ u.nombre }}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <div class="row no-wrap q-col-gutter-xs">
+                  <q-btn v-if="modoSeleccionUnidad" icon="check_circle" dense flat color="primary"
+                         @click="seleccionarUnidad(u)">
+                    <q-tooltip>Seleccionar</q-tooltip>
+                  </q-btn>
+                  <q-btn icon="delete" dense flat color="negative" @click="unidadDelete(u.id)">
+                    <q-tooltip>Eliminar</q-tooltip>
+                  </q-btn>
+                </div>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn label="Cerrar" flat @click="dialogoUnidades = false" no-caps/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
   </q-page>
 </template>
 <script>
@@ -409,33 +693,150 @@ export default {
         {name: 'area', label: 'Area', align: 'left', field: row => row.area?.name || ''},
         // establecimiento
         {name: 'establecimiento', label: 'Establecimiento', align: 'left', field: row => row.establecimiento?.nombre || ''},
+        {name: 'unidad', label: 'Unidad', align: 'left', field: row => row.unidad?.nombre || ''},
       ],
       permissions: [],
       dialogPermisos: false,
       permFilter: '',
       cambioAvatarDialogo: false,
+      dialogSubpartidas: false,
+      todasSubpartidas: [],
+      subpartidasSeleccionadas: [],
+      subpartidaFilter: '',
+      firmaDialogo: false,
+      firmaDrawing: false,
+      firmaLastX: 0,
+      firmaLastY: 0,
+      selloDialogo: false,
       docentes: [],
       establecimientos: [],
       areas: [],
+      unidades: [],
+      filteredUnidadesOpts: [],
+      filteredEstablecimientos: [],
+      dialogoUnidades: false,
+      modoSeleccionUnidad: false,
+      nuevaUnidad: { nombre: '' },
+      unidadFilter: '',
     }
   },
   async mounted() {
     // this.docentes = await this.$axios.get('docentes').then(res => res.data)
     this.usersGet()
     this.areasGet()
+    this.unidadesGet()
     // this.permissionsGet()
     this.$axios.get('establecimientos').then(res => {
       this.establecimientos = res.data
+      this.filteredEstablecimientos = res.data.map(e => ({ label: e.nombre, value: e.id }))
     }).catch(error => {
       this.$alert.error(error.response.data.message)
     })
   },
   methods: {
+    async subpartidasShow(user) {
+      this.user = { ...user }
+      this.dialogSubpartidas = true
+      this.loading = true
+      this.subpartidaFilter = ''
+      try {
+        const [todas, seleccionadas] = await Promise.all([
+          this.$axios.get('subpartidas').then(r => r.data),
+          this.$axios.get(`users/${user.id}/subpartidas`).then(r => r.data),
+        ])
+        this.todasSubpartidas = todas
+        this.subpartidasSeleccionadas = seleccionadas
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'Error cargando subpartidas')
+      } finally {
+        this.loading = false
+      }
+    },
+    async subpartidasPost() {
+      this.loading = true
+      try {
+        await this.$axios.put(`users/${this.user.id}/subpartidas`, {
+          subpartidas: this.subpartidasSeleccionadas,
+        })
+        this.dialogSubpartidas = false
+        this.$alert.success('Subpartidas actualizadas')
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'Error al guardar')
+      } finally {
+        this.loading = false
+      }
+    },
+    toggleSubpartida(id) {
+      const idx = this.subpartidasSeleccionadas.indexOf(id)
+      if (idx === -1) this.subpartidasSeleccionadas.push(id)
+      else this.subpartidasSeleccionadas.splice(idx, 1)
+    },
+    marcarGrupo(subpartidas, valor) {
+      subpartidas.forEach(sp => {
+        const idx = this.subpartidasSeleccionadas.indexOf(sp.id)
+        if (valor && idx === -1) this.subpartidasSeleccionadas.push(sp.id)
+        if (!valor && idx !== -1) this.subpartidasSeleccionadas.splice(idx, 1)
+      })
+    },
     areasGet() {
       this.$axios.get('areas').then(res => {
         this.areas = res.data
       }).catch(error => {
         this.$alert.error(error.response.data.message)
+      })
+    },
+    unidadesGet() {
+      this.$axios.get('unidades').then(res => {
+        this.unidades = res.data
+        this.filteredUnidadesOpts = res.data
+      }).catch(error => {
+        this.$alert.error(error.response?.data?.message || 'Error al cargar unidades')
+      })
+    },
+    filterEstablecimientos(val, update) {
+      update(() => {
+        const q = val.toLowerCase()
+        this.filteredEstablecimientos = this.establecimientos
+          .map(e => ({ label: e.nombre, value: e.id }))
+          .filter(e => !q || e.label.toLowerCase().includes(q))
+      })
+    },
+    filterUnidades(val, update) {
+      update(() => {
+        const q = val.toLowerCase()
+        this.filteredUnidadesOpts = this.unidades
+          .filter(u => !q || u.nombre.toLowerCase().includes(q))
+      })
+    },
+    abrirUnidades(seleccion) {
+      this.modoSeleccionUnidad = seleccion
+      this.unidadFilter = ''
+      this.nuevaUnidad = { nombre: '' }
+      this.dialogoUnidades = true
+    },
+    seleccionarUnidad(unidad) {
+      this.user.unidad_id = unidad.id
+      this.dialogoUnidades = false
+    },
+    unidadPost() {
+      if (!this.nuevaUnidad.nombre.trim()) return
+      this.loading = true
+      this.$axios.post('unidades', this.nuevaUnidad).then(res => {
+        this.unidades.push(res.data)
+        this.nuevaUnidad = { nombre: '' }
+        this.$alert.success('Unidad agregada')
+      }).catch(error => {
+        this.$alert.error(error.response?.data?.message || 'Error al guardar')
+      }).finally(() => { this.loading = false })
+    },
+    unidadDelete(id) {
+      this.$alert.dialog('¿Eliminar esta unidad?').onOk(() => {
+        this.$axios.delete('unidades/' + id).then(() => {
+          this.unidades = this.unidades.filter(u => u.id !== id)
+          this.$alert.success('Unidad eliminada')
+        }).catch(error => {
+          this.$alert.error(error.response?.data?.message || 'Error al eliminar')
+        })
       })
     },
     onFileChange(event) {
@@ -460,6 +861,101 @@ export default {
     cambiarAvatar(user) {
       this.cambioAvatarDialogo = true
       this.user = {...user}
+    },
+    // ── Firma ──────────────────────────────────────────────
+    abrirFirma(user) {
+      this.user = { ...user }
+      this.firmaDialogo = true
+    },
+    firmaInit() {
+      this.$nextTick(() => {
+        const canvas = this.$refs.firmaCanvas
+        if (!canvas) return
+        canvas.width  = canvas.offsetWidth  || 500
+        canvas.height = canvas.offsetHeight || 200
+        const ctx = canvas.getContext('2d')
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+      })
+    },
+    firmaClear() {
+      const canvas = this.$refs.firmaCanvas
+      const ctx = canvas.getContext('2d')
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+    },
+    firmaGetPos(e) {
+      const canvas = this.$refs.firmaCanvas
+      const rect   = canvas.getBoundingClientRect()
+      const scaleX = canvas.width  / rect.width
+      const scaleY = canvas.height / rect.height
+      const src = e.touches ? e.touches[0] : e
+      return {
+        x: (src.clientX - rect.left) * scaleX,
+        y: (src.clientY - rect.top)  * scaleY,
+      }
+    },
+    firmaStart(e) {
+      this.firmaDrawing = true
+      const pos = this.firmaGetPos(e)
+      this.firmaLastX = pos.x
+      this.firmaLastY = pos.y
+    },
+    firmaMove(e) {
+      if (!this.firmaDrawing) return
+      const pos = this.firmaGetPos(e)
+      const ctx = this.$refs.firmaCanvas.getContext('2d')
+      ctx.beginPath()
+      ctx.strokeStyle = '#000000'
+      ctx.lineWidth   = 2.5
+      ctx.lineCap     = 'round'
+      ctx.lineJoin    = 'round'
+      ctx.moveTo(this.firmaLastX, this.firmaLastY)
+      ctx.lineTo(pos.x, pos.y)
+      ctx.stroke()
+      this.firmaLastX = pos.x
+      this.firmaLastY = pos.y
+    },
+    firmaEnd() {
+      this.firmaDrawing = false
+    },
+    firmaGuardar() {
+      const canvas = this.$refs.firmaCanvas
+      this.loading = true
+      canvas.toBlob(blob => {
+        const formData = new FormData()
+        formData.append('firma', blob, 'firma.png')
+        this.$axios.post(this.user.id + '/firma', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        }).then(() => {
+          this.firmaDialogo = false
+          this.$alert.success('Firma guardada')
+          this.usersGet()
+        }).catch(error => {
+          this.$alert.error(error.response?.data?.message || 'Error al guardar firma')
+        }).finally(() => { this.loading = false })
+      }, 'image/png')
+    },
+    // ── Sello ─────────────────────────────────────────────
+    abrirSello(user) {
+      this.user = { ...user }
+      this.selloDialogo = true
+    },
+    onSelloChange(event) {
+      const file = event.target.files[0]
+      if (!file) return
+      const formData = new FormData()
+      formData.append('sello', file)
+      this.loading = true
+      this.$axios.post(this.user.id + '/sello', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      }).then(res => {
+        this.user.sello = res.data.sello
+        this.$alert.success('Sello guardado')
+        this.usersGet()
+      }).catch(error => {
+        this.$alert.error(error.response?.data?.message || 'Error al guardar sello')
+      }).finally(() => { this.loading = false })
     },
     // permisosPost() {
     //   this.loading = true
@@ -494,6 +990,7 @@ export default {
         username: '',
         cargo: '',
         role: 'Usuario',
+        unidad_id: this.unidades.find(u => u.nombre.includes('INGENIERÍA'))?.id || null,
       }
       this.actionUser = 'Nuevo'
       this.userDialog = true
@@ -640,6 +1137,34 @@ export default {
     },
   },
   computed: {
+    subpartidasAgrupadas() {
+      const q = (this.subpartidaFilter || '').toLowerCase()
+      const map = new Map()
+      this.todasSubpartidas.forEach(sp => {
+        const p = sp.partida
+        if (!p) return
+        const nombre = `${sp.codigo} ${sp.nombre}`.toLowerCase()
+        if (q && !nombre.includes(q)) return
+        if (!map.has(p.id)) {
+          map.set(p.id, {
+            id: p.id,
+            codigo: p.codigo,
+            nombre: p.nombre,
+            subpartidas: [],
+            get tieneSeleccionadas() { return this.subpartidas.some(s => this._sel?.includes(s.id)) },
+          })
+        }
+        map.get(p.id).subpartidas.push(sp)
+      })
+      const grupos = [...map.values()]
+      grupos.forEach(g => { g._sel = this.subpartidasSeleccionadas })
+      return grupos
+    },
+    filteredUnidades() {
+      const q = (this.unidadFilter || '').toLowerCase()
+      if (!q) return this.unidades
+      return this.unidades.filter(u => u.nombre.toLowerCase().includes(q))
+    },
     permissionGroups() {
       const groups = PERMISSION_GROUPS.map(group => ({
         ...group,
@@ -684,6 +1209,22 @@ export default {
 </script>
 
 <style scoped>
+.subpartida-card {
+  width: min(94vw, 720px);
+  max-width: 720px;
+}
+.subpartida-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 4px;
+  padding: 4px 8px;
+}
+.subpartida-row {
+  min-height: 34px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+}
 .permission-card {
   width: min(94vw, 780px);
   max-width: 780px;

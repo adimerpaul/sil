@@ -29,4 +29,8 @@ class Subpartida extends Model
     {
         return $this->hasMany(AlmacenItem::class);
     }
+    public function users()
+    {
+        return $this->belongsToMany(User::class)->withTimestamps();
+    }
 }

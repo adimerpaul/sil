@@ -114,6 +114,22 @@ const routes = [
         meta: {requiresAuth: true, perm: 'Crear Pedidos'}
       },
       {
+        path: '/solicitudes-sap',
+        component: () => import('pages/almacen/SolicitudesSap.vue'),
+        meta: {requiresAuth: true, perm: 'Ver Solicitudes SAP'}
+      },
+      {
+        path: '/solicitudes-sap/nueva',
+        component: () => import('pages/almacen/SolicitudSapNueva.vue'),
+        meta: {requiresAuth: true, perm: 'Crear Solicitudes SAP'}
+      },
+      {
+        path: '/solicitudes-sap/:id/editar',
+        component: () => import('pages/almacen/SolicitudSapNueva.vue'),
+        props: true,
+        meta: {requiresAuth: true, perm: 'Editar Solicitudes SAP'}
+      },
+      {
         path: '/area-preanalitica',
         component: () => import('pages/areaPreanalitica/AreaPreanalitica.vue'),
         meta: {requiresAuth: true, perm: 'Area Preanalitica'}

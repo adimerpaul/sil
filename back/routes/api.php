@@ -25,6 +25,8 @@ use App\Http\Controllers\SolicitudCatalogoController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReporteServiciosController;
 use App\Http\Controllers\RecogidoController;
+use App\Http\Controllers\SolicitudSapController;
+use App\Http\Controllers\UnidadController;
 
 Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
 
@@ -39,9 +41,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('/users/{user}', [App\Http\Controllers\UserController::class, 'destroy']);
     Route::put('/updatePassword/{user}', [App\Http\Controllers\UserController::class, 'updatePassword']);
     Route::post('/{user}/avatar', [App\Http\Controllers\UserController::class, 'updateAvatar']);
+    Route::post('/{user}/firma',  [App\Http\Controllers\UserController::class, 'updateFirma']);
+    Route::post('/{user}/sello',  [App\Http\Controllers\UserController::class, 'updateSello']);
     Route::get('/permissions', [App\Http\Controllers\UserController::class, 'permissions']);
     Route::get('/users/{user}/permissions', [App\Http\Controllers\UserController::class, 'userPermissions']);
     Route::put('/users/{user}/permissions', [App\Http\Controllers\UserController::class, 'updateUserPermissions']);
+    Route::get('/users/{user}/subpartidas', [App\Http\Controllers\UserController::class, 'userSubpartidas']);
+    Route::put('/users/{user}/subpartidas', [App\Http\Controllers\UserController::class, 'syncUserSubpartidas']);
 
     // Pacientes
     Route::apiResource('pacientes', PacienteController::class);
@@ -61,6 +67,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::apiResource('establecimientos', EstablecimientoController::class);
     Route::apiResource('unidad-solicitantes', UnidadSolicitanteController::class);
+    Route::apiResource('unidades', UnidadController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::apiResource('proveedores', ProveedorController::class);
 
     Route::apiResource('grupos', GrupoController::class);
@@ -74,6 +81,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('compras', CompraController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
     Route::get('pedidos/{id}/pdf', [PedidoController::class, 'printPdf']);
     Route::apiResource('pedidos', PedidoController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
+    Route::apiResource('solicitudes-sap', SolicitudSapController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
+    Route::get('solicitudes-sap/{id}/pdf', [SolicitudSapController::class, 'printPdf']);
 
     Route::apiResource('areas', AreaController::class);
 //    areasCreateSolicitud

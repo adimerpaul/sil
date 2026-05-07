@@ -11,6 +11,15 @@ use Intervention\Image\Drivers\Gd\Driver;
 use Spatie\Permission\Models\Permission;
 
 class UserController extends Controller{
+    function userSubpartidas($userId){
+        $user = User::findOrFail($userId);
+        return $user->subpartidas()->pluck('subpartida_id');
+    }
+    function syncUserSubpartidas(Request $request, $userId){
+        $user = User::findOrFail($userId);
+        $user->subpartidas()->sync($request->subpartidas ?? []);
+        return response()->json(['message' => 'Subpartidas actualizadas']);
+    }
     function updateUserPermissions(Request $request, $userId){
         $user = User::findOrFail($userId);
         $permissions = Permission::whereIn('id', $request->permissions)->get();
@@ -53,12 +62,60 @@ class UserController extends Controller{
 
         return response()->json(['message' => 'No se ha enviado un archivo'], 400);
     }
+    public function updateFirma(Request $request, $userId)
+    {
+        $user = User::findOrFail($userId);
+
+        if (!$request->hasFile('firma')) {
+            return response()->json(['message' => 'No se envió archivo'], 400);
+        }
+
+        $file = $request->file('firma');
+        $filename = 'firma_' . $userId . '_' . time() . '.png';
+        $path = public_path('images/' . $filename);
+
+        $manager = new ImageManager(new Driver());
+        $manager->read($file->getPathname())
+            ->toJpeg(90)
+            ->save($path);
+
+        $user->firma = $filename;
+        $user->save();
+
+        return response()->json(['message' => 'Firma guardada', 'firma' => $filename]);
+    }
+
+    public function updateSello(Request $request, $userId)
+    {
+        $user = User::findOrFail($userId);
+
+        if (!$request->hasFile('sello')) {
+            return response()->json(['message' => 'No se envió archivo'], 400);
+        }
+
+        $file = $request->file('sello');
+        $filename = 'sello_' . $userId . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $path = public_path('images/' . $filename);
+
+        $manager = new ImageManager(new Driver());
+        $manager->read($file->getPathname())
+            ->scaleDown(500, 500)
+            ->toJpeg(85)
+            ->save($path);
+
+        $user->sello = $filename;
+        $user->save();
+
+        return response()->json(['message' => 'Sello guardado', 'sello' => $filename]);
+    }
+
     function login(Request $request){
         $credentials = $request->only('username', 'password');
         $user = User::where('username', $credentials['username'])
             ->with('permissions:id,name')
             ->with('establecimiento')
             ->with('area')
+            ->with('unidad')
             ->first();
         if (!$user || !password_verify($credentials['password'], $user->password)) {
             return response()->json([
@@ -84,6 +141,7 @@ class UserController extends Controller{
             ->with('permissions:id,name')
             ->with('establecimiento')
             ->with('area')
+            ->with('unidad')
             ->first();
         return response()->json($user);
     }
@@ -92,6 +150,7 @@ class UserController extends Controller{
             ->with('permissions:id,name')
             ->with('establecimiento')
             ->with('area')
+            ->with('unidad')
             ->orderBy('id', 'desc')
             ->get();
     }

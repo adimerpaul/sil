@@ -239,6 +239,8 @@ const menuSections = [
       { title: 'Compras detalle', icon: 'receipt_long', link: '/almacen/compras', can: ['Modulo detalle compras', 'Módulo movimiento'] },
       { title: 'Pedidos nuevos', icon: 'post_add', link: '/pedidos/nuevo', can: 'Crear Pedidos' },
       { title: 'Pedidos detalles', icon: 'shopping_bag', link: '/pedidos', can: 'Ver Pedidos' },
+      { title: 'Solicitudes SAP', icon: 'description', link: '/solicitudes-sap', can: 'Ver Solicitudes SAP' },
+      { title: 'Nueva solicitud SAP', icon: 'post_add', link: '/solicitudes-sap/nueva', can: 'Crear Solicitudes SAP' },
       { title: 'Faltantes y sobrantes', icon: 'rule', can: 'Módulo de faltantes y sobrantes', caption: 'Módulo' },
     ],
   },

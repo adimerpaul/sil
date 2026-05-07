@@ -303,6 +303,19 @@
               </div>
               <div class="meta-item">
                 <q-icon name="person" size="20px" class="meta-icon" />
+<!--                <q-btn-->
+<!--                  v-if="props.row.nombre_usuario"-->
+<!--                  flat-->
+<!--                  round-->
+<!--                  dense-->
+<!--                  icon="history"-->
+<!--                  color="blue-7"-->
+<!--                  size="sm"-->
+<!--                  class="q-ml-sm"-->
+<!--                  @click.stop="openHistorial(props.row)"-->
+<!--                >-->
+<!--                  <q-tooltip>Ver historial del usuario</q-tooltip>-->
+<!--                </q-btn>-->
                 <div class="meta-content">
                   <div class="meta-label">Usuario</div>
                   <div class="meta-value">{{ selectedPedido.nombre_usuario || selectedPedido.user?.name || '-' }}</div>
@@ -556,6 +569,62 @@
       </q-card>
     </q-dialog>
 
+    <q-dialog v-model="showHistorialDialog">
+      <q-card class="historial-dialog">
+        <div class="historial-header">
+          <div class="row items-center no-wrap">
+            <q-icon name="history" size="24px" class="q-mr-sm" />
+            <div>
+              <div class="text-subtitle1 text-weight-bold">Historial de pedidos</div>
+              <div class="text-caption text-grey-3">{{ historialUser }}</div>
+            </div>
+            <q-space />
+            <q-btn flat round dense icon="close" color="white" @click="showHistorialDialog = false" />
+          </div>
+        </div>
+        <q-card-section class="q-pa-sm">
+          <q-table
+            flat
+            dense
+            row-key="id"
+            :rows="historialRows"
+            :columns="historialColumns"
+            :loading="loadingHistorial"
+            :rows-per-page-options="[10, 25, 50]"
+            v-model:pagination="historialPagination"
+            @request="onHistorialRequest"
+          >
+            <template #body-cell-id="props">
+              <q-td :props="props">
+                <q-badge color="grey-3" text-color="grey-9">#{{ props.row.id }}</q-badge>
+              </q-td>
+            </template>
+            <template #body-cell-fecha_hora="props">
+              <q-td :props="props">
+                <div>{{ formatDate(props.row.fecha_hora) }}</div>
+                <div class="text-caption text-grey-7">{{ formatTime(props.row.fecha_hora) }}</div>
+              </q-td>
+            </template>
+            <template #body-cell-estado="props">
+              <q-td :props="props">
+                <q-badge :color="estadoColor(props.row.estado)" class="q-pa-xs text-weight-bold">
+                  {{ props.row.estado }}
+                </q-badge>
+              </q-td>
+            </template>
+            <template #body-cell-total="props">
+              <q-td :props="props" class="text-right">
+                <span class="text-weight-bold text-primary">{{ money(props.row.total) }} Bs</span>
+              </q-td>
+            </template>
+          </q-table>
+        </q-card-section>
+        <q-card-actions align="right" class="q-pa-sm">
+          <q-btn flat no-caps color="grey-8" label="Cerrar" @click="showHistorialDialog = false" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
   </q-page>
 </template>
 
@@ -579,6 +648,12 @@ const productToAdd = ref(null)
 const productAddQty = ref(1)
 const savingDetail = ref(false)
 const savingEstado = ref(null)
+
+const showHistorialDialog = ref(false)
+const historialUser = ref('')
+const historialRows = ref([])
+const loadingHistorial = ref(false)
+const historialPagination = ref({ page: 1, rowsPerPage: 15, rowsNumber: 0 })
 
 const loading = ref(false)
 const rows = ref([])
@@ -623,6 +698,14 @@ const columns = [
   { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
   { name: 'modificado', label: 'Modificado', field: 'modificado', align: 'left' },
   { name: 'total', label: 'Total', field: 'total', align: 'right' }
+]
+
+const historialColumns = [
+  { name: 'id', label: 'ID', field: 'id', align: 'left', style: 'width: 60px' },
+  { name: 'fecha_hora', label: 'Fecha', field: 'fecha_hora', align: 'left' },
+  { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
+  { name: 'detalles_count', label: 'Items', field: 'detalles_count', align: 'center' },
+  { name: 'total', label: 'Total', field: 'total', align: 'right' },
 ]
 
 const userPermissions = computed(() => proxy.$store.permissions || [])
@@ -990,6 +1073,36 @@ function itemImageUrl (det) {
   const imagen = det?.producto?.imagen || det?.imagen || 'default.png'
   return `${proxy.$url}/../images/productos/${imagen}`
 }
+
+async function openHistorial (row) {
+  historialUser.value = row.nombre_usuario || ''
+  historialPagination.value.page = 1
+  historialRows.value = []
+  showHistorialDialog.value = true
+  await fetchHistorial()
+}
+
+async function fetchHistorial () {
+  loadingHistorial.value = true
+  try {
+    const res = await proxy.$axios.get('pedidos', {
+      params: {
+        q: historialUser.value,
+        page: historialPagination.value.page,
+        rowsPerPage: historialPagination.value.rowsPerPage,
+      },
+    })
+    historialRows.value = res.data.data || []
+    historialPagination.value.rowsNumber = res.data.total || 0
+  } finally {
+    loadingHistorial.value = false
+  }
+}
+
+async function onHistorialRequest (props) {
+  historialPagination.value = props.pagination
+  await fetchHistorial()
+}
 </script>
 
 <style scoped>
@@ -1198,5 +1311,18 @@ function itemImageUrl (det) {
   font-size: 22px;
   font-weight: 800;
   color: #1976d2;
+}
+
+.historial-dialog {
+  width: 700px;
+  max-width: 94vw;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.historial-header {
+  background: linear-gradient(135deg, #0277bd 0%, #01579b 100%);
+  color: #fff;
+  padding: 14px 18px;
 }
 </style>
