@@ -20,7 +20,7 @@ class CompraController extends Controller
         ])
             ->withCount('detalles')
             ->withSum('detalles as vendido_total', 'cantidad_venta')
-            ->withCount(['despachoDetalles as despachado_count' => function ($q) {
+            ->withCount(['despachoDetalleReales as despachado_count' => function ($q) {
                 $q->whereHas('despacho', fn ($d) => $d->where('estado', '!=', 'ANULADO'));
             }]);
 
@@ -247,12 +247,20 @@ class CompraController extends Controller
             ], 422);
         }
 
-        $enDespachoActivo = \App\Models\DespachoDetalle::whereIn(
-            'compra_detalle_id',
-            $compra->detalles->pluck('id')
-        )
-        ->whereHas('despacho', fn ($q) => $q->where('estado', '!=', 'ANULADO'))
-        ->exists();
+        $detalleIds = $compra->detalles->pluck('id');
+
+        // Registros nuevos (con despacho_detalle_reales)
+        $enDespachoActivo = \App\Models\DespachoDetalleReal::whereIn('compra_detalle_id', $detalleIds)
+            ->whereHas('despacho', fn ($q) => $q->where('estado', '!=', 'ANULADO'))
+            ->exists();
+
+        // Compatibilidad: despachos anteriores que aún usan compra_detalle_id en despacho_detalles
+        if (! $enDespachoActivo) {
+            $enDespachoActivo = \App\Models\DespachoDetalle::whereIn('compra_detalle_id', $detalleIds)
+                ->whereHas('despacho', fn ($q) => $q->where('estado', '!=', 'ANULADO'))
+                ->doesntHave('reales')
+                ->exists();
+        }
 
         if ($enDespachoActivo) {
             return response()->json([

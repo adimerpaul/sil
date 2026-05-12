@@ -347,7 +347,9 @@ class AlmacenItemController extends Controller
 
     private function despachoSalidaExpression(): string
     {
-        return "COALESCE((SELECT SUM(dd.cantidad) FROM despacho_detalles dd INNER JOIN despachos d ON d.id = dd.despacho_id WHERE dd.almacen_item_id = almacen_items.id AND dd.compra_detalle_id IS NULL AND dd.deleted_at IS NULL AND d.estado <> 'ANULADO' AND d.deleted_at IS NULL), 0)";
+        // Solo cuenta filas de despacho_detalles sin compra_detalle_id Y sin registros en
+        // despacho_detalle_reales. Las filas con reales ya están descontadas vía cantidad_venta (PEPS).
+        return "COALESCE((SELECT SUM(dd.cantidad) FROM despacho_detalles dd INNER JOIN despachos d ON d.id = dd.despacho_id WHERE dd.almacen_item_id = almacen_items.id AND dd.compra_detalle_id IS NULL AND dd.deleted_at IS NULL AND d.estado <> 'ANULADO' AND d.deleted_at IS NULL AND NOT EXISTS (SELECT 1 FROM despacho_detalle_reales ddr WHERE ddr.despacho_detalle_id = dd.id AND ddr.deleted_at IS NULL)), 0)";
     }
 
     private function summary(Request $request): array

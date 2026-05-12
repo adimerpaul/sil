@@ -4,19 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Auditable as AuditableTrait;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
-class DespachoDetalle extends Model
+class DespachoDetalleReal extends Model implements AuditableContract
 {
-    use SoftDeletes;
+    use SoftDeletes, AuditableTrait;
 
-    protected $table = 'despacho_detalles';
+    protected $table = 'despacho_detalle_reales';
 
     protected $fillable = [
         'despacho_id',
+        'despacho_detalle_id',
         'almacen_item_id',
         'compra_detalle_id',
         'item',
-        'descripcion',
         'unidad',
         'cantidad',
         'precio_unitario',
@@ -26,9 +28,9 @@ class DespachoDetalle extends Model
     ];
 
     protected $casts = [
-        'cantidad' => 'integer',
-        'precio_unitario' => 'decimal:2',
-        'total' => 'decimal:2',
+        'cantidad'       => 'integer',
+        'precio_unitario' => 'decimal:4',
+        'total'          => 'decimal:2',
         'fecha_vencimiento' => 'date',
     ];
 
@@ -39,6 +41,11 @@ class DespachoDetalle extends Model
         return $this->belongsTo(Despacho::class);
     }
 
+    public function despachoDe()
+    {
+        return $this->belongsTo(DespachoDetalle::class, 'despacho_detalle_id');
+    }
+
     public function almacenItem()
     {
         return $this->belongsTo(AlmacenItem::class);
@@ -47,10 +54,5 @@ class DespachoDetalle extends Model
     public function compraDetalle()
     {
         return $this->belongsTo(CompraDetalle::class);
-    }
-
-    public function reales()
-    {
-        return $this->hasMany(DespachoDetalleReal::class, 'despacho_detalle_id');
     }
 }

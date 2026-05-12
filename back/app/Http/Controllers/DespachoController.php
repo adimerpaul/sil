@@ -196,35 +196,58 @@ class DespachoController extends Controller
 
             foreach ($data['items'] as $idx => $item) {
                 $cantidad = (int) $item['cantidad'];
-                $precio = (float) ($item['precio_unitario'] ?? 0);
+                $precioVenta = (float) ($item['precio_unitario'] ?? 0);
                 $itemId = $item['almacen_item_id'] ?? null;
+                $unidad = $item['unidad'] ?? null;
 
                 if (! $itemId) {
                     $despacho->detalles()->create([
                         'almacen_item_id' => null,
                         'item' => $idx + 1,
                         'descripcion' => $item['descripcion'],
-                        'unidad' => $item['unidad'] ?? null,
+                        'unidad' => $unidad,
                         'cantidad' => $cantidad,
-                        'precio_unitario' => $precio,
-                        'total' => round($precio * $cantidad, 2),
+                        'precio_unitario' => $precioVenta,
+                        'total' => round($precioVenta * $cantidad, 2),
                     ]);
 
                     continue;
                 }
 
-                foreach ($this->asignarPeps((int) $itemId, $cantidad) as $asignacion) {
-                    $despacho->detalles()->create([
-                        'almacen_item_id' => $itemId,
-                        'compra_detalle_id' => $asignacion['compra_detalle_id'],
-                        'item' => $idx + 1,
-                        'descripcion' => $item['descripcion'],
-                        'unidad' => $item['unidad'] ?? null,
-                        'cantidad' => $asignacion['cantidad'],
-                        'precio_unitario' => $precio,
-                        'total' => round($precio * $asignacion['cantidad'], 2),
-                        'lote' => $asignacion['lote'],
-                        'fecha_vencimiento' => $asignacion['fecha_vencimiento'],
+                $asignaciones = $this->asignarPeps((int) $itemId, $cantidad);
+
+                // Una fila consolidada en despacho_detalles (para el PDF)
+                $detalle = $despacho->detalles()->create([
+                    'almacen_item_id' => $itemId,
+                    'compra_detalle_id' => count($asignaciones) === 1
+                        ? $asignaciones[0]['compra_detalle_id']
+                        : null,
+                    'item' => $idx + 1,
+                    'descripcion' => $item['descripcion'],
+                    'unidad' => $unidad,
+                    'cantidad' => $cantidad,
+                    'precio_unitario' => $precioVenta,
+                    'total' => round($precioVenta * $cantidad, 2),
+                    'lote' => count($asignaciones) === 1 ? $asignaciones[0]['lote'] : null,
+                    'fecha_vencimiento' => count($asignaciones) === 1
+                        ? $asignaciones[0]['fecha_vencimiento']
+                        : null,
+                ]);
+
+                // Una fila por lote PEPS en despacho_detalle_reales (precio de compra, para contabilidad)
+                foreach ($asignaciones as $asignacion) {
+                    \App\Models\DespachoDetalleReal::create([
+                        'despacho_id'        => $despacho->id,
+                        'despacho_detalle_id' => $detalle->id,
+                        'almacen_item_id'    => $itemId,
+                        'compra_detalle_id'  => $asignacion['compra_detalle_id'],
+                        'item'               => $idx + 1,
+                        'unidad'             => $unidad,
+                        'cantidad'           => $asignacion['cantidad'],
+                        'precio_unitario'    => $asignacion['precio'],
+                        'total'              => round((float) $asignacion['precio'] * $asignacion['cantidad'], 2),
+                        'lote'               => $asignacion['lote'],
+                        'fecha_vencimiento'  => $asignacion['fecha_vencimiento'],
                     ]);
                 }
             }
@@ -245,16 +268,28 @@ class DespachoController extends Controller
         }
 
         return DB::transaction(function () use ($despacho) {
-            foreach ($despacho->detalles as $detalle) {
-                if (! $detalle->compra_detalle_id) {
-                    continue;
+            foreach ($despacho->detalles()->with('reales')->get() as $detalle) {
+                if ($detalle->reales->isNotEmpty()) {
+                    // Estructura nueva: restaurar por cada lote real y soft-delete
+                    foreach ($detalle->reales as $real) {
+                        if (! $real->compra_detalle_id) {
+                            continue;
+                        }
+                        DB::table('compra_detalles')
+                            ->where('id', $real->compra_detalle_id)
+                            ->update([
+                                'cantidad_venta' => DB::raw('GREATEST(COALESCE(cantidad_venta, 0) - '.(int) $real->cantidad.', 0)'),
+                            ]);
+                        $real->delete();
+                    }
+                } elseif ($detalle->compra_detalle_id) {
+                    // Estructura antigua (compat): restaurar desde el propio detalle
+                    DB::table('compra_detalles')
+                        ->where('id', $detalle->compra_detalle_id)
+                        ->update([
+                            'cantidad_venta' => DB::raw('GREATEST(COALESCE(cantidad_venta, 0) - '.(int) $detalle->cantidad.', 0)'),
+                        ]);
                 }
-
-                DB::table('compra_detalles')
-                    ->where('id', $detalle->compra_detalle_id)
-                    ->update([
-                        'cantidad_venta' => DB::raw('GREATEST(COALESCE(cantidad_venta, 0) - '.(int) $detalle->cantidad.', 0)'),
-                    ]);
             }
 
             $despacho->update(['estado' => 'ANULADO']);
@@ -311,6 +346,12 @@ class DespachoController extends Controller
             ->whereNull('dd.deleted_at')
             ->where('d.estado', '!=', 'ANULADO')
             ->whereNull('d.deleted_at')
+            ->whereNotExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('despacho_detalle_reales as ddr')
+                    ->whereColumn('ddr.despacho_detalle_id', 'dd.id')
+                    ->whereNull('ddr.deleted_at');
+            })
             ->groupBy('dd.almacen_item_id')
             ->pluck('total', 'dd.almacen_item_id');
 
@@ -344,6 +385,7 @@ class DespachoController extends Controller
                 'compra_detalles.id',
                 'compra_detalles.cantidad',
                 'compra_detalles.cantidad_venta',
+                'compra_detalles.precio',
                 'compra_detalles.lote',
                 'compra_detalles.fecha_vencimiento',
             ])
@@ -369,8 +411,9 @@ class DespachoController extends Controller
 
             $asignaciones[] = [
                 'compra_detalle_id' => $lote->id,
-                'cantidad' => $salida,
-                'lote' => $lote->lote,
+                'cantidad'          => $salida,
+                'precio'            => (float) ($lote->precio ?? 0),
+                'lote'              => $lote->lote,
                 'fecha_vencimiento' => $lote->fecha_vencimiento,
             ];
 
