@@ -244,6 +244,7 @@ const menuSections = [
       { title: 'Solicitudes SAP', icon: 'description', link: '/solicitudes-sap', can: 'Ver Solicitudes SAP' },
       { title: 'Nueva solicitud SAP', icon: 'post_add', link: '/solicitudes-sap/nueva', can: 'Crear Solicitudes SAP' },
       { title: 'Herramientas', icon: 'build', link: '/almacen/herramientas', can: ['Ver Herramientas Almacén', 'Herramientas de Almacén'] },
+      { title: 'Reporte valorado', icon: 'assessment', link: '/almacen/reporte-valorado', can: 'Reporte Valorado' },
       // { title: 'Faltantes y sobrantes', icon: 'rule', can: 'Módulo de faltantes y sobrantes', caption: 'Módulo' },
     ],
   },
