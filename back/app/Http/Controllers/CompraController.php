@@ -13,9 +13,16 @@ class CompraController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Compra::with(['proveedor:id,nombre,carnet', 'user:id,name'])
+        $query = Compra::with([
+            'proveedor:id,nombre,carnet',
+            'user:id,name',
+            'detalles:id,compra_id,nombre,cantidad',
+        ])
             ->withCount('detalles')
-            ->withSum('detalles as vendido_total', 'cantidad_venta');
+            ->withSum('detalles as vendido_total', 'cantidad_venta')
+            ->withCount(['despachoDetalles as despachado_count' => function ($q) {
+                $q->whereHas('despacho', fn ($d) => $d->where('estado', '!=', 'ANULADO'));
+            }]);
 
         $this->applyFilters($query, $request);
 
@@ -118,6 +125,10 @@ class CompraController extends Controller
                     'fecha_vencimiento' => $item['fecha_vencimiento'] ?? null,
                     'nro_factura' => $data['nro_factura'] ?? null,
                 ]);
+
+                if ($data['tipo_registro'] === 'ENTRADA' && $precio > 0) {
+                    $producto->update(['precio_unitario' => $precio]);
+                }
             }
 
             return response()->json($compra->load(['proveedor', 'user:id,name', 'detalles.producto']), 201);
@@ -198,6 +209,10 @@ class CompraController extends Controller
                     'fecha_vencimiento' => $item['fecha_vencimiento'] ?? null,
                     'nro_factura' => $data['nro_factura'] ?? null,
                 ]);
+
+                if ($data['tipo_registro'] === 'ENTRADA' && $precio > 0) {
+                    $producto->update(['precio_unitario' => $precio]);
+                }
             }
 
             return response()->json($compra->load(['proveedor', 'user:id,name', 'detalles.producto']));
@@ -232,6 +247,19 @@ class CompraController extends Controller
             ], 422);
         }
 
+        $enDespachoActivo = \App\Models\DespachoDetalle::whereIn(
+            'compra_detalle_id',
+            $compra->detalles->pluck('id')
+        )
+        ->whereHas('despacho', fn ($q) => $q->where('estado', '!=', 'ANULADO'))
+        ->exists();
+
+        if ($enDespachoActivo) {
+            return response()->json([
+                'message' => 'No se puede anular: productos de esta compra ya fueron despachados.',
+            ], 422);
+        }
+
         $compra->update(['estado' => 'ANULADO']);
         $compra->detalles()->update(['estado' => 'ANULADO']);
 
@@ -240,6 +268,16 @@ class CompraController extends Controller
 
     private function applyFilters($query, Request $request): void
     {
+        if ($request->filled('producto_id')) {
+            $productoId = $request->input('producto_id');
+            $query->whereHas('detalles', function ($q) use ($productoId) {
+                $q->where('producto_id', $productoId);
+            })->with(['detalles' => function ($q) use ($productoId) {
+                $q->where('producto_id', $productoId)
+                    ->select(['id', 'compra_id', 'nombre', 'cantidad', 'cantidad_venta', 'precio', 'total', 'lote', 'fecha_vencimiento']);
+            }]);
+        }
+
         if ($request->filled('date_from')) {
             $query->whereDate('fecha_hora', '>=', $request->date_from);
         }

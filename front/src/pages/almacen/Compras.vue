@@ -71,6 +71,23 @@
         <div class="col-auto">
           <q-btn unelevated color="primary" icon="search" label="Buscar" no-caps :loading="loading" @click="fetchRows" />
         </div>
+        <div class="col-12">
+          <div class="row items-center q-gutter-xs">
+            <span class="text-caption text-grey-7 q-mr-xs">Acceso rápido:</span>
+            <q-btn
+              v-for="atajo in atajosSemana"
+              :key="atajo.label"
+              dense
+              no-caps
+              unelevated
+              size="sm"
+              :color="atajo.active ? 'primary' : 'grey-3'"
+              :text-color="atajo.active ? 'white' : 'grey-9'"
+              :label="atajo.label"
+              @click="atajo.fn()"
+            />
+          </div>
+        </div>
       </q-card-section>
 
       <q-separator />
@@ -103,6 +120,37 @@
                   {{ props.row.comentario }}
                 </div>
               </div>
+            </div>
+          </q-td>
+        </template>
+
+        <template #body-cell-productos="props">
+          <q-td :props="props">
+            <div class="row q-gutter-xs">
+              <q-chip
+                v-for="det in (props.row.detalles || []).slice(0, 3)"
+                :key="det.id"
+                dense
+                square
+                color="blue-grey-1"
+                text-color="blue-grey-9"
+                class="text-capitalize"
+                style="font-size: 11px; max-width: 160px"
+              >
+                <span class="ellipsis">{{ det.nombre }}</span>
+                <q-tooltip>{{ det.nombre }} × {{ det.cantidad }}</q-tooltip>
+              </q-chip>
+              <q-chip
+                v-if="(props.row.detalles || []).length > 3"
+                dense
+                square
+                color="primary"
+                text-color="white"
+                style="font-size: 11px"
+              >
+                +{{ (props.row.detalles || []).length - 3 }} más
+              </q-chip>
+              <span v-if="!(props.row.detalles || []).length" class="text-grey-6 text-caption">-</span>
             </div>
           </q-td>
         </template>
@@ -168,26 +216,26 @@
                 <q-item
                   clickable
                   v-close-popup
-                  :disable="props.row.estado === 'ANULADO' || hasVentas(props.row)"
+                  :disable="props.row.estado === 'ANULADO' || isBlocked(props.row)"
                   @click="editar(props.row)"
                 >
                   <q-item-section avatar><q-icon name="edit" color="amber-9" /></q-item-section>
                   <q-item-section>
                     <div>Modificar</div>
-                    <div v-if="hasVentas(props.row)" class="text-caption text-grey-6">Bloqueado: ya hay ventas</div>
+                    <div v-if="isBlocked(props.row)" class="text-caption text-grey-6">{{ blockReason(props.row) }}</div>
                   </q-item-section>
                 </q-item>
                 <q-separator />
                 <q-item
                   clickable
                   v-close-popup
-                  :disable="props.row.estado === 'ANULADO' || hasVentas(props.row)"
+                  :disable="props.row.estado === 'ANULADO' || isBlocked(props.row)"
                   @click="anular(props.row)"
                 >
                   <q-item-section avatar><q-icon name="cancel" color="negative" /></q-item-section>
-                  <q-item-section :class="{ 'text-negative': !hasVentas(props.row) }">
+                  <q-item-section :class="{ 'text-negative': !isBlocked(props.row) }">
                     <div>Anular</div>
-                    <div v-if="hasVentas(props.row)" class="text-caption text-grey-6">Bloqueado: ya hay ventas</div>
+                    <div v-if="isBlocked(props.row)" class="text-caption text-grey-6">{{ blockReason(props.row) }}</div>
                   </q-item-section>
                 </q-item>
               </q-list>
@@ -356,11 +404,11 @@
             color="primary"
             icon="edit"
             label="Modificar"
-            :disable="hasVentas(selected)"
+            :disable="isBlocked(selected)"
             @click="editar(selected)"
           />
-          <div v-if="selected && hasVentas(selected)" class="text-caption text-negative q-ml-sm self-center">
-            <q-icon name="info" /> Bloqueado: ya hay ventas
+          <div v-if="selected && isBlocked(selected)" class="text-caption text-negative q-ml-sm self-center">
+            <q-icon name="info" /> {{ blockReason(selected) }}
           </div>
         </q-card-actions>
       </q-card>
@@ -382,8 +430,8 @@ export default {
       selected: null,
       detailDialog: false,
       filters: {
-        date_from: moment().format('YYYY-MM-DD'),
-        date_to: moment().format('YYYY-MM-DD'),
+        date_from: moment().startOf('isoWeek').format('YYYY-MM-DD'),
+        date_to: moment().endOf('isoWeek').format('YYYY-MM-DD'),
         estado: null,
         q: '',
       },
@@ -403,6 +451,7 @@ export default {
         { name: 'id', label: '#', field: 'id', align: 'left', style: 'width: 60px' },
         { name: 'fecha_hora', label: 'Fecha', field: 'fecha_hora', align: 'left' },
         { name: 'proveedor', label: 'Proveedor', field: row => row.proveedor?.nombre || row.nombre || '-', align: 'left' },
+        { name: 'productos', label: 'Productos', field: 'detalles', align: 'left' },
         { name: 'motivo_registro', label: 'Motivo', field: 'motivo_registro', align: 'left' },
         { name: 'total', label: 'Total', field: 'total', align: 'right' },
         { name: 'tipo_pago', label: 'Pago', field: 'tipo_pago', align: 'left' },
@@ -410,10 +459,44 @@ export default {
       ],
     }
   },
+  computed: {
+    atajosSemana () {
+      const from = this.filters.date_from
+      const to = this.filters.date_to
+      const estaSemanaDe = moment().startOf('isoWeek').format('YYYY-MM-DD')
+      const estaSemanaA = moment().endOf('isoWeek').format('YYYY-MM-DD')
+      const pasadaDe = moment().subtract(1, 'weeks').startOf('isoWeek').format('YYYY-MM-DD')
+      const pasadaA = moment().subtract(1, 'weeks').endOf('isoWeek').format('YYYY-MM-DD')
+      const mesDe = moment().startOf('month').format('YYYY-MM-DD')
+      const mesA = moment().endOf('month').format('YYYY-MM-DD')
+      return [
+        {
+          label: 'Esta semana',
+          active: from === estaSemanaDe && to === estaSemanaA,
+          fn: () => this.setRango(estaSemanaDe, estaSemanaA),
+        },
+        {
+          label: 'Semana pasada',
+          active: from === pasadaDe && to === pasadaA,
+          fn: () => this.setRango(pasadaDe, pasadaA),
+        },
+        {
+          label: 'Este mes',
+          active: from === mesDe && to === mesA,
+          fn: () => this.setRango(mesDe, mesA),
+        },
+      ]
+    },
+  },
   mounted () {
     this.fetchRows()
   },
   methods: {
+    setRango (from, to) {
+      this.filters.date_from = from
+      this.filters.date_to = to
+      this.fetchRows()
+    },
     async fetchRows () {
       this.loading = true
       try {
@@ -460,8 +543,8 @@ export default {
       }
     },
     anular (row) {
-      if (this.hasVentas(row)) {
-        this.$alert.warning('No se puede anular: ya se vendieron productos de esta compra.')
+      if (this.isBlocked(row)) {
+        this.$alert.warning(this.blockReason(row))
         return
       }
       this.$q.dialog({
@@ -489,6 +572,18 @@ export default {
         return row.detalles.some(d => Number(d?.cantidad_venta || 0) > 0)
       }
       return false
+    },
+    hasDespachos (row) {
+      if (!row) return false
+      return Number(row.despachado_count || 0) > 0
+    },
+    isBlocked (row) {
+      return this.hasVentas(row) || this.hasDespachos(row)
+    },
+    blockReason (row) {
+      if (this.hasDespachos(row)) return 'Bloqueado: ya fue despachado'
+      if (this.hasVentas(row)) return 'Bloqueado: ya hay ventas'
+      return ''
     },
     money (value) {
       return Number(value || 0).toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })

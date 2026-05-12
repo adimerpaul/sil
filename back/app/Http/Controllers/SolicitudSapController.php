@@ -14,6 +14,15 @@ class SolicitudSapController extends Controller
     {
         $query = SolicitudSap::with(['user:id,name'])->withCount('detalles');
 
+        if ($request->filled('producto_id')) {
+            $productoId = $request->input('producto_id');
+            $query->whereHas('detalles', function ($q) use ($productoId) {
+                $q->where('almacen_item_id', $productoId);
+            })->with(['detalles' => function ($q) use ($productoId) {
+                $q->where('almacen_item_id', $productoId);
+            }]);
+        }
+
         if ($request->filled('date_from')) {
             $query->whereDate('fecha', '>=', $request->date_from);
         }

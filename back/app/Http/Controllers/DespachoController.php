@@ -79,9 +79,9 @@ class DespachoController extends Controller
             return response()->json(['message' => "No se encontró el pedido #{$id}"], 404);
         }
 
-        if ($pedido->estado === 'ANULADO' || $pedido->estado === 'RECHAZADO') {
+        if ($pedido->estado !== 'ACEPTADO') {
             return response()->json([
-                'message' => "El pedido #{$id} está {$pedido->estado} y no puede despacharse",
+                'message' => "El pedido #{$id} está {$pedido->estado} y no puede despacharse. Solo se pueden despachar pedidos confirmados (ACEPTADO).",
             ], 422);
         }
 
@@ -142,8 +142,8 @@ class DespachoController extends Controller
 
         $pedido = Pedido::with('user.unidad')->findOrFail($data['pedido_id']);
 
-        if ($pedido->estado === 'ANULADO' || $pedido->estado === 'RECHAZADO') {
-            return response()->json(['message' => "El pedido está {$pedido->estado}"], 422);
+        if ($pedido->estado !== 'ACEPTADO') {
+            return response()->json(['message' => "El pedido está {$pedido->estado} y no puede despacharse. Solo se pueden despachar pedidos confirmados (ACEPTADO)."], 422);
         }
 
         $yaDespachado = Despacho::where('pedido_id', $pedido->id)

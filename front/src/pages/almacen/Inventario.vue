@@ -477,6 +477,8 @@
         >
           <q-tab name="despachos" icon="local_shipping" label="Despachos" />
           <q-tab name="pedidos" icon="shopping_bag" label="Pedidos" />
+          <q-tab name="solicitudesSap" icon="description" label="Sol. SAP" />
+          <q-tab name="compras" icon="shopping_cart" label="Compras" />
         </q-tabs>
         <q-separator />
 
@@ -550,6 +552,82 @@
               </q-item>
             </q-list>
           </q-tab-panel>
+          <q-tab-panel name="solicitudesSap" class="q-pa-none">
+            <div v-if="historyLoading.solicitudesSap" class="history-empty">
+              <q-spinner color="primary" size="32px" />
+              <div class="q-mt-sm">Cargando solicitudes SAP...</div>
+            </div>
+            <div v-else-if="historySolicitudesSap.length === 0" class="history-empty text-grey-7">
+              <q-icon name="description" size="34px" />
+              <div class="q-mt-sm">Sin solicitudes SAP para este producto</div>
+            </div>
+            <q-list v-else separator>
+              <q-item v-for="row in historySolicitudesSap" :key="row.id" class="history-item">
+                <q-item-section>
+                  <div class="row items-center q-col-gutter-sm">
+                    <div class="col">
+                      <div class="text-weight-bold">{{ row.nro || `#${row.id}` }}</div>
+                      <div class="text-caption text-grey-7">
+                        {{ formatDateTime(row.fecha) }} · {{ row.unidad_solicitante || '-' }}
+                      </div>
+                      <div v-if="row.nro_cite" class="text-caption text-grey-7">CITE: {{ row.nro_cite }}</div>
+                    </div>
+                    <div class="col-auto text-right">
+                      <q-badge :color="sapEstadoColor(row.estado)" class="q-mb-xs">{{ row.estado }}</q-badge>
+                      <div class="text-weight-bold text-primary">
+                        {{ quantity(productSapDetalle(row)?.cantidad) }} {{ productSapDetalle(row)?.unidad || historyItem?.unidad_medida || '' }}
+                      </div>
+                      <div class="text-caption text-grey-7">{{ money(productSapDetalle(row)?.total) }} Bs</div>
+                    </div>
+                  </div>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-tab-panel>
+
+          <q-tab-panel name="compras" class="q-pa-none">
+            <div v-if="historyLoading.compras" class="history-empty">
+              <q-spinner color="primary" size="32px" />
+              <div class="q-mt-sm">Cargando compras...</div>
+            </div>
+            <div v-else-if="historyCompras.length === 0" class="history-empty text-grey-7">
+              <q-icon name="shopping_cart" size="34px" />
+              <div class="q-mt-sm">Sin compras registradas para este producto</div>
+            </div>
+            <q-list v-else separator>
+              <q-item v-for="row in historyCompras" :key="row.id" class="history-item">
+                <q-item-section>
+                  <div class="row items-center q-col-gutter-sm">
+                    <div class="col">
+                      <div class="text-weight-bold">Compra #{{ row.id }}</div>
+                      <div class="text-caption text-grey-7">
+                        {{ formatDateTime(row.fecha_hora) }} · {{ row.proveedor?.nombre || row.nombre || 'Sin proveedor' }}
+                      </div>
+                      <div v-if="row.nro_factura" class="text-caption text-grey-7">Factura: {{ row.nro_factura }}</div>
+                    </div>
+                    <div class="col-auto text-right">
+                      <q-badge :color="row.estado === 'ACTIVO' ? 'green' : 'red'" class="q-mb-xs">{{ row.estado }}</q-badge>
+                      <div class="text-weight-bold text-primary">
+                        {{ quantity(productCompraDetalle(row)?.cantidad) }} {{ historyItem?.unidad_medida || '' }}
+                        <span
+                          v-if="Number(productCompraDetalle(row)?.cantidad_venta) > 0"
+                          class="text-grey-7 text-weight-regular"
+                          style="font-size: 12px"
+                        >({{ quantity(productCompraDetalle(row)?.cantidad_venta) }} vendido)</span>
+                      </div>
+                      <div class="text-caption text-grey-7">
+                        {{ money(productCompraDetalle(row)?.total) }} Bs
+                        <span
+                          v-if="Number(productCompraDetalle(row)?.cantidad_venta) > 0"
+                          class="q-ml-xs"
+                        >· Restante: <strong>{{ quantity(Number(productCompraDetalle(row)?.cantidad || 0) - Number(productCompraDetalle(row)?.cantidad_venta || 0)) }}</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-tab-panel>
         </q-tab-panels>
       </q-card>
     </q-dialog>
@@ -587,9 +665,13 @@ export default {
       historyItem: null,
       historyDespachos: [],
       historyPedidos: [],
+      historySolicitudesSap: [],
+      historyCompras: [],
       historyLoading: {
         despachos: false,
         pedidos: false,
+        solicitudesSap: false,
+        compras: false,
       },
       catalogTab: 'grupos',
       catalogFilter: '',
@@ -954,10 +1036,14 @@ export default {
       this.historyTab = 'despachos'
       this.historyDespachos = []
       this.historyPedidos = []
+      this.historySolicitudesSap = []
+      this.historyCompras = []
       this.historyDialog = true
       await Promise.all([
         this.fetchHistoryDespachos(row.id),
         this.fetchHistoryPedidos(row.id),
+        this.fetchHistorySolicitudesSap(row.id),
+        this.fetchHistoryCompras(row.id),
       ])
     },
     async fetchHistoryDespachos (productoId) {
@@ -969,7 +1055,7 @@ export default {
             rowsPerPage: 50,
           },
         })
-        this.historyDespachos = res.data.data || []
+        this.historyDespachos = (res.data.data || []).filter(r => r.estado !== 'ANULADO')
       } catch (e) {
         this.$alert.error(e.response?.data?.message || 'No se pudo cargar historial de despachos')
       } finally {
@@ -985,11 +1071,37 @@ export default {
             rowsPerPage: 50,
           },
         })
-        this.historyPedidos = res.data.data || []
+        this.historyPedidos = (res.data.data || []).filter(r => r.estado !== 'ANULADO')
       } catch (e) {
         this.$alert.error(e.response?.data?.message || 'No se pudo cargar historial de pedidos')
       } finally {
         this.historyLoading.pedidos = false
+      }
+    },
+    async fetchHistorySolicitudesSap (productoId) {
+      this.historyLoading.solicitudesSap = true
+      try {
+        const res = await this.$axios.get('solicitudes-sap', {
+          params: { producto_id: productoId, rowsPerPage: 50 },
+        })
+        this.historySolicitudesSap = (res.data.data || []).filter(r => r.estado !== 'ANULADO')
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'No se pudo cargar solicitudes SAP')
+      } finally {
+        this.historyLoading.solicitudesSap = false
+      }
+    },
+    async fetchHistoryCompras (productoId) {
+      this.historyLoading.compras = true
+      try {
+        const res = await this.$axios.get('compras', {
+          params: { producto_id: productoId, rowsPerPage: 50 },
+        })
+        this.historyCompras = (res.data.data || []).filter(r => r.estado !== 'ANULADO')
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'No se pudo cargar historial de compras')
+      } finally {
+        this.historyLoading.compras = false
       }
     },
     productDespachoDetalle (row) {
@@ -998,9 +1110,20 @@ export default {
     productPedidoDetalle (row) {
       return (row?.detalles || [])[0] || null
     },
+    productSapDetalle (row) {
+      return (row?.detalles || [])[0] || null
+    },
+    productCompraDetalle (row) {
+      return (row?.detalles || [])[0] || null
+    },
     pedidoEstadoColor (estado) {
       if (estado === 'ACEPTADO') return 'green'
       if (estado === 'RECHAZADO' || estado === 'ANULADO') return 'red'
+      return 'orange'
+    },
+    sapEstadoColor (estado) {
+      if (estado === 'APROBADO') return 'green'
+      if (estado === 'ANULADO') return 'red'
       return 'orange'
     },
     async printReport (existente) {

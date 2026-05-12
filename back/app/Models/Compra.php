@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\DespachoDetalle;
 
 class Compra extends Model
 {
@@ -30,6 +31,11 @@ class Compra extends Model
     public function detalles()
     {
         return $this->hasMany(CompraDetalle::class);
+    }
+
+    public function despachoDetalles()
+    {
+        return $this->hasManyThrough(DespachoDetalle::class, CompraDetalle::class, 'compra_id', 'compra_detalle_id');
     }
 
     public function proveedor()
