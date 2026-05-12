@@ -982,7 +982,8 @@ class SolicitudeController extends Controller
             $newServicioSolicitud->nombre = $servicio['nombre'] ?? '';
             $newServicioSolicitud->save();
         }
-        $urlSocket = env('URL_SOCKET_IO', null);
+//        $urlSocket = env('URL_SOCKET_IO', null);
+        $urlSocket ='https://saventura.tuprogam.com/';
 //        //return response()->json(['message' => 'URL_SOCKET_IO no está configurada', 'url' => $urlSocket], 500);
         $response = Http::get($urlSocket . '/silSolicitud');
 
