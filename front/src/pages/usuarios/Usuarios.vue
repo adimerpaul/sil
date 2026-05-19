@@ -176,7 +176,7 @@
                       :option-label="'name'"
                       :option-value="'id'"
                       emit-value map-options
-                      :rules="[val => !!val || 'Campo requerido']"/>
+                      clearable/>
 <!--            <pre>{{areas}}</pre>-->
 <!--            <pre>{{user.area_id}}</pre>-->
             <q-select v-model="user.establecimiento_id" label="Establecimiento" dense outlined
@@ -185,7 +185,7 @@
                       emit-value map-options
                       use-input input-debounce="0"
                       @filter="filterEstablecimientos"
-                      :rules="[val => !!val || 'Campo requerido']">
+                      clearable>
               <template v-slot:no-option>
                 <q-item><q-item-section class="text-grey">Sin resultados</q-item-section></q-item>
               </template>
@@ -1001,7 +1001,7 @@ export default {
         email: '',
         celular: '',
         password: '',
-        area_id: 1,
+        area_id: null,
         username: '',
         cargo: '',
         role: 'Usuario',

@@ -135,34 +135,76 @@
               </template>
 
               <q-list dense class="drawer-submenu">
-                <q-item
-                  v-for="link in visibleSectionLinks(section)"
-                  :key="link.title"
-                  dense
-                  :clickable="Boolean(link.link)"
-                  :disable="!link.link"
-                  v-bind="link.link ? { to: link.link, exact: link.exact !== false } : {}"
-                  class="drawer-menu-link"
-                  :active="linkIsActive(link)"
-                  active-class="drawer-menu-link--active"
-                >
-                  <q-item-section avatar class="drawer-menu-link__avatar">
-                    <q-icon :name="link.icon" size="17px" />
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="drawer-menu-link__label" lines="1">
-                      {{ link.title }}
-                    </q-item-label>
-                    <q-item-label
-                      v-if="link.caption"
-                      caption
-                      class="drawer-menu-link__caption"
-                      lines="1"
+                <template v-for="link in visibleSectionLinks(section)" :key="link.title">
+                  <!-- Grupo anidado con children -->
+                  <q-expansion-item
+                    v-if="link.children"
+                    dense dense-toggle
+                    :default-opened="link.children.some(c => linkIsActive(c))"
+                    header-class="drawer-subgroup-header"
+                    class="drawer-subgroup-item"
+                  >
+                    <template v-slot:header>
+                      <q-item-section avatar class="drawer-menu-link__avatar">
+                        <q-icon :name="link.icon" size="17px" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="drawer-menu-link__label" lines="1">
+                          {{ link.title }}
+                        </q-item-label>
+                      </q-item-section>
+                    </template>
+                    <q-item
+                      v-for="child in visibleChildren(link)"
+                      :key="child.title"
+                      dense
+                      :clickable="Boolean(child.link)"
+                      :disable="!child.link"
+                      v-bind="child.link ? { to: child.link, exact: child.exact !== false } : {}"
+                      class="drawer-menu-link drawer-menu-link--child"
+                      :active="linkIsActive(child)"
+                      active-class="drawer-menu-link--active"
                     >
-                      {{ link.caption }}
-                    </q-item-label>
-                  </q-item-section>
-                </q-item>
+                      <q-item-section avatar class="drawer-menu-link__avatar">
+                        <q-icon :name="child.icon" size="15px" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="drawer-menu-link__label" lines="1">
+                          {{ child.title }}
+                        </q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </q-expansion-item>
+
+                  <!-- Link simple -->
+                  <q-item
+                    v-else
+                    dense
+                    :clickable="Boolean(link.link)"
+                    :disable="!link.link"
+                    v-bind="link.link ? { to: link.link, exact: link.exact !== false } : {}"
+                    class="drawer-menu-link"
+                    :active="linkIsActive(link)"
+                    active-class="drawer-menu-link--active"
+                  >
+                    <q-item-section avatar class="drawer-menu-link__avatar">
+                      <q-icon :name="link.icon" size="17px" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="drawer-menu-link__label" lines="1">
+                        {{ link.title }}
+                      </q-item-label>
+                      <q-item-label
+                        v-if="link.caption"
+                        caption
+                        class="drawer-menu-link__caption"
+                        lines="1"
+                      >
+                        {{ link.caption }}
+                      </q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
               </q-list>
             </q-expansion-item>
           </q-list>
@@ -244,7 +286,13 @@ const menuSections = [
       { title: 'Solicitudes SAP', icon: 'description', link: '/solicitudes-sap', can: 'Ver Solicitudes SAP' },
       { title: 'Nueva solicitud SAP', icon: 'post_add', link: '/solicitudes-sap/nueva', can: 'Crear Solicitudes SAP' },
       { title: 'Herramientas', icon: 'build', link: '/almacen/herramientas', can: ['Ver Herramientas Almacén', 'Herramientas de Almacén'] },
-      { title: 'Reporte valorado', icon: 'assessment', link: '/almacen/reporte-valorado', can: 'Reporte Valorado' },
+      {
+        title: 'Reportes', icon: 'insert_chart_outlined',
+        children: [
+          { title: 'Reporte Totales', icon: 'assessment', link: '/almacen/reporte-valorado', can: 'Reporte Valorado' },
+          { title: 'Resumen y Detalle', icon: 'table_chart', link: '/almacen/reporte-resumen-detalle', can: 'Reporte Valorado' },
+        ],
+      },
       // { title: 'Faltantes y sobrantes', icon: 'rule', can: 'Módulo de faltantes y sobrantes', caption: 'Módulo' },
     ],
   },
@@ -274,8 +322,15 @@ function hasPermission (perm) {
   return userPermissions.value.includes(perm)
 }
 
+function visibleChildren (link) {
+  return (link.children || []).filter(child => hasPermission(child.can))
+}
+
 function visibleSectionLinks (section) {
-  return section.links.filter(link => hasPermission(link.can))
+  return section.links.filter(link => {
+    if (link.children) return visibleChildren(link).length > 0
+    return hasPermission(link.can)
+  })
 }
 
 function linkIsActive (link) {
@@ -285,7 +340,10 @@ function linkIsActive (link) {
 }
 
 function sectionIsActive (section) {
-  return section.links.some(link => linkIsActive(link))
+  return section.links.some(link => {
+    if (link.children) return link.children.some(child => linkIsActive(child))
+    return linkIsActive(link)
+  })
 }
 
 function sectionHeaderClass (section) {
@@ -467,6 +525,21 @@ const roleText = computed(() => {
   color: rgba(255, 255, 255, 0.58);
   font-size: 10px;
   line-height: 1.35;
+}
+
+.drawer-subgroup-item {
+  margin: 1px 5px 1px 13px;
+}
+
+:deep(.drawer-subgroup-header) {
+  min-height: 28px;
+  padding: 0 7px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.drawer-menu-link--child {
+  margin-left: 26px !important;
 }
 
 .drawer-logout {
