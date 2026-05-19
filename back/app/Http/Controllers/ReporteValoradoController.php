@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ReporteValoradoExport;
 use App\Models\AlmacenItem;
 use App\Models\CompraDetalle;
 use App\Models\DespachoDetalleReal;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReporteValoradoController extends Controller
 {
@@ -63,6 +65,32 @@ class ReporteValoradoController extends Controller
         $filename = 'reporte_valorado_'.now()->format('Ymd_His').'.pdf';
 
         return $pdf->stream($filename);
+    }
+
+    public function excel(Request $request)
+    {
+        $productoId = $request->input('producto_id');
+        $dateFrom   = $request->input('date_from');
+        $dateTo     = $request->input('date_to');
+
+        $productos = $productoId
+            ? AlmacenItem::where('id', $productoId)->get()
+            : AlmacenItem::orderBy('nombre')->get();
+
+        $cards = [];
+        foreach ($productos as $producto) {
+            $card = $this->buildPepsCard($producto, $dateFrom, $dateTo);
+            if (count($card['rows']) > 0) {
+                $cards[] = $card;
+            }
+        }
+
+        $filename = 'reporte_valorado_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(
+            new ReporteValoradoExport($cards, $dateFrom, $dateTo),
+            $filename
+        );
     }
 
     private function buildPepsCard(AlmacenItem $producto, ?string $dateFrom, ?string $dateTo): array

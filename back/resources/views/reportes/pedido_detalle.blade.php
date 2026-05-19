@@ -126,6 +126,12 @@
             text-align: right;
             font-weight: bold;
         }
+        .total-row td.son {
+            background: #edf5ff;
+            color: #172033;
+            text-align: left;
+            font-size: 10px;
+        }
 
         .print-date {
             margin-top: 6px;
@@ -260,6 +266,9 @@
     <tr>
         <td class="label">Total:</td>
         <td class="value">{{ number_format((float) $pedido->total, 2, ',', '.') }}</td>
+    </tr>
+    <tr>
+        <td colspan="2" class="son"><span class="bold">Son:</span>&nbsp;{{ numero_a_letras((float) $pedido->total) }}</td>
     </tr>
 </table>
 

@@ -8,9 +8,18 @@
         </div>
         <q-space />
         <q-btn
+          color="green-8"
+          icon="table_view"
+          label="Excel"
+          no-caps
+          dense
+          :loading="excelLoading"
+          @click="exportExcel"
+        />
+        <q-btn
           color="red-8"
           icon="picture_as_pdf"
-          label="Exportar PDF"
+          label="PDF"
           no-caps
           dense
           :loading="pdfLoading"
@@ -274,6 +283,7 @@ export default {
     return {
       loading: false,
       pdfLoading: false,
+      excelLoading: false,
       cards: [],
       allProductos: [],
       productoOptions: [],
@@ -353,6 +363,33 @@ export default {
         this.$q.notify({ type: 'negative', message: 'Error al cargar el reporte' })
       } finally {
         this.loading = false
+      }
+    },
+
+    async exportExcel() {
+      this.excelLoading = true
+      try {
+        const params = {}
+        if (this.filters.producto_id) params.producto_id = this.filters.producto_id
+        if (this.filters.date_from) params.date_from = this.filters.date_from
+        if (this.filters.date_to) params.date_to = this.filters.date_to
+
+        const res = await this.$axios.get('reporte-valorado/excel', {
+          params,
+          responseType: 'blob',
+        })
+        const blob = new Blob([res.data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        })
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(blob)
+        a.download = `reporte-valorado-peps.xlsx`
+        a.click()
+        URL.revokeObjectURL(a.href)
+      } catch (e) {
+        this.$q.notify({ type: 'negative', message: 'Error al generar el Excel' })
+      } finally {
+        this.excelLoading = false
       }
     },
 

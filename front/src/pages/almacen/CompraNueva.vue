@@ -392,7 +392,7 @@ export default {
         orden_de_compra: '',
         codigo_interno: '',
       },
-      entradaMotivos: ['COMPRA', 'DONACION', 'TRANSFERENCIA', 'JUSTO'],
+      entradaMotivos: ['COMPRA', 'DONACION', 'TRANSFERENCIA', 'JUSTO','AJUSTE POSITIVO', 'AJUSTE NEGATIVO', 'OTRO'],
       pagoOptions: [
         { label: 'Ninguno', value: '' },
         { label: 'Efectivo', value: 'EFECTIVO' },

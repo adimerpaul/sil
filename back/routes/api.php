@@ -30,6 +30,7 @@ use App\Http\Controllers\UnidadController;
 use App\Http\Controllers\HerramientasAlmacenController;
 use App\Http\Controllers\DespachoController;
 use App\Http\Controllers\ReporteValoradoController;
+use App\Http\Controllers\ReporteResumenDetalleController;
 
 Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
 
@@ -91,6 +92,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('herramientas-almacen', [HerramientasAlmacenController::class, 'update']);
     Route::get('reporte-valorado', [ReporteValoradoController::class, 'index']);
     Route::get('reporte-valorado/pdf', [ReporteValoradoController::class, 'pdf']);
+    Route::get('reporte-valorado/excel', [ReporteValoradoController::class, 'excel']);
+
+    Route::get('reporte-resumen-detalle', [ReporteResumenDetalleController::class, 'index']);
+    Route::get('reporte-resumen-detalle/resumen/pdf', [ReporteResumenDetalleController::class, 'resumenPdf']);
+    Route::get('reporte-resumen-detalle/detalle/pdf', [ReporteResumenDetalleController::class, 'detallePdf']);
+    Route::get('reporte-resumen-detalle/resumen/excel', [ReporteResumenDetalleController::class, 'resumenExcel']);
+    Route::get('reporte-resumen-detalle/detalle/excel', [ReporteResumenDetalleController::class, 'detalleExcel']);
 
     Route::get('despachos/pedido-lookup/{id}', [DespachoController::class, 'pedidoLookup']);
     Route::get('despachos/{id}/pdf', [DespachoController::class, 'printPdf']);

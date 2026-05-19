@@ -282,7 +282,7 @@
     </tr>
     <tr>
         <td class="bold uppercase obs-label">Son:</td>
-        <td colspan="2" class="uppercase">Total de compra {{ number_format((float) $compra->total, 2, ',', '.') }} bolivianos</td>
+        <td colspan="2" class="uppercase bold">{{ numero_a_letras((float) $compra->total) }}</td>
     </tr>
 </table>
 
