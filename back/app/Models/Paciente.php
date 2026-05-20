@@ -13,11 +13,36 @@ class Paciente extends Model implements Auditable
 
     protected $fillable = [
         'fecha_recepcion', 'hora_recepcion',
+        'codigo',
         'nombre_completo', 'fecha_nac', 'genero', 'edad',
         'ci', 'telefono', 'direccion',
         'discapacidad', 'discapacidad_cual', 'discapacidad_otro',
         'embarazo', 'fum', 'sem_gest'
     ];
+
+    public static function generarCodigo(?string $nombreCompleto, $fechaNac): string
+    {
+        $iniciales = '';
+        if (!empty($nombreCompleto)) {
+            $palabras = preg_split('/\s+/', mb_strtoupper(trim($nombreCompleto), 'UTF-8'));
+            foreach ($palabras as $palabra) {
+                if ($palabra !== '') {
+                    $iniciales .= mb_substr($palabra, 0, 1, 'UTF-8');
+                }
+            }
+        }
+
+        $fecha = '';
+        if (!empty($fechaNac)) {
+            try {
+                $fecha = \Carbon\Carbon::parse($fechaNac)->format('dmY');
+            } catch (\Exception $e) {
+                $fecha = '';
+            }
+        }
+
+        return $iniciales . $fecha;
+    }
 
     protected $hidden = [
         'created_at', 'updated_at', 'deleted_at'

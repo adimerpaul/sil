@@ -67,7 +67,9 @@ class PacienteController extends Controller
             return response()->json(['message' => 'El paciente con CI ' . $request->ci . ' ya existe'], 409);
         }
 
-        $paciente = Paciente::create($request->all());
+        $datos = $request->all();
+        $datos['codigo'] = Paciente::generarCodigo($datos['nombre_completo'] ?? null, $datos['fecha_nac'] ?? null);
+        $paciente = Paciente::create($datos);
         return response()->json($paciente, 201);
     }
 

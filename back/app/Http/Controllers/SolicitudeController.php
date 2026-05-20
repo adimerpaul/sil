@@ -996,6 +996,7 @@ class SolicitudeController extends Controller
             $p = Paciente::create([
                 'nombre_completo' => $data['paciente_nombre'],
                 'ci' => $ci,
+                'codigo' => Paciente::generarCodigo($data['paciente_nombre'], $data['paciente_fecha_nac'] ?? null),
                 'telefono' => $data['paciente_telefono'] ?? null,
                 'direccion' => $data['paciente_direccion'] ?? null,
                 'fecha_nac' => $data['paciente_fecha_nac'] ?? null,
@@ -1026,11 +1027,13 @@ class SolicitudeController extends Controller
             $p->embarazo = $data['paciente_embarazo'] ?? $p->embarazo;
             $p->fum = $data['paciente_fum'] ?? $p->fum;
             $p->sem_gest = $data['paciente_sem_gest'] ?? $p->sem_gest;
+            $p->codigo = Paciente::generarCodigo($p->nombre_completo, $p->fecha_nac);
             $p->save();
         } else {
             $p = Paciente::create([
                 'nombre_completo' => $data['paciente_nombre'],
                 'ci' => $ci,
+                'codigo' => Paciente::generarCodigo($data['paciente_nombre'], $data['paciente_fecha_nac'] ?? null),
                 'telefono' => $data['paciente_telefono'] ?? null,
                 'direccion' => $data['paciente_direccion'] ?? null,
                 'fecha_nac' => $data['paciente_fecha_nac'] ?? null,
