@@ -201,6 +201,8 @@
                 <q-item><q-item-section class="text-grey">Sin resultados</q-item-section></q-item>
               </template>
             </q-select>
+            <q-input v-model="user.admisiones" label="Admisiones" dense outlined clearable/>
+            <q-input v-model="user.personal_turnos" label="Personal Turnos" dense outlined clearable/>
             <div class="row q-col-gutter-sm q-mt-xs">
               <div class="col-6">
                 <q-checkbox v-model="user.mostrar_firma" label="Mostrar firma" dense/>
