@@ -252,6 +252,7 @@ const menuSections = [
       { title: 'Doctores', icon: 'medical_services', link: '/doctores', can: 'Doctores' },
       { title: 'Establecimientos', icon: 'domain_add', link: '/establecimientos', can: 'Establecimientos' },
       { title: 'Prestaciones', icon: 'room_service', link: '/servicios', can: 'Servicios' },
+      { title: 'Consentimientos', icon: 'assignment_turned_in', link: '/consentimientos', can: 'Consentimientos' },
     ],
   },
   {
@@ -259,7 +260,6 @@ const menuSections = [
     icon: 'science',
     defaultOpened: false,
     links: [
-      { title: 'Consentimientos', icon: 'assignment_turned_in', link: '/consentimientos', can: 'Consentimientos' },
       { title: 'Admisión', icon: 'request_page', link: '/solicitudes', can: 'Solicitudes' },
       { title: 'Recogidos', icon: 'inventory_2', link: '/recogidos', can: 'Solicitudes' },
       { title: 'Preanalítica', icon: 'science', link: '/area-preanalitica', can: ['Area preanalitica', 'Area Preanalitica'] },
