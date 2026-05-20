@@ -418,6 +418,37 @@
           flat
           :rows-per-page-options="[10, 20, 0]"
         >
+          <template v-slot:body-cell-paciente_info="props">
+            <q-td :props="props">
+              <div class="text-weight-medium">{{ props.row.paciente_nombre }}</div>
+              <div class="text-caption text-grey-7">
+                <span v-if="props.row.paciente_codigo" class="text-primary q-mr-sm">{{ props.row.paciente_codigo }}</span>
+                <span v-if="props.row.paciente_edad">{{ props.row.paciente_edad }} años</span>
+              </div>
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-areas_pruebas="props">
+            <q-td :props="props">
+              <div v-if="props.row.areas" class="text-weight-medium text-caption">{{ props.row.areas }}</div>
+              <div v-if="props.row.pruebas" class="text-caption text-grey-7" style="max-width:220px;white-space:normal">{{ props.row.pruebas }}</div>
+              <div v-if="props.row.cant_realizados > 0" class="text-caption text-positive">
+                {{ props.row.cant_realizados }}/{{ props.row.cant_servicios }} realizados
+              </div>
+            </q-td>
+          </template>
+
+          <template v-slot:body-cell-establecimiento_info="props">
+            <q-td :props="props">
+              <div v-if="props.row.establecimiento_nombre" class="text-caption text-weight-medium">{{ props.row.establecimiento_nombre }}</div>
+              <div v-if="props.row.unidad_solicitante" class="text-caption text-grey-7">{{ props.row.unidad_solicitante }}</div>
+              <div v-if="props.row.sala || props.row.cama" class="text-caption text-grey-6">
+                <span v-if="props.row.sala">Sala: {{ props.row.sala }}</span>
+                <span v-if="props.row.cama" class="q-ml-xs">Cama: {{ props.row.cama }}</span>
+              </div>
+            </q-td>
+          </template>
+
           <template v-slot:body-cell-estado="props">
             <q-td :props="props">
               <q-chip
@@ -456,14 +487,15 @@ export default {
       almacenInventarioCritico: [],
       columnsUltimas: [
         { name: 'nro_registro', label: 'Nro Registro', field: 'nro_registro', align: 'left' },
-        { name: 'codigo_solicitud', label: 'Código', field: 'codigo_solicitud', align: 'left' },
-        { name: 'paciente_nombre', label: 'Paciente', field: 'paciente_nombre', align: 'left' },
+        { name: 'codigo_solicitud', label: 'Cód. Solicitud', field: 'codigo_solicitud', align: 'left' },
+        { name: 'paciente_info', label: 'Paciente (Cód. / Edad)', field: 'paciente_nombre', align: 'left' },
         { name: 'doctor_nombre', label: 'Doctor', field: 'doctor_nombre', align: 'left' },
-        { name: 'areas', label: 'Áreas', field: row => row.areas || '', align: 'left' },
-        { name: 'cant_servicios', label: 'N° servicios', field: row => row.cant_servicios, align: 'right' },
-        { name: 'tipo_atencion', label: 'Tipo atención', field: 'tipo_atencion', align: 'left' },
+        { name: 'areas_pruebas', label: 'Áreas / Pruebas', field: row => row.areas || '', align: 'left' },
+        { name: 'cant_servicios', label: 'N° Serv.', field: row => row.cant_servicios, align: 'right' },
+        { name: 'tipo_atencion', label: 'Tipo Prestación', field: 'tipo_atencion', align: 'left' },
+        { name: 'establecimiento_info', label: 'Establecimiento / Sala', field: row => row.establecimiento_nombre || '', align: 'left' },
         { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
-        { name: 'fecha_solicitud', label: 'Fecha', field: 'fecha_solicitud', align: 'left' },
+        { name: 'fecha_solicitud', label: 'Fecha', field: row => row.fecha_creacion ? row.fecha_creacion.substring(0, 10) : '', align: 'left' },
         { name: 'hora_solicitud', label: 'Hora', field: 'hora_solicitud', align: 'left' }
       ],
       columnsPedidos: [
@@ -725,12 +757,20 @@ export default {
         r.nro_registro,
         r.codigo_solicitud,
         `"${(r.paciente_nombre || '').replace(/"/g, '""')}"`,
+        r.paciente_codigo || '',
+        r.paciente_edad ?? '',
         `"${(r.doctor_nombre || '').replace(/"/g, '""')}"`,
         `"${(r.areas || '').replace(/"/g, '""')}"`,
+        `"${(r.pruebas || '').replace(/"/g, '""')}"`,
         r.cant_servicios ?? 0,
+        r.cant_realizados ?? 0,
         r.tipo_atencion || '',
+        `"${(r.establecimiento_nombre || '').replace(/"/g, '""')}"`,
+        r.unidad_solicitante || '',
+        r.sala || '',
+        r.cama || '',
         r.estado || '',
-        r.fecha_solicitud || '',
+        (r.fecha_creacion || '').substring(0, 10),
         r.hora_solicitud || ''
       ].join(','))
       const csv = [header, ...body].join('\n')

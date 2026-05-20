@@ -474,22 +474,47 @@ class SolicitudeController extends Controller
                 'solicitudes.nro_registro',
                 'solicitudes.codigo_solicitud',
                 'solicitudes.paciente_nombre',
+                'solicitudes.paciente_edad',
                 'solicitudes.doctor_nombre',
                 'solicitudes.tipo_atencion',
                 'solicitudes.estado',
                 'solicitudes.fecha_creacion',
                 'solicitudes.hora_solicitud',
+                'solicitudes.sala',
+                'solicitudes.cama',
                 DB::raw('(
-                SELECT COUNT(*)
-                FROM servicio_solicitudes ss
-                WHERE ss.solicitude_id = solicitudes.id
-            ) as cant_servicios'),
+                    SELECT p.codigo FROM pacientes p
+                    WHERE p.id = solicitudes.paciente_id LIMIT 1
+                ) as paciente_codigo'),
                 DB::raw('(
-                SELECT GROUP_CONCAT(DISTINCT a.name SEPARATOR ", ")
-                FROM servicio_solicitudes ss
-                JOIN areas a ON a.id = ss.area_id
-                WHERE ss.solicitude_id = solicitudes.id
-            ) as areas')
+                    SELECT e.nombre FROM establecimientos e
+                    WHERE e.id = solicitudes.establecimiento_id LIMIT 1
+                ) as establecimiento_nombre'),
+                DB::raw('(
+                    SELECT us.nombre FROM unidad_solicitantes us
+                    WHERE us.id = solicitudes.unidad_solicitante_id LIMIT 1
+                ) as unidad_solicitante'),
+                DB::raw('(
+                    SELECT COUNT(*)
+                    FROM servicio_solicitudes ss
+                    WHERE ss.solicitude_id = solicitudes.id
+                ) as cant_servicios'),
+                DB::raw('(
+                    SELECT GROUP_CONCAT(DISTINCT a.name SEPARATOR ", ")
+                    FROM servicio_solicitudes ss
+                    JOIN areas a ON a.id = ss.area_id
+                    WHERE ss.solicitude_id = solicitudes.id
+                ) as areas'),
+                DB::raw('(
+                    SELECT GROUP_CONCAT(ss.nombre SEPARATOR ", ")
+                    FROM servicio_solicitudes ss
+                    WHERE ss.solicitude_id = solicitudes.id
+                ) as pruebas'),
+                DB::raw('(
+                    SELECT COUNT(*)
+                    FROM servicio_solicitudes ss
+                    WHERE ss.solicitude_id = solicitudes.id AND ss.realizado != "PENDIENTE"
+                ) as cant_realizados')
             )
             ->orderByDesc('solicitudes.fecha_creacion')
             ->orderByDesc('solicitudes.id')
