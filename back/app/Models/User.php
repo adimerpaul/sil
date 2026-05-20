@@ -35,8 +35,6 @@ class User extends Authenticatable implements Auditable
         'area_id',
         'establecimiento_id',
         'unidad_id',
-        'admisiones',
-        'personal_turnos',
     ];
 
     /**
