@@ -17,11 +17,14 @@ use App\Models\SolitudePreAnalitica;
 use App\Models\SolicitudePreAnaliticaComentario;
 use App\Models\SolicitudePropiedad;
 
-// <-- NUEVO
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use App\Models\UnidadSolicitante;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class SolicitudeController extends Controller
 {
@@ -538,6 +541,161 @@ class SolicitudeController extends Controller
             'serie_fechas' => $serieFechas,
             'ultimas' => $ultimasSolicitudes,
         ]);
+    }
+
+    // ── Helper compartido para la query de solicitudes del dashboard ──────────
+    private function solicitudesDashboardQuery(Request $request)
+    {
+        $dateFrom = $request->get('date_from', now()->toDateString());
+        $dateTo   = $request->get('date_to',   now()->toDateString());
+
+        $q = Solicitude::query()->whereNull('solicitudes.deleted_at');
+
+        if ($dateFrom) $q->whereDate('solicitudes.fecha_creacion', '>=', $dateFrom);
+        if ($dateTo)   $q->whereDate('solicitudes.fecha_creacion', '<=', $dateTo);
+
+        // Filtros adicionales opcionales
+        if ($request->filled('estado'))       $q->where('solicitudes.estado', $request->get('estado'));
+        if ($request->filled('area_id')) {
+            $areaId = $request->get('area_id');
+            $q->whereExists(function ($sub) use ($areaId) {
+                $sub->from('servicio_solicitudes as ss')
+                    ->whereColumn('ss.solicitude_id', 'solicitudes.id')
+                    ->where('ss.area_id', $areaId)
+                    ->whereNull('ss.deleted_at');
+            });
+        }
+        if ($request->filled('tipo_atencion')) $q->where('solicitudes.tipo_atencion', $request->get('tipo_atencion'));
+        if ($request->filled('establecimiento_id')) $q->where('solicitudes.establecimiento_id', $request->get('establecimiento_id'));
+        if ($request->filled('search')) {
+            $s = $request->get('search');
+            $q->where(function ($w) use ($s) {
+                $w->where('solicitudes.paciente_nombre', 'like', "%{$s}%")
+                  ->orWhere('solicitudes.codigo_solicitud', 'like', "%{$s}%")
+                  ->orWhere('solicitudes.nro_registro', 'like', "%{$s}%")
+                  ->orWhere('solicitudes.doctor_nombre', 'like', "%{$s}%");
+            });
+        }
+
+        return $q->select(
+            'solicitudes.id',
+            'solicitudes.nro_registro',
+            'solicitudes.codigo_solicitud',
+            'solicitudes.paciente_nombre',
+            'solicitudes.paciente_edad',
+            'solicitudes.doctor_nombre',
+            'solicitudes.tipo_atencion',
+            'solicitudes.estado',
+            'solicitudes.fecha_creacion',
+            'solicitudes.hora_solicitud',
+            'solicitudes.sala',
+            'solicitudes.cama',
+            DB::raw('(SELECT p.codigo  FROM pacientes p          WHERE p.id  = solicitudes.paciente_id          LIMIT 1) as paciente_codigo'),
+            DB::raw('(SELECT e.nombre  FROM establecimientos e   WHERE e.id  = solicitudes.establecimiento_id   LIMIT 1) as establecimiento_nombre'),
+            DB::raw('(SELECT us.nombre FROM unidad_solicitantes us WHERE us.id = solicitudes.unidad_solicitante_id LIMIT 1) as unidad_solicitante'),
+            DB::raw('(SELECT COUNT(*) FROM servicio_solicitudes ss WHERE ss.solicitude_id = solicitudes.id) as cant_servicios'),
+            DB::raw('(SELECT GROUP_CONCAT(DISTINCT a.name SEPARATOR ", ") FROM servicio_solicitudes ss JOIN areas a ON a.id = ss.area_id WHERE ss.solicitude_id = solicitudes.id) as areas'),
+            DB::raw('(SELECT GROUP_CONCAT(ss.nombre SEPARATOR ", ") FROM servicio_solicitudes ss WHERE ss.solicitude_id = solicitudes.id) as pruebas'),
+            DB::raw('(SELECT COUNT(*) FROM servicio_solicitudes ss WHERE ss.solicitude_id = solicitudes.id AND ss.realizado != "PENDIENTE") as cant_realizados')
+        )->orderByDesc('solicitudes.fecha_creacion')->orderByDesc('solicitudes.id');
+    }
+
+    // ── Lista paginada ────────────────────────────────────────────────────────
+    public function dashboardList(Request $request)
+    {
+        $perPage = (int) $request->get('per_page', 20);
+        $perPage = min($perPage, 200);
+
+        $paginator = $this->solicitudesDashboardQuery($request)->paginate($perPage);
+
+        return response()->json($paginator);
+    }
+
+    // ── Exportación a Excel ───────────────────────────────────────────────────
+    public function dashboardExcel(Request $request)
+    {
+        $rows = $this->solicitudesDashboardQuery($request)->get();
+
+        $dateFrom = $request->get('date_from', now()->toDateString());
+        $dateTo   = $request->get('date_to',   now()->toDateString());
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Solicitudes');
+
+        // ── Título ──
+        $sheet->mergeCells('A1:S1');
+        $sheet->setCellValue('A1', "REPORTE DE SOLICITUDES  |  {$dateFrom} — {$dateTo}");
+        $sheet->getStyle('A1')->applyFromArray([
+            'font'      => ['bold' => true, 'size' => 13, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1565C0']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(24);
+
+        // ── Cabecera ──
+        $headers = [
+            'Nro Registro', 'Cód. Solicitud', 'Cód. Paciente', 'Paciente', 'Edad',
+            'Doctor', 'Tipo Prestación', 'Áreas', 'Pruebas',
+            'N° Servicios', 'Realizados', 'Estado',
+            'Establecimiento', 'Unidad Solicitante', 'Sala', 'Cama',
+            'Fecha', 'Hora',
+        ];
+        $col = 1;
+        foreach ($headers as $h) {
+            $sheet->setCellValueByColumnAndRow($col, 2, $h);
+            $col++;
+        }
+        $lastCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(count($headers));
+        $sheet->getStyle("A2:{$lastCol}2")->applyFromArray([
+            'font'      => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1976D2']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+        ]);
+        $sheet->freezePane('A3');
+
+        // ── Filas de datos ──
+        $row = 3;
+        foreach ($rows as $r) {
+            $fecha = $r->fecha_creacion ? substr($r->fecha_creacion, 0, 10) : '';
+            $sheet->setCellValueByColumnAndRow(1,  $row, $r->nro_registro);
+            $sheet->setCellValueByColumnAndRow(2,  $row, $r->codigo_solicitud);
+            $sheet->setCellValueByColumnAndRow(3,  $row, $r->paciente_codigo);
+            $sheet->setCellValueByColumnAndRow(4,  $row, $r->paciente_nombre);
+            $sheet->setCellValueByColumnAndRow(5,  $row, $r->paciente_edad);
+            $sheet->setCellValueByColumnAndRow(6,  $row, $r->doctor_nombre);
+            $sheet->setCellValueByColumnAndRow(7,  $row, $r->tipo_atencion);
+            $sheet->setCellValueByColumnAndRow(8,  $row, $r->areas);
+            $sheet->setCellValueByColumnAndRow(9,  $row, $r->pruebas);
+            $sheet->setCellValueByColumnAndRow(10, $row, (int) $r->cant_servicios);
+            $sheet->setCellValueByColumnAndRow(11, $row, (int) $r->cant_realizados);
+            $sheet->setCellValueByColumnAndRow(12, $row, $r->estado);
+            $sheet->setCellValueByColumnAndRow(13, $row, $r->establecimiento_nombre);
+            $sheet->setCellValueByColumnAndRow(14, $row, $r->unidad_solicitante);
+            $sheet->setCellValueByColumnAndRow(15, $row, $r->sala);
+            $sheet->setCellValueByColumnAndRow(16, $row, $r->cama);
+            $sheet->setCellValueByColumnAndRow(17, $row, $fecha);
+            $sheet->setCellValueByColumnAndRow(18, $row, $r->hora_solicitud);
+
+            // Alternar color de fila
+            if ($row % 2 === 0) {
+                $sheet->getStyle("A{$row}:{$lastCol}{$row}")->applyFromArray([
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFF3F8FF']],
+                ]);
+            }
+            $row++;
+        }
+
+        // ── Autosize columnas ──
+        foreach (range(1, count($headers)) as $i) {
+            $sheet->getColumnDimensionByColumn($i)->setAutoSize(true);
+        }
+
+        $filename = "solicitudes_{$dateFrom}_{$dateTo}.xlsx";
+        $path = storage_path("app/{$filename}");
+        (new Xlsx($spreadsheet))->save($path);
+
+        return response()->download($path, $filename)->deleteFileAfterSend(true);
     }
 
     function solicitudesAnalitica(Request $request)

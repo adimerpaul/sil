@@ -384,25 +384,32 @@
       </div>
     </div>
 
-    <!-- TABLA DE ÚLTIMAS SOLICITUDES (CON ÁREAS Y Nº SERVICIOS) -->
+    <!-- TABLA DE SOLICITUDES DEL DÍA (PAGINADA) -->
     <q-card flat bordered>
-      <q-card-section class="row items-center">
+      <q-card-section class="row items-center q-col-gutter-sm">
         <div class="col">
-          <div class="text-subtitle1 text-weight-bold">
-            Últimas solicitudes
-          </div>
+          <div class="text-subtitle1 text-weight-bold">Solicitudes del período</div>
           <div class="text-caption text-grey-7">
-            Las 20 solicitudes más recientes en el rango filtrado, con sus áreas y cantidad de servicios.
+            Todas las solicitudes en el rango filtrado — paginadas.
           </div>
         </div>
         <div class="col-auto">
+          <q-input
+            v-model="solicitudesSearch"
+            dense outlined
+            placeholder="Buscar paciente, código..."
+            debounce="400"
+            style="min-width:220px"
+            @update:model-value="fetchSolicitudesList(1)"
+          >
+            <template v-slot:append><q-icon name="search" /></template>
+          </q-input>
+        </div>
+        <div class="col-auto">
           <q-btn
-            flat
-            dense
-            icon="download"
-            no-caps
-            label="Exportar CSV"
-            @click="exportCsv"
+            outline color="green-8" icon="table_view" no-caps
+            label="Excel" :loading="excelLoading"
+            @click="exportExcel"
           />
         </div>
       </q-card-section>
@@ -414,9 +421,11 @@
           :rows="ultimas"
           :columns="columnsUltimas"
           row-key="id"
-          dense
-          flat
-          :rows-per-page-options="[10, 20, 0]"
+          dense flat
+          :loading="loadingSolicitudes"
+          v-model:pagination="solicitudesPagination"
+          :rows-per-page-options="[10, 20, 50, 100]"
+          @request="onSolicitudesRequest"
         >
           <template v-slot:body-cell-paciente_info="props">
             <q-td :props="props">
@@ -475,9 +484,17 @@ export default {
   data () {
     return {
       loading: false,
+      loadingSolicitudes: false,
+      excelLoading: false,
       filters: {
         date_from: '',
         date_to: ''
+      },
+      solicitudesSearch: '',
+      solicitudesPagination: {
+        page: 1,
+        rowsPerPage: 20,
+        rowsNumber: 0
       },
       resumen: {},
       ultimas: [],
@@ -619,7 +636,6 @@ export default {
 
         const data = res.data || {}
         this.resumen = data.resumen || {}
-        this.ultimas = data.ultimas || []
 
         // --- Áreas: donut (solo solicitudes por área)
         const porArea = data.por_area || []
@@ -681,12 +697,76 @@ export default {
             )
           }
         }
+        // Cargar tabla paginada en paralelo
+        this.fetchSolicitudesList(1)
       } catch (e) {
         this.$alert?.error(e.response?.data?.message || 'Error cargando dashboard')
       } finally {
         this.loading = false
       }
     },
+
+    async fetchSolicitudesList (page) {
+      this.loadingSolicitudes = true
+      try {
+        const perPage = this.solicitudesPagination.rowsPerPage || 20
+        const res = await this.$axios.get('reportes/solicitudes-dashboard/list', {
+          params: {
+            date_from: this.filters.date_from,
+            date_to: this.filters.date_to,
+            search: this.solicitudesSearch || undefined,
+            page,
+            per_page: perPage
+          }
+        })
+        const p = res.data
+        this.ultimas = p.data || []
+        this.solicitudesPagination = {
+          ...this.solicitudesPagination,
+          page: p.current_page,
+          rowsPerPage: p.per_page,
+          rowsNumber: p.total
+        }
+      } catch (e) {
+        this.$alert?.error('Error cargando solicitudes')
+      } finally {
+        this.loadingSolicitudes = false
+      }
+    },
+
+    onSolicitudesRequest (props) {
+      this.solicitudesPagination.rowsPerPage = props.pagination.rowsPerPage
+      this.fetchSolicitudesList(props.pagination.page)
+    },
+
+    async exportExcel () {
+      this.excelLoading = true
+      try {
+        const res = await this.$axios.get('reportes/solicitudes-dashboard/excel', {
+          params: {
+            date_from: this.filters.date_from,
+            date_to: this.filters.date_to,
+            search: this.solicitudesSearch || undefined
+          },
+          responseType: 'blob'
+        })
+        const blob = new Blob([res.data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(blob)
+        const from = this.filters.date_from || 'inicio'
+        const to   = this.filters.date_to   || 'fin'
+        a.download = `solicitudes_${from}_${to}.xlsx`
+        a.click()
+        URL.revokeObjectURL(a.href)
+      } catch (e) {
+        this.$alert?.error('Error al generar el Excel')
+      } finally {
+        this.excelLoading = false
+      }
+    },
+
     async fetchAlmacenDashboard () {
       const res = await this.$axios.get('reportes/almacen-dashboard', {
         params: {
@@ -746,43 +826,7 @@ export default {
         default: return 'blue-grey'
       }
     },
-    exportCsv () {
-      const rows = this.ultimas
-      if (!rows.length) {
-        this.$alert?.info('No hay datos para exportar')
-        return
-      }
-      const header = this.columnsUltimas.map(c => c.label).join(',')
-      const body = rows.map(r => [
-        r.nro_registro,
-        r.codigo_solicitud,
-        `"${(r.paciente_nombre || '').replace(/"/g, '""')}"`,
-        r.paciente_codigo || '',
-        r.paciente_edad ?? '',
-        `"${(r.doctor_nombre || '').replace(/"/g, '""')}"`,
-        `"${(r.areas || '').replace(/"/g, '""')}"`,
-        `"${(r.pruebas || '').replace(/"/g, '""')}"`,
-        r.cant_servicios ?? 0,
-        r.cant_realizados ?? 0,
-        r.tipo_atencion || '',
-        `"${(r.establecimiento_nombre || '').replace(/"/g, '""')}"`,
-        r.unidad_solicitante || '',
-        r.sala || '',
-        r.cama || '',
-        r.estado || '',
-        (r.fecha_creacion || '').substring(0, 10),
-        r.hora_solicitud || ''
-      ].join(','))
-      const csv = [header, ...body].join('\n')
-
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'solicitudes_dashboard.csv'
-      a.click()
-      URL.revokeObjectURL(url)
-    }
   }
+
 }
 </script>

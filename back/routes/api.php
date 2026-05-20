@@ -148,7 +148,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put   ('formularios/{id}',   [FormulariosController::class, 'update']);
     Route::delete('formularios/{id}',   [FormulariosController::class, 'destroy']);
 
-    Route::get('reportes/solicitudes-dashboard', [SolicitudeController::class, 'dashboard']);
+    Route::get('reportes/solicitudes-dashboard',       [SolicitudeController::class, 'dashboard']);
+    Route::get('reportes/solicitudes-dashboard/list',  [SolicitudeController::class, 'dashboardList']);
+    Route::get('reportes/solicitudes-dashboard/excel', [SolicitudeController::class, 'dashboardExcel']);
 
     Route::get('/hematologia/solicitud/{id}', [\App\Http\Controllers\HematologiaController::class, 'showBySolicitude']);
     Route::post('/hematologia/solicitud/{id}', [\App\Http\Controllers\HematologiaController::class, 'upsert']);
