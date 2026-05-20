@@ -259,13 +259,13 @@ const menuSections = [
     icon: 'science',
     defaultOpened: false,
     links: [
+      { title: 'Consentimientos', icon: 'assignment_turned_in', link: '/consentimientos', can: 'Consentimientos' },
       { title: 'Admisión', icon: 'request_page', link: '/solicitudes', can: 'Solicitudes' },
       { title: 'Recogidos', icon: 'inventory_2', link: '/recogidos', can: 'Solicitudes' },
       { title: 'Preanalítica', icon: 'science', link: '/area-preanalitica', can: ['Area preanalitica', 'Area Preanalitica'] },
       { title: 'Estados preanalítica', icon: 'analytics', link: '/area-preanalitica-procesadas', can: ['Area preanalitica', 'Area Preanalitica'] },
       { title: 'Analítica', icon: 'biotech', link: '/analitica', can: 'Analitica', match: '/analitica' },
       { title: 'Formularios', icon: 'description', link: '/formularios', can: 'Formularios' },
-      { title: 'Consentimientos', icon: 'assignment_turned_in', link: '/consentimientos', can: 'Consentimientos' },
     ],
   },
   {

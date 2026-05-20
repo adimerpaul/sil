@@ -388,12 +388,20 @@
                 <q-input v-model="consentimiento.hr_recoleccion_heces" type="text" label="HR recoleccion heces" dense outlined maxlength="10" :readonly="soloVer" />
               </div>
 
-              <div class="col-12">
+              <div class="col-12 col-md-6">
                 <q-input
                   v-model="consentimiento.observaciones"
                   type="textarea"
                   label="Observaciones"
                   autogrow
+                  dense outlined
+                  :readonly="soloVer"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <q-input
+                  v-model="consentimiento.hr_recoleccion"
+                  label="HR Recolección"
                   dense outlined
                   :readonly="soloVer"
                 />
@@ -503,6 +511,7 @@ export default {
         m_heces: 0,
         hr_recoleccion_heces: '',
         observaciones: '',
+        hr_recoleccion: '',
       };
     },
     getConsentimientos () {

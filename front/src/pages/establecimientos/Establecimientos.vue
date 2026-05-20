@@ -40,7 +40,26 @@
           />
         </div>
 
-        <div class="col-12 col-sm-2 text-right">
+        <div class="col-12 col-sm-2 row justify-end items-center q-gutter-sm">
+          <q-btn-dropdown
+            color="teal"
+            icon="download"
+            label="Exportar"
+            no-caps
+            dense
+          >
+            <q-list>
+              <q-item clickable v-close-popup @click="exportarExcel">
+                <q-item-section avatar><q-icon name="table_view" color="green" /></q-item-section>
+                <q-item-section>Excel</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="exportarPdf">
+                <q-item-section avatar><q-icon name="picture_as_pdf" color="red" /></q-item-section>
+                <q-item-section>PDF</q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+
           <q-btn
             color="primary"
             icon="add_circle_outline"
@@ -572,20 +591,45 @@ export default {
     },
 
     eliminar (id) {
-      if (this.$alert && this.$alert.dialog) {
-        this.$alert.dialog('¿Eliminar establecimiento?').onOk(() => {
-          this.$axios.delete(`establecimientos/${id}`).then(() => {
-            this.$alert.success('Eliminado');
-            this.getEstablecimientos();
-          });
+      this.$alert.dialog('¿Eliminar establecimiento?').onOk(() => {
+        this.$axios.delete(`establecimientos/${id}`).then(() => {
+          this.$alert.success('Eliminado');
+          this.getEstablecimientos();
         });
-      } else {
-        if (confirm('¿Eliminar establecimiento?')) {
-          this.$axios.delete(`establecimientos/${id}`).then(() => {
-            this.getEstablecimientos();
-          });
-        }
+      });
+    },
+
+    async exportarExcel () {
+      try {
+        const res = await this.$axios.get('establecimientos/export/excel', {
+          params: { tipo: this.filterTipo || null, estado: this.filterEstado || null, q: this.filter || null },
+          responseType: 'blob'
+        });
+        this._descargar(res.data, 'establecimientos.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      } catch {
+        this.$alert?.error('Error al generar el Excel');
       }
+    },
+
+    async exportarPdf () {
+      try {
+        const res = await this.$axios.get('establecimientos/export/pdf', {
+          params: { tipo: this.filterTipo || null, estado: this.filterEstado || null, q: this.filter || null },
+          responseType: 'blob'
+        });
+        this._descargar(res.data, 'establecimientos.pdf', 'application/pdf');
+      } catch {
+        this.$alert?.error('Error al generar el PDF');
+      }
+    },
+
+    _descargar (blob, nombre, tipo) {
+      const url = URL.createObjectURL(new Blob([blob], { type: tipo }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nombre;
+      a.click();
+      URL.revokeObjectURL(url);
     }
   }
 };

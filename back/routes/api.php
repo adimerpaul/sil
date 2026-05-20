@@ -54,21 +54,27 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('/users/{user}/subpartidas', [App\Http\Controllers\UserController::class, 'syncUserSubpartidas']);
 
     // Pacientes
+    Route::get('pacientes/buscar-ci/{ci}',      [PacienteController::class, 'buscarPorCi']);
+    Route::get('pacientes/nn-rn/{tipo}',         [PacienteController::class, 'buscarPorTipoNN_RN']);
+    Route::get('pacientes/{id}/historico',       [PacienteController::class, 'historico']);
+    Route::get('pacientes/{id}/historico/excel', [PacienteController::class, 'historicoExcel']);
     Route::apiResource('pacientes', PacienteController::class);
-    Route::get('pacientes/buscar-ci/{ci}', [PacienteController::class, 'buscarPorCi']);
-    Route::get('pacientes/nn-rn/{tipo}', [PacienteController::class, 'buscarPorTipoNN_RN']);
 
     // Consentimientos
     Route::apiResource('consentimientos', ConsentimientoController::class);
     Route::get('solicitudes/{id}/consentimiento', [ConsentimientoController::class, 'showBySolicitude']);
     Route::post('solicitudes/{id}/consentimiento', [ConsentimientoController::class, 'upsertBySolicitude']);
+    Route::get('doctores/export/excel', [DoctorController::class, 'exportarExcel']);
+    Route::get('doctores/export/pdf',   [DoctorController::class, 'exportarPdf']);
     Route::apiResource('doctores', DoctorController::class);
 
+    Route::get('solicitudes/export/excel', [SolicitudeController::class, 'indexExcel']);
+    Route::get('solicitudes/export/pdf',   [SolicitudeController::class, 'indexPdf']);
     Route::apiResource('solicitudes', SolicitudeController::class);
     Route::get('solicitudes-create-catalogos', [SolicitudCatalogoController::class, 'create']);
-    Route::apiResource('doctores', DoctorController::class);
-    Route::apiResource('pacientes', PacienteController::class);
 
+    Route::get('establecimientos/export/excel', [EstablecimientoController::class, 'exportarExcel']);
+    Route::get('establecimientos/export/pdf',   [EstablecimientoController::class, 'exportarPdf']);
     Route::apiResource('establecimientos', EstablecimientoController::class);
     Route::apiResource('unidad-solicitantes', UnidadSolicitanteController::class);
     Route::apiResource('unidades', UnidadController::class)->only(['index', 'store', 'update', 'destroy']);
@@ -168,7 +174,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('parasitologia/solicitud/{id}', [\App\Http\Controllers\ParasitologiaController::class, 'upsert']);
     Route::delete('parasitologia/solicitud/{id}', [\App\Http\Controllers\ParasitologiaController::class, 'destroyBySolicitude']);
 
-    Route::get('diagnosticos', [\App\Http\Controllers\DiagnosticoController::class, 'index']);
+    Route::get   ('diagnosticos',      [\App\Http\Controllers\DiagnosticoController::class, 'index']);
+    Route::post  ('diagnosticos',      [\App\Http\Controllers\DiagnosticoController::class, 'store']);
+    Route::put   ('diagnosticos/{id}', [\App\Http\Controllers\DiagnosticoController::class, 'update']);
+    Route::delete('diagnosticos/{id}', [\App\Http\Controllers\DiagnosticoController::class, 'destroy']);
     Route::get('papiloma-humano/solicitud/{id}', [\App\Http\Controllers\PapilomaHumanoController::class, 'showBySolicitude']);
     Route::post('papiloma-humano/solicitud/{id}', [\App\Http\Controllers\PapilomaHumanoController::class, 'upsert']);
     Route::delete('papiloma-humano/solicitud/{id}', [\App\Http\Controllers\PapilomaHumanoController::class, 'destroyBySolicitude']);

@@ -56,6 +56,7 @@ class Consentimiento extends Model implements AuditableContract
         'm_heces',
         'hr_recoleccion_heces',
         'observaciones',
+        'hr_recoleccion',
 
         'user_id',
     ];
@@ -64,16 +65,16 @@ class Consentimiento extends Model implements AuditableContract
         'created_at', 'updated_at', 'deleted_at',
     ];
 
-//    protected $casts = [
-//        'fecha_recepcion'      => 'date',
-//        'fecha_solicitud'      => 'date',
-//        'fecha_nac'            => 'date',
-//        'fum'                  => 'date',
-//        'fecha_consentimiento' => 'date',
-//        'discapacidad'         => 'boolean',
-//        'embarazo'             => 'boolean',
-//        'medicamento'          => 'boolean',
-//    ];
+    protected $casts = [
+        'discapacidad'  => 'integer',
+        'embarazo'      => 'integer',
+        'medicamento'   => 'integer',
+        'm_orina'       => 'integer',
+        'm_liquidos'    => 'integer',
+        'm_esputo'      => 'integer',
+        'm_secreciones' => 'integer',
+        'm_heces'       => 'integer',
+    ];
 
     public function paciente()
     {

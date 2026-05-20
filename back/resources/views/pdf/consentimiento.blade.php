@@ -266,8 +266,11 @@
     </tr>
 
     <tr>
-        <td colspan="2">
+        <td style="width:50%">
             <span class="label">OBSERVACIONES:</span> {{ $c->observaciones }}
+        </td>
+        <td style="width:50%">
+            <span class="label">HR RECOLECCIÓN:</span> {{ formatHora($c->hr_recoleccion) }}
         </td>
     </tr>
 

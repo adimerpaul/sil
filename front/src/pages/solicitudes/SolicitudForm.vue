@@ -354,34 +354,183 @@
             </div>
 
             <div class="col-12 col-md-6 q-mt-xs">
-              <q-select
-                v-model="solicitud.diagnostico_select"
-                :options="diagnosticos"
-                option-label="cie10"
-                option-value="cie10"
-                dense
-                outlined
-                clearable
-                label="Buscar diagnóstico clínico"
-                use-input
-                emit-value
-                map-options
-                input-debounce="300"
-                @filter="onFilterDiagnosticos"
-              >
-                <template #option="scope">
-                  <q-item v-bind="scope.itemProps">
-                    <q-item-section>
-                      <q-item-label>{{ scope.opt.cie10 }}</q-item-label>
-                      <q-item-label caption>
-                        Especialidad: {{ scope.opt.especialidad }}
-                      </q-item-label>
-                    </q-item-section>
-                  </q-item>
-                </template>
-              </q-select>
-
+              <div class="row no-wrap items-start q-gutter-x-xs">
+                <div class="col">
+                  <q-select
+                    v-model="solicitud.diagnostico_select"
+                    :options="diagnosticos"
+                    option-label="cie10"
+                    option-value="cie10"
+                    dense
+                    outlined
+                    clearable
+                    label="Buscar diagnóstico clínico"
+                    use-input
+                    emit-value
+                    map-options
+                    input-debounce="300"
+                    @filter="onFilterDiagnosticos"
+                  >
+                    <template #option="scope">
+                      <q-item v-bind="scope.itemProps">
+                        <q-item-section>
+                          <q-item-label>{{ scope.opt.cie10 }}</q-item-label>
+                          <q-item-label caption>
+                            Especialidad: {{ scope.opt.especialidad }}
+                          </q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-select>
+                </div>
+                <!-- Botón gestionar diagnósticos — solo Administrador -->
+                <q-btn
+                  v-if="isAdmin"
+                  flat dense round
+                  icon="settings"
+                  color="primary"
+                  style="margin-top:2px"
+                  @click="abrirGestionDiagnosticos"
+                >
+                  <q-tooltip>Gestionar diagnósticos</q-tooltip>
+                </q-btn>
+              </div>
             </div>
+
+            <!-- ══════════ DIÁLOGO GESTIÓN DE DIAGNÓSTICOS (solo admin) ══════════ -->
+            <q-dialog v-model="dialogDiagnosticos" maximized transition-show="slide-up" transition-hide="slide-down">
+              <q-card class="column no-wrap" style="height:100vh">
+
+                <q-bar class="bg-primary text-white" style="height:48px">
+                  <q-icon name="medical_services" />
+                  <span class="text-weight-bold q-ml-sm">Gestión de Diagnósticos Clínicos (CIE-10)</span>
+                  <q-space />
+                  <q-btn flat dense icon="close" v-close-popup />
+                </q-bar>
+
+                <div class="col row no-wrap" style="overflow:hidden">
+
+                  <!-- Panel izquierdo: formulario -->
+                  <div class="col-12 col-md-4 q-pa-md column" style="border-right:1px solid #e0e0e0; max-width:380px">
+                    <div class="text-subtitle2 text-weight-bold q-mb-md">
+                      <q-icon :name="diagEditando ? 'edit' : 'add_circle'" color="primary" class="q-mr-xs" />
+                      {{ diagEditando ? 'Editar diagnóstico' : 'Nuevo diagnóstico' }}
+                    </div>
+
+                    <q-form @submit.prevent="guardarDiagnostico" class="column q-gutter-sm">
+                      <q-input
+                        v-model="diagForm.cie10"
+                        label="CIE-10 / Descripción *"
+                        dense outlined
+                        :rules="[v => !!v || 'Requerido']"
+                        hint="Ej: J06.9 Infección aguda de las vías respiratorias"
+                      />
+                      <q-input
+                        v-model="diagForm.especialidad"
+                        label="Especialidad *"
+                        dense outlined
+                        :rules="[v => !!v || 'Requerido']"
+                        hint="Ej: Medicina Interna, Pediatría"
+                      />
+                      <q-input
+                        v-model="diagForm.servicio"
+                        label="Servicio *"
+                        dense outlined
+                        :rules="[v => !!v || 'Requerido']"
+                        hint="Ej: Laboratorio, Emergencias"
+                      />
+                      <div class="row q-gutter-sm q-mt-sm">
+                        <q-btn
+                          v-if="diagEditando"
+                          flat no-caps label="Cancelar edición"
+                          @click="nuevoDiagnostico"
+                          class="col"
+                        />
+                        <q-btn
+                          type="submit"
+                          color="primary"
+                          no-caps
+                          :label="diagEditando ? 'Actualizar' : 'Guardar'"
+                          :loading="loadingDiag"
+                          class="col"
+                        />
+                      </div>
+                    </q-form>
+                  </div>
+
+                  <!-- Panel derecho: tabla -->
+                  <div class="col column" style="overflow:hidden">
+                    <div class="q-pa-md row items-center q-gutter-sm">
+                      <q-input
+                        v-model="diagSearch"
+                        dense outlined clearable
+                        placeholder="Buscar CIE-10, especialidad o servicio..."
+                        style="min-width:260px"
+                        debounce="300"
+                        @update:model-value="fetchDiagnosticosAdmin(1)"
+                      >
+                        <template v-slot:append><q-icon name="search" /></template>
+                      </q-input>
+                      <q-space />
+                      <div class="text-caption text-grey-7">
+                        {{ diagPagination.rowsNumber }} registros
+                      </div>
+                    </div>
+
+                    <div class="col" style="overflow:auto">
+                      <q-table
+                        :rows="diagRows"
+                        :columns="columnsDiag"
+                        row-key="id"
+                        dense flat
+                        :loading="loadingDiagTable"
+                        v-model:pagination="diagPagination"
+                        :rows-per-page-options="[15, 25, 50]"
+                        @request="onDiagRequest"
+                        class="full-height"
+                      >
+                        <template v-slot:body-cell-acciones="props">
+                          <q-td :props="props">
+                            <q-btn flat dense round icon="edit" color="primary" size="sm"
+                              @click="editarDiagnostico(props.row)">
+                              <q-tooltip>Editar</q-tooltip>
+                            </q-btn>
+                            <q-btn flat dense round icon="delete" color="negative" size="sm"
+                              @click="eliminarDiagnostico(props.row)">
+                              <q-tooltip>Eliminar</q-tooltip>
+                            </q-btn>
+                          </q-td>
+                        </template>
+
+                        <template #bottom="scope">
+                          <div class="row items-center justify-between q-pa-xs full-width">
+                            <div class="col text-caption">
+                              {{ (scope.pagination.page - 1) * scope.pagination.rowsPerPage + 1 }}
+                              – {{ Math.min(scope.pagination.page * scope.pagination.rowsPerPage, diagPagination.rowsNumber) }}
+                              de {{ diagPagination.rowsNumber }}
+                            </div>
+                            <div class="col-auto row items-center q-gutter-xs">
+                              <q-select
+                                v-model="scope.pagination.rowsPerPage"
+                                :options="[15,25,50]" dense outlined options-dense
+                                style="width:70px"
+                                @update:model-value="val => { diagPagination.rowsPerPage = val; fetchDiagnosticosAdmin(1) }"
+                              />
+                              <q-pagination
+                                v-model="scope.pagination.page"
+                                :max="Math.ceil(diagPagination.rowsNumber / diagPagination.rowsPerPage) || 1"
+                                max-pages="6" boundary-links direction-links size="sm"
+                                @update:model-value="val => fetchDiagnosticosAdmin(val)"
+                              />
+                            </div>
+                          </div>
+                        </template>
+                      </q-table>
+                    </div>
+                  </div>
+                </div>
+              </q-card>
+            </q-dialog>
             <div class="col-12 col-md-6 q-mt-xs">
               <q-input v-model="solicitud.diagnostico_clinico" type="textarea"
                        label="Diagnóstico clínico otros" dense outlined autogrow />
@@ -408,16 +557,16 @@
                 @filter="filterUnidadesSolicitantes"
                 @update:model-value="onSelectUnidadSolicitante"
               >
-                <template #after>
+                <template v-if="isAdmin" #after>
                   <q-btn
-                    flat
-                    dense
+                    flat dense no-caps
                     color="primary"
-                    icon="edit"
-                    label="Editar"
-                    no-caps
+                    icon="settings"
+                    label="Gestionar"
                     @click="abrirDialogUnidadSolicitante"
-                  />
+                  >
+                    <q-tooltip>Solo administradores</q-tooltip>
+                  </q-btn>
                 </template>
               </q-select>
             </div>
@@ -1148,23 +1297,26 @@
           :rows-per-page-options="[10, 20, 50, 0]"
         >
           <template #body-cell-actions="props">
-            <q-td :props="props" class="q-gutter-xs">
-              <q-btn
-                flat
-                dense
-                round
+            <q-td :props="props">
+              <q-btn-dropdown
                 color="primary"
-                icon="edit"
-                @click="editarUnidadSolicitante(props.row)"
-              />
-              <q-btn
-                flat
-                dense
-                round
-                color="negative"
-                icon="delete"
-                @click="eliminarUnidadSolicitante(props.row)"
-              />
+                label="Acciones"
+                dense no-caps
+                size="sm"
+                dropdown-icon="expand_more"
+              >
+                <q-list dense>
+                  <q-item clickable v-close-popup @click="editarUnidadSolicitante(props.row)">
+                    <q-item-section avatar><q-icon name="edit" color="primary" size="sm" /></q-item-section>
+                    <q-item-section>Editar</q-item-section>
+                  </q-item>
+                  <q-separator />
+                  <q-item clickable v-close-popup @click="eliminarUnidadSolicitante(props.row)">
+                    <q-item-section avatar><q-icon name="delete" color="negative" size="sm" /></q-item-section>
+                    <q-item-section class="text-negative">Eliminar</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
             </q-td>
           </template>
         </q-table>
@@ -1310,6 +1462,21 @@ export default {
       serviciosAreaId: null,
       diagnosticos: [],
       diagnosticosAll: [],
+      // ── Gestión de diagnósticos (admin) ──
+      dialogDiagnosticos: false,
+      loadingDiag: false,
+      loadingDiagTable: false,
+      diagEditando: null,
+      diagForm: { cie10: '', especialidad: '', servicio: '' },
+      diagSearch: '',
+      diagRows: [],
+      diagPagination: { page: 1, rowsPerPage: 15, rowsNumber: 0 },
+      columnsDiag: [
+        { name: 'acciones',    label: '',              field: 'id',           align: 'center', style: 'width:72px' },
+        { name: 'cie10',       label: 'CIE-10 / Descripción', field: 'cie10',     align: 'left' },
+        { name: 'especialidad',label: 'Especialidad',  field: 'especialidad', align: 'left' },
+        { name: 'servicio',    label: 'Servicio',      field: 'servicio',     align: 'left' },
+      ],
       dialogPaciente: false,
       pacienteNameSearch: '',
       pacientes: [],
@@ -1346,6 +1513,9 @@ export default {
     }
   },
   computed: {
+    isAdmin () {
+      return this.$store?.user?.role === 'Administrador'
+    },
     edadadmY () {
       if (!this.solicitud.paciente_fecha_nac) return ''
 
@@ -1887,6 +2057,78 @@ export default {
       this.$axios.get('diagnosticos').then(res => {
         this.diagnosticos = res.data
         this.diagnosticosAll = res.data
+      })
+    },
+
+    // ── Gestión de diagnósticos (admin) ──────────────────────────────────
+
+    abrirGestionDiagnosticos () {
+      this.dialogDiagnosticos = true
+      this.nuevoDiagnostico()
+      this.fetchDiagnosticosAdmin(1)
+    },
+
+    nuevoDiagnostico () {
+      this.diagEditando = null
+      this.diagForm = { cie10: '', especialidad: '', servicio: '' }
+    },
+
+    editarDiagnostico (row) {
+      this.diagEditando = row.id
+      this.diagForm = { cie10: row.cie10, especialidad: row.especialidad, servicio: row.servicio }
+    },
+
+    async fetchDiagnosticosAdmin (page) {
+      this.loadingDiagTable = true
+      try {
+        const res = await this.$axios.get('diagnosticos', {
+          params: { page, per_page: this.diagPagination.rowsPerPage, search: this.diagSearch || undefined }
+        })
+        const p = res.data
+        this.diagRows = p.data
+        this.diagPagination = { ...this.diagPagination, page: p.current_page, rowsPerPage: p.per_page, rowsNumber: p.total }
+      } finally {
+        this.loadingDiagTable = false
+      }
+    },
+
+    onDiagRequest (props) {
+      this.diagPagination.rowsPerPage = props.pagination.rowsPerPage
+      this.fetchDiagnosticosAdmin(props.pagination.page)
+    },
+
+    async guardarDiagnostico () {
+      this.loadingDiag = true
+      try {
+        if (this.diagEditando) {
+          await this.$axios.put(`diagnosticos/${this.diagEditando}`, this.diagForm)
+          this.$alert?.success('Diagnóstico actualizado')
+        } else {
+          await this.$axios.post('diagnosticos', this.diagForm)
+          this.$alert?.success('Diagnóstico creado')
+        }
+        this.nuevoDiagnostico()
+        await this.fetchDiagnosticosAdmin(this.diagPagination.page)
+        this.diagnosticosGet() // refresca el select del formulario
+      } catch (e) {
+        const msg = e.response?.data?.message || 'Error al guardar'
+        this.$alert?.error(msg)
+      } finally {
+        this.loadingDiag = false
+      }
+    },
+
+    eliminarDiagnostico (row) {
+      this.$alert.dialog(`¿Eliminar "${row.cie10}"?`).onOk(async () => {
+        try {
+          await this.$axios.delete(`diagnosticos/${row.id}`)
+          this.$alert?.success('Diagnóstico eliminado')
+          if (this.diagEditando === row.id) this.nuevoDiagnostico()
+          await this.fetchDiagnosticosAdmin(this.diagPagination.page)
+          this.diagnosticosGet()
+        } catch (e) {
+          this.$alert?.error('Error al eliminar')
+        }
       })
     },
     initSolicitud () {

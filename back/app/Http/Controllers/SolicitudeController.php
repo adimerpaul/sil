@@ -1067,6 +1067,135 @@ class SolicitudeController extends Controller
         return $iniciales . $fechaFormateada;
     }
 
+    // ── Exportar lista de solicitudes a Excel ────────────────────────────────
+    public function indexExcel(Request $request)
+    {
+        $query = Solicitude::with(['servicios']);
+
+        if ($request->filled('from')) {
+            $query->whereDate('fecha_creacion', '>=', $request->from);
+        }
+        if ($request->filled('to')) {
+            $query->whereDate('fecha_creacion', '<=', $request->to);
+        }
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+        if ($request->filled('tipo_atencion')) {
+            $query->where('tipo_atencion', $request->tipo_atencion);
+        }
+
+        $rows    = $query->orderBy('id', 'desc')->get();
+        $from    = $request->get('from', now()->toDateString());
+        $to      = $request->get('to',   now()->toDateString());
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Solicitudes');
+
+        // ── Título ──
+        $sheet->mergeCells('A1:K1');
+        $sheet->setCellValue('A1', "LISTADO DE SOLICITUDES  |  {$from} — {$to}");
+        $sheet->getStyle('A1')->applyFromArray([
+            'font'      => ['bold' => true, 'size' => 13, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1565C0']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(26);
+
+        // ── Cabecera ──
+        $headers = [
+            'N°', 'Nro Registro', 'Cód. Solicitud', 'Fecha', 'Paciente',
+            'Doctor', 'Tipo Atención', 'Servicios', 'Estado', 'Consentimiento', 'Observación',
+        ];
+        $lastCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(count($headers));
+        foreach ($headers as $i => $h) {
+            $sheet->setCellValueByColumnAndRow($i + 1, 2, $h);
+        }
+        $sheet->getStyle("A2:{$lastCol}2")->applyFromArray([
+            'font'      => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1976D2']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+        $sheet->getRowDimension(2)->setRowHeight(18);
+        $sheet->freezePane('A3');
+
+        // ── Filas ──
+        $rowNum = 3;
+        $n = 1;
+        foreach ($rows as $r) {
+            $fecha    = $r->fecha_creacion ? substr($r->fecha_creacion, 0, 10) : '';
+            $servicios = $r->servicios->pluck('nombre')->implode(', ');
+            $bgColor  = ($rowNum % 2 === 0) ? 'FFF0F4FF' : 'FFFFFFFF';
+
+            $sheet->setCellValueByColumnAndRow(1,  $rowNum, $n++);
+            $sheet->setCellValueByColumnAndRow(2,  $rowNum, $r->nro_registro ?? '');
+            $sheet->setCellValueByColumnAndRow(3,  $rowNum, $r->codigo_solicitud ?? $r->codigo ?? '');
+            $sheet->setCellValueByColumnAndRow(4,  $rowNum, $fecha);
+            $sheet->setCellValueByColumnAndRow(5,  $rowNum, $r->paciente_nombre ?? '');
+            $sheet->setCellValueByColumnAndRow(6,  $rowNum, $r->doctor_nombre ?? '');
+            $sheet->setCellValueByColumnAndRow(7,  $rowNum, $r->tipo_atencion ?? '');
+            $sheet->setCellValueByColumnAndRow(8,  $rowNum, $servicios);
+            $sheet->setCellValueByColumnAndRow(9,  $rowNum, $r->estado ?? '');
+            $sheet->setCellValueByColumnAndRow(10, $rowNum, $r->muestra_rechazada ? 'RECHAZADA' : '');
+            $sheet->setCellValueByColumnAndRow(11, $rowNum, $r->muestra_observacion ?? '');
+
+            $sheet->getStyle("A{$rowNum}:{$lastCol}{$rowNum}")->applyFromArray([
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => $bgColor]],
+                'alignment' => ['vertical' => Alignment::VERTICAL_CENTER],
+            ]);
+            $rowNum++;
+        }
+
+        // ── Fila totales ──
+        $sheet->setCellValueByColumnAndRow(1, $rowNum, 'TOTAL');
+        $sheet->setCellValueByColumnAndRow(2, $rowNum, count($rows));
+        $sheet->getStyle("A{$rowNum}:{$lastCol}{$rowNum}")->applyFromArray([
+            'font' => ['bold' => true],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFE3F0FF']],
+        ]);
+
+        // ── Autosize ──
+        foreach (range(1, count($headers)) as $i) {
+            $sheet->getColumnDimensionByColumn($i)->setAutoSize(true);
+        }
+
+        $filename = "solicitudes_{$from}_{$to}.xlsx";
+        $path = storage_path("app/{$filename}");
+        (new Xlsx($spreadsheet))->save($path);
+
+        return response()->download($path, $filename)->deleteFileAfterSend(true);
+    }
+
+    // ── Exportar lista de solicitudes a PDF ──────────────────────────────────
+    public function indexPdf(Request $request)
+    {
+        $query = Solicitude::with(['servicios']);
+
+        if ($request->filled('from')) {
+            $query->whereDate('fecha_creacion', '>=', $request->from);
+        }
+        if ($request->filled('to')) {
+            $query->whereDate('fecha_creacion', '<=', $request->to);
+        }
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+        if ($request->filled('tipo_atencion')) {
+            $query->where('tipo_atencion', $request->tipo_atencion);
+        }
+
+        $rows      = $query->orderBy('id', 'desc')->get();
+        $from      = $request->get('from', now()->toDateString());
+        $to        = $request->get('to',   now()->toDateString());
+        $generado  = now();
+
+        $pdf = Pdf::loadView('reportes.solicitudes_lista', compact('rows', 'from', 'to', 'generado'))
+            ->setPaper('letter', 'landscape');
+
+        return $pdf->download("solicitudes_{$from}_{$to}.pdf");
+    }
+
     public function index(Request $request)
     {
         $query = Solicitude::with(['paciente', 'doctor', 'servicios.tiposMuestra', 'consentimiento']);

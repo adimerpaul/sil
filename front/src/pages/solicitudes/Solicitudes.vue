@@ -25,13 +25,12 @@
             <template #append><q-icon name="search" /></template>
           </q-input>
         </div>
-        <div class="col-12 col-sm-6 text-right">
+        <div class="col-12 col-sm-6 text-right q-gutter-xs">
           <q-btn
             color="red"
             icon="block"
             label="Muestras Rechazadas"
             no-caps
-            class="q-mr-xs"
             :loading="loading"
             @click="getMuestrasRechazadas()"
           />
@@ -40,10 +39,38 @@
             icon="search"
             label="Filtrar"
             no-caps
-            class="q-mr-xs"
             :loading="loading"
             @click="getSolicitudes"
           />
+          <q-btn-dropdown
+            color="teal"
+            icon="download"
+            label="Exportar"
+            no-caps
+            :loading="exportLoading"
+          >
+            <q-list dense>
+              <q-item clickable v-close-popup @click="exportarPdf">
+                <q-item-section avatar>
+                  <q-icon name="picture_as_pdf" color="red-7" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Imprimir PDF</q-item-label>
+                  <q-item-label caption>Descarga reporte en PDF</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-separator />
+              <q-item clickable v-close-popup @click="exportarExcel">
+                <q-item-section avatar>
+                  <q-icon name="table_chart" color="green-7" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Exportar Excel</q-item-label>
+                  <q-item-label caption>Descarga archivo .xlsx</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
           <q-btn
             color="positive"
             icon="add_circle_outline"
@@ -305,6 +332,7 @@ export default {
         tipo_atencion: '',
         estado: ''
       },
+      exportLoading: false,
       muestrasRechazadas: [],
       muestraRechazadasDialog: false,
       consentimientoDialog: false,
@@ -439,6 +467,52 @@ export default {
       }
       const url = `${this.$axios.defaults.baseURL}/solicitudes/${row.id}/consentimiento/print`
       window.open(url, '_blank')
+    },
+    exportParams () {
+      return {
+        from: this.filters.from || '',
+        to: this.filters.to || '',
+        ...(this.filters.estado ? { estado: this.filters.estado } : {}),
+        ...(this.filters.tipo_atencion ? { tipo_atencion: this.filters.tipo_atencion } : {})
+      }
+    },
+    async exportarExcel () {
+      this.exportLoading = true
+      try {
+        const res = await this.$axios.get('solicitudes/export/excel', {
+          params: this.exportParams(),
+          responseType: 'blob'
+        })
+        const blob = new Blob([res.data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(blob)
+        a.download = `solicitudes_${this.filters.from || 'inicio'}_${this.filters.to || 'fin'}.xlsx`
+        a.click()
+        URL.revokeObjectURL(a.href)
+      } catch {
+        this.$q.notify({ type: 'negative', message: 'Error al generar el Excel' })
+      } finally {
+        this.exportLoading = false
+      }
+    },
+    async exportarPdf () {
+      this.exportLoading = true
+      try {
+        const res = await this.$axios.get('solicitudes/export/pdf', {
+          params: this.exportParams(),
+          responseType: 'blob'
+        })
+        const blob = new Blob([res.data], { type: 'application/pdf' })
+        const url = URL.createObjectURL(blob)
+        window.open(url, '_blank')
+        setTimeout(() => URL.revokeObjectURL(url), 10000)
+      } catch {
+        this.$q.notify({ type: 'negative', message: 'Error al generar el PDF' })
+      } finally {
+        this.exportLoading = false
+      }
     },
     nuevo () {
       this.$router.push({ name: 'solicitudes-new' })
