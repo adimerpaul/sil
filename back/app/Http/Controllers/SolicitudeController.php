@@ -87,6 +87,7 @@ class SolicitudeController extends Controller
         if ($request->filled('nro_registro')) {
             $solicitud->nro_registro = $request->input('nro_registro');
         }
+        $solicitud->codigo_solicitud = ($solicitud->nro_registro ?? '') . ($solicitud->codigo ?? '');
         $solicitud->save();
 
         return response()->json($solicitud->fresh());
@@ -1280,6 +1281,7 @@ class SolicitudeController extends Controller
         $solicitud->nro_registro = $request->filled('nro_registro')
             ? $request->input('nro_registro')
             : $nro_registro;
+        $solicitud->codigo_solicitud = ($solicitud->nro_registro ?? '') . ($solicitud->codigo ?? '');
         $solicitud->save();
 
 //        $this->syncServicios($solicitud, $request->input('servicios', []));
