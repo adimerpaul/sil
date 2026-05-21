@@ -1352,7 +1352,7 @@ export default {
       const ht = parseFloat(this.form.hematocrito)
       if (!isNaN(ht) && !isNaN(gr) && gr !== 0) {
         // this.form.vcm = ((gr * 10) / ht) redondear a 2 decimales
-        this.form.vcm = parseFloat(((ht * 1000) / gr).toFixed(1))
+        this.form.vcm = parseFloat(((ht * 100) / gr).toFixed(1))
       } else {
         this.form.vcm = null
       }
@@ -1467,7 +1467,7 @@ export default {
     rangoTexto (nombre) {
       const r = this.getRango(nombre)
       if (!r) return ''
-      if (r.rango_minimo !== null && r.rango_maximo !== null) return `${r.rango_minimo} - ${r.rango_maximo}`
+      // if (r.rango_minimo !== null && r.rango_maximo !== null) return `${r.rango_minimo} - ${r.rango_maximo}`
       if (r.interpretacion) return r.interpretacion
       return ''
     },
