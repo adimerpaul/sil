@@ -554,6 +554,8 @@
                 dense
                 outlined
                 clearable
+                :readonly="!isAdmin"
+                :hint="!isAdmin ? 'Solo administradores pueden modificar' : ''"
                 @filter="filterUnidadesSolicitantes"
                 @update:model-value="onSelectUnidadSolicitante"
               >
