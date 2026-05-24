@@ -71,12 +71,23 @@
     /* =========================
        HELPERS: RANGOS
        ========================= */
-    $rango = function($nombre) use ($rangos) {
+    $normRango = function($s) {
+        $s = mb_strtolower(trim((string)($s ?? '')));
+        if (function_exists('iconv')) {
+            $t = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $s);
+            if ($t !== false && $t !== '') $s = $t;
+        }
+        // Eliminar marcas remanentes y normalizar espacios
+        $s = preg_replace('/[`\'"^~]/u', '', $s);
+        $s = preg_replace('/\s+/u', ' ', $s);
+        return $s;
+    };
+
+    $rango = function($nombre) use ($rangos, $normRango) {
         if (!$rangos) return null;
-        $n = mb_strtolower(trim($nombre));
+        $n = $normRango($nombre);
         foreach ($rangos as $r) {
-            $rn = mb_strtolower(trim($r->rango_nombre ?? ''));
-            if ($rn === $n) return $r;
+            if ($normRango($r->rango_nombre ?? '') === $n) return $r;
         }
         return null;
     };

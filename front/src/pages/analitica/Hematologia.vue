@@ -1459,9 +1459,16 @@ export default {
     },
 
     // ========= rangos =========
+    normalizeNombre (s) {
+      return (s ?? '').toString().toLowerCase()
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .trim()
+    },
     getRango (nombre) {
       if (!this.rangos || !Array.isArray(this.rangos)) return null
-      return this.rangos.find(r => (r.rango_nombre || '').toLowerCase() === (nombre || '').toLowerCase()) || null
+      const target = this.normalizeNombre(nombre)
+      return this.rangos.find(r => this.normalizeNombre(r.rango_nombre) === target) || null
     },
 
     rangoTexto (nombre) {
