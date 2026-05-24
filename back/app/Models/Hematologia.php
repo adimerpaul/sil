@@ -51,6 +51,7 @@ class Hematologia extends Model implements AuditableContract
         'inr',
         'aptt',
         'fibrinogeno',
+        'dimeros_d',
         'ves',
         'ipr',
         'ipr2',

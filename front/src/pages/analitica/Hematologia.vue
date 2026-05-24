@@ -783,7 +783,7 @@
                 <q-select v-model.number="form.tiempo_protrombina" dense outlined input-class="text-right"
                           :options="tiempos"
                           @update:model-value="
-        form.actividad_protrombina= tablaTP.find(item => item.segundos === form.tiempo_protrombina)?.porcentaje?.toFixed(1) || null;
+        form.actividad_protrombina= tablaTP.find(item => item.segundos === form.tiempo_protrombina)?.porcentaje?.toFixed(2) || null;
         form.inr= tablaTP.find(item => item.segundos === form.tiempo_protrombina)?.inr || null;
 "
                 />
@@ -809,49 +809,45 @@
               <td>0.8 – 1.2</td>
               <td>-</td>
             </tr>
-<!--            ves-->
-<!--            <tr v-if="canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO DE PROTROMBINA (TP)'])">-->
-<!--              <td>V.E.S</td>-->
-<!--              <td>-->
-<!--                <q-input v-model.number="form.ves" dense outlined type="number" step="0.01" input-class="text-right" />-->
-<!--              </td>-->
-<!--              <td>&lt; 20</td>-->
-<!--              <td>mm/h</td>-->
-<!--            </tr>-->
+
+            <tr v-if="canServicios('ERITROSEDIMENTACIÓN (VSG- VES)')">
+              <td>V.S.G</td>
+              <td>
+                <q-input v-model.number="form.ves" dense outlined type="number" step="0.1" input-class="text-right" />
+              </td>
+              <td>&lt; 20</td>
+              <td>mm/h</td>
+            </tr>
 
             <tr v-if="canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)'])">
               <td>APTT</td>
               <td>
-                <q-input v-model.number="form.aptt" dense outlined type="number" step="0.01" input-class="text-right" />
+                <q-input v-model.number="form.aptt" dense outlined type="number" step="0.1" input-class="text-right" />
               </td>
               <td>24 – 35</td>
               <td>seg</td>
             </tr>
 
-<!--            <tr v-if="canServicios('FIBRINÓGENO')">-->
-<!--              <td>Fibrinógeno</td>-->
-<!--              <td>-->
-<!--                <q-input v-model.number="form.fibrinogeno" dense outlined type="number" step="0.01" input-class="text-right" />-->
-<!--              </td>-->
-<!--              <td>2.0 – 4.0</td>-->
-<!--              <td>g/L</td>-->
-<!--            </tr>-->
-
-            <tr v-if="canServicios('ERITROSEDIMENTACIÓN (VSG- VES)')">
-              <td>V.S.G</td>
-              <td>
-                <q-input v-model.number="form.ves" dense outlined type="number" step="0.01" input-class="text-right" />
-              </td>
-              <td>&lt; 20</td>
-              <td>mm/h</td>
-            </tr>
             <tr v-if="canServicios('FIBRINÓGENO')">
               <td>Fibrinógeno</td>
               <td>
-                <q-input v-model.number="form.fibrinogeno" dense outlined type="number" step="0.01" input-class="text-right" />
+                <q-input v-model.number="form.fibrinogeno" dense outlined type="number" step="1"
+                         :input-class="['text-right', isOutOfRange('FIBRINOGENO', form.fibrinogeno) ? 'text-negative text-weight-bold' : '']"
+                />
               </td>
-              <td>2.0 – 4.0</td>
-              <td>g/L</td>
+              <td>{{ rangoTexto('FIBRINOGENO') || '200 - 400 mg/dl' }}</td>
+              <td>{{ rangoUnidad('FIBRINOGENO') || 'mg/dl' }}</td>
+            </tr>
+
+            <tr v-if="canServicios('FIBRINÓGENO')">
+              <td>Dímeros D</td>
+              <td>
+                <q-input v-model.number="form.dimeros_d" dense outlined type="number" step="0.01"
+                         :input-class="['text-right', isOutOfRange('Dimeros D', form.dimeros_d) ? 'text-negative text-weight-bold' : '']"
+                />
+              </td>
+              <td>{{ rangoTexto('Dimeros D') || '0 - 0.40 ug/ml' }}</td>
+              <td>{{ rangoUnidad('Dimeros D') || 'ug/ml' }}</td>
             </tr>
 
 <!--            <tr v-if="canServicios('RECUENTO DE RETICULOCITOS')">-->
@@ -1267,8 +1263,10 @@ export default {
         inr: null,
         aptt: null,
         fibrinogeno: null,
+        dimeros_d: null,
         ves: null,
         ipr: null,
+        rc: null,
         ipr2: null,
 
         grupo_sanguineo: '',
@@ -1365,6 +1363,11 @@ export default {
         : null
     },
     getReticulocitoFactorCorreccion () {
+      // Tabla estándar (Hto en fracción L/L):
+      //   Hto ≥ 0.40 → 1.0
+      //   Hto ≥ 0.30 → 1.5
+      //   Hto ≥ 0.20 → 2.0
+      //   Hto < 0.20 → 2.5
       const ht = parseFloat(this.form.hematocrito)
       if (isNaN(ht)) return null
       if (ht >= 0.40) return 1.0
@@ -1373,21 +1376,20 @@ export default {
       return 2.5
     },
     calculateReticulocitos () {
+      // IRC (Índice de Reticulocitos Corregido) = RET × (Hto × 100) / 45
+      //   con Hto en fracción y RET en %.
+      // IPR (Índice Productor de Reticulocitos) = IRC / factor_corrección
       const reticulocitos = parseFloat(this.form.ipr2)
       const hematocrito = parseFloat(this.form.hematocrito)
       const factorCorreccion = this.getReticulocitoFactorCorreccion()
 
-      if (!isNaN(reticulocitos) && !isNaN(hematocrito)) {
-        this.form.rc = parseFloat(((reticulocitos/100) * (hematocrito / 0.45)).toFixed(2))
-      } else {
-        this.form.rc = null
-      }
+      this.form.rc = (!isNaN(reticulocitos) && !isNaN(hematocrito))
+        ? parseFloat((reticulocitos * (hematocrito * 100) / 45).toFixed(2))
+        : null
 
-      if (this.form.rc !== null && factorCorreccion) {
-        this.form.ipr = parseFloat((this.form.rc / factorCorreccion).toFixed(2))
-      } else {
-        this.form.ipr = null
-      }
+      this.form.ipr = (this.form.rc !== null && factorCorreccion)
+        ? parseFloat((this.form.rc / factorCorreccion).toFixed(2))
+        : null
     },
     // ========= servicio match =========
     canServicios (can) {
