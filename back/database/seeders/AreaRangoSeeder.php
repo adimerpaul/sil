@@ -46,10 +46,10 @@ class AreaRangoSeeder extends Seeder
             [
                 'area_id'        => $areaIdHemograma,
                 'rango_nombre'   => 'Hemoglobina',
-                'rango_minimo'   => 157,   // mínimo global (mujer)
-                'rango_maximo'   => 184,   // máximo global (varón)
-                'unidad'         => 'g/L',
-                'interpretacion' => 'Varón 21-60 años: 169-184 g/L; Mujer 21-60 años: 157-174 g/L',
+                'rango_minimo'   => 15.7,
+                'rango_maximo'   => 18.4,
+                'unidad'         => 'g/dL',
+                'interpretacion' => 'Varón 21-60: 16.9-18.4 g/dL; Mujer 21-60: 15.7-17.4 g/dL',
             ],
             [
                 'area_id'        => $areaIdHemograma,
@@ -168,10 +168,10 @@ class AreaRangoSeeder extends Seeder
             [
                 'area_id'        => $areaIdHemograma,
                 'rango_nombre'   => 'CHCM',
-                'rango_minimo'   => 338,  // 340 - 2
-                'rango_maximo'   => 342,  // 340 + 2
-                'unidad'         => 'g/L',
-                'interpretacion' => '340 +/- 2 g/L',
+                'rango_minimo'   => 33,
+                'rango_maximo'   => 36,
+                'unidad'         => 'g/dL',
+                'interpretacion' => '33 - 36 g/dL',
             ],
             [
                 'area_id'        => $areaIdHemograma,

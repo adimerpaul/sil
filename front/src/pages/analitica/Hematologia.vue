@@ -1343,31 +1343,26 @@ export default {
   },
 
   methods: {
-    calculateHematimetricos(){
-      // V.C.M.= (Glóbulos Rojos*10)/ Hematocrito)*100
-      // Hb.C.M.= (Hemoglobina/ Hematocrito) /10
-      // CHCM =( Glóbulos Rojos *10)/ Hemoglobina
+    calculateHematimetricos () {
+      // Fórmulas (Hb en g/dL, Hto en fracción L/L, GR en X10⁶/µL):
+      //   VCM  = Hto × 1000 / GR        → fL
+      //   HBCM = Hb  × 10   / GR        → pg
+      //   CHCM = Hb  / Hto              → g/dL
       const gr = parseFloat(this.form.globulos_rojos)
       const hb = parseFloat(this.form.hemoglobina)
       const ht = parseFloat(this.form.hematocrito)
-      if (!isNaN(ht) && !isNaN(gr) && gr !== 0) {
-        // this.form.vcm = ((gr * 10) / ht) redondear a 2 decimales
-        this.form.vcm = parseFloat(((ht * 100) / gr).toFixed(1))
-      } else {
-        this.form.vcm = null
-      }
-      if (!isNaN(hb) && !isNaN(gr) && gr !== 0) {
-        // this.form.hbcm = (hb / ht) / 10
-        this.form.hbcm = parseFloat(((hb * 1) / gr).toFixed(1))
-      } else {
-        this.form.hbcm = null
-      }
-      if (!isNaN(hb) && !isNaN(ht) && ht !== 0) {
-        // this.form.chcm = (gr * 10) / hb
-        this.form.chcm = parseFloat(((hb * 1) / ht).toFixed(1))
-      } else {
-        this.form.chcm = null
-      }
+
+      this.form.vcm = (!isNaN(ht) && !isNaN(gr) && gr !== 0)
+        ? parseFloat(((ht * 1000) / gr).toFixed(1))
+        : null
+
+      this.form.hbcm = (!isNaN(hb) && !isNaN(gr) && gr !== 0)
+        ? parseFloat(((hb * 10) / gr).toFixed(1))
+        : null
+
+      this.form.chcm = (!isNaN(hb) && !isNaN(ht) && ht !== 0)
+        ? parseFloat((hb / ht).toFixed(1))
+        : null
     },
     getReticulocitoFactorCorreccion () {
       const ht = parseFloat(this.form.hematocrito)
