@@ -980,14 +980,14 @@ export default {
         valor_celulas: null,
         cristales: null,
         valor_cristales: null,
-        morfologia_eritrocitaria: 'NORMAL',
+        morfologia_eritrocitaria: null,
         valor_morfologia: null,
         proteinas: 'NO CONTIENE',
         glucosa: 'NO CONTIENE',
         sangre: 'NO CONTIENE',
         cetonas: 'NO CONTIENE',
         bilirrubina: 'NO CONTIENE',
-        urobilinogeno: 'NORMAL (0.2 mg/dl)',
+        urobilinogeno: 'NORMAL (0.2 UE/dl)',
         nitritos: 'NEGATIVO',
         observaciones: ''
       }

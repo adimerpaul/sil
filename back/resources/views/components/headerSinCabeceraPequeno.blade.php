@@ -80,7 +80,7 @@
 <table class="form-grid" style="margin-top:75px; ">
     <tr>
         <td style="width:15%"><span class="label" >CÓDIGO:</span></td>
-        <td style="width:10%"><div class=" " style="font-size: 24px">{{ $solicitud->codigo ?? $solicitud->id }}</div></td>
+        <td style="width:15%"><div class="" style="font-size: 30px; font-weight:700;">{{ $solicitud->codigo ?? $solicitud->id }}</div></td>
         <td style="width:10%"><span class="label">ATENCION:</span></td>
         <td style="width:15%"><div class=" clip">{{ ($solicitud->tipo_atencion ?? '') === 'SI' ? 'SUS' : 'EXT' }}</div></td>
         <td colspan="2" style="width:20%"><span class="label">NRO. REGISTRO:</span></td>

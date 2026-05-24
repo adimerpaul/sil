@@ -14,9 +14,10 @@
             line-height: 0.9;
         }
 
-        /* Layout 2 columnas estable (DOMPDF friendly) */
+        /* Layout 1 columna (la derecha estaba comentada y deja la izq. al 50%
+           sobresalido). Ahora ocupa el ancho completo del legal. */
         table.layout { width:100%; border-collapse: collapse; table-layout: fixed; }
-        td.col { width:50%; vertical-align: top; padding:0 6px; }
+        td.col { width:100%; vertical-align: top; padding:0 6px; }
 
         /* Evitar saltos raros */
         table { page-break-inside: avoid; }
@@ -180,6 +181,17 @@
                                     <td class="center">*</td>
                                     <td class="center">#</td>
                                 </tr>
+                                @if(!empty($u->cilindros2) || !empty($u->cilindros_valor2))
+                                <tr>
+                                    <td></td>
+                                    <td class="center">
+                                        {{ $u->cilindros2 ?? '' }}
+                                        @if(!empty($u->cilindros_valor2)) ({{ $u->cilindros_valor2 }}) @endif
+                                    </td>
+                                    <td class="center">*</td>
+                                    <td class="center">#</td>
+                                </tr>
+                                @endif
 
                                 <tr>
                                     <td>Células epiteliales</td>
@@ -190,6 +202,17 @@
                                     <td class="center">*</td>
                                     <td class="center">#</td>
                                 </tr>
+                                @if(!empty($u->celulas_epiteliales2) || !empty($u->celulas_epiteliales_valor2))
+                                <tr>
+                                    <td></td>
+                                    <td class="center">
+                                        {{ $u->celulas_epiteliales2 ?? '' }}
+                                        @if(!empty($u->celulas_epiteliales_valor2)) ({{ $u->celulas_epiteliales_valor2 }}) @endif
+                                    </td>
+                                    <td class="center">*</td>
+                                    <td class="center">#</td>
+                                </tr>
+                                @endif
 
                                 <tr>
                                     <td>Cristales</td>
@@ -200,6 +223,17 @@
                                     <td class="center">*</td>
                                     <td class="center">#</td>
                                 </tr>
+                                @if(!empty($u->cristales2) || !empty($u->cristales_valor2))
+                                <tr>
+                                    <td></td>
+                                    <td class="center">
+                                        {{ $u->cristales2 ?? '' }}
+                                        @if(!empty($u->cristales_valor2)) ({{ $u->cristales_valor2 }}) @endif
+                                    </td>
+                                    <td class="center">*</td>
+                                    <td class="center">#</td>
+                                </tr>
+                                @endif
 
                                 @if(!empty($u->otros))
                                     <tr>
