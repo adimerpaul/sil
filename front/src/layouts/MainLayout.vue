@@ -246,7 +246,7 @@ const menuSections = [
     icon: 'local_hospital',
     defaultOpened: true,
     links: [
-      { title: 'Dashboard', icon: 'dashboard', link: '/', can: 'Dashboard' },
+      { title: 'Resumen de Atención de los Pacientes', icon: 'dashboard', link: '/', can: 'Dashboard' },
       { title: 'Usuarios', icon: 'people', link: '/usuarios', can: 'Usuarios' },
       { title: 'Pacientes', icon: 'folder_shared', link: '/pacientes', can: 'Pacientes' },
       { title: 'Doctores', icon: 'medical_services', link: '/doctores', can: 'Doctores' },
@@ -261,7 +261,7 @@ const menuSections = [
     defaultOpened: false,
     links: [
       { title: 'Admisión', icon: 'request_page', link: '/solicitudes', can: 'Solicitudes' },
-      { title: 'Recogidos', icon: 'inventory_2', link: '/recogidos', can: 'Solicitudes' },
+      { title: 'Recojo de Resultados', icon: 'inventory_2', link: '/recogidos', can: 'Solicitudes' },
       { title: 'Preanalítica', icon: 'science', link: '/area-preanalitica', can: ['Area preanalitica', 'Area Preanalitica'] },
       { title: 'Estados preanalítica', icon: 'analytics', link: '/area-preanalitica-procesadas', can: ['Area preanalitica', 'Area Preanalitica'] },
       { title: 'Analítica', icon: 'biotech', link: '/analitica', can: 'Analitica', match: '/analitica' },

@@ -74,7 +74,7 @@
       :loading="loading"
       @request="onRequest"
       :rows-per-page-options="[10, 20, 50]"
-      title="Recogidos por solicitud y area"
+      title="Recojo de Resultados por solicitud y área"
     >
       <template #body-cell-codigo="props">
         <q-td :props="props">
