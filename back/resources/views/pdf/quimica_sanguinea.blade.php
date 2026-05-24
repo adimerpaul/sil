@@ -79,15 +79,32 @@
     $q = $quimica ?? $q ?? null;
 
     /* =========================
-       MAPA DE RANGOS
+       MAPA DE RANGOS (normaliza acentos)
        ========================= */
+    $normalizeRango = function($s) {
+        $s = mb_strtolower(trim((string)($s ?? '')));
+        if (function_exists('iconv')) {
+            $t = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $s);
+            if ($t !== false && $t !== '') $s = $t;
+        }
+        return preg_replace('/\s+/u', ' ', $s);
+    };
     $rangosMap = [];
     foreach(($rangos ?? []) as $r){
-        $key = mb_strtolower(trim($r->rango_nombre ?? ''));
+        $key = $normalizeRango($r->rango_nombre ?? '');
         if($key) $rangosMap[$key] = $r;
     }
 
-    function keyNom($s){ return mb_strtolower(trim($s ?? '')); }
+    if (!function_exists('keyNom')) {
+        function keyNom($s){
+            $s = mb_strtolower(trim((string)($s ?? '')));
+            if (function_exists('iconv')) {
+                $t = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $s);
+                if ($t !== false && $t !== '') $s = $t;
+            }
+            return preg_replace('/\s+/u', ' ', $s);
+        }
+    }
 
     function rangoTexto($name, $map){
         $k = keyNom($name);

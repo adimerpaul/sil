@@ -169,14 +169,11 @@
                 <td>
                   <q-input
                     v-model.number="form.albumina" dense outlined type="number" step="0.01"
-                    @update:model-value="
-                    form.globulina = parseFloat(form.proteinas_totales - form.albumina).toFixed(2);
-                    form.relacion_ag = parseFloat(form.albumina / form.globulina).toFixed(2);
-"
-                           :input-class="inputRangeClass('Albumina', form.albumina)" />
+                    @update:model-value="recalcProteinograma()"
+                    :input-class="inputRangeClass('Albumina', form.albumina)" />
                 </td>
-                <td>{{ rangoTexto('Albumina') }}</td>
-                <td>{{ rangoUnidad('Albumina') }}</td>
+                <td>{{ rangoTexto('Albumina') || '3.5 - 5.3 g/dl' }}</td>
+                <td>{{ rangoUnidad('Albumina') || 'g/dl' }}</td>
               </tr>
 
               <tr v-if="canServicios(['PROTEINAS TOTALES','PROTEINOGRAMA (PROTEÍNAS TOTALES, ALBÚMINA, GLOBULINA)'])">
@@ -184,8 +181,8 @@
                 <td>
                   <q-input
                     v-model.number="form.proteinas_totales" dense outlined type="number" step="0.01"
-                    @update:model-value="form.globulina = parseFloat(form.proteinas_totales - form.albumina).toFixed(2)"
-                           :input-class="inputRangeClass('Proteinas totales', form.proteinas_totales)" />
+                    @update:model-value="recalcProteinograma()"
+                    :input-class="inputRangeClass('Proteinas totales', form.proteinas_totales)" />
                 </td>
                 <td>{{ rangoTexto('Proteinas totales') }}</td>
                 <td>{{ rangoUnidad('Proteinas totales') }}</td>
@@ -239,8 +236,8 @@
                   <!--              Relacion A/G= Albumina/Globulina-->
                   <q-input
                     v-model.number="form.globulina" dense outlined type="number" step="0.01"
-                    @update:model-value="form.relacion_ag = form.albumina / form.globulina"
-                           :input-class="inputRangeClass('Globulina', form.globulina)" />
+                    @update:model-value="recalcRelacionAg()"
+                    :input-class="inputRangeClass('Globulina', form.globulina)" />
                 </td>
                 <td>{{ rangoTexto('Globulina') }}</td>
                 <td>{{ rangoUnidad('Globulina') }}</td>
@@ -849,8 +846,14 @@
               <tr v-if="canServicios('TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)')">
                 <td>Test de embarazo</td>
                 <td>
-<!--                  <q-input v-model="form.test_embarazo" dense outlined placeholder="Reactivo / No reactivo" />-->
-                  <q-select v-model="form.test_embarazo" :options="['Positivo', 'Negativo']" dense outlined clearable />
+                  <div class="row q-col-gutter-sm">
+                    <div class="col-6">
+                      <q-select v-model="form.test_embarazo" :options="['Positivo', 'Negativo']" dense outlined clearable />
+                    </div>
+                    <div class="col-6">
+                      <q-input v-model="form.test_embarazo_fum" dense outlined type="date" label="F.U.M." stack-label />
+                    </div>
+                  </div>
                 </td>
                 <td>{{ rangoTexto('Test de embarazo') }}</td>
                 <td>{{ rangoUnidad('Test de embarazo') }}</td>
@@ -865,7 +868,7 @@
                 <td>Prueba rápida Hepatitis B</td>
                 <td style="width: 250px;">
 <!--                  <q-input v-model="form.prueba_rapida_hepatitis_b" dense outlined placeholder="Reactivo / No reactivo" />-->
-                  <q-select v-model="form.prueba_rapida_hepatitis_b" :options="['Reactivo', 'No reactivo']" dense outlined clearable />
+                  <q-select v-model="form.prueba_rapida_hepatitis_b" :options="['Positivo', 'Negativo']" dense outlined clearable />
                 </td>
                 <td>{{ rangoTexto('Prueba rápida Hepatitis B') }}</td>
                 <td>{{ rangoUnidad('Prueba rápida Hepatitis B') }}</td>
@@ -874,7 +877,7 @@
                 <td>Prueba rápida Hepatitis C</td>
                 <td style="width: 250px;">
 <!--                  <q-input v-model="form.prueba_rapida_hepatitis_c" dense outlined placeholder="Reactivo / No reactivo" />-->
-                  <q-select v-model="form.prueba_rapida_hepatitis_c" :options="['Reactivo', 'No reactivo']" dense outlined clearable />
+                  <q-select v-model="form.prueba_rapida_hepatitis_c" :options="['Positivo', 'Negativo']" dense outlined clearable />
                 </td>
                 <td>{{ rangoTexto('Prueba rápida Hepatitis C') }}</td>
                 <td>{{ rangoUnidad('Prueba rápida Hepatitis C') }}</td>
@@ -883,7 +886,7 @@
                 <td>Prueba rápida Chagas</td>
                 <td style="width: 250px;">
 <!--                  <q-input v-model="form.prueba_rapida_chagas" dense outlined placeholder="Reactivo / No reactivo" />-->
-                  <q-select v-model="form.prueba_rapida_chagas" :options="['Reactivo', 'No reactivo']" dense outlined clearable />
+                  <q-select v-model="form.prueba_rapida_chagas" :options="['Positivo', 'Negativo']" dense outlined clearable />
                 </td>
                 <td>{{ rangoTexto('Prueba rápida Chagas') }}</td>
                 <td>{{ rangoUnidad('Prueba rápida Chagas') }}</td>
@@ -893,7 +896,7 @@
                 <td>Prueba rápida VIH</td>
                 <td style="width: 250px;">
 <!--                  <q-input v-model="form.prueba_rapida_vih" dense outlined placeholder="Reactivo / No reactivo" />-->
-                  <q-select v-model="form.prueba_rapida_vih" :options="['Reactivo', 'No reactivo']" dense outlined clearable />
+                  <q-select v-model="form.prueba_rapida_vih" :options="['Reactivo', 'No reactivo', 'A confirmar por CDVIR']" dense outlined clearable />
                 </td>
                 <td>{{ rangoTexto('Prueba rápida VIH') }}</td>
                 <td>{{ rangoUnidad('Prueba rápida VIH') }}</td>
@@ -902,7 +905,7 @@
                 <td>Prueba rápida Sífilis</td>
                 <td style="width: 250px;">
 <!--                  <q-input v-model="form.prueba_rapida_sifilis" dense outlined placeholder="Reactivo / No reactivo" />-->
-                  <q-select v-model="form.prueba_rapida_sifilis" :options="['Reactivo', 'No reactivo']" dense outlined clearable />
+                  <q-select v-model="form.prueba_rapida_sifilis" :options="['Reactivo', 'No reactivo', 'Se sugiere solicitar Sífilis por ELISA']" dense outlined clearable />
                 </td>
                 <td>{{ rangoTexto('Prueba rápida Sífilis') }}</td>
                 <td>{{ rangoUnidad('Prueba rápida Sífilis') }}</td>
@@ -911,7 +914,7 @@
                 <td>Prueba rápida Troponina</td>
                 <td style="width: 250px;">
 <!--                  <q-input v-model="form.prueba_rapida_troponina" dense outlined placeholder="Reactivo / No reactivo" />-->
-                  <q-select v-model="form.prueba_rapida_troponina" :options="['Reactivo', 'No reactivo']" dense outlined clearable />
+                  <q-select v-model="form.prueba_rapida_troponina" :options="['Positivo', 'Negativo']" dense outlined clearable />
                 </td>
                 <td>{{ rangoTexto('Prueba rápida Troponina') }}</td>
                 <td>{{ rangoUnidad('Prueba rápida Troponina') }}</td>
@@ -919,7 +922,16 @@
 
               <tr v-if="canServicios(['RPR- VDRL'])">
                 <td>RPR / VDRL</td>
-                <td><q-input v-model="form.rpr" dense outlined placeholder="Reactivo / No reactivo" /></td>
+                <td>
+                  <div class="row q-col-gutter-sm">
+                    <div class="col-6">
+                      <q-select v-model="form.rpr" :options="['Reactivo', 'No reactivo']" dense outlined clearable />
+                    </div>
+                    <div class="col-6">
+                      <q-input v-model="form.rpr_dilucion" dense outlined placeholder="Dilución (ej. 1/16)" />
+                    </div>
+                  </div>
+                </td>
                 <td>{{ rangoTexto('RPR / VDRL') }}</td>
                 <td>{{ rangoUnidad('RPR / VDRL') }}</td>
               </tr>
@@ -1378,6 +1390,23 @@ export default {
   },
 
   methods: {
+    // ========= cálculo proteinograma (evita Globulina<=0 y Relación A/G negativa) =========
+    recalcProteinograma () {
+      const alb = parseFloat(this.form.albumina)
+      const prot = parseFloat(this.form.proteinas_totales)
+      if (!isNaN(alb) && !isNaN(prot) && prot > 0) {
+        const glob = prot - alb
+        this.form.globulina = glob > 0 ? parseFloat(glob.toFixed(2)) : null
+        this.recalcRelacionAg()
+      }
+    },
+    recalcRelacionAg () {
+      const alb = parseFloat(this.form.albumina)
+      const glob = parseFloat(this.form.globulina)
+      this.form.relacion_ag = (!isNaN(alb) && !isNaN(glob) && glob > 0)
+        ? parseFloat((alb / glob).toFixed(2))
+        : null
+    },
     // ========= servicio match (IGUAL QUE HEMATOLOGÍA) =========
     canServicios (can) {
       const norm = (v) => String(v ?? '').replace(/\s+/g, ' ').trim().toLowerCase()
@@ -1445,18 +1474,23 @@ export default {
     },
 
     // ========= rangos =========
+    normalizeNombre (s) {
+      return (s ?? '').toString().toLowerCase()
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .trim()
+    },
     getRango (nombre) {
       if (!Array.isArray(this.rangos)) return null
-      return this.rangos.find(
-        r => (r.rango_nombre || '').toLowerCase() === (nombre || '').toLowerCase()
-      ) || null
+      const target = this.normalizeNombre(nombre)
+      return this.rangos.find(r => this.normalizeNombre(r.rango_nombre) === target) || null
     },
 
     rangoTexto (nombre) {
       const r = this.getRango(nombre)
       if (!r) return ''
-      if (r.rango_minimo !== null && r.rango_maximo !== null) return `${r.rango_minimo} - ${r.rango_maximo}`
       if (r.interpretacion) return r.interpretacion
+      if (r.rango_minimo !== null && r.rango_maximo !== null) return `${r.rango_minimo} - ${r.rango_maximo}`
       return ''
     },
 

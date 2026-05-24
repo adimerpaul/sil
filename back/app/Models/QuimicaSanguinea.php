@@ -126,7 +126,17 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'tolerancia_hora_4h',
         'tolerancia_hora_5h',
         'user_id',
-        'trf'
+        'trf',
+
+        'rpr_dilucion',
+        'test_embarazo_fum',
+        'aso_dilucion',
+        'fr_dilucion',
+        'pcr_dilucion',
+        'microalbuminuria',
+        'gasometria_observacion',
+        'gasometria_muestra_estado',
+        'citoquimico_observaciones',
     ];
 
     protected $hidden = [
