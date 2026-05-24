@@ -97,10 +97,12 @@ class PacienteController extends Controller
 
     // ── Histórico de solicitudes de un paciente ──────────────────────────────
 
-    private function historicQuery($pacienteId)
+    private function historicQuery($pacienteId, $dateFrom = null, $dateTo = null)
     {
         return Solicitude::where('paciente_id', $pacienteId)
             ->whereNull('solicitudes.deleted_at')
+            ->when($dateFrom, fn($q) => $q->whereDate('solicitudes.fecha_creacion', '>=', $dateFrom))
+            ->when($dateTo,   fn($q) => $q->whereDate('solicitudes.fecha_creacion', '<=', $dateTo))
             ->select(
                 'solicitudes.id',
                 'solicitudes.codigo_solicitud',
@@ -127,7 +129,9 @@ class PacienteController extends Controller
     {
         $paciente  = Paciente::findOrFail($id);
         $perPage   = min((int) $request->get('per_page', 15), 100);
-        $solicitudes = $this->historicQuery($id)->paginate($perPage);
+        $dateFrom  = $request->get('date_from');
+        $dateTo    = $request->get('date_to');
+        $solicitudes = $this->historicQuery($id, $dateFrom, $dateTo)->paginate($perPage);
 
         return response()->json([
             'paciente'    => $paciente,
@@ -138,7 +142,9 @@ class PacienteController extends Controller
     public function historicoExcel(Request $request, $id)
     {
         $paciente = Paciente::findOrFail($id);
-        $rows     = $this->historicQuery($id)->get();
+        $dateFrom = $request->get('date_from');
+        $dateTo   = $request->get('date_to');
+        $rows     = $this->historicQuery($id, $dateFrom, $dateTo)->get();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet()->setTitle('Histórico');

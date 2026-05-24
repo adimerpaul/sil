@@ -305,6 +305,85 @@
       </div>
     </div>
 
+    <!-- KPIs FILA 2: PACIENTES, FINALIZADAS, PENDIENTES -->
+    <div class="row q-col-gutter-md q-mb-md">
+      <div class="col-12 col-sm-6 col-md-3">
+        <q-card flat bordered class="q-pa-md">
+          <div class="row items-center no-wrap">
+            <div class="col">
+              <div class="text-caption text-grey-7">Pacientes atendidos</div>
+              <div class="text-h5 text-weight-bold">
+                {{ resumen.total_pacientes || 0 }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <q-icon name="people" size="36px" class="text-indigo" />
+            </div>
+          </div>
+          <div class="text-caption text-grey-6 q-mt-sm">
+            Pacientes únicos con solicitudes en el período.
+          </div>
+        </q-card>
+      </div>
+
+      <div class="col-12 col-sm-6 col-md-3">
+        <q-card flat bordered class="q-pa-md">
+          <div class="row items-center no-wrap">
+            <div class="col">
+              <div class="text-caption text-grey-7">Finalizadas</div>
+              <div class="text-h5 text-weight-bold text-positive">
+                {{ resumen.finalizadas || 0 }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <q-icon name="check_circle" size="36px" class="text-positive" />
+            </div>
+          </div>
+          <div class="text-caption text-grey-6 q-mt-sm">
+            Solicitudes con resultados entregados.
+          </div>
+        </q-card>
+      </div>
+
+      <div class="col-12 col-sm-6 col-md-3">
+        <q-card flat bordered class="q-pa-md">
+          <div class="row items-center no-wrap">
+            <div class="col">
+              <div class="text-caption text-grey-7">Resultados pendientes</div>
+              <div class="text-h5 text-weight-bold text-orange">
+                {{ (resumen.total_solicitudes - resumen.finalizadas) || 0 }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <q-icon name="pending_actions" size="36px" class="text-orange" />
+            </div>
+          </div>
+          <div class="text-caption text-grey-6 q-mt-sm">
+            Solicitudes aún sin finalizar en el período.
+          </div>
+        </q-card>
+      </div>
+
+      <div class="col-12 col-sm-6 col-md-3">
+        <q-card flat bordered class="q-pa-md">
+          <div class="row items-center no-wrap">
+            <div class="col">
+              <div class="text-caption text-grey-7">Áreas atendidas</div>
+              <div class="text-h5 text-weight-bold text-teal">
+                {{ porArea.length || 0 }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <q-icon name="category" size="36px" class="text-teal" />
+            </div>
+          </div>
+          <div class="text-caption text-grey-6 q-mt-sm">
+            Áreas de laboratorio con servicios en el período.
+          </div>
+        </q-card>
+      </div>
+    </div>
+
     <!-- GRÁFICOS FILA 1: ÁREAS Y SERVICIOS -->
     <div class="row q-col-gutter-md q-mb-md">
       <!-- Solicitudes por área (donut) -->
@@ -498,6 +577,7 @@ export default {
         rowsNumber: 0
       },
       resumen: {},
+      porArea: [],
       ultimas: [],
       almacenResumen: {},
       almacenUltimosPedidos: [],
@@ -640,6 +720,7 @@ export default {
 
         // --- Áreas: donut (solo solicitudes por área)
         const porArea = data.por_area || []
+        this.porArea = porArea
         this.chartAreas.series = porArea.map(e => e.solicitudes)
         this.chartAreas.options = {
           ...this.chartAreas.options,

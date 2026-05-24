@@ -353,7 +353,7 @@
 <!--              <pre>{{establecimientosPublicos}}</pre>-->
             </div>
 
-            <div class="col-12 col-md-6 q-mt-xs">
+            <div v-if="isAdmin" class="col-12 col-md-6 q-mt-xs">
               <div class="row no-wrap items-start q-gutter-x-xs">
                 <div class="col">
                   <q-select

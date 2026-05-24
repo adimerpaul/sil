@@ -315,6 +315,18 @@ class AreaRangoQuimicaSeeder extends Seeder
                 'interpretacion' => 'N: 490-730 U/L; M: 200-480 U/L',
             ],
 
+            // ---------------------------
+            // MICROALBUMINURIA
+            // ---------------------------
+            [
+                'area_id'        => $areaIdQuimica,
+                'rango_nombre'   => 'Microalbuminuria',
+                'rango_minimo'   => null,
+                'rango_maximo'   => 30.0,
+                'unidad'         => 'mg/L',
+                'interpretacion' => 'Normal: < 30 mg/L',
+            ],
+
             // 24 HORAS
             [
                 'area_id'        => $areaIdQuimica,

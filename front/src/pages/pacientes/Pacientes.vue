@@ -123,10 +123,15 @@
       <q-card class="column no-wrap" style="height:100vh">
 
         <!-- Barra superior -->
-        <q-bar class="bg-primary text-white q-pa-md" style="height:52px">
+        <q-bar class="bg-primary text-white q-pa-md" style="min-height:52px;height:auto">
           <q-icon name="history" size="20px" />
           <span class="text-weight-bold q-ml-sm">Histórico del Paciente</span>
           <q-space />
+          <q-input v-model="historicoFechaDesde" type="date" dense dark borderless
+            label="Desde" style="max-width:130px" class="q-mr-xs" />
+          <q-input v-model="historicoFechaHasta" type="date" dense dark borderless
+            label="Hasta" style="max-width:130px" class="q-mr-xs" />
+          <q-btn flat dense no-caps icon="search" label="Filtrar" class="q-mr-xs" @click="fetchHistorico(1)" />
           <q-btn flat dense no-caps icon="print"       label="Imprimir" class="q-mr-xs" @click="printHistorico" />
           <q-btn flat dense no-caps icon="table_view"  label="Excel"    class="q-mr-xs" :loading="excelLoading" @click="exportHistoricoExcel" />
           <q-btn flat dense icon="close" v-close-popup />
@@ -363,6 +368,8 @@ export default {
       dialogHistorico: false,
       loadingHistorico: false,
       excelLoading: false,
+      historicoFechaDesde: '',
+      historicoFechaHasta: '',
       pacienteHistorico: {},
       historicoRows: [],
       historicoPagination: { page: 1, rowsPerPage: 15, rowsNumber: 0 },
@@ -606,6 +613,8 @@ export default {
       this.pacienteHistorico = { ...row };
       this.historicoRows = [];
       this.historicoPagination = { page: 1, rowsPerPage: 15, rowsNumber: 0 };
+      this.historicoFechaDesde = '';
+      this.historicoFechaHasta = '';
       this.dialogHistorico = true;
       this.fetchHistorico(1);
     },
@@ -614,7 +623,12 @@ export default {
       this.loadingHistorico = true;
       try {
         const res = await this.$axios.get(`pacientes/${this.pacienteHistorico.id}/historico`, {
-          params: { page, per_page: this.historicoPagination.rowsPerPage }
+          params: {
+            page,
+            per_page: this.historicoPagination.rowsPerPage,
+            date_from: this.historicoFechaDesde || undefined,
+            date_to: this.historicoFechaHasta || undefined
+          }
         });
         const p = res.data.solicitudes;
         this.historicoRows = p.data;
@@ -643,7 +657,13 @@ export default {
       try {
         const res = await this.$axios.get(
           `pacientes/${this.pacienteHistorico.id}/historico/excel`,
-          { responseType: 'blob' }
+          {
+            responseType: 'blob',
+            params: {
+              date_from: this.historicoFechaDesde || undefined,
+              date_to: this.historicoFechaHasta || undefined
+            }
+          }
         );
         const blob = new Blob([res.data], {
           type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
