@@ -583,6 +583,7 @@ class SolicitudeController extends Controller
             'solicitudes.nro_registro',
             'solicitudes.codigo_solicitud',
             'solicitudes.paciente_nombre',
+            'solicitudes.paciente_ci',
             'solicitudes.paciente_edad',
             'solicitudes.doctor_nombre',
             'solicitudes.tipo_atencion',

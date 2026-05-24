@@ -145,14 +145,15 @@
     $showHemograma = true;
         // ✅ aquí YA NO pongo "|| true" para que se oculte si no está el servicio
 
-//    $showIndices = $canServicios('ÍNDICES HEMATIMÉTRICOS');
-    $showIndices = $canServicios('ÍNDICES HEMATIMÉTRICOS');
+    $showIndices = $canServicios(['ÍNDICES HEMATIMÉTRICOS', 'HEMOGRAMA COMPLETO+ PLAQUETAS']);
     $showDiferencial = $canServicios('HEMOGRAMA COMPLETO+ PLAQUETAS');
 
     $showCoagulograma = $canServicios([
         'COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)',
         'TIEMPO DE PROTROMBINA (TP)',
-        'TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)'
+        'TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)',
+        'FIBRINÓGENO',
+        'ERITROSEDIMENTACIÓN (VSG- VES)'
     ]);
 
     $showOtros = $canServicios(['RECUENTO DE RETICULOCITOS']);
@@ -465,16 +466,8 @@
                     <td class="center">0.8 – 1.2</td>
                     <td class="center">-</td>
                 </tr>
-                <tr>
-                    <td>V.S.G.</td>
-                    <td class="center">
-                        {{ isset($hematologia->ves)
-                            ? number_format($hematologia->ves, 1)
-                            : '' }}
-                    </td>
-                    <td class="center">0 – 20</td>
-                    <td class="center">mm/h</td>
-                </tr>
+            @endif
+            @if($canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)']))
                 <tr>
                     <td>APTT</td>
                     <td class="center">
@@ -485,24 +478,36 @@
                     <td class="center">24 – 35</td>
                     <td class="center">seg</td>
                 </tr>
-                @if($canServicios('FIBRINÓGENO'))
-                    <tr>
-                        <td>Fibrinógeno</td>
-                        <td class="center {{ $outOfRange('FIBRINOGENO', $hematologia->fibrinogeno ?? null) ? 'out-range' : '' }}">
-                            {{ $hematologia->fibrinogeno !== null ? number_format($hematologia->fibrinogeno, 0) : '' }}
-                        </td>
-                        <td class="center">{{ $rangoTexto('FIBRINOGENO') }}</td>
-                        <td class="center">{{ $rangoUnidad('FIBRINOGENO') }}</td>
-                    </tr>
-                    <tr>
-                        <td>Dímeros D</td>
-                        <td class="center {{ $outOfRange('Dimeros D', $hematologia->dimeros_d ?? null) ? 'out-range' : '' }}">
-                            {{ isset($hematologia->dimeros_d) ? number_format($hematologia->dimeros_d, 2) : '' }}
-                        </td>
-                        <td class="center">{{ $rangoTexto('Dimeros D') }}</td>
-                        <td class="center">{{ $rangoUnidad('Dimeros D') }}</td>
-                    </tr>
-                @endif
+            @endif
+            @if($canServicios('ERITROSEDIMENTACIÓN (VSG- VES)'))
+                <tr>
+                    <td>V.S.G.</td>
+                    <td class="center">
+                        {{ isset($hematologia->ves)
+                            ? number_format($hematologia->ves, 1)
+                            : '' }}
+                    </td>
+                    <td class="center">0 – 20</td>
+                    <td class="center">mm/h</td>
+                </tr>
+            @endif
+            @if($canServicios('FIBRINÓGENO'))
+                <tr>
+                    <td>Fibrinógeno</td>
+                    <td class="center {{ $outOfRange('FIBRINOGENO', $hematologia->fibrinogeno ?? null) ? 'out-range' : '' }}">
+                        {{ $hematologia->fibrinogeno !== null ? number_format($hematologia->fibrinogeno, 0) : '' }}
+                    </td>
+                    <td class="center">{{ $rangoTexto('FIBRINOGENO') ?: '200 - 400' }}</td>
+                    <td class="center">{{ $rangoUnidad('FIBRINOGENO') ?: 'mg/dl' }}</td>
+                </tr>
+                <tr>
+                    <td>Dímeros D</td>
+                    <td class="center {{ $outOfRange('Dimeros D', $hematologia->dimeros_d ?? null) ? 'out-range' : '' }}">
+                        {{ isset($hematologia->dimeros_d) ? number_format($hematologia->dimeros_d, 2) : '' }}
+                    </td>
+                    <td class="center">{{ $rangoTexto('Dimeros D') ?: '0 - 0.40' }}</td>
+                    <td class="center">{{ $rangoUnidad('Dimeros D') ?: 'ug/ml' }}</td>
+                </tr>
             @endif
 {{--            @if($canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)']))--}}
 

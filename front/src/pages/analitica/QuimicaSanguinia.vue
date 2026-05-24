@@ -560,16 +560,17 @@
           </div>
 
           <!-- =======================
-               ORINA 24 HRS
+               QUÍMICA BÁSICA EN ORINA
                ======================= -->
           <div
             v-if="hasAnyServicios([
               'CREATININA EN ORINA (CREATINURIA)',
               'PROTEINURIA 24 HRS',
-              'CLEARENCE DE CREATININA'
+              'CLEARENCE DE CREATININA',
+              'MICROALBUMINURIA'
             ])"
           >
-            <div class="section-title q-mb-xs">Orina de 24 horas</div>
+            <div class="section-title q-mb-xs">Química básica en orina</div>
 
             <q-markup-table dense flat bordered square class="bg-white q-mb-md">
               <thead>
@@ -610,6 +611,24 @@
                 </td>
                 <td>{{ rangoTexto('VOLUMEN') }}</td>
                 <td>{{ rangoUnidad('VOLUMEN') }}</td>
+              </tr>
+              <tr v-if="canServicios('CLEARENCE DE CREATININA')">
+                <td>DCE (Depuración de Creatinina)</td>
+                <td>
+                  <q-input v-model="form.dce" dense outlined placeholder="ml/min"
+                           :input-class="inputRangeClass('DCE', form.dce)" />
+                </td>
+                <td>{{ rangoTexto('DCE') || 'H: 97-137 / M: 88-128' }}</td>
+                <td>{{ rangoUnidad('DCE') || 'ml/min' }}</td>
+              </tr>
+              <tr v-if="canServicios('MICROALBUMINURIA')">
+                <td>Microalbuminuria</td>
+                <td>
+                  <q-input v-model.number="form.microalbuminuria" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('Microalbuminuria', form.microalbuminuria)" />
+                </td>
+                <td>{{ rangoTexto('Microalbuminuria') }}</td>
+                <td>{{ rangoUnidad('Microalbuminuria') || 'mg/L' }}</td>
               </tr>
               </tbody>
             </q-markup-table>
@@ -1006,12 +1025,6 @@
                 <td>{{ rangoTexto('Reacción de Widal B') }}</td>
                 <td>{{ rangoUnidad('Reacción de Widal B') }}</td>
               </tr>
-              <tr v-if="canServicios('CLEARENCE DE CREATININA')">
-                <td>DCE</td>
-                <td><q-input v-model="form.dce" dense outlined placeholder="Valor en ml/min" /></td>
-                <td>{{ rangoTexto('DCE') }}</td>
-                <td>{{ rangoUnidad('DCE') }}</td>
-              </tr>
               </tbody>
             </q-markup-table>
           </div>
@@ -1170,15 +1183,6 @@
               </tr>
 <!--              densidad-->
               <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
-                <td>Albumina</td>
-                <td>
-                  <q-input v-model.number="form.citoquimico_albumina" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('Albumina', form.citoquimico_albumina)" />
-                </td>
-                <td>{{ rangoTexto('Albumina') }}</td>
-                <td>{{ rangoUnidad('Albumina') }}</td>
-              </tr>
-              <tr v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')">
                 <td>LDH</td>
                 <td>
                   <q-input v-model.number="form.citoquimico_ldh" dense outlined type="number" step="0.01"
@@ -1220,6 +1224,14 @@
               </tbody>
 
             </q-markup-table>
+            <q-input
+              v-if="canServicios('CITOQUÍMICO LÍQUIDO CEFALORRAQUÍDEO Y OTROS LÍQUIDOS')"
+              v-model="form.citoquimico_observaciones"
+              type="textarea"
+              dense outlined autogrow
+              class="bg-white q-mt-xs"
+              label="Observaciones del citoquímico"
+            />
           </div>
 
 <!--          CURVA DE TOLERANCIA A LA GLUCOSA-->
@@ -1290,6 +1302,25 @@
               </tbody>
             </q-markup-table>
           </div>
+          <!-- GASOMETRÍA -->
+          <div
+            v-if="hasAnyServicios(['GASOMETRÍA', 'GASOMETRIA'])"
+            class="q-mb-md"
+          >
+            <div class="section-title q-mb-xs">Gasometría</div>
+            <div class="row q-col-gutter-sm">
+              <div class="col-12 col-sm-4">
+                <q-select
+                  v-model="form.gasometria_muestra_estado"
+                  :options="['Muestra procesada', 'No trajo muestra']"
+                  dense outlined clearable
+                  class="bg-white"
+                  label="Estado de la muestra"
+                />
+              </div>
+            </div>
+          </div>
+
                       <q-input
                         v-model="form.observaciones"
                         type="textarea"
@@ -1378,6 +1409,8 @@ export default {
         reaccion_widal_b: '',
         reaccion_widal_b_valor: '',
         tipo_de_muestra: '',
+        citoquimico_observaciones: '',
+        gasometria_muestra_estado: '',
         observaciones: '',
         metodo: '',
         equipo: ''
