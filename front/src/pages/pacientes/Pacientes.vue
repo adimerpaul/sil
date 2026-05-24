@@ -254,10 +254,10 @@
 
         <q-card-section>
           <q-form @submit="guardar">
-            <q-input v-model="paciente.nombre_completo" label="Nombre completo" dense outlined required />
+            <q-input v-uppercase v-model="paciente.nombre_completo" label="Nombre completo" dense outlined required />
             <q-input v-model="paciente.ci" label="CI" dense outlined />
             <q-input v-model="paciente.telefono" label="Teléfono/Celular" dense outlined />
-            <q-input v-model="paciente.direccion" label="Dirección" dense outlined />
+            <q-input v-uppercase v-model="paciente.direccion" label="Dirección" dense outlined />
             <q-input
               v-model="paciente.fecha_nac"
               type="date"

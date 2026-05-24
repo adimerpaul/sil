@@ -122,6 +122,7 @@
             <div class="row q-col-gutter-sm">
               <div class="col-12">
                 <q-input
+                  v-uppercase
                   v-model="doctor.nombre"
                   label="Nombre"
                   dense outlined
@@ -129,6 +130,7 @@
               </div>
               <div class="col-12 col-sm-6">
                 <q-input
+                  v-uppercase
                   v-model="doctor.especialidad"
                   label="Especialidad"
                   dense outlined
