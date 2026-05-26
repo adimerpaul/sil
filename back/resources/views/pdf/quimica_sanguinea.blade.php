@@ -832,11 +832,13 @@
 
                                         @if($canServicios('ASTO O ASO') || hasVal($q,'aso'))
                                             <tr>
-                                                <td>ASO</td>
+                                                <td>ASO O ASTO</td>
                                                 <td class="center">
-{{--                                                    {{ val($q,'aso_valor') }} sin decimales--}}
                                                     {{ round((float)val($q,'aso_valor')) }}
                                                     {{ val($q,'aso') }}
+                                                    @if(val($q,'aso_dilucion'))
+                                                        <br><small>{{ val($q,'aso_dilucion') }}</small>
+                                                    @endif
                                                 </td>
                                                 <td class="center">{{ rangoTexto('ASO',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('ASO',$rangosMap) }}</td>
@@ -857,6 +859,9 @@
                                                 <td class="center">
                                                     {{ round((float)val($q,'fr_valor')) }}
                                                     {{ val($q,'fr') }}
+                                                    @if(val($q,'fr_dilucion'))
+                                                        <br><small>{{ val($q,'fr_dilucion') }}</small>
+                                                    @endif
                                                 </td>
                                                 <td class="center">{{ rangoTexto('FR',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('FR',$rangosMap) }}</td>
@@ -886,6 +891,9 @@
                                                 <td class="center">
                                                     {{ round((float)val($q,'pcr_valor')) }}
                                                     {{ val($q,'pcr') }}
+                                                    @if(val($q,'pcr_dilucion'))
+                                                        <br><small>{{ val($q,'pcr_dilucion') }}</small>
+                                                    @endif
                                                 </td>
                                                 <td class="center">{{ rangoTexto('PCR',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('PCR',$rangosMap) }}</td>

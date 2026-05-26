@@ -773,26 +773,26 @@
             <q-markup-table dense flat bordered square class="bg-white q-mb-md">
               <thead>
               <tr>
-                <th class="text-left">Prueba</th>
-                <th class="text-left">Resultado</th>
-                <th class="text-left">Rango / Interpretación</th>
-                <th class="text-left">Unidad</th>
+                <th class="text-left" style="width:18%">Prueba</th>
+                <th class="text-left" style="width:44%">Resultado / Dilución</th>
+                <th class="text-left" style="width:28%">Rango / Interpretación</th>
+                <th class="text-left" style="width:10%">Unidad</th>
               </tr>
               </thead>
 
               <tbody>
               <tr v-if="canServicios('ASTO O ASO')">
-                <td>ASTO O ASO</td>
+                <td>ASO O ASTO</td>
                 <td>
-<!--                  <q-input v-model.number="form.aso" dense outlined type="number" step="0.01"-->
-<!--                           :input-class="inputRangeClass('ASO', form.aso)" />-->
-<!--                  select positivo negativo-->
-                  <div class="row">
-                    <div class="col-6">
+                  <div class="row q-col-gutter-xs">
+                    <div class="col-4">
                       <q-select v-model="form.aso" :options="['Positivo', 'Negativo']" dense outlined clearable />
                     </div>
-                    <div class="col-6">
-                      <q-input v-model.number="form.aso_valor" dense outlined type="number" step="0.01" />
+                    <div class="col-4">
+                      <q-input v-model.number="form.aso_valor" dense outlined type="number" step="0.01" placeholder="Valor" />
+                    </div>
+                    <div class="col-4">
+                      <q-input v-model="form.aso_dilucion" dense outlined placeholder="Ej: 1:80" />
                     </div>
                   </div>
                 </td>
@@ -811,15 +811,15 @@
               <tr v-if="canServicios('FACTOR REUMATOIDEO (FR)')">
                 <td>FR</td>
                 <td>
-<!--                  <q-input v-model.number="form.fr" dense outlined type="number" step="0.01"-->
-<!--                           :input-class="inputRangeClass('FR', form.fr)" />-->
-<!--                  <q-select v-model="form.fr" :options="['Positivo', 'Negativo']" dense outlined clearable />-->
-                  <div class="row">
-                    <div class="col-6">
+                  <div class="row q-col-gutter-xs">
+                    <div class="col-4">
                       <q-select v-model="form.fr" :options="['Positivo', 'Negativo']" dense outlined clearable />
                     </div>
-                    <div class="col-6">
-                      <q-input v-model.number="form.fr_valor" dense outlined type="number" step="0.01" />
+                    <div class="col-4">
+                      <q-input v-model.number="form.fr_valor" dense outlined type="number" step="0.01" placeholder="Valor" />
+                    </div>
+                    <div class="col-4">
+                      <q-input v-model="form.fr_dilucion" dense outlined placeholder="Ej: 1:80" />
                     </div>
                   </div>
                 </td>
@@ -838,15 +838,15 @@
               <tr v-if="canServicios(['PCR CUALITATIVO (PROTEÍNA C REACTIVA)'])">
                 <td>PCR</td>
                 <td>
-<!--                  <q-input v-model.number="form.pcr" dense outlined type="number" step="0.01"-->
-<!--                           :input-class="inputRangeClass('PCR', form.pcr)" />-->
-<!--                  <q-select v-model="form.pcr" :options="['Positivo', 'Negativo']" dense outlined clearable />-->
-                  <div class="row">
-                    <div class="col-6">
+                  <div class="row q-col-gutter-xs">
+                    <div class="col-4">
                       <q-select v-model="form.pcr" :options="['Positivo', 'Negativo']" dense outlined clearable />
                     </div>
-                    <div class="col-6">
-                      <q-input v-model.number="form.pcr_valor" dense outlined type="number" step="0.01" />
+                    <div class="col-4">
+                      <q-input v-model.number="form.pcr_valor" dense outlined type="number" step="0.01" placeholder="Valor" />
+                    </div>
+                    <div class="col-4">
+                      <q-input v-model="form.pcr_dilucion" dense outlined placeholder="Ej: 1:80" />
                     </div>
                   </div>
                 </td>
@@ -862,7 +862,7 @@
 <!--                <td>{{ rangoUnidad('PCR') }}</td>-->
 <!--              </tr>-->
 <!--              TEST de embraza-->
-              <tr v-if="canServicios('TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO)')">
+              <tr v-if="canServicios('TEST DE EMBARAZO EN SUERO (GONADOTROFINA CORIÓNICA HUMANA CUALITATIVO (HCG))')">
                 <td>Test de embarazo</td>
                 <td>
                   <div class="row q-col-gutter-sm">
@@ -924,7 +924,7 @@
                 <td>Prueba rápida Sífilis</td>
                 <td style="width: 250px;">
 <!--                  <q-input v-model="form.prueba_rapida_sifilis" dense outlined placeholder="Reactivo / No reactivo" />-->
-                  <q-select v-model="form.prueba_rapida_sifilis" :options="['Reactivo', 'No reactivo', 'Se sugiere solicitar Sífilis por ELISA']" dense outlined clearable />
+                  <q-select v-model="form.prueba_rapida_sifilis" :options="['Reactivo', 'No reactivo', 'Se sugiere solicitar Sífilis por ELISA','Positivo','Negativo']" dense outlined clearable />
                 </td>
                 <td>{{ rangoTexto('Prueba rápida Sífilis') }}</td>
                 <td>{{ rangoUnidad('Prueba rápida Sífilis') }}</td>
@@ -1393,10 +1393,13 @@ export default {
         volumen_24h: null,
         aso: null,
         aso_valor: null,
+        aso_dilucion: '',
         fr: null,
         fr_valor: null,
+        fr_dilucion: '',
         pcr: null,
         pcr_valor: null,
+        pcr_dilucion: '',
         prueba_rapida_vih: '',
         rpr: '',
         reaccion_widal: '',
