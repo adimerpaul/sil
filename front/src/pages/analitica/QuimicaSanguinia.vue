@@ -88,29 +88,30 @@
                   label="Método"
                 />
               </div>
-              <div class="col-12 col-sm-8">
-                <!--                <q-input v-model="form.equipo" dense outlined class="bg-white" label="Equipo" />-->
-                <!--                •	Mindray 240 –STAT FAX 4500-RADIOMETER-->
-                <q-select
-                  v-model="form.equipo"
-                  :options="[
-                    'EASIS LYTE PLUS',
-                    'Otros',
-                    'A25',
-                    'EDAN',
-                    'EASIS',
-                    'Mindray BS-240 Pro',
-                    'A25',
-                    'Star fax 4500',
-                    'GasometroRamiometer ABL800',
-                    'Lector de electrolitos Easy Lyte Plus',
-                    'Nefelometro Nephstar',
-                    'Gasómetro Edan i15'
-                  ]"
-                  dense outlined
-                  label="Equipo"
-                  clearable
-                />
+              <div class="col-12 col-sm-8 row items-center q-gutter-xs">
+                <div class="col">
+                  <q-select
+                    v-model="form.equipo"
+                    :options="equiposOptions"
+                    dense outlined
+                    label="Equipo"
+                    clearable
+                    use-input
+                    input-debounce="0"
+                    @filter="filterEquipos"
+                  />
+                </div>
+                <div class="col-auto">
+                  <q-btn
+                    flat round dense
+                    icon="settings"
+                    color="grey-7"
+                    size="sm"
+                    @click="$router.push('/equipos')"
+                  >
+                    <q-tooltip>Administrar equipos</q-tooltip>
+                  </q-btn>
+                </div>
               </div>
               <div class="col-12 col-md-4">
                 <q-input
@@ -1360,6 +1361,8 @@ export default {
       header: null,
       formLoaded: false,
       rangos: [],
+      equiposAll: [],
+      equiposOptions: [],
       form: {
         acido_urico: null,
         albumina: null,
@@ -1423,9 +1426,25 @@ export default {
 
   mounted () {
     this.load()
+    this.fetchEquipos()
   },
 
   methods: {
+    fetchEquipos () {
+      this.$axios.get('equipos', { params: { estado: 'ACTIVO' } })
+        .then(res => {
+          this.equiposAll = (res.data || []).map(e => e.nombre)
+          this.equiposOptions = [...this.equiposAll]
+        })
+    },
+    filterEquipos (val, update) {
+      update(() => {
+        const s = val.toLowerCase()
+        this.equiposOptions = s
+          ? this.equiposAll.filter(n => n.toLowerCase().includes(s))
+          : [...this.equiposAll]
+      })
+    },
     // ========= cálculo proteinograma (evita Globulina<=0 y Relación A/G negativa) =========
     recalcProteinograma () {
       const alb = parseFloat(this.form.albumina)

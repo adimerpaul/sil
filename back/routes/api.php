@@ -76,6 +76,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('establecimientos/export/excel', [EstablecimientoController::class, 'exportarExcel']);
     Route::get('establecimientos/export/pdf',   [EstablecimientoController::class, 'exportarPdf']);
     Route::apiResource('establecimientos', EstablecimientoController::class);
+    Route::apiResource('equipos', \App\Http\Controllers\EquipoController::class);
     Route::apiResource('unidad-solicitantes', UnidadSolicitanteController::class);
     Route::apiResource('unidades', UnidadController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::apiResource('proveedores', ProveedorController::class);

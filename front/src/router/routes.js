@@ -63,6 +63,11 @@ const routes = [
         meta: {requiresAuth: true, perm: 'Establecimientos'}
       },
       {
+        path: '/equipos',
+        component: () => import('pages/equipos/Equipos.vue'),
+        meta: {requiresAuth: true}
+      },
+      {
         path: '/servicios',
         component: () => import('pages/servicios/Servicios.vue'),
         meta: {requiresAuth: true, perm: 'Servicios'}
