@@ -69,18 +69,43 @@
 <!--              <pre>{{solicitud}}</pre>-->
             </div>
             <div class="col-12 col-sm-6">
-              <q-input
-                v-model="solicitud.paciente_nombre"
-                label="Nombre"
-                dense
-                outlined
-                clearable
-                @update:model-value="val => setUpperSolicitudField('paciente_nombre', val)"
-              >
-                <template v-slot:append>
-                  <q-btn flat dense icon="search" @click="clickDialogPaciente" />
-                </template>
-              </q-input>
+              <div class="relative-position">
+                <q-input
+                  v-model="solicitud.paciente_nombre"
+                  label="Nombre / CI / Teléfono"
+                  dense outlined clearable
+                  :loading="loadingPacientes"
+                  @update:model-value="buscarPacientesInput"
+                  @clear="limpiarPaciente"
+                >
+                  <template #append>
+                    <q-icon name="search" color="grey-5" v-if="!loadingPacientes" />
+                  </template>
+                </q-input>
+                <q-menu
+                  no-focus
+                  no-refocus
+                  fit
+                  :model-value="pacientesOptions.length > 0"
+                  @update:model-value="val => { if (!val) pacientesOptions = [] }"
+                  style="max-height: 260px; overflow-y: auto"
+                >
+                  <q-list dense>
+                    <q-item
+                      v-for="p in pacientesOptions"
+                      :key="p.id"
+                      clickable
+                      v-close-popup
+                      @click="onSelectPaciente(p)"
+                    >
+                      <q-item-section>
+                        <q-item-label>{{ p.nombre_completo }}</q-item-label>
+                        <q-item-label caption>CI: {{ p.ci }} • Tel: {{ p.telefono || 'S/N' }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </div>
             </div>
             <div class="col-6 col-sm-3">
               <q-input
@@ -1325,74 +1350,6 @@
       </q-card-section>
     </q-card>
   </q-dialog>
-  <q-dialog v-model="dialogPaciente" persistent max-width="600px">
-    <q-card style="min-width: 400px; max-width: 90vh;">
-      <q-card-section class="row items-center q-pa-md">
-        <div class="text-subtitle2">
-          Buscar Paciente
-        </div>
-        <q-space />
-        <q-btn icon="close" flat round dense v-close-popup @click="dialogPaciente = false" />
-      </q-card-section>
-      <q-card-section class="q-pt-none">
-        <!-- Aquí puedes agregar el contenido para buscar y seleccionar un paciente -->
-        <div class="">
-<!--          pacienteNameSearch-->
-          <q-input
-            v-model="pacienteNameSearch"
-            label="Buscar por nombre"
-            dense
-            outlined
-            debounce="300"
-            clearable
-            @update:model-value="buscarpacientes"
-          >
-            <template #append>
-              <q-icon name="search" />
-            </template>
-          </q-input>
-          <div class="q-mt-sm">
-<!--            <pre>{{pacientes}}</pre>-->
-<!--            [-->
-<!--            {-->
-<!--            "id": 2,-->
-<!--            "fecha_recepcion": "2025-12-15",-->
-<!--            "hora_recepcion": "05:43:59",-->
-<!--            "nombre_completo": "Adimer Paul Chambi Ajata",-->
-<!--            "fecha_nac": "1989-04-02",-->
-<!--            "genero": "M",-->
-<!--            "edad": 36,-->
-<!--            "ci": "7336199",-->
-<!--            "telefono": "69603027",-->
-<!--            "direccion": "Av. Siempre Viva 742",-->
-<!--            "discapacidad": 0,-->
-<!--            "discapacidad_cual": null,-->
-<!--            "discapacidad_otro": null,-->
-<!--            "embarazo": 0,-->
-<!--            "fum": null,-->
-<!--            "sem_gest": null-->
-<!--            }-->
-<!--            ]-->
-            <q-list bordered separator>
-              <q-item v-for="paciente in pacientes" :key="paciente.id" clickable @click="onSelectPaciente(paciente); dialogPaciente = false">
-                <q-item-section>
-                  <q-item-label>{{ paciente.nombre_completo }}</q-item-label>
-                  <q-item-label caption>CI: {{ paciente.ci }} • Tel: {{ paciente.telefono || 'N/A' }}
-                    • F. Nac: {{ paciente.fecha_nac || 'N/A' }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item v-if="pacientes.length === 0">
-                <q-item-section>
-                  <q-item-label>No se encontraron pacientes.</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </div>
-        </div>
-      </q-card-section>
-    </q-card>
-  </q-dialog>
 </template>
 
 <script>
@@ -1479,9 +1436,8 @@ export default {
         { name: 'especialidad',label: 'Especialidad',  field: 'especialidad', align: 'left' },
         { name: 'servicio',    label: 'Servicio',      field: 'servicio',     align: 'left' },
       ],
-      dialogPaciente: false,
-      pacienteNameSearch: '',
-      pacientes: [],
+      loadingPacientes: false,
+      pacientesOptions: [],
       consentimientoDialog: false,
       consentimientoLoading: false,
       solicitudCreadaId: null,
@@ -1927,19 +1883,25 @@ export default {
         this.loading = false
       })
     },
-    buscarpacientes(){
-      this.$axios.get('pacientes', {
-        params: {
-          page: 1,
-          per_page: 10,
-          search: this.pacienteNameSearch
-        }
-      }).then(res => {
-        this.pacientes = res.data.data
-      })
+    buscarPacientesInput (val) {
+      this.solicitud.paciente_nombre = (val || '').toUpperCase()
+      clearTimeout(this._pacienteTimer)
+      if (!val || val.trim().length < 2) {
+        this.pacientesOptions = []
+        return
+      }
+      this._pacienteTimer = setTimeout(() => {
+        this.loadingPacientes = true
+        this.$axios.get('pacientes', { params: { search: val.trim(), per_page: 10 } })
+          .then(res => { this.pacientesOptions = res.data.data || [] })
+          .catch(() => { this.pacientesOptions = [] })
+          .finally(() => { this.loadingPacientes = false })
+      }, 350)
     },
-    clickDialogPaciente(){
-      this.dialogPaciente = true
+    limpiarPaciente () {
+      this.solicitud.paciente_id = null
+      this.solicitud.paciente_nombre = ''
+      this.pacientesOptions = []
     },
     openDialogEstablecimiento (tipo) {
       this.establecimientoNew = {

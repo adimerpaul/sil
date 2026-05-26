@@ -91,7 +91,7 @@
           <q-chip
             v-if="props.row.tipo"
             dense
-            :color="props.row.tipo === 'URBANO' ? 'green-6' : props.row.tipo === 'RURAL' ? 'teal-5' : props.row.tipo === 'PRIVADO' ? 'indigo-5' : 'grey-6'"
+            :color="props.row.tipo === 'URBANO' ? 'green-6' : props.row.tipo === 'RURAL' ? 'teal-5' : props.row.tipo === 'PRIVADO' ? 'indigo-5' : props.row.tipo === 'PUBLICO' ? 'blue-6' : 'grey-6'"
             text-color="white"
             icon="local_hospital"
           >
@@ -167,6 +167,12 @@
               <div class="col-12 col-sm-6">
                 <q-field label="Tipo" borderless stack-label>
                   <div class="row items-center q-gutter-sm">
+                    <q-radio
+                      v-model="establecimiento.tipo"
+                      val="PUBLICO"
+                      label="Público"
+                      dense
+                    />
                     <q-radio
                       v-model="establecimiento.tipo"
                       val="URBANO"
@@ -440,7 +446,7 @@ export default {
         { label: 'Laboratorio Urbano', value: 'URBANO' },
         { label: 'Laboratorio Rural', value: 'RURAL' },
         { label: 'Privado', value: 'PRIVADO' },
-        { label: 'Público (legado)', value: 'PUBLICO' }
+        { label: 'Público', value: 'PUBLICO' }
       ],
       estadoOptions: [
         { label: 'Activo', value: 'ACTIVO' },
