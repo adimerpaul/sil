@@ -5,6 +5,7 @@
     <style>
         @page { size: letter landscape; margin: 10px 14px; }
         body { font-family: DejaVu Sans, sans-serif; font-size: 8.5px; color: #111; margin: 0; }
+        .small-text { font-size: 7px; }
 
         .header { display: table; width: 100%; margin-bottom: 4px; }
         .header-left { display: table-cell; vertical-align: middle; width: 70%; }
@@ -80,7 +81,7 @@
     <tbody>
     @foreach($rows as $r)
         <tr>
-            <td class="center">{{ ($r->codigo ?: '') . ($r->nro_registro ?: '') ?: '-' }}</td>
+            <td class="center small-text">{{ ($r->codigo ?: '') . ($r->nro_registro ?: '') ?: '-' }}</td>
             <td class="center">{{ $r->fecha_solicitud ? \Carbon\Carbon::parse($r->fecha_solicitud)->format('d/m/Y') : '-' }}</td>
             <td>{{ $r->paciente_nombre ?: '-' }}</td>
             <td>{{ $r->doctor_nombre ?: '-' }}</td>

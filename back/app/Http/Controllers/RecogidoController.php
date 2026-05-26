@@ -208,8 +208,8 @@ class RecogidoController extends Controller
             ->whereNull('ss.deleted_at')
             ->whereNull('s.deleted_at')
             ->when($areaId, fn($q) => $q->where('ss.area_id', $areaId))
-            ->when($from, fn($q) => $q->whereDate(DB::raw('COALESCE(ss.recogido_en_dia, s.fecha_solicitud)'), '>=', $from))
-            ->when($to, fn($q) => $q->whereDate(DB::raw('COALESCE(ss.recogido_en_dia, s.fecha_solicitud)'), '<=', $to))
+            ->when($from, fn($q) => $q->whereDate('s.fecha_solicitud', '>=', $from))
+            ->when($to, fn($q) => $q->whereDate('s.fecha_solicitud', '<=', $to))
             ->when($search !== '', function ($q) use ($search) {
                 $q->where(function ($w) use ($search) {
                     $w->where('s.paciente_nombre', 'like', "%{$search}%")
@@ -238,7 +238,7 @@ class RecogidoController extends Controller
                 break;
             case 'dia':
             default:
-                $query->whereDate(DB::raw('COALESCE(ss.recogido_en_dia, s.fecha_solicitud)'), '=', $date);
+                $query->whereDate('s.fecha_solicitud', '=', $date);
                 break;
         }
 
