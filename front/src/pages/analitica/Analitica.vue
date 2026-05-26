@@ -69,8 +69,14 @@
               <th>Establecimiento</th>
               <th>Estado</th>
               <th>Fecha Solicitud</th>
-<!--              <th>Estado</th>-->
-              <th>Servicios</th>
+              <th>
+                Servicios
+                <div class="row q-gutter-xs q-mt-xs" style="font-weight:normal;font-size:11px;opacity:0.85">
+                  <span><q-icon name="check_circle" color="green-3" size="12px" /> Realizado</span>
+                  <span><q-icon name="cancel" color="orange-3" size="12px" /> Pendiente</span>
+                  <span><q-icon name="inventory_2" color="light-blue-3" size="12px" /> Entregado</span>
+                </div>
+              </th>
             </tr>
             </thead>
             <tbody>
@@ -444,12 +450,24 @@
                       <!--                    rojo-->
                       <!--                    <q-icon name="cancel" color="orange" size="12px" class="q-mr-xs"/>-->
                       <!--                    <pre>{{servicio.pivot.realizado}}</pre>-->
-                      <q-icon name="cancel" color="orange" size="12px" class="q-mr-xs" v-if="servicio.pivot.realizado === 'PENDIENTE'"/>
-                      <q-icon name="check_circle" color="green" size="12px" class="q-mr-xs" v-else/>
+                      <q-icon name="cancel" color="orange" size="12px" v-if="servicio.pivot.realizado === 'PENDIENTE'">
+                        <q-tooltip>Pendiente</q-tooltip>
+                      </q-icon>
+                      <q-icon name="check_circle" color="green" size="12px" v-else>
+                        <q-tooltip>Realizado</q-tooltip>
+                      </q-icon>
+                      <q-icon
+                        name="inventory_2"
+                        size="12px"
+                        class="q-ml-xs"
+                        :color="servicio.pivot.fue_recogido ? 'light-blue-6' : 'grey-4'"
+                      >
+                        <q-tooltip>{{ servicio.pivot.fue_recogido ? 'Resultado entregado' : 'No entregado aún' }}</q-tooltip>
+                      </q-icon>
                       {{ $filters.textCapitalize(servicio.nombre) }} - {{ $filters.textCapitalize(servicio.precio) }} -
                       <span class="text-grey" style="font-size: 0.8em;">
-                      {{$filters.textCapitalize(servicio.area.name)}}
-                    </span>
+                        {{ $filters.textCapitalize(servicio.area.name) }}
+                      </span>
                     </li>
                   </ul>
                 </div>
