@@ -20,6 +20,7 @@ class RecogidoController extends Controller
         $perPage = $perPage > 0 ? min($perPage, 100) : 10;
 
         $areaId = $request->filled('area_id') ? (int) $request->get('area_id') : null;
+        $estado = $request->get('estado', ''); // pendiente | con_resultado | recogido
 
         $query = Solicitude::query()
             ->with([
@@ -42,6 +43,30 @@ class RecogidoController extends Controller
                         ->orWhere('doctor_nombre', 'like', "%{$search}%")
                         ->orWhere('nro_registro', 'like', "%{$search}%")
                         ->orWhere('codigo', 'like', "%{$search}%");
+                });
+            })
+            ->when($estado === 'pendiente', function ($q) use ($areaId) {
+                // Ningún servicio del área tiene resultado
+                $q->whereDoesntHave('servicioSolicitudes', function ($w) use ($areaId) {
+                    $w->where('realizado', 'REALIZADO')
+                      ->when($areaId, fn($x) => $x->where('area_id', $areaId));
+                });
+            })
+            ->when($estado === 'con_resultado', function ($q) use ($areaId) {
+                // Al menos uno realizado pero ninguno recogido en el área
+                $q->whereHas('servicioSolicitudes', function ($w) use ($areaId) {
+                    $w->where('realizado', 'REALIZADO')
+                      ->when($areaId, fn($x) => $x->where('area_id', $areaId));
+                })->whereDoesntHave('servicioSolicitudes', function ($w) use ($areaId) {
+                    $w->where('fue_recogido', true)
+                      ->when($areaId, fn($x) => $x->where('area_id', $areaId));
+                });
+            })
+            ->when($estado === 'recogido', function ($q) use ($areaId) {
+                // Al menos uno recogido en el área
+                $q->whereHas('servicioSolicitudes', function ($w) use ($areaId) {
+                    $w->where('fue_recogido', true)
+                      ->when($areaId, fn($x) => $x->where('area_id', $areaId));
                 });
             })
             ->orderByDesc('id');
@@ -237,6 +262,7 @@ class RecogidoController extends Controller
                 's.nro_registro',
                 's.paciente_nombre',
                 's.paciente_ci',
+                's.paciente_telefono',
                 's.doctor_nombre',
                 's.fecha_solicitud',
                 's.fecha_creacion'

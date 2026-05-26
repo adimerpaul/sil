@@ -464,39 +464,67 @@
     </div>
 
     <!-- TABLA DE SOLICITUDES DEL DÍA (PAGINADA) -->
-    <q-card flat bordered>
-      <q-card-section class="row items-center q-col-gutter-sm">
-        <div class="col">
-          <div class="text-subtitle1 text-weight-bold">Solicitudes del período</div>
-          <div class="text-caption text-grey-7">
-            Todas las solicitudes en el rango filtrado — paginadas.
+    <div class="row q-col-gutter-sm">
+      <!-- TABLA -->
+      <div :class="showFiltros ? 'col-12 col-md-9' : 'col-12'">
+      <q-card flat bordered>
+        <q-card-section class="row items-center q-col-gutter-sm">
+          <div class="col">
+            <div class="text-subtitle1 text-weight-bold">Solicitudes del período</div>
+            <div class="text-caption text-grey-7">
+              Todas las solicitudes en el rango filtrado — paginadas.
+            </div>
           </div>
-        </div>
-        <div class="col-auto">
-          <q-input
-            v-model="solicitudesSearch"
-            dense outlined
-            placeholder="Buscar paciente, código..."
-            debounce="400"
-            style="min-width:220px"
-            @update:model-value="fetchSolicitudesList(1)"
+          <div class="col-auto">
+            <q-input
+              v-model="solicitudesSearch"
+              dense outlined
+              placeholder="Buscar paciente, código..."
+              debounce="400"
+              style="min-width:220px"
+              @update:model-value="fetchSolicitudesList(1)"
+            >
+              <template v-slot:append><q-icon name="search" /></template>
+            </q-input>
+          </div>
+          <div class="col-auto">
+            <q-btn
+              outline color="green-8" icon="table_view" no-caps
+              label="Excel" :loading="excelLoading"
+              @click="exportExcel"
+            />
+          </div>
+          <div class="col-auto">
+            <q-btn
+              :color="showFiltros ? 'primary' : 'grey-7'"
+              :outline="!showFiltros"
+              icon="filter_list"
+              no-caps
+              dense
+              :label="selectedAreaIds.length ? `Filtros (${selectedAreaIds.length})` : 'Filtros'"
+              @click="showFiltros = !showFiltros"
+            />
+          </div>
+        </q-card-section>
+
+        <q-separator v-if="selectedAreaIds.length" />
+        <q-card-section v-if="selectedAreaIds.length" class="q-pa-xs q-px-sm row q-gutter-xs items-center">
+          <span class="text-caption text-grey-7">Áreas activas:</span>
+          <q-chip
+            v-for="id in selectedAreaIds"
+            :key="id"
+            dense removable color="primary" text-color="white" size="sm"
+            @remove="toggleArea(id)"
           >
-            <template v-slot:append><q-icon name="search" /></template>
-          </q-input>
-        </div>
-        <div class="col-auto">
-          <q-btn
-            outline color="green-8" icon="table_view" no-caps
-            label="Excel" :loading="excelLoading"
-            @click="exportExcel"
-          />
-        </div>
-      </q-card-section>
+            {{ areaLabel(id) }}
+          </q-chip>
+          <q-btn flat dense no-caps size="sm" label="Limpiar" color="negative" @click="clearFiltros" />
+        </q-card-section>
 
-      <q-separator />
+        <q-separator />
 
-      <q-card-section class="q-pa-none">
-        <q-table
+        <q-card-section class="q-pa-none">
+          <q-table
           :rows="ultimas"
           :columns="columnsUltimas"
           row-key="id"
@@ -519,9 +547,28 @@
 
           <template v-slot:body-cell-areas_pruebas="props">
             <q-td :props="props">
-              <div v-if="props.row.areas" class="text-weight-medium text-caption">{{ props.row.areas }}</div>
-              <div v-if="props.row.pruebas" class="text-caption text-grey-7" style="max-width:220px;white-space:normal">{{ props.row.pruebas }}</div>
-              <div v-if="props.row.cant_realizados > 0" class="text-caption text-positive">
+              <div class="q-gutter-xs" style="max-width:260px">
+                <q-chip
+                  v-for="(area, i) in splitItems(props.row.areas)"
+                  :key="'a'+i"
+                  dense color="teal-1" text-color="teal-9" size="sm"
+                >{{ area }}</q-chip>
+              </div>
+              <div v-if="props.row.pruebas" class="q-gutter-xs q-mt-xs" style="max-width:260px">
+                <q-chip
+                  v-for="(p, i) in splitItems(props.row.pruebas).slice(0, 3)"
+                  :key="'p'+i"
+                  dense color="grey-2" text-color="grey-8" size="xs"
+                >{{ p }}</q-chip>
+                <q-chip
+                  v-if="splitItems(props.row.pruebas).length > 3"
+                  dense color="blue-grey-2" text-color="blue-grey-7" size="xs"
+                >
+                  +{{ splitItems(props.row.pruebas).length - 3 }} más
+                  <q-tooltip>{{ splitItems(props.row.pruebas).slice(3).join(', ') }}</q-tooltip>
+                </q-chip>
+              </div>
+              <div v-if="props.row.cant_realizados > 0" class="text-caption text-positive q-mt-xs">
                 {{ props.row.cant_realizados }}/{{ props.row.cant_servicios }} realizados
               </div>
             </q-td>
@@ -549,9 +596,200 @@
               </q-chip>
             </q-td>
           </template>
-        </q-table>
-      </q-card-section>
-    </q-card>
+          </q-table>
+        </q-card-section>
+      </q-card>
+      </div>
+
+      <!-- PANEL DE FILTROS (derecha) -->
+      <div v-if="showFiltros" class="col-12 col-md-3">
+        <q-card flat bordered style="position:sticky;top:60px">
+          <q-card-section class="row items-center q-pa-sm">
+            <div class="text-subtitle2">Filtros</div>
+            <q-space />
+            <q-btn flat dense round icon="close" size="sm" @click="showFiltros = false" />
+          </q-card-section>
+          <q-separator />
+
+          <!-- FILTRO POR ÁREA -->
+          <q-card-section class="q-pa-sm">
+            <div class="text-caption text-weight-bold text-grey-8 q-mb-xs">
+              <q-icon name="category" size="14px" class="q-mr-xs" />Áreas / Servicios
+            </div>
+            <q-list dense>
+              <q-item
+                v-for="area in areasDisponibles"
+                :key="area.area_id"
+                tag="label" clickable dense class="q-px-xs rounded-borders"
+                :class="selectedAreaIds.includes(area.area_id) ? 'bg-primary-1' : ''"
+              >
+                <q-item-section avatar style="min-width:30px">
+                  <q-checkbox
+                    v-model="selectedAreaIds"
+                    :val="area.area_id"
+                    dense
+                    color="primary"
+                    @update:model-value="fetchSolicitudesList(1)"
+                  />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption">{{ area.area_nombre }}</q-item-label>
+                  <q-item-label caption class="text-grey-6">{{ area.solicitudes }} solicitudes</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item v-if="!areasDisponibles.length" dense>
+                <q-item-section class="text-caption text-grey-6">
+                  Cargue el dashboard primero.
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+
+          <q-separator />
+
+          <!-- FILTRO POR ESTADO DE RESULTADOS -->
+          <q-card-section class="q-pa-sm">
+            <div class="text-caption text-weight-bold text-grey-8 q-mb-xs">
+              <q-icon name="science" size="14px" class="q-mr-xs" />Avance de resultados
+            </div>
+            <q-list dense>
+              <q-item tag="label" clickable dense class="q-px-xs">
+                <q-item-section avatar style="min-width:30px">
+                  <q-radio v-model="filtroResultado" val="" dense color="grey" @update:model-value="fetchSolicitudesList(1)" />
+                </q-item-section>
+                <q-item-section><q-item-label class="text-caption">Todos</q-item-label></q-item-section>
+              </q-item>
+              <q-item tag="label" clickable dense class="q-px-xs">
+                <q-item-section avatar style="min-width:30px">
+                  <q-radio v-model="filtroResultado" val="con_resultados" dense color="positive" @update:model-value="fetchSolicitudesList(1)" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption text-positive">Con resultados</q-item-label>
+                  <q-item-label caption class="text-grey-6">Al menos 1 servicio realizado</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item tag="label" clickable dense class="q-px-xs">
+                <q-item-section avatar style="min-width:30px">
+                  <q-radio v-model="filtroResultado" val="sin_resultados" dense color="orange" @update:model-value="fetchSolicitudesList(1)" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption text-orange">Sin resultados</q-item-label>
+                  <q-item-label caption class="text-grey-6">Ningún servicio realizado</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item tag="label" clickable dense class="q-px-xs">
+                <q-item-section avatar style="min-width:30px">
+                  <q-radio v-model="filtroResultado" val="completos" dense color="primary" @update:model-value="fetchSolicitudesList(1)" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption text-primary">Completos</q-item-label>
+                  <q-item-label caption class="text-grey-6">Todos los servicios realizados</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+
+          <q-separator />
+
+          <!-- FILTRO POR VALOR (alto / bajo) -->
+          <q-card-section class="q-pa-sm">
+            <div class="text-caption text-weight-bold text-grey-8 q-mb-xs">
+              <q-icon name="show_chart" size="14px" class="q-mr-xs" />Valores vs. rangos
+            </div>
+            <q-list dense>
+              <q-item tag="label" clickable dense class="q-px-xs">
+                <q-item-section avatar style="min-width:30px">
+                  <q-radio v-model="filtroValor" val="" dense color="grey" @update:model-value="fetchSolicitudesList(1)" />
+                </q-item-section>
+                <q-item-section><q-item-label class="text-caption">Todos</q-item-label></q-item-section>
+              </q-item>
+              <q-item tag="label" clickable dense class="q-px-xs">
+                <q-item-section avatar style="min-width:30px">
+                  <q-radio v-model="filtroValor" val="alto" dense color="red" @update:model-value="fetchSolicitudesList(1)" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption text-red">
+                    <q-icon name="arrow_upward" size="12px" />  Resultados altos
+                  </q-item-label>
+                  <q-item-label caption class="text-grey-6">Algún valor &gt; rango máximo</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item tag="label" clickable dense class="q-px-xs">
+                <q-item-section avatar style="min-width:30px">
+                  <q-radio v-model="filtroValor" val="bajo" dense color="blue" @update:model-value="fetchSolicitudesList(1)" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption text-blue">
+                    <q-icon name="arrow_downward" size="12px" />  Resultados bajos
+                  </q-item-label>
+                  <q-item-label caption class="text-grey-6">Algún valor &lt; rango mínimo</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item tag="label" clickable dense class="q-px-xs">
+                <q-item-section avatar style="min-width:30px">
+                  <q-radio v-model="filtroValor" val="fuera_rango" dense color="deep-orange" @update:model-value="fetchSolicitudesList(1)" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption text-deep-orange">
+                    <q-icon name="warning" size="12px" />  Fuera de rango
+                  </q-item-label>
+                  <q-item-label caption class="text-grey-6">Alto o bajo (cualquiera)</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+
+          <q-separator />
+
+          <!-- FILTRO POR ESTADO DE RECOJO -->
+          <q-card-section class="q-pa-sm">
+            <div class="text-caption text-weight-bold text-grey-8 q-mb-xs">
+              <q-icon name="inventory" size="14px" class="q-mr-xs" />Estado de recojo
+            </div>
+            <q-list dense>
+              <q-item tag="label" clickable dense class="q-px-xs">
+                <q-item-section avatar style="min-width:30px">
+                  <q-radio v-model="filtroRecogido" val="" dense color="grey" @update:model-value="fetchSolicitudesList(1)" />
+                </q-item-section>
+                <q-item-section><q-item-label class="text-caption">Todos</q-item-label></q-item-section>
+              </q-item>
+              <q-item tag="label" clickable dense class="q-px-xs">
+                <q-item-section avatar style="min-width:30px">
+                  <q-radio v-model="filtroRecogido" val="pendiente" dense color="orange" @update:model-value="fetchSolicitudesList(1)" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption text-orange">Pendiente</q-item-label>
+                  <q-item-label caption class="text-grey-6">Sin resultados aún</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item tag="label" clickable dense class="q-px-xs">
+                <q-item-section avatar style="min-width:30px">
+                  <q-radio v-model="filtroRecogido" val="con_resultado" dense color="blue" @update:model-value="fetchSolicitudesList(1)" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption text-blue">Con resultado</q-item-label>
+                  <q-item-label caption class="text-grey-6">Listo, no recogido</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item tag="label" clickable dense class="q-px-xs">
+                <q-item-section avatar style="min-width:30px">
+                  <q-radio v-model="filtroRecogido" val="recogido" dense color="positive" @update:model-value="fetchSolicitudesList(1)" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption text-positive">Recogido</q-item-label>
+                  <q-item-label caption class="text-grey-6">Resultado ya entregado</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+
+          <q-separator />
+          <q-card-section class="q-pa-sm">
+            <q-btn flat dense no-caps color="negative" icon="clear_all" label="Limpiar filtros" class="full-width" @click="clearFiltros" />
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
     </template>
   </q-page>
 </template>
@@ -573,9 +811,14 @@ export default {
       solicitudesSearch: '',
       solicitudesPagination: {
         page: 1,
-        rowsPerPage: 20,
+        rowsPerPage: 10,
         rowsNumber: 0
       },
+      showFiltros: false,
+      selectedAreaIds: [],
+      filtroResultado: '',
+      filtroValor: '',
+      filtroRecogido: '',
       resumen: {},
       porArea: [],
       ultimas: [],
@@ -682,6 +925,9 @@ export default {
     isAlmacenRole () {
       const user = this.$store?.user?.role ? this.$store.user : JSON.parse(localStorage.getItem('user') || '{}')
       return ['Almacén', 'Almacen'].includes(user?.role)
+    },
+    areasDisponibles () {
+      return this.porArea.filter(a => a.area_id)
     }
   },
   watch: {
@@ -797,6 +1043,10 @@ export default {
             date_from: this.filters.date_from,
             date_to: this.filters.date_to,
             search: this.solicitudesSearch || undefined,
+            area_ids: this.selectedAreaIds.length ? this.selectedAreaIds.join(',') : undefined,
+            filtro_resultado: this.filtroResultado || undefined,
+            filtro_valor: this.filtroValor || undefined,
+            filtro_recogido: this.filtroRecogido || undefined,
             page,
             per_page: perPage
           }
@@ -828,7 +1078,11 @@ export default {
           params: {
             date_from: this.filters.date_from,
             date_to: this.filters.date_to,
-            search: this.solicitudesSearch || undefined
+            search: this.solicitudesSearch || undefined,
+            area_ids: this.selectedAreaIds.length ? this.selectedAreaIds.join(',') : undefined,
+            filtro_resultado: this.filtroResultado || undefined,
+            filtro_valor: this.filtroValor || undefined,
+            filtro_recogido: this.filtroRecogido || undefined
           },
           responseType: 'blob'
         })
@@ -908,6 +1162,27 @@ export default {
         default: return 'blue-grey'
       }
     },
+    splitItems (str) {
+      if (!str) return []
+      return str.split(/[,\n]/).map(s => s.trim()).filter(Boolean)
+    },
+    toggleArea (id) {
+      const idx = this.selectedAreaIds.indexOf(id)
+      if (idx >= 0) this.selectedAreaIds.splice(idx, 1)
+      else this.selectedAreaIds.push(id)
+      this.fetchSolicitudesList(1)
+    },
+    areaLabel (id) {
+      const a = this.porArea.find(x => x.area_id === id)
+      return a ? a.area_nombre : id
+    },
+    clearFiltros () {
+      this.selectedAreaIds = []
+      this.filtroResultado = ''
+      this.filtroValor = ''
+      this.filtroRecogido = ''
+      this.fetchSolicitudesList(1)
+    }
   }
 
 }

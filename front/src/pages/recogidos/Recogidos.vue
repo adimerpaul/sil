@@ -1,69 +1,95 @@
 <template>
   <q-page class="q-pa-sm">
-    <q-card flat bordered>
-      <q-card-section class="row items-center q-col-gutter-xs">
-        <div class="col-12 col-sm-3">
-          <q-input v-model="filters.from" type="date" dense outlined label="Desde" />
-        </div>
-        <div class="col-12 col-sm-3">
-          <q-input v-model="filters.to" type="date" dense outlined label="Hasta" />
-        </div>
-        <div class="col-12 col-sm-3">
-          <q-select
-            v-model="filters.area_id"
-            :options="areaOptions"
-            :option-label="areaLabel"
-            option-value="id"
-            emit-value
-            map-options
-            clearable
-            dense
-            outlined
-            label="Area"
-          />
+    <q-card flat bordered class="q-mb-sm">
+      <q-card-section class="q-pb-xs">
+        <div class="row q-col-gutter-sm items-end">
+          <div class="col-12 col-sm-auto">
+            <q-input v-model="filters.from" type="date" dense outlined label="Desde" style="min-width: 140px" />
+          </div>
+          <div class="col-12 col-sm-auto">
+            <q-input v-model="filters.to" type="date" dense outlined label="Hasta" style="min-width: 140px" />
+          </div>
+          <div class="col-12 col-sm-3">
+            <q-select
+              v-model="filters.area_id"
+              :options="areaOptions"
+              :option-label="areaLabel"
+              option-value="id"
+              emit-value
+              map-options
+              clearable
+              dense
+              outlined
+              label="Área"
+            />
+          </div>
+          <div class="col-12 col-sm">
+            <q-input dense outlined v-model="filters.search" label="Buscar paciente / código / doctor" @keyup.enter="fetchRows">
+              <template #append><q-icon name="search" /></template>
+            </q-input>
+          </div>
+          <div class="col-auto">
+            <q-btn color="primary" icon="search" label="Buscar" no-caps :loading="loading" @click="fetchRows" />
+          </div>
+          <div class="col-auto">
+            <q-btn-dropdown color="grey-7" icon="description" label="Reportes" no-caps :loading="loadingReport" flat dense>
+              <q-list dense>
+                <q-item clickable v-close-popup @click="openReporte('dia')">
+                  <q-item-section>Reporte por día</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup @click="openReporte('area')">
+                  <q-item-section>Reporte por área</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup @click="openReporte('pendientes')">
+                  <q-item-section>Pendientes</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup @click="openReporte('activos')">
+                  <q-item-section>Activos</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup @click="openReporte('recogidos')">
+                  <q-item-section>Recogidos</q-item-section>
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
+          </div>
         </div>
       </q-card-section>
-
-      <q-card-section class="row items-center q-col-gutter-xs">
-        <div class="col-12 col-sm-6">
-          <q-input dense outlined v-model="filters.search" label="Buscar paciente / codigo / doctor" @keyup.enter="fetchRows">
-            <template #append><q-icon name="search" /></template>
-          </q-input>
-        </div>
-        <div class="col-12 col-sm-6 text-right">
-          <q-btn color="primary" icon="search" label="Filtrar" no-caps :loading="loading" @click="fetchRows" class="q-mr-xs" />
-          <q-btn-dropdown color="grey-8" icon="description" label="Reportes" no-caps :loading="loadingReport">
-            <q-list dense>
-              <q-item clickable v-close-popup @click="openReporte('dia')">
-                <q-item-section>Reporte por día</q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup @click="openReporte('area')">
-                <q-item-section>Reporte por área</q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup @click="openReporte('pendientes')">
-                <q-item-section>Pendientes</q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup @click="openReporte('activos')">
-                <q-item-section>Activos</q-item-section>
-              </q-item>
-              <q-item clickable v-close-popup @click="openReporte('recogidos')">
-                <q-item-section>Recogidos</q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown>
-        </div>
-        <div class="col-12">
-          <span class="text-caption">
-            <q-badge color="blue-9" text-color="white" class="q-mr-sm"><q-icon name="check_circle" class="q-mr-xs" />Recogido</q-badge>
-            <q-badge color="green" text-color="white" class="q-mr-sm"><q-icon name="task_alt" class="q-mr-xs" />Procesado</q-badge>
-            <q-badge color="yellow-7" text-color="black"><q-icon name="schedule" class="q-mr-xs" />Pendiente Procesado</q-badge>
-          </span>
+      <q-card-section class="q-pt-xs q-pb-sm">
+        <div class="row q-gutter-xs items-center">
+          <span class="text-caption text-grey-6 q-mr-xs">Filtrar por estado:</span>
+          <q-chip
+            dense square clickable class="q-ma-none text-caption"
+            :color="filters.estado === '' ? 'blue-grey-7' : 'grey-3'"
+            :text-color="filters.estado === '' ? 'white' : 'grey-7'"
+            icon="list"
+            @click="setEstado('')"
+          >Todos</q-chip>
+          <q-chip
+            dense square clickable class="q-ma-none text-caption"
+            :color="filters.estado === 'pendiente' ? 'grey-7' : 'grey-3'"
+            :text-color="filters.estado === 'pendiente' ? 'white' : 'grey-8'"
+            icon="hourglass_empty"
+            @click="setEstado('pendiente')"
+          >Pendiente</q-chip>
+          <q-chip
+            dense square clickable class="q-ma-none text-caption"
+            :color="filters.estado === 'con_resultado' ? 'orange-7' : 'grey-3'"
+            :text-color="filters.estado === 'con_resultado' ? 'white' : 'grey-8'"
+            icon="science"
+            @click="setEstado('con_resultado')"
+          >Con resultado</q-chip>
+          <q-chip
+            dense square clickable class="q-ma-none text-caption"
+            :color="filters.estado === 'recogido' ? 'green-7' : 'grey-3'"
+            :text-color="filters.estado === 'recogido' ? 'white' : 'grey-8'"
+            icon="check_circle"
+            @click="setEstado('recogido')"
+          >Recogido</q-chip>
         </div>
       </q-card-section>
     </q-card>
 
     <q-table
-      class="q-mt-sm"
       :rows="rows"
       :columns="columns"
       row-key="id"
@@ -74,132 +100,90 @@
       :loading="loading"
       @request="onRequest"
       :rows-per-page-options="[10, 20, 50]"
-      title="Recojo de Resultados por solicitud y área"
+      title="Recojo de resultados por área"
     >
       <template #body-cell-codigo="props">
-        <q-td :props="props">
+        <q-td :props="props" class="text-weight-medium">
           {{ `${props.row.codigo || ''}${props.row.nro_registro || ''}` }}
         </q-td>
       </template>
 
       <template #body-cell-servicios="props">
         <q-td :props="props">
-          <div class="column q-gutter-xs">
-            <div
+          <div class="row q-gutter-xs items-center q-mb-xs">
+            <q-chip
               v-for="ga in groupedAreas(props.row.servicio_solicitudes)"
               :key="`${props.row.id}-${ga.area_id}`"
-              class="row items-center q-gutter-sm"
+              :color="areaStatusColor(ga)"
+              :text-color="areaTextColor(ga)"
+              :icon="areaStatusIcon(ga)"
+              clickable
+              dense
+              square
+              class="q-ma-none"
+              style="cursor: pointer"
+              @click="openDialogByAreas(props.row, [ga])"
             >
-              <q-checkbox
-                :model-value="isSelectedArea(props.row.id, ga.area_id)"
-                @update:model-value="toggleAreaSelection(props.row.id, ga.area_id, $event)"
-                dense
-              />
-
-              <q-badge :color="areaStatusColor(ga)" :text-color="areaTextColor(ga)" class="q-pa-xs text-subtitle2">
-                <q-icon :name="areaStatusIcon(ga)" class="q-mr-xs" />
-                {{ ga.area_nombre }} ({{ ga.recogidos }}/{{ ga.total_servicios }})
-              </q-badge>
-
-              <q-btn
-                size="sm"
-                dense
-                color="grey-8"
-                label="Recoger area"
-                class="text-subtitle2"
-                no-caps
-                @click="openDialogByAreas(props.row, [ga])"
-              />
-            </div>
-
-            <div class="row">
-              <q-btn
-                size="sm"
-                dense
-                color="grey"
-                icon="done_all"
-                class="text-black text-subtitle2"
-                label="Seleccionar todos"
-                no-caps
-                @click="openDialogSelected(props.row)"
-              />
-              <q-btn
-                size="sm"
-                dense
-                color="grey"
-                icon="checklist"
-                class="q-ml-sm text-black text-subtitle2"
-                :label="`Solo seleccionados (${selectedAreasCount(props.row.id)})`"
-                no-caps
-                :disable="selectedAreasCount(props.row.id) === 0"
-                @click="openDialogOnlySelected(props.row)"
-              />
-            </div>
+              {{ ga.area_nombre }}
+              <span class="q-ml-xs text-caption opacity-75">({{ ga.recogidos }}/{{ ga.total_servicios }})</span>
+            </q-chip>
           </div>
+          <q-btn
+            v-if="groupedAreas(props.row.servicio_solicitudes).length > 1"
+            size="xs"
+            flat
+            dense
+            color="primary"
+            icon="done_all"
+            label="Recoger todas las áreas"
+            no-caps
+            @click="openDialogSelected(props.row)"
+          />
         </q-td>
       </template>
     </q-table>
 
     <q-dialog v-model="dialog" persistent>
-      <q-card style="min-width: 560px; max-width: 760px;">
-        <q-card-section class="row items-center">
-          <div class="text-h6">Recogido por area</div>
+      <q-card style="min-width: 520px; max-width: 700px;">
+        <q-card-section class="bg-grey-2 row items-center q-py-sm">
+          <div>
+            <div class="text-subtitle1 text-weight-medium">Registrar recojo</div>
+            <div class="text-caption text-grey-7">
+              {{ selectedSolicitud?.paciente_nombre || '-' }}
+              <span v-if="selectedDialogAreas.length" class="q-ml-sm">
+                · {{ selectedDialogAreas.map(x => x.area_nombre).join(', ') }}
+              </span>
+            </div>
+          </div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
         <q-separator />
 
         <q-card-section>
-          <div class="text-body2 q-mb-sm">
-            <b>Paciente:</b> {{ selectedSolicitud?.paciente_nombre || '-' }}<br>
-            <b>Areas:</b>
-            <span v-if="selectedDialogAreas.length">{{ selectedDialogAreas.map(x => x.area_nombre).join(', ') }}</span>
-            <span v-else>-</span>
-          </div>
-
           <q-form @submit.prevent="saveRecogidoAreas">
             <div class="row q-col-gutter-sm">
-              <div class="col-12">
-                <q-toggle
-                  v-model="form.fue_recogido"
-                  :true-value="true"
-                  :false-value="false"
-                  label="Fue recogido"
+              <div class="col-12 col-sm-6">
+                <q-input v-model="form.recogido_por_personal" dense outlined label="Recogido por" />
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-select
+                  v-model="form.grado_parentesco"
+                  :options="['Padre', 'Madre', 'Hno/a', 'Abuelo/a', 'Tio/a', 'Primo/a', 'Otro', 'Personal', 'Interno', 'Personal sala']"
+                  dense outlined label="Parentesco / Relación"
                 />
               </div>
-
-              <div class="col-12 col-sm-6" v-if="form.fue_recogido">
-                <q-input v-model="form.recogido_por_personal" dense outlined label="Recogido por personal" >
-<!--                  templayte un boton alado de copiar -->
-                  <template #append>
-                    <q-btn
-                      flat
-                      dense
-                      icon="content_copy"
-                      @click="form.recogido_por_personal = selectedSolicitud.paciente_nombre"
-                    />
-                  </template>
-                </q-input>
+              <div class="col-12 col-sm-6">
+                <q-input v-model="form.telefono_recogido" dense outlined label="Teléfono" />
               </div>
-              <div class="col-12 col-sm-6" v-if="form.fue_recogido">
-<!--                <q-input v-model="form.grado_parentesco" dense outlined label="Grado de parentesco" />-->
-                <q-select v-model="form.grado_parentesco" :options="['Padre', 'Madre', 'Hno/a', 'Abuelo/a', 'Tio/a', 'Primo/a', 'Otro','Personal','Interno','Personal sala']" dense outlined label="Grado de parentesco" />
+              <div class="col-12 col-sm-6">
+                <q-input v-model="form.ci_recogido" dense outlined label="C.I." />
               </div>
-              <div class="col-12 col-sm-6" v-if="form.fue_recogido">
-                <q-input v-model="form.telefono_recogido" dense outlined label="Telefono" />
-              </div>
-<!--              ci_recogido-->
-              <div class="col-12 col-sm-6" v-if="form.fue_recogido">
-                <q-input v-model="form.ci_recogido" dense outlined label="C.I. Recogido por" />
-              </div>
-<!--              <div class="col-12 col-sm-6" v-if="form.fue_recogido">-->
-<!--                <q-input v-model="form.recogido_en_dia" type="date" dense outlined label="En el dia" />-->
-<!--              </div>-->
             </div>
 
             <div class="text-right q-mt-md">
-              <q-btn flat label="Cancelar" v-close-popup />
-              <q-btn color="primary" label="Guardar" class="q-ml-sm" type="submit" :loading="saving" />
+              <q-btn flat label="Cancelar" v-close-popup class="q-mr-sm" />
+              <q-btn color="positive" label="Guardar recogido" type="submit" :loading="saving" />
             </div>
           </q-form>
         </q-card-section>
@@ -220,14 +204,13 @@ export default {
       saving: false,
       rows: [],
       areas: [],
-      selectedAreasBySolicitud: {},
       columns: [
-        { name: 'id', label: 'ID', field: 'id', align: 'left' },
-        { name: 'codigo', label: 'Codigo', field: 'codigo', align: 'left' },
-        { name: 'fecha', label: 'Fecha', field: row => row.fecha_solicitud || row.fecha_creacion || '', align: 'left' },
+        { name: 'id', label: 'ID', field: 'id', align: 'left', style: 'width: 60px' },
+        { name: 'codigo', label: 'Código', field: 'codigo', align: 'left', style: 'width: 100px' },
+        { name: 'fecha', label: 'Fecha', field: row => row.fecha_solicitud || row.fecha_creacion || '', align: 'left', style: 'width: 100px' },
         { name: 'paciente', label: 'Paciente', field: row => row.paciente_nombre || '', align: 'left' },
         { name: 'doctor', label: 'Doctor', field: row => row.doctor?.nombre || row.doctor_nombre || '', align: 'left' },
-        { name: 'servicios', label: 'Areas del servicio', field: 'servicio_solicitudes', align: 'left' },
+        { name: 'servicios', label: 'Áreas', field: 'servicio_solicitudes', align: 'left' },
       ],
       pagination: {
         sortBy: 'id',
@@ -241,6 +224,7 @@ export default {
         from: moment().format('YYYY-MM-DD'),
         to: moment().format('YYYY-MM-DD'),
         area_id: null,
+        estado: '',
       },
       dialog: false,
       selectedSolicitud: null,
@@ -271,6 +255,11 @@ export default {
     areaLabel (opt) {
       if (opt?.id === null) return 'Todos'
       return opt?.title || opt?.name || `Area ${opt?.id ?? ''}`
+    },
+    setEstado (val) {
+      this.filters.estado = val
+      this.pagination.page = 1
+      this.fetchRows()
     },
     fetchAreas () {
       this.$axios.get('areas')
@@ -305,7 +294,7 @@ export default {
         const areaId = this.filters.area_id || null
 
         if (tipo === 'area' && !areaId) {
-          this.$alert.error('Seleccione un area para el reporte por area')
+          this.$alert.error('Seleccione un área para el reporte por área')
           this.loadingReport = false
           return
         }
@@ -362,36 +351,20 @@ export default {
         all_realizado: x.total_servicios > 0 && x.total_servicios === x.realizados,
       }))
     },
-    areaTextColor(ga) {
+    areaTextColor (ga) {
       if (ga.all_recogido) return 'white'
       if (ga.all_realizado) return 'white'
-      return 'black'
+      return 'grey-9'
     },
     areaStatusColor (ga) {
-      if (ga.all_recogido) return 'blue-9'
-      if (ga.all_realizado) return 'green'
-      return 'yellow-7'
+      if (ga.all_recogido) return 'green-7'
+      if (ga.all_realizado) return 'orange-7'
+      return 'grey-3'
     },
     areaStatusIcon (ga) {
       if (ga.all_recogido) return 'check_circle'
-      if (ga.all_realizado) return 'task_alt'
-      return 'schedule'
-    },
-    areaKey (solicitudeId, areaId) {
-      return `${solicitudeId}-${areaId}`
-    },
-    isSelectedArea (solicitudeId, areaId) {
-      return !!this.selectedAreasBySolicitud[this.areaKey(solicitudeId, areaId)]
-    },
-    toggleAreaSelection (solicitudeId, areaId, checked) {
-      const key = this.areaKey(solicitudeId, areaId)
-      if (checked) this.selectedAreasBySolicitud[key] = true
-      else delete this.selectedAreasBySolicitud[key]
-      this.selectedAreasBySolicitud = { ...this.selectedAreasBySolicitud }
-    },
-    selectedAreasCount (solicitudeId) {
-      const prefix = `${solicitudeId}-`
-      return Object.keys(this.selectedAreasBySolicitud).filter(k => k.startsWith(prefix)).length
+      if (ga.all_realizado) return 'science'
+      return 'hourglass_empty'
     },
     openDialogByAreas (solicitud, areasList) {
       this.selectedSolicitud = solicitud
@@ -401,11 +374,11 @@ export default {
       const firstService = (solicitud.servicio_solicitudes || []).find(x => (x.area_id || x.area?.id) === first.area_id)
 
       this.form = {
-        fue_recogido: !!firstService?.fue_recogido,
-        recogido_por_personal: firstService?.recogido_por_personal || '',
-        grado_parentesco: firstService?.grado_parentesco || '',
-        telefono_recogido: firstService?.telefono_recogido || '',
-        ci_recogido: firstService?.ci_recogido || '',
+        fue_recogido: true,
+        recogido_por_personal: firstService?.recogido_por_personal || solicitud.paciente_nombre || '',
+        grado_parentesco: firstService?.grado_parentesco || 'Personal',
+        telefono_recogido: firstService?.telefono_recogido || solicitud.paciente_telefono || '',
+        ci_recogido: firstService?.ci_recogido || solicitud.paciente_ci || '',
         recogido_en_dia: firstService?.recogido_en_dia || moment().format('YYYY-MM-DD'),
       }
 
@@ -414,31 +387,11 @@ export default {
     openDialogSelected (solicitud) {
       const grouped = this.groupedAreas(solicitud.servicio_solicitudes)
       if (!grouped.length) return
-
-      grouped.forEach(a => {
-        const key = this.areaKey(solicitud.id, a.area_id)
-        this.selectedAreasBySolicitud[key] = true
-      })
-      this.selectedAreasBySolicitud = { ...this.selectedAreasBySolicitud }
-
       this.openDialogByAreas(solicitud, grouped)
     },
-    openDialogOnlySelected (solicitud) {
-      const grouped = this.groupedAreas(solicitud.servicio_solicitudes)
-      if (!grouped.length) return
-
-      const selected = grouped.filter(a => this.isSelectedArea(solicitud.id, a.area_id))
-      if (!selected.length) {
-        this.$alert.error('Seleccione al menos un area')
-        return
-      }
-
-      this.openDialogByAreas(solicitud, selected)
-    },
     async saveRecogidoAreas () {
-
-      if (this.form.fue_recogido && !this.form.telefono_recogido) {
-        this.$alert.error('El telefono es obligatorio si fue recogido')
+      if (!this.form.telefono_recogido) {
+        this.$alert.error('El teléfono es obligatorio si fue recogido')
         return
       }
       if (!this.selectedSolicitud?.id || !this.selectedDialogAreas.length) return
@@ -471,7 +424,7 @@ export default {
         }
 
         this.dialog = false
-        this.$alert.success('Recogido actualizado para toda el area')
+        this.$alert.success('Recogido actualizado correctamente')
       } catch (err) {
         this.$alert.error(err.response?.data?.message || 'No se pudo guardar')
       } finally {

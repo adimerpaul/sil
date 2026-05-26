@@ -566,6 +566,102 @@ class SolicitudeController extends Controller
                     ->whereNull('ss.deleted_at');
             });
         }
+        if ($request->filled('area_ids')) {
+            $areaIds = array_filter(explode(',', $request->get('area_ids')));
+            if (count($areaIds)) {
+                $q->whereExists(function ($sub) use ($areaIds) {
+                    $sub->from('servicio_solicitudes as ss')
+                        ->whereColumn('ss.solicitude_id', 'solicitudes.id')
+                        ->whereIn('ss.area_id', $areaIds)
+                        ->whereNull('ss.deleted_at');
+                });
+            }
+        }
+        if ($request->filled('filtro_resultado')) {
+            switch ($request->get('filtro_resultado')) {
+                case 'con_resultados':
+                    $q->whereExists(function ($sub) {
+                        $sub->from('servicio_solicitudes as ss')
+                            ->whereColumn('ss.solicitude_id', 'solicitudes.id')
+                            ->where('ss.realizado', '!=', 'PENDIENTE')
+                            ->whereNull('ss.deleted_at');
+                    });
+                    break;
+                case 'sin_resultados':
+                    $q->whereNotExists(function ($sub) {
+                        $sub->from('servicio_solicitudes as ss')
+                            ->whereColumn('ss.solicitude_id', 'solicitudes.id')
+                            ->where('ss.realizado', '!=', 'PENDIENTE')
+                            ->whereNull('ss.deleted_at');
+                    });
+                    break;
+                case 'completos':
+                    $q->whereNotExists(function ($sub) {
+                        $sub->from('servicio_solicitudes as ss')
+                            ->whereColumn('ss.solicitude_id', 'solicitudes.id')
+                            ->where('ss.realizado', 'PENDIENTE')
+                            ->whereNull('ss.deleted_at');
+                    });
+                    break;
+            }
+        }
+        if ($request->filled('filtro_recogido')) {
+            switch ($request->get('filtro_recogido')) {
+                case 'pendiente':
+                    $q->whereNotExists(function ($sub) {
+                        $sub->from('servicio_solicitudes as ss')
+                            ->whereColumn('ss.solicitude_id', 'solicitudes.id')
+                            ->where('ss.realizado', 'REALIZADO')
+                            ->whereNull('ss.deleted_at');
+                    });
+                    break;
+                case 'con_resultado':
+                    $q->whereExists(function ($sub) {
+                        $sub->from('servicio_solicitudes as ss')
+                            ->whereColumn('ss.solicitude_id', 'solicitudes.id')
+                            ->where('ss.realizado', 'REALIZADO')
+                            ->whereNull('ss.deleted_at');
+                    })->whereNotExists(function ($sub) {
+                        $sub->from('servicio_solicitudes as ss')
+                            ->whereColumn('ss.solicitude_id', 'solicitudes.id')
+                            ->where('ss.fue_recogido', true)
+                            ->whereNull('ss.deleted_at');
+                    });
+                    break;
+                case 'recogido':
+                    $q->whereExists(function ($sub) {
+                        $sub->from('servicio_solicitudes as ss')
+                            ->whereColumn('ss.solicitude_id', 'solicitudes.id')
+                            ->where('ss.fue_recogido', true)
+                            ->whereNull('ss.deleted_at');
+                    });
+                    break;
+            }
+        }
+        if ($request->filled('filtro_valor')) {
+            $filtroValor = $request->get('filtro_valor');
+            $q->whereExists(function ($sub) use ($filtroValor) {
+                $sub->from('resultado_laboratorios as rl')
+                    ->join('area_rangos as ar', 'ar.id', '=', 'rl.area_rango_id')
+                    ->whereColumn('rl.solicitude_id', 'solicitudes.id')
+                    ->whereNotNull('rl.valor_final')
+                    ->whereNull('rl.deleted_at');
+
+                if ($filtroValor === 'alto') {
+                    $sub->whereNotNull('ar.rango_maximo')
+                        ->whereRaw('rl.valor_final > ar.rango_maximo');
+                } elseif ($filtroValor === 'bajo') {
+                    $sub->whereNotNull('ar.rango_minimo')
+                        ->whereRaw('rl.valor_final < ar.rango_minimo');
+                } elseif ($filtroValor === 'fuera_rango') {
+                    $sub->whereRaw('(
+                        (ar.rango_maximo IS NOT NULL AND rl.valor_final > ar.rango_maximo)
+                        OR
+                        (ar.rango_minimo IS NOT NULL AND rl.valor_final < ar.rango_minimo)
+                    )');
+                }
+            });
+        }
         if ($request->filled('tipo_atencion')) $q->where('solicitudes.tipo_atencion', $request->get('tipo_atencion'));
         if ($request->filled('establecimiento_id')) $q->where('solicitudes.establecimiento_id', $request->get('establecimiento_id'));
         if ($request->filled('search')) {

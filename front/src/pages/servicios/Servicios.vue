@@ -814,7 +814,8 @@ export default {
           field: 'tipo_muestra',
           align: 'left'
         }
-      ]
+      ],
+
     }
   },
   computed: {
