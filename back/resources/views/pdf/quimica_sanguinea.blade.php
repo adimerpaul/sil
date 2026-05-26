@@ -835,7 +835,7 @@
                                                 <td>ASO</td>
                                                 <td class="center">
 {{--                                                    {{ val($q,'aso_valor') }} sin decimales--}}
-                                                    {{ round(val($q,'aso_valor')) }}
+                                                    {{ round((float)val($q,'aso_valor')) }}
                                                     {{ val($q,'aso') }}
                                                 </td>
                                                 <td class="center">{{ rangoTexto('ASO',$rangosMap) }}</td>
@@ -855,7 +855,7 @@
                                             <tr>
                                                 <td>FR</td>
                                                 <td class="center">
-                                                    {{ round(val($q,'fr_valor')) }}
+                                                    {{ round((float)val($q,'fr_valor')) }}
                                                     {{ val($q,'fr') }}
                                                 </td>
                                                 <td class="center">{{ rangoTexto('FR',$rangosMap) }}</td>
@@ -884,7 +884,7 @@
                                             <tr>
                                                 <td>PCR</td>
                                                 <td class="center">
-                                                    {{ round(val($q,'pcr_valor')) }}
+                                                    {{ round((float)val($q,'pcr_valor')) }}
                                                     {{ val($q,'pcr') }}
                                                 </td>
                                                 <td class="center">{{ rangoTexto('PCR',$rangosMap) }}</td>
@@ -1060,7 +1060,7 @@
                                         @if(hasVal($q,'citoquimico_cantidad'))
                                             <tr>
                                                 <td>Cantidad (ml)</td>
-                                                <td class="center">{{ round(val($q,'citoquimico_cantidad'))}}</td>
+                                                <td class="center">{{ round((float)val($q,'citoquimico_cantidad'))}}</td>
                                                 <td class="center">{{ rangoTexto('Cantidad (ml)',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Cantidad (ml)',$rangosMap) }}</td>
                                             </tr>
@@ -1084,7 +1084,7 @@
                                         @if(hasVal($q,'citoquimico_glucosa'))
                                             <tr>
                                                 <td>Glucosa</td>
-                                                <td class="center">{{ round(val($q,'citoquimico_glucosa')) }}</td>
+                                                <td class="center">{{ round((float)val($q,'citoquimico_glucosa')) }}</td>
                                                 <td class="center"></td>
                                                 <td class="center">mg/dl</td>
                                             </tr>
@@ -1116,7 +1116,7 @@
                                         @if(hasVal($q,'citoquimico_ldh'))
                                             <tr>
                                                 <td>LDH</td>
-                                                <td class="center">{{ round(val($q,'citoquimico_ldh')) }}</td>
+                                                <td class="center">{{ round((float)val($q,'citoquimico_ldh')) }}</td>
                                                 <td class="center"></td>
                                                 <td class="center">U/L</td>
                                             </tr>
@@ -1132,7 +1132,7 @@
                                         @if(hasVal($q,'citoquimico_polimorfonucleares'))
                                             <tr>
                                                 <td>Polimorfonucleares (%)</td>
-                                                <td class="center">{{ round(val($q,'citoquimico_polimorfonucleares')) }}</td>
+                                                <td class="center">{{ round((float)val($q,'citoquimico_polimorfonucleares')) }}</td>
                                                 <td class="center">%</td>
                                                 <td class="center">{{ rangoUnidad('Polimorfonucleares (%)',$rangosMap) }}</td>
                                             </tr>
@@ -1140,7 +1140,7 @@
                                         @if(hasVal($q,'citoquimico_mononucleares'))
                                             <tr>
                                                 <td>Mononucleares (%)</td>
-                                                <td class="center">{{ round(val($q,'citoquimico_mononucleares')) }}</td>
+                                                <td class="center">{{ round((float)val($q,'citoquimico_mononucleares')) }}</td>
                                                 <td class="center">%</td>
                                                 <td class="center">{{ rangoUnidad('Mononucleares (%)',$rangosMap) }}</td>
                                             </tr>
@@ -1149,7 +1149,7 @@
                                             <tr>
                                                 <td>Total (%)</td>
                                                 <td class="center">
-                                                    {{ round(val($q,'citoquimico_mononucleares')) +round(val($q,'citoquimico_polimorfonucleares')) }}
+                                                    {{ round((float)val($q,'citoquimico_mononucleares')) +round((float)val($q,'citoquimico_polimorfonucleares')) }}
                                                 </td>
                                                 <td class="center">%</td>
                                                 <td class="center"></td>
