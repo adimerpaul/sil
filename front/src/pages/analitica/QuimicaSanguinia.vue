@@ -782,7 +782,7 @@
 
               <tbody>
               <tr v-if="canServicios('ASTO O ASO')">
-                <td>ASO</td>
+                <td>ASTO O ASO</td>
                 <td>
 <!--                  <q-input v-model.number="form.aso" dense outlined type="number" step="0.01"-->
 <!--                           :input-class="inputRangeClass('ASO', form.aso)" />-->
