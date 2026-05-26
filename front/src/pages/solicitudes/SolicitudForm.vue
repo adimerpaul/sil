@@ -393,8 +393,9 @@
                     use-input
                     emit-value
                     map-options
-                    input-debounce="300"
+                    input-debounce="500"
                     @filter="onFilterDiagnosticos"
+                    no-options-label="Escriba al menos 2 caracteres para buscar"
                   >
                     <template #option="scope">
                       <q-item v-bind="scope.itemProps">
@@ -556,7 +557,8 @@
                 </div>
               </q-card>
             </q-dialog>
-            <div class="col-12 col-md-6 q-mt-xs">
+            <div class="col-12 col-md-6 q-mt-xs"
+                 v-if="solicitud.diagnostico_select && solicitud.diagnostico_select.toLowerCase().includes('otro')">
               <q-input v-model="solicitud.diagnostico_clinico" type="textarea"
                        label="Diagnóstico clínico otros" dense outlined autogrow />
             </div>
@@ -1551,8 +1553,6 @@ export default {
     aplicarCatalogosSolicitud (data) {
       this.doctoresOptions = data.doctores || []
       this.doctoresOptionsAll = data.doctores || []
-      this.diagnosticos = data.diagnosticos || []
-      this.diagnosticosAll = data.diagnosticos || []
       this.areas = data.areas || []
       this.codigosSugeridos = data.codigos_sugeridos || { SI: null, NO: null }
 
@@ -1849,7 +1849,8 @@ export default {
     },
     omitirConsentimiento () {
       this.consentimientoDialog = false
-      this.$router.push({ path: '/solicitudes' })
+      this.$alert?.success ? this.$alert.success('Solicitud creada correctamente') : null
+      this.resetFormParaNuevaSolicitud()
     },
     guardarConsentimientoNuevaSolicitud () {
       if (!this.solicitudCreadaId) return
@@ -1863,7 +1864,7 @@ export default {
           // http://localhost:8000/api/solicitudes/472/consentimiento/print
           const url = `${this.$axios.defaults.baseURL}/solicitudes/${this.solicitudCreadaId}/consentimiento/print`
           window.open(url, '_blank')
-          this.$router.push({ path: '/solicitudes' })
+          this.resetFormParaNuevaSolicitud()
         })
         .catch(e => {
           const msg = e.response?.data?.message || e.message
@@ -1994,28 +1995,17 @@ export default {
           .slice(0, 50) // 🔥 limita resultados (performance)
       })
     },
-    onFilterDiagnosticos (val, update) {
-      update(() => {
-        const text = (val || '').toLowerCase().trim()
-
-        if (!text) {
-          this.diagnosticos = this.diagnosticosAll
-          return
-        }
-
-        this.diagnosticos = this.diagnosticosAll
-          .filter(d => {
-            const cie10 = String(d.cie10 || '').toLowerCase()
-            const esp = String(d.especialidad || '').toLowerCase()
-            const serv = String(d.servicio || '').toLowerCase()
-            return (
-              cie10.includes(text) ||
-              esp.includes(text) ||
-              serv.includes(text)
-            )
-          })
-          .slice(0, 50) // 🔥 limita resultados (performance)
-      })
+    onFilterDiagnosticos (val, update, abort) {
+      const text = (val || '').trim()
+      if (text.length < 2) {
+        update(() => { this.diagnosticos = [] })
+        return
+      }
+      this.$axios.get('diagnosticos', { params: { search: text, per_page: 20 } })
+        .then(res => {
+          update(() => { this.diagnosticos = res.data.data || [] })
+        })
+        .catch(() => { abort() })
     },
     diagnosticosGet () {
       this.$axios.get('diagnosticos').then(res => {
@@ -2073,7 +2063,6 @@ export default {
         }
         this.nuevoDiagnostico()
         await this.fetchDiagnosticosAdmin(this.diagPagination.page)
-        this.diagnosticosGet() // refresca el select del formulario
       } catch (e) {
         const msg = e.response?.data?.message || 'Error al guardar'
         this.$alert?.error(msg)
@@ -2089,12 +2078,18 @@ export default {
           this.$alert?.success('Diagnóstico eliminado')
           if (this.diagEditando === row.id) this.nuevoDiagnostico()
           await this.fetchDiagnosticosAdmin(this.diagPagination.page)
-          this.diagnosticosGet()
         } catch (e) {
           this.$alert?.error('Error al eliminar')
         }
       })
     },
+    resetFormParaNuevaSolicitud () {
+      this.extras = {}
+      this.diagnosticos = []
+      this.solicitudCreadaId = null
+      this.cargarCatalogosSolicitud()
+    },
+
     initSolicitud () {
       this.solicitud = {
         paciente_id: null,
@@ -2328,7 +2323,7 @@ export default {
               this.abrirConsentimientoNuevaSolicitud(solicitudCreada)
             }).onCancel(() => {
               this.$alert?.success ? this.$alert.success('Solicitud guardada correctamente') : null
-              this.$router.push({ path: '/solicitudes' })
+              this.resetFormParaNuevaSolicitud()
             })
           })
           .catch(e => {

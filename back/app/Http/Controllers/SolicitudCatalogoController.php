@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Area;
-use App\Models\Diagnostico;
 use App\Models\Doctor;
 use App\Models\Establecimiento;
 use App\Models\Solicitude;
@@ -18,7 +17,6 @@ class SolicitudCatalogoController extends Controller
             'doctores' => Doctor::with('establecimiento')
                 ->orderBy('id', 'desc')
                 ->get(),
-            'diagnosticos' => Diagnostico::all(),
             'establecimientos' => Establecimiento::with('servicios')
                 ->orderBy('id', 'desc')
                 ->get()
