@@ -172,6 +172,9 @@ class CompraController extends Controller
             $productos = AlmacenItem::whereIn('id', collect($data['items'])->pluck('producto_id'))->get()->keyBy('id');
             $total = collect($data['items'])->sum(fn ($item) => (float) ($item['precio'] ?? 0) * (int) $item['cantidad']);
 
+            // Preservar cantidad_venta existente por producto_id para no perder el tracking de despachos
+            $cantidadesVenta = $compra->detalles->keyBy('producto_id')->map(fn ($d) => (int) $d->cantidad_venta);
+
             $compra->update([
                 'proveedor_id' => $data['proveedor_id'] ?? null,
                 'fecha_hora' => $data['fecha_hora'] ?? $compra->fecha_hora,
@@ -204,7 +207,7 @@ class CompraController extends Controller
                     'nombre' => $producto->nombre,
                     'precio' => $precio,
                     'cantidad' => $cantidad,
-                    'cantidad_venta' => 0,
+                    'cantidad_venta' => $cantidadesVenta[$producto->id] ?? 0,
                     'total' => round($precio * $cantidad, 2),
                     'factor' => $factor,
                     'precio13' => $precio13,

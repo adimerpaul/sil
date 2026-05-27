@@ -582,6 +582,14 @@ export default {
       try {
         const res = await this.$axios.get(`compras/${id}`)
         const compra = res.data
+
+        // Bloquear edición si la compra tiene más de 1 mes
+        if (compra.created_at && moment(compra.created_at).isBefore(moment().subtract(1, 'month'))) {
+          this.$alert.error('No se puede modificar esta compra: tiene más de un mes de antigüedad.')
+          this.$router.push('/almacen/compras')
+          return
+        }
+
         this.form.proveedor_id = compra.proveedor_id || null
         this.form.fecha_hora = compra.fecha_hora ? moment(compra.fecha_hora).format('YYYY-MM-DDTHH:mm') : moment().format('YYYY-MM-DDTHH:mm')
         this.form.tipo_registro = compra.tipo_registro || 'ENTRADA'

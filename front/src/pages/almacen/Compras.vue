@@ -577,10 +577,15 @@ export default {
       if (!row) return false
       return Number(row.despachado_count || 0) > 0
     },
+    isTooOld (row) {
+      if (!row?.created_at) return false
+      return moment(row.created_at).isBefore(moment().subtract(1, 'month'))
+    },
     isBlocked (row) {
-      return this.hasVentas(row) || this.hasDespachos(row)
+      return this.isTooOld(row) || this.hasVentas(row) || this.hasDespachos(row)
     },
     blockReason (row) {
+      if (this.isTooOld(row)) return 'Bloqueado: más de 1 mes de antigüedad'
       if (this.hasDespachos(row)) return 'Bloqueado: ya fue despachado'
       if (this.hasVentas(row)) return 'Bloqueado: ya hay ventas'
       return ''

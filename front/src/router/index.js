@@ -27,12 +27,22 @@ export default defineRouter(function (/* { store, ssrContext } */) {
   })
   Router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
-      if (useCounterStore().isLogged) {
-        next()
+      const store = useCounterStore()
+      if (!store.isLogged) {
+        next('/login')
         return
       }
-      next('/login')
-    }else {
+      const perm = to.meta.perm
+      if (perm && store.permissions && store.permissions.length) {
+        const perms = Array.isArray(perm) ? perm : [perm]
+        const hasPerm = perms.some(p => store.permissions.includes(p))
+        if (!hasPerm) {
+          next('/')
+          return
+        }
+      }
+      next()
+    } else {
       next()
     }
   })
