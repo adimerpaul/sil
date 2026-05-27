@@ -232,7 +232,7 @@
 
     $showOtros = $hasAnyServicios([
         'CK TOTAL',
-        'CK-MB',
+        'CK MB',
         'LACTATO DESHIDROGENASA ( LDH )',
         'LIPASA'
     ]);
