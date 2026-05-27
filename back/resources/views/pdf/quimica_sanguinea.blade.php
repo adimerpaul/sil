@@ -232,7 +232,7 @@
 
     $showOtros = $hasAnyServicios([
         'CK TOTAL',
-        'CK MB',
+        'CK-MB',
         'LACTATO DESHIDROGENASA ( LDH )',
         'LIPASA'
     ]);
@@ -496,12 +496,12 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios('CK MB'))
+                                        @if($canServicios('CK-MB'))
                                             <tr>
                                                 <td>CK MB</td>
                                                 <td class="center">{{ val($q,'ck_mb') }}</td>
-                                                <td class="center">{{ rangoTexto('CK MB',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('CK MB',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoTexto('CK-MB',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoUnidad('CK-MB',$rangosMap) }}</td>
                                             </tr>
                                         @endif
 
