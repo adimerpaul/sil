@@ -496,7 +496,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios('CK-MB'))
+                                        @if($canServicios('CK MB'))
                                             <tr>
                                                 <td>CK MB</td>
                                                 <td class="center">{{ val($q,'ck_mb') }}</td>
