@@ -64,6 +64,12 @@ class Uroanalisis extends Model implements AuditableContract{
         'cilindros_valor2',
         'celulas_epiteliales_valor2',
         'cristales_valor2',
+        'user_presentacion_id',
+        'fecha_presentacion',
+    ];
+
+    protected $casts = [
+        'fecha_presentacion' => 'datetime',
     ];
     protected $hidden = [
 //        'created_at',
@@ -88,5 +94,9 @@ class Uroanalisis extends Model implements AuditableContract{
     function user()
     {
         return $this->belongsTo(User::class);
+    }
+    function userPresentacion()
+    {
+        return $this->belongsTo(User::class, 'user_presentacion_id');
     }
 }

@@ -73,6 +73,12 @@ class Hematologia extends Model implements AuditableContract
         'coagulograma_equipo',
         'observaciones',
         'user_id',
+        'user_presentacion_id',
+        'fecha_presentacion',
+    ];
+
+    protected $casts = [
+        'fecha_presentacion' => 'datetime',
     ];
 
     protected $hidden = [
@@ -98,5 +104,9 @@ class Hematologia extends Model implements AuditableContract
     function user()
     {
         return $this->belongsTo(User::class);
+    }
+    function userPresentacion()
+    {
+        return $this->belongsTo(User::class, 'user_presentacion_id');
     }
 }

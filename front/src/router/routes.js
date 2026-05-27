@@ -150,6 +150,11 @@ const routes = [
         meta: {requiresAuth: true, perm: 'Reporte Valorado'}
       },
       {
+        path: '/almacen/reporte-unidad',
+        component: () => import('pages/almacen/ReporteUnidad.vue'),
+        meta: {requiresAuth: true, perm: 'Reporte por Unidad'}
+      },
+      {
         path: '/despachos',
         component: () => import('pages/almacen/Despachos.vue'),
         meta: {requiresAuth: true, perm: 'Ver Despachos'}

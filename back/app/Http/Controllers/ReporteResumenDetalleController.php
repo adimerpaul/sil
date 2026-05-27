@@ -129,9 +129,6 @@ class ReporteResumenDetalleController extends Controller
             $csf  = $csi + $ce - $cs;
             $vsf  = $vsi + $ve - $vs;
 
-            // sólo incluir filas con algún movimiento
-            if ($csi == 0 && $ce == 0 && $cs == 0 && $csf == 0) continue;
-
             $detalleRows[] = [
                 'nro'              => ++$nro,
                 'descripcion'      => $item->nombre,

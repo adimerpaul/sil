@@ -31,6 +31,7 @@ use App\Http\Controllers\HerramientasAlmacenController;
 use App\Http\Controllers\DespachoController;
 use App\Http\Controllers\ReporteValoradoController;
 use App\Http\Controllers\ReporteResumenDetalleController;
+use App\Http\Controllers\ReporteUnidadController;
 
 Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
 
@@ -148,6 +149,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 //    analitica/solicitudes
     Route::get('solicitudesAnalitica', [SolicitudeController::class, 'solicitudesAnalitica']);
+    Route::get('analitica/para-presentacion', [SolicitudeController::class, 'paraPresentacion']);
+    Route::post('analitica/registrar-presentacion', [SolicitudeController::class, 'registrarPresentacion']);
 
     Route::get   ('formularios',        [FormulariosController::class, 'index']);
     Route::post  ('formularios',        [FormulariosController::class, 'store']);
@@ -201,6 +204,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('/inmunologia/solicitude-formulario/{id}', [\App\Http\Controllers\InmunologiaController::class, 'update']);
     Route::delete('/inmunologia/solicitude-formulario/{id}', [\App\Http\Controllers\InmunologiaController::class, 'remove']);
 
+    Route::get('reportes/almacen-unidad/unidades', [ReporteUnidadController::class, 'unidades']);
+    Route::get('reportes/almacen-unidad/personas', [ReporteUnidadController::class, 'personas']);
+    Route::get('reportes/almacen-unidad', [ReporteUnidadController::class, 'index']);
+    Route::get('reportes/almacen-unidad/excel', [ReporteUnidadController::class, 'exportExcel']);
+    Route::get('reportes/almacen-unidad/pdf', [ReporteUnidadController::class, 'exportPdf']);
+
     Route::get('reportes/servicios-resumen', [ReporteServiciosController::class, 'index']);
     Route::get('reportes/servicios-resumen/excel', [ReporteServiciosController::class, 'exportExcel']);
     Route::get('reportes/servicios-resumen/pdf', [ReporteServiciosController::class, 'exportPdf']);
@@ -216,6 +225,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 });
 Route::get('solicitudes-area-preanalitica/pdf', [SolicitudeController::class, 'pdfPreanalitica']);
+Route::get('analitica/pdf-presentacion', [SolicitudeController::class, 'pdfPresentacion']);
 Route::get('solicitudes/{id}/analitica-pdf', [SolicitudeController::class, 'imprimirAnalitica']);
 Route::get('public/reportes/{codigo}', [SolicitudeController::class, 'imprimirAnaliticaPublica'])
     ->name('solicitudes.analitica.publica');

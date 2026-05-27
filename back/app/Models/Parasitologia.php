@@ -37,7 +37,13 @@ class Parasitologia extends Model implements AuditableContract
         'code',
         'moco_fecal_positivo',
         'user_id',
-        'otros_resultados'
+        'otros_resultados',
+        'user_presentacion_id',
+        'fecha_presentacion',
+    ];
+
+    protected $casts = [
+        'fecha_presentacion' => 'datetime',
     ];
 
     protected $hidden = [
@@ -58,5 +64,9 @@ class Parasitologia extends Model implements AuditableContract
     function user()
     {
         return $this->belongsTo(User::class);
+    }
+    function userPresentacion()
+    {
+        return $this->belongsTo(User::class, 'user_presentacion_id');
     }
 }

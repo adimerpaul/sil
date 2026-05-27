@@ -22,7 +22,7 @@ class ServicioSolicitude extends Model implements AuditableContract
         'grado_parentesco',
         'telefono_recogido',
         'recogido_en_dia',
-        'ci_recogido'
+        'ci_recogido',
     ];
 
     protected $casts = [
@@ -37,7 +37,7 @@ class ServicioSolicitude extends Model implements AuditableContract
         return $this->belongsTo(Servicio::class);
     }
     function solicitud(){
-        return $this->belongsTo(Solicitude::class);
+        return $this->belongsTo(Solicitude::class, 'solicitude_id');
     }
     function area(){
         return $this->belongsTo(Area::class);

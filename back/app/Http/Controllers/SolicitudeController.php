@@ -843,6 +843,154 @@ class SolicitudeController extends Controller
         return $query->orderBy('id', 'desc')->get();
     }
 
+    public function paraPresentacion(Request $request)
+    {
+        $fecha = $request->input('fecha', now()->toDateString());
+        $user  = $request->user();
+
+        $query = \App\Models\ServicioSolicitude::with(['solicitud', 'area'])
+            ->whereHas('solicitud', function ($q) use ($fecha) {
+                $q->whereDate('fecha_creacion', $fecha)
+                  ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO', 'ANALIZADO']);
+            })
+            ->where('realizado', '!=', 'PENDIENTE')
+            ->whereNull('deleted_at');
+
+        if ($user && $user->role !== 'Administrador' && $user->area_id) {
+            $query->where('area_id', $user->area_id);
+        }
+
+        $servicios = $query->orderBy('area_id')->orderBy('solicitude_id')->get();
+
+        // Consultar todas las tablas de lab para obtener el último user_presentacion por solicitude_id
+        $solicitudeIds = $servicios->pluck('solicitude_id')->unique()->toArray();
+        $labModels = [
+            \App\Models\Hematologia::class,
+            \App\Models\QuimicaSanguinea::class,
+            \App\Models\Uroanalisis::class,
+            \App\Models\Parasitologia::class,
+            \App\Models\PanelRespiratorio::class,
+            \App\Models\PanelSexual::class,
+            \App\Models\PapilomaHumano::class,
+            \App\Models\CultivoAntibiograma::class,
+        ];
+        $presentaciones = [];
+        foreach ($labModels as $model) {
+            $model::with('userPresentacion')
+                ->whereIn('solicitude_id', $solicitudeIds)
+                ->whereNotNull('user_presentacion_id')
+                ->get(['solicitude_id', 'user_presentacion_id', 'fecha_presentacion'])
+                ->each(function ($r) use (&$presentaciones) {
+                    $sid = $r->solicitude_id;
+                    if (
+                        !isset($presentaciones[$sid]) ||
+                        $r->fecha_presentacion > $presentaciones[$sid]['fecha_presentacion']
+                    ) {
+                        $presentaciones[$sid] = [
+                            'user_presentacion'  => $r->userPresentacion?->name,
+                            'fecha_presentacion' => $r->fecha_presentacion?->format('d/m/Y H:i'),
+                        ];
+                    }
+                });
+        }
+
+        $grouped = $servicios->groupBy('area_id')->map(function ($items) use ($presentaciones) {
+            $porSolicitud = $items->groupBy('solicitude_id')->map(function ($ss) use ($presentaciones) {
+                $sol = $ss->first()->solicitud;
+                $pres = $presentaciones[$sol->id] ?? null;
+                return [
+                    'solicitud_id'       => $sol->id,
+                    'paciente_nombre'    => $sol->paciente_nombre,
+                    'nro_registro'       => $sol->nro_registro,
+                    'user_presentacion'  => $pres['user_presentacion'] ?? null,
+                    'fecha_presentacion' => $pres['fecha_presentacion'] ?? null,
+                    'servicios'          => $ss->map(fn ($s) => [
+                        'id'     => $s->id,
+                        'nombre' => $s->nombre,
+                    ])->values(),
+                ];
+            })->values();
+
+            return [
+                'area_id'     => $items->first()->area_id,
+                'area_nombre' => $items->first()->area?->name ?? 'Sin área',
+                'solicitudes' => $porSolicitud,
+            ];
+        })->values();
+
+        return response()->json($grouped);
+    }
+
+    public function registrarPresentacion(Request $request)
+    {
+        $solicitudeIds = $request->input('solicitude_ids', []);
+        $user          = $request->user();
+        $campos        = ['user_presentacion_id' => $user->id, 'fecha_presentacion' => now()];
+
+        foreach ([
+            \App\Models\Hematologia::class,
+            \App\Models\QuimicaSanguinea::class,
+            \App\Models\Uroanalisis::class,
+            \App\Models\Parasitologia::class,
+            \App\Models\PanelRespiratorio::class,
+            \App\Models\PanelSexual::class,
+            \App\Models\PapilomaHumano::class,
+            \App\Models\CultivoAntibiograma::class,
+        ] as $model) {
+            $model::whereIn('solicitude_id', $solicitudeIds)->update($campos);
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function pdfPresentacion(Request $request)
+    {
+        $fecha  = $request->input('fecha', now()->toDateString());
+        $areaId = $request->input('area_id');
+
+        $query = \App\Models\ServicioSolicitude::with(['solicitud', 'area'])
+            ->whereHas('solicitud', function ($q) use ($fecha) {
+                $q->whereDate('fecha_creacion', $fecha)
+                  ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO', 'ANALIZADO']);
+            })
+            ->where('realizado', '!=', 'PENDIENTE')
+            ->whereNull('deleted_at');
+
+        if ($areaId) {
+            $query->where('area_id', $areaId);
+        }
+
+        $servicios = $query->orderBy('area_id')->orderBy('solicitude_id')->get();
+
+        $grupos = $servicios->groupBy('area_id')->map(function ($items) {
+            $solicitudes = $items->groupBy('solicitude_id')->map(function ($ss) {
+                $sol = $ss->first()->solicitud;
+                return [
+                    'solicitud_id'    => $sol->id,
+                    'paciente_nombre' => $sol->paciente_nombre,
+                    'nro_registro'    => $sol->nro_registro,
+                    'servicios'       => $ss->map(fn ($s) => [
+                        'id'    => $s->id,
+                        'nombre' => $s->nombre,
+                    ])->values(),
+                ];
+            })->values();
+
+            return [
+                'area_id'     => $items->first()->area_id,
+                'area_nombre' => $items->first()->area?->name ?? 'Sin área',
+                'solicitudes' => $solicitudes,
+            ];
+        })->values();
+
+        $areaNombre = $areaId ? ($grupos->first()['area_nombre'] ?? '') : '';
+
+        $pdf = Pdf::loadView('pdf.registro_presentacion', compact('grupos', 'fecha', 'areaNombre'))
+            ->setPaper('legal', 'landscape');
+
+        return $pdf->stream("registro_entrega_{$fecha}.pdf");
+    }
+
     public function imprimirAnaliticaPublica($codigo)
     {
         $solicitud = Solicitude::with([

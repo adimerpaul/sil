@@ -143,6 +143,12 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'gasometria_observacion',
         'gasometria_muestra_estado',
         'citoquimico_observaciones',
+        'user_presentacion_id',
+        'fecha_presentacion',
+    ];
+
+    protected $casts = [
+        'fecha_presentacion' => 'datetime',
     ];
 
     protected $hidden = [
@@ -168,5 +174,9 @@ class QuimicaSanguinea extends Model implements AuditableContract
     function user()
     {
         return $this->belongsTo(User::class);
+    }
+    function userPresentacion()
+    {
+        return $this->belongsTo(User::class, 'user_presentacion_id');
     }
 }

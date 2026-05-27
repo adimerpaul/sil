@@ -648,6 +648,7 @@ const ALMACEN_PERMISSION_NAMES = [
   'Ver Herramientas Almacén',
   'Herramientas de Almacén',
   'Reporte Valorado',
+  'Reporte por Unidad',
   'Imprimir Compras',
 ]
 

@@ -31,15 +31,24 @@ class CultivoAntibiograma extends Model implements AuditableContract
         'observaciones',
         'antibiograma',
         'code',
+        'user_presentacion_id',
+        'fecha_presentacion',
     ];
 
     protected $casts = [
-        'fecha_ingreso' => 'date',
-        'fecha_salida'  => 'date',
-        'antibiograma'  => 'array',
+        'fecha_ingreso'      => 'date',
+        'fecha_salida'       => 'date',
+        'antibiograma'       => 'array',
+        'fecha_presentacion' => 'datetime',
     ];
 
     protected $hidden = ['deleted_at', 'created_at', 'updated_at'];
+
+    function userPresentacion()
+    {
+        return $this->belongsTo(User::class, 'user_presentacion_id');
+    }
+
     protected static function booted()
     {
         static::creating(function ($model) {

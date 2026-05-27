@@ -3,14 +3,14 @@
     <!-- HEADER / FILTROS -->
     <q-card flat bordered class="q-mb-sm">
       <q-card-section class="row items-center q-col-gutter-xs">
-        <div class="col-12 col-sm-3">
+        <div class="col-12 col-sm-2">
           <div class="text-subtitle2">{{$store.user.area?.name}}</div>
           <!--          <div class="text-caption text-grey-7">-->
           <!--            Solicitudes recibidas de Preanalítica (estado ENVIADO_ANALITICA)-->
           <!--          </div>-->
         </div>
 
-        <div class="col-12 col-sm-4">
+        <div class="col-12 col-sm-3">
           <q-input
             v-model="filter"
             dense
@@ -48,7 +48,7 @@
           </q-input>
         </div>
 
-        <div class="col-12 col-sm-2 text-right">
+        <div class="col-12 col-sm-2 text-right row q-gutter-xs justify-end">
           <q-btn
             color="primary"
             icon="search"
@@ -56,6 +56,15 @@
             no-caps
             :loading="loading"
             @click="analiticaGet()"
+          />
+        </div>
+        <div class="col-12 col-sm-2 text-right row q-gutter-xs justify-end">
+          <q-btn
+            color="teal"
+            icon="print"
+            label="Imprimir result"
+            no-caps
+            @click="abrirDialogPresentacion"
           />
         </div>
         <div class="col-12">
@@ -478,6 +487,76 @@
         </div>
       </q-card-section>
     </q-card>
+
+  <!-- DIÁLOGO IMPRIMIR RESULTADOS -->
+  <q-dialog v-model="dialogPresentacion" maximized>
+    <q-card>
+      <q-card-section class="row items-center bg-teal text-white q-pa-sm">
+        <q-icon name="print" size="24px" class="q-mr-sm" />
+        <div class="text-subtitle1 text-weight-bold">Registro de entrega — {{ fecha }}</div>
+        <q-space />
+        <q-chip color="white" text-color="teal" dense icon="checklist">{{ seleccionadosSolicitudes.length }} solicitudes</q-chip>
+        <q-btn flat round dense icon="close" color="white" v-close-popup class="q-ml-sm" />
+      </q-card-section>
+
+      <q-card-section class="q-pa-sm">
+        <div class="row q-gutter-sm items-center q-mb-sm">
+          <q-btn color="teal" icon="picture_as_pdf" label="Registrar y abrir PDF" no-caps :loading="loadingPresentacion" :disable="!seleccionadosSolicitudes.length" @click="registrarYAbrirPdf" />
+          <q-btn outline color="grey-7" icon="refresh" label="Recargar" no-caps @click="cargarParaPresentacion" />
+        </div>
+
+        <div v-if="loadingPresentacion" class="text-center q-pa-lg">
+          <q-spinner size="40px" color="teal" />
+        </div>
+
+        <div v-else-if="!gruposPresentacion.length" class="text-center text-grey q-pa-lg">
+          No hay prestaciones realizadas para esta fecha.
+        </div>
+
+        <div v-else>
+          <div v-for="grupo in gruposPresentacion" :key="grupo.area_id" class="q-mb-md">
+            <div class="text-subtitle2 text-weight-bold bg-teal-1 q-pa-xs q-mb-xs rounded-borders row items-center" style="border-left:4px solid #009688">
+              <q-checkbox dense :model-value="todosDelGrupo(grupo)" @update:model-value="toggleGrupo(grupo, $event)" color="teal" class="q-mr-xs" />
+              {{ grupo.area_nombre }}
+            </div>
+            <q-markup-table dense flat bordered>
+              <thead>
+                <tr class="bg-grey-2">
+                  <th style="width:36px"></th>
+                  <th class="text-left">ID Prest.</th>
+                  <th class="text-left">Nro Registro</th>
+                  <th class="text-left">Paciente</th>
+                  <th class="text-left">Prestación</th>
+                  <th class="text-left">Aceptado por</th>
+                  <th class="text-left">Fecha y hora</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template v-for="sol in grupo.solicitudes" :key="sol.solicitud_id">
+                  <tr v-for="(srv, i) in sol.servicios" :key="srv.id">
+                    <td><q-checkbox v-if="i === 0" dense v-model="seleccionados" :val="sol.solicitud_id" color="teal" /></td>
+                    <td class="text-weight-bold text-primary">{{ srv.id }}</td>
+                    <td>{{ sol.nro_registro }}</td>
+                    <td>{{ sol.paciente_nombre }}</td>
+                    <td>{{ srv.nombre }}</td>
+                    <td v-if="i === 0" :rowspan="sol.servicios.length">
+                      <span v-if="sol.user_presentacion" class="text-positive text-weight-medium">{{ sol.user_presentacion }}</span>
+                      <span v-else class="text-grey-5 text-caption">—</span>
+                    </td>
+                    <td v-if="i === 0" :rowspan="sol.servicios.length">
+                      <span v-if="sol.fecha_presentacion" class="text-positive text-caption">{{ sol.fecha_presentacion }}</span>
+                      <span v-else class="text-grey-5 text-caption">—</span>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </q-markup-table>
+          </div>
+        </div>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
+
   </q-page>
 </template>
 
@@ -492,9 +571,16 @@ export default {
       solicitudes: [],
       loading: false,
       filter: '',
+      dialogPresentacion: false,
+      loadingPresentacion: false,
+      gruposPresentacion: [],
+      seleccionados: [],
     }
   },
   computed: {
+    seleccionadosSolicitudes () {
+      return [...new Set(this.seleccionados)]
+    }
   },
   mounted () {
     this.analiticaGet()
@@ -673,6 +759,62 @@ export default {
         this.$alert.error('Error al cargar las solicitudes de analítica.')
       } finally {
         this.loading = false
+      }
+    },
+
+    abrirDialogPresentacion () {
+      this.dialogPresentacion = true
+      this.seleccionados = []
+      this.cargarParaPresentacion()
+    },
+
+    async cargarParaPresentacion () {
+      this.loadingPresentacion = true
+      try {
+        const res = await this.$axios.get('analitica/para-presentacion', { params: { fecha: this.fecha } })
+        this.gruposPresentacion = res.data
+        this.seleccionados = []
+        this.gruposPresentacion.forEach(g => {
+          g.solicitudes.forEach(sol => {
+            if (!this.seleccionados.includes(sol.solicitud_id)) {
+              this.seleccionados.push(sol.solicitud_id)
+            }
+          })
+        })
+      } catch {
+        this.$alert.error('Error al cargar datos de presentación.')
+      } finally {
+        this.loadingPresentacion = false
+      }
+    },
+
+    todosDelGrupo (grupo) {
+      return grupo.solicitudes.every(sol => this.seleccionados.includes(sol.solicitud_id))
+    },
+
+    toggleGrupo (grupo, val) {
+      grupo.solicitudes.forEach(sol => {
+        if (val && !this.seleccionados.includes(sol.solicitud_id)) {
+          this.seleccionados.push(sol.solicitud_id)
+        }
+        if (!val) {
+          this.seleccionados = this.seleccionados.filter(id => id !== sol.solicitud_id)
+        }
+      })
+    },
+
+    async registrarYAbrirPdf () {
+      this.loadingPresentacion = true
+      try {
+        await this.$axios.post('analitica/registrar-presentacion', {
+          solicitude_ids: this.seleccionadosSolicitudes
+        })
+        const base = this.$axios.defaults.baseURL.replace(/\/api\/?$/, '')
+        window.open(`${base}/api/analitica/pdf-presentacion?fecha=${this.fecha}`, '_blank')
+      } catch {
+        this.$alert.error('Error al registrar la presentación.')
+      } finally {
+        this.loadingPresentacion = false
       }
     },
   }

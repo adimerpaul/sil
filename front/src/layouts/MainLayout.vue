@@ -291,6 +291,7 @@ const menuSections = [
         children: [
           { title: 'Reporte Totales', icon: 'assessment', link: '/almacen/reporte-valorado', can: 'Reporte Valorado' },
           { title: 'Resumen y Detalle', icon: 'table_chart', link: '/almacen/reporte-resumen-detalle', can: 'Reporte Valorado' },
+          { title: 'Reporte por Unidad', icon: 'domain', link: '/almacen/reporte-unidad', can: 'Reporte por Unidad' },
         ],
       },
       // { title: 'Faltantes y sobrantes', icon: 'rule', can: 'Módulo de faltantes y sobrantes', caption: 'Módulo' },

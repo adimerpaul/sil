@@ -139,6 +139,12 @@ class CompraController extends Controller
     {
         $compra = Compra::with('detalles')->findOrFail($id);
 
+        if ($compra->created_at->lt(now()->subMonth())) {
+            return response()->json([
+                'message' => 'No se puede modificar esta compra: tiene más de un mes de antigüedad.',
+            ], 403);
+        }
+
         $data = $request->validate([
             'proveedor_id' => 'nullable|exists:proveedores,id',
             'fecha_hora' => 'nullable|date',

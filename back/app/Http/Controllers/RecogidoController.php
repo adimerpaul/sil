@@ -73,8 +73,48 @@ class RecogidoController extends Controller
 
         $rows = $query->paginate($perPage);
 
+        // Presentacion info desde tablas de resultado de laboratorio
+        $solicitudeIds = collect($rows->items())->pluck('id')->toArray();
+        $labModels = [
+            \App\Models\Hematologia::class,
+            \App\Models\QuimicaSanguinea::class,
+            \App\Models\Uroanalisis::class,
+            \App\Models\Parasitologia::class,
+            \App\Models\PanelRespiratorio::class,
+            \App\Models\PanelSexual::class,
+            \App\Models\PapilomaHumano::class,
+            \App\Models\CultivoAntibiograma::class,
+        ];
+        $presentaciones = [];
+        foreach ($labModels as $model) {
+            $model::with('userPresentacion')
+                ->whereIn('solicitude_id', $solicitudeIds)
+                ->whereNotNull('user_presentacion_id')
+                ->get(['solicitude_id', 'user_presentacion_id', 'fecha_presentacion'])
+                ->each(function ($r) use (&$presentaciones) {
+                    $sid = $r->solicitude_id;
+                    if (
+                        !isset($presentaciones[$sid]) ||
+                        $r->fecha_presentacion > ($presentaciones[$sid]['raw'] ?? null)
+                    ) {
+                        $presentaciones[$sid] = [
+                            'raw'                => $r->fecha_presentacion,
+                            'user_presentacion'  => $r->userPresentacion?->name,
+                            'fecha_presentacion' => $r->fecha_presentacion?->format('d/m/Y H:i'),
+                        ];
+                    }
+                });
+        }
+
+        $items = collect($rows->items())->map(function ($row) use ($presentaciones) {
+            $p = $presentaciones[$row->id] ?? null;
+            $row->user_presentacion  = $p['user_presentacion']  ?? null;
+            $row->fecha_presentacion = $p['fecha_presentacion'] ?? null;
+            return $row;
+        });
+
         return response()->json([
-            'rows' => $rows->items(),
+            'rows' => $items->values(),
             'pagination' => [
                 'page' => $rows->currentPage(),
                 'per_page' => $rows->perPage(),

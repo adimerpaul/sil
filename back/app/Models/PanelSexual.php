@@ -35,12 +35,22 @@ class PanelSexual extends Model implements AuditableContract
         'numeracion',
         'codigo_muestra',
         'user_id',
+        'user_presentacion_id',
+        'fecha_presentacion',
+    ];
+
+    protected $casts = [
+        'fecha_presentacion' => 'datetime',
     ];
 
     protected $hidden = ['deleted_at', 'created_at', 'updated_at'];
     function user()
     {
         return $this->belongsTo(User::class);
+    }
+    function userPresentacion()
+    {
+        return $this->belongsTo(User::class, 'user_presentacion_id');
     }
     protected static function booted()
     {

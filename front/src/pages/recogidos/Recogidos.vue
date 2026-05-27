@@ -139,6 +139,12 @@
             no-caps
             @click="openDialogSelected(props.row)"
           />
+          <div v-if="props.row.user_presentacion" class="text-caption text-grey-7 q-mt-xs" style="font-size:11px;">
+            <q-icon name="person_pin" size="12px" color="teal-6" />
+            <span class="text-teal-8 text-weight-medium q-ml-xs">{{ props.row.user_presentacion }}</span>
+            <q-icon name="schedule" size="11px" color="grey-6" class="q-ml-sm" />
+            <span class="q-ml-xs">{{ props.row.fecha_presentacion }}</span>
+          </div>
         </q-td>
       </template>
     </q-table>
