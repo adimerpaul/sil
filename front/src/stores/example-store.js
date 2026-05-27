@@ -6,7 +6,7 @@ export const useCounterStore = defineStore('counter', {
     user: {},
     socketAnalitica: false,
     isLogged: localStorage.getItem('tokenSil') ? true : false,
-    permissions: [],
+    permissions: JSON.parse(localStorage.getItem('permissionsSil') || '[]'),
   }),
 
   getters: {

@@ -33,7 +33,7 @@ export default defineRouter(function (/* { store, ssrContext } */) {
         return
       }
       const perm = to.meta.perm
-      if (perm && store.permissions && store.permissions.length) {
+      if (perm) {
         const perms = Array.isArray(perm) ? perm : [perm]
         const hasPerm = perms.some(p => store.permissions.includes(p))
         if (!hasPerm) {

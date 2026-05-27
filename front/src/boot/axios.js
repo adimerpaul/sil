@@ -65,15 +65,18 @@ export default boot(({ app, router }) => {
     app.config.globalProperties.$axios.get('me').then(response => {
       useCounterStore().isLogged = true
       useCounterStore().user = response.data
-      useCounterStore().permissions = (response.data.permissions || []).map(p => p.name)
+      const perms = (response.data.permissions || []).map(p => p.name)
+      useCounterStore().permissions = perms
       localStorage.setItem('user', JSON.stringify(response.data))
+      localStorage.setItem('permissionsSil', JSON.stringify(perms))
       // useCounterStore().permissions = response.data.permissions
     }).catch(error => {
       console.log(error)
       router.push('/login')
       localStorage.removeItem('tokenSil')
+      localStorage.removeItem('permissionsSil')
       useCounterStore().isLogged = false
-      // useCounterStore().permissions = []
+      useCounterStore().permissions = []
       useCounterStore().user = {}
     })
   }

@@ -360,7 +360,8 @@ function logout () {
           proxy.$store.isLogged = false
           proxy.$store.user = {}
           proxy.$store.permissions = []
-          localStorage.removeItem('tokenSIL')
+          localStorage.removeItem('tokenSil')
+          localStorage.removeItem('permissionsSil')
           proxy.$router.push('/login')
         })
         // .catch(() => proxy.$alert.error('Error al cerrar sesión. Intente nuevamente.'))
@@ -368,7 +369,8 @@ function logout () {
           proxy.$store.isLogged = false
           proxy.$store.user = {}
           proxy.$store.permissions = []
-          localStorage.removeItem('tokenSIL')
+          localStorage.removeItem('tokenSil')
+          localStorage.removeItem('permissionsSil')
           proxy.$router.push('/login')
         })
     })
