@@ -14,8 +14,16 @@ class EstablecimientoController extends Controller
     {
         $query = Establecimiento::with('servicios');
 
-        if ($request->filled('tipo')) {
-            $query->where('tipo', $request->tipo);
+        if ($request->filled('tipos')) {
+            $tipos = array_filter(explode(',', $request->tipos));
+            if (count($tipos)) {
+                $query->where(function ($q) use ($tipos) {
+                    if (in_array('PUBLICO', $tipos))  $q->orWhere('es_publico', true);
+                    if (in_array('URBANO', $tipos))   $q->orWhere('es_lab_urbano', true);
+                    if (in_array('RURAL', $tipos))    $q->orWhere('es_lab_rural', true);
+                    if (in_array('PRIVADO', $tipos))  $q->orWhere('es_privado', true);
+                });
+            }
         }
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
@@ -83,7 +91,7 @@ class EstablecimientoController extends Controller
 
     public function exportarExcel(Request $request)
     {
-        $filters = $request->only(['tipo', 'estado', 'q']);
+        $filters = $request->only(['tipos', 'estado', 'q']);
         $fecha   = now()->format('Y-m-d');
 
         return Excel::download(new EstablecimientosExport($filters), "establecimientos_{$fecha}.xlsx");
@@ -91,11 +99,19 @@ class EstablecimientoController extends Controller
 
     public function exportarPdf(Request $request)
     {
-        $filters = $request->only(['tipo', 'estado', 'q']);
+        $filters = $request->only(['tipos', 'estado', 'q']);
 
         $query = Establecimiento::orderBy('nombre', 'asc');
-        if (!empty($filters['tipo'])) {
-            $query->where('tipo', $filters['tipo']);
+        if (!empty($filters['tipos'])) {
+            $tipos = array_filter(explode(',', $filters['tipos']));
+            if (count($tipos)) {
+                $query->where(function ($q) use ($tipos) {
+                    if (in_array('PUBLICO', $tipos))  $q->orWhere('es_publico', true);
+                    if (in_array('URBANO', $tipos))   $q->orWhere('es_lab_urbano', true);
+                    if (in_array('RURAL', $tipos))    $q->orWhere('es_lab_rural', true);
+                    if (in_array('PRIVADO', $tipos))  $q->orWhere('es_privado', true);
+                });
+            }
         }
         if (!empty($filters['estado'])) {
             $query->where('estado', $filters['estado']);

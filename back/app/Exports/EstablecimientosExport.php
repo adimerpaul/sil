@@ -31,8 +31,16 @@ class EstablecimientosExport implements
     {
         $query = Establecimiento::orderBy('nombre', 'asc');
 
-        if (!empty($this->filters['tipo'])) {
-            $query->where('tipo', $this->filters['tipo']);
+        if (!empty($this->filters['tipos'])) {
+            $tipos = array_filter(explode(',', $this->filters['tipos']));
+            if (count($tipos)) {
+                $query->where(function ($q) use ($tipos) {
+                    if (in_array('PUBLICO', $tipos))  $q->orWhere('es_publico', true);
+                    if (in_array('URBANO', $tipos))   $q->orWhere('es_lab_urbano', true);
+                    if (in_array('RURAL', $tipos))    $q->orWhere('es_lab_rural', true);
+                    if (in_array('PRIVADO', $tipos))  $q->orWhere('es_privado', true);
+                });
+            }
         }
         if (!empty($this->filters['estado'])) {
             $query->where('estado', $this->filters['estado']);
@@ -46,17 +54,25 @@ class EstablecimientosExport implements
             });
         }
 
-        return $query->get()->map(fn($e) => [
-            $e->nombre                    ?? '',
-            $e->tipo                      ?? '',
-            $e->nivel                     ?? '',
-            $e->direccion                 ?? '',
-            $e->telefono_contacto         ?? '',
-            $e->responsable_laboratorio   ?? '',
-            $e->telefono_responsable      ?? '',
-            $e->inicial                   ?? '',
-            $e->estado                    ?? '',
-        ]);
+        return $query->get()->map(function ($e) {
+            $tipos = array_filter([
+                $e->es_publico    ? 'Público'            : null,
+                $e->es_lab_urbano ? 'Laboratorio Urbano' : null,
+                $e->es_lab_rural  ? 'Laboratorio Rural'  : null,
+                $e->es_privado    ? 'Privado'            : null,
+            ]);
+            return [
+                $e->nombre                    ?? '',
+                implode(', ', $tipos),
+                $e->nivel                     ?? '',
+                $e->direccion                 ?? '',
+                $e->telefono_contacto         ?? '',
+                $e->responsable_laboratorio   ?? '',
+                $e->telefono_responsable      ?? '',
+                $e->inicial                   ?? '',
+                $e->estado                    ?? '',
+            ];
+        });
     }
 
     public function headings(): array

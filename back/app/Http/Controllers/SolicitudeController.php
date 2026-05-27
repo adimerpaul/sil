@@ -722,7 +722,7 @@ class SolicitudeController extends Controller
         $sheet->setTitle('Solicitudes');
 
         // ── Título ──
-        $sheet->mergeCells('A1:S1');
+        $sheet->mergeCells('A1:T1');
         $sheet->setCellValue('A1', "REPORTE DE SOLICITUDES  |  {$dateFrom} — {$dateTo}");
         $sheet->getStyle('A1')->applyFromArray([
             'font'      => ['bold' => true, 'size' => 13, 'color' => ['argb' => 'FFFFFFFF']],
@@ -733,7 +733,7 @@ class SolicitudeController extends Controller
 
         // ── Cabecera ──
         $headers = [
-            'Nro Registro', 'Cód. Solicitud', 'Cód. Paciente', 'Paciente', 'Edad',
+            'ID', 'Nro Registro', 'Cód. Solicitud', 'Cód. Paciente', 'Paciente', 'Edad',
             'Doctor', 'Tipo Prestación', 'Áreas', 'Pruebas',
             'N° Servicios', 'Realizados', 'Estado',
             'Establecimiento', 'Unidad Solicitante', 'Sala', 'Cama',
@@ -756,24 +756,25 @@ class SolicitudeController extends Controller
         $row = 3;
         foreach ($rows as $r) {
             $fecha = $r->fecha_creacion ? substr($r->fecha_creacion, 0, 10) : '';
-            $sheet->setCellValueByColumnAndRow(1,  $row, $r->nro_registro);
-            $sheet->setCellValueByColumnAndRow(2,  $row, $r->codigo_solicitud);
-            $sheet->setCellValueByColumnAndRow(3,  $row, $r->paciente_codigo);
-            $sheet->setCellValueByColumnAndRow(4,  $row, $r->paciente_nombre);
-            $sheet->setCellValueByColumnAndRow(5,  $row, $r->paciente_edad);
-            $sheet->setCellValueByColumnAndRow(6,  $row, $r->doctor_nombre);
-            $sheet->setCellValueByColumnAndRow(7,  $row, $r->tipo_atencion);
-            $sheet->setCellValueByColumnAndRow(8,  $row, $r->areas);
-            $sheet->setCellValueByColumnAndRow(9,  $row, $r->pruebas);
-            $sheet->setCellValueByColumnAndRow(10, $row, (int) $r->cant_servicios);
-            $sheet->setCellValueByColumnAndRow(11, $row, (int) $r->cant_realizados);
-            $sheet->setCellValueByColumnAndRow(12, $row, $r->estado);
-            $sheet->setCellValueByColumnAndRow(13, $row, $r->establecimiento_nombre);
-            $sheet->setCellValueByColumnAndRow(14, $row, $r->unidad_solicitante);
-            $sheet->setCellValueByColumnAndRow(15, $row, $r->sala);
-            $sheet->setCellValueByColumnAndRow(16, $row, $r->cama);
-            $sheet->setCellValueByColumnAndRow(17, $row, $fecha);
-            $sheet->setCellValueByColumnAndRow(18, $row, $r->hora_solicitud);
+            $sheet->setCellValueByColumnAndRow(1,  $row, $r->id);
+            $sheet->setCellValueByColumnAndRow(2,  $row, $r->nro_registro);
+            $sheet->setCellValueByColumnAndRow(3,  $row, $r->codigo_solicitud);
+            $sheet->setCellValueByColumnAndRow(4,  $row, $r->paciente_codigo);
+            $sheet->setCellValueByColumnAndRow(5,  $row, $r->paciente_nombre);
+            $sheet->setCellValueByColumnAndRow(6,  $row, $r->paciente_edad);
+            $sheet->setCellValueByColumnAndRow(7,  $row, $r->doctor_nombre);
+            $sheet->setCellValueByColumnAndRow(8,  $row, $r->tipo_atencion);
+            $sheet->setCellValueByColumnAndRow(9,  $row, $r->areas);
+            $sheet->setCellValueByColumnAndRow(10, $row, $r->pruebas);
+            $sheet->setCellValueByColumnAndRow(11, $row, (int) $r->cant_servicios);
+            $sheet->setCellValueByColumnAndRow(12, $row, (int) $r->cant_realizados);
+            $sheet->setCellValueByColumnAndRow(13, $row, $r->estado);
+            $sheet->setCellValueByColumnAndRow(14, $row, $r->establecimiento_nombre);
+            $sheet->setCellValueByColumnAndRow(15, $row, $r->unidad_solicitante);
+            $sheet->setCellValueByColumnAndRow(16, $row, $r->sala);
+            $sheet->setCellValueByColumnAndRow(17, $row, $r->cama);
+            $sheet->setCellValueByColumnAndRow(18, $row, $fecha);
+            $sheet->setCellValueByColumnAndRow(19, $row, $r->hora_solicitud);
 
             // Alternar color de fila
             if ($row % 2 === 0) {

@@ -596,6 +596,21 @@
               </q-chip>
             </q-td>
           </template>
+
+          <template v-slot:body-cell-reportes="props">
+            <q-td :props="props" class="text-center">
+              <q-btn
+                v-if="props.row.nro_registro"
+                dense flat round
+                icon="description"
+                color="primary"
+                size="sm"
+                @click="abrirReporte(props.row.nro_registro)"
+              >
+                <q-tooltip>Ver reporte PDF</q-tooltip>
+              </q-btn>
+            </q-td>
+          </template>
           </q-table>
         </q-card-section>
       </q-card>
@@ -827,6 +842,7 @@ export default {
       almacenUltimosDespachos: [],
       almacenInventarioCritico: [],
       columnsUltimas: [
+        { name: 'id', label: 'ID', field: 'id', align: 'left' },
         { name: 'nro_registro', label: 'Nro Registro', field: 'nro_registro', align: 'left' },
         { name: 'codigo_solicitud', label: 'Cód. Solicitud', field: 'codigo_solicitud', align: 'left' },
         { name: 'paciente_info', label: 'Paciente (Cód. / Edad)', field: 'paciente_nombre', align: 'left' },
@@ -837,7 +853,8 @@ export default {
         { name: 'establecimiento_info', label: 'Establecimiento / Sala', field: row => row.establecimiento_nombre || '', align: 'left' },
         { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
         { name: 'fecha_solicitud', label: 'Fecha', field: row => row.fecha_creacion ? row.fecha_creacion.substring(0, 10) : '', align: 'left' },
-        { name: 'hora_solicitud', label: 'Hora', field: 'hora_solicitud', align: 'left' }
+        { name: 'hora_solicitud', label: 'Hora', field: 'hora_solicitud', align: 'left' },
+        { name: 'reportes', label: 'Reportes', field: 'id', align: 'center' }
       ],
       columnsPedidos: [
         { name: 'id', label: 'Pedido', field: row => `#${row.id}`, align: 'left' },
@@ -1182,6 +1199,12 @@ export default {
       this.filtroValor = ''
       this.filtroRecogido = ''
       this.fetchSolicitudesList(1)
+    },
+    abrirReporte (nroRegistro) {
+      const apiBase = this.$axios.defaults.baseURL || ''
+      const backBase = apiBase.replace(/\/api\/?$/, '')
+      const url = `${backBase}/public/reportes/${nroRegistro}`
+      window.open(url, '_blank')
     }
   }
 

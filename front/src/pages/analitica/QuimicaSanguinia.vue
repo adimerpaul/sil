@@ -77,15 +77,13 @@
                 />
               </div>
               <div class="col-12"></div>
+              <!-- Método 1 / Equipo 1 -->
               <div class="col-12 col-sm-4">
                 <q-select
                   v-model="form.metodo"
                   :options="['Automática', 'SemiAutomática', 'Manual']"
-                  dense
-                  outlined
-                  clearable
-                  class="bg-white"
-                  label="Método"
+                  dense outlined clearable class="bg-white"
+                  label="Método 1"
                 />
               </div>
               <div class="col-12 col-sm-8 row items-center q-gutter-xs">
@@ -93,32 +91,56 @@
                   <q-select
                     v-model="form.equipo"
                     :options="equiposOptions"
-                    dense outlined
-                    label="Equipo"
-                    clearable
-                    use-input
-                    input-debounce="0"
+                    dense outlined label="Equipo 1"
+                    clearable use-input input-debounce="0"
                     @filter="filterEquipos"
                   />
                 </div>
                 <div class="col-auto">
-                  <q-btn
-                    flat round dense
-                    icon="settings"
-                    color="grey-7"
-                    size="sm"
-                    @click="$router.push('/equipos')"
-                  >
+                  <q-btn flat round dense icon="settings" color="grey-7" size="sm" @click="$router.push('/equipos')">
                     <q-tooltip>Administrar equipos</q-tooltip>
                   </q-btn>
                 </div>
               </div>
-              <div class="col-12 col-md-4">
-                <q-input
-                  v-if="form.equipo === 'Otros'"
-                  v-model="form.equipo_otro"
-                  dense outlined
-                  label="Especifique otro equipo"
+<!--              <div class="col-12 col-md-4">-->
+<!--                <q-input v-if="form.equipo === 'Otros'" v-model="form.equipo_otro" dense outlined label="Especifique otro equipo" />-->
+<!--              </div>-->
+
+              <!-- Método 2 / Equipo 2 -->
+              <div class="col-12 col-sm-4">
+                <q-select
+                  v-model="form.metodo2"
+                  :options="['Automática', 'SemiAutomática', 'Manual']"
+                  dense outlined clearable class="bg-white"
+                  label="Método 2"
+                />
+              </div>
+              <div class="col-12 col-sm-8">
+                <q-select
+                  v-model="form.equipo2"
+                  :options="equiposOptions"
+                  dense outlined label="Equipo 2"
+                  clearable use-input input-debounce="0"
+                  @filter="filterEquipos"
+                />
+              </div>
+
+              <!-- Método 3 / Equipo 3 -->
+              <div class="col-12 col-sm-4">
+                <q-select
+                  v-model="form.metodo3"
+                  :options="['Automática', 'SemiAutomática', 'Manual']"
+                  dense outlined clearable class="bg-white"
+                  label="Método 3"
+                />
+              </div>
+              <div class="col-12 col-sm-8">
+                <q-select
+                  v-model="form.equipo3"
+                  :options="equiposOptions"
+                  dense outlined label="Equipo 3"
+                  clearable use-input input-debounce="0"
+                  @filter="filterEquipos"
                 />
               </div>
             </div>
@@ -1419,7 +1441,11 @@ export default {
         gasometria_muestra_estado: '',
         observaciones: '',
         metodo: '',
-        equipo: ''
+        equipo: '',
+        metodo2: '',
+        equipo2: '',
+        metodo3: '',
+        equipo3: ''
       }
     }
   },

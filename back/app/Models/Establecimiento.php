@@ -13,14 +13,24 @@ class Establecimiento extends Model implements AuditableContract
 
     protected $fillable = [
         'nombre',
-        'tipo',
+        'es_publico',
+        'es_lab_urbano',
+        'es_lab_rural',
+        'es_privado',
         'nivel',
         'direccion',
         'telefono_contacto',
         'responsable_laboratorio',
         'telefono_responsable',
         'estado',
-        'inicial'
+        'inicial',
+    ];
+
+    protected $casts = [
+        'es_publico'    => 'boolean',
+        'es_lab_urbano' => 'boolean',
+        'es_lab_rural'  => 'boolean',
+        'es_privado'    => 'boolean',
     ];
 
     protected $hidden = [

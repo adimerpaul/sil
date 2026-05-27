@@ -3,7 +3,7 @@
     <!-- Filtros -->
     <q-card flat bordered class="q-mb-md">
       <q-card-section class="row items-center q-col-gutter-sm">
-        <div class="col-12 col-sm-4">
+        <div class="col-12 col-sm-3">
           <q-input
             dense
             outlined
@@ -16,19 +16,19 @@
           </q-input>
         </div>
 
-        <div class="col-12 col-sm-3">
-          <q-select
-            v-model="filterTipo"
+        <div class="col-12 col-sm-5">
+          <div class="text-caption text-grey-7 q-mb-xs">Tipo</div>
+          <q-option-group
+            v-model="filterTipos"
             :options="tipoOptions"
-            dense outlined
-            emit-value map-options
-            label="Tipo"
+            type="checkbox"
+            inline
+            dense
             @update:model-value="getEstablecimientos"
-            clearable
           />
         </div>
 
-        <div class="col-12 col-sm-3">
+        <div class="col-12 col-sm-2">
           <q-select
             v-model="filterEstado"
             :options="estadoOptions"
@@ -40,7 +40,7 @@
           />
         </div>
 
-        <div class="col-12 col-sm-2 row justify-end items-center q-gutter-sm">
+        <div class="col-12 col-sm-2 row justify-end items-end q-gutter-sm">
           <q-btn-dropdown
             color="teal"
             icon="download"
@@ -85,18 +85,15 @@
       :loading="loading"
       title="Establecimientos de salud"
     >
-      <!-- Columna tipo con chip -->
+      <!-- Columna tipo con chips múltiples -->
       <template #body-cell-tipo="props">
         <q-td :props="props">
-          <q-chip
-            v-if="props.row.tipo"
-            dense
-            :color="props.row.tipo === 'URBANO' ? 'green-6' : props.row.tipo === 'RURAL' ? 'teal-5' : props.row.tipo === 'PRIVADO' ? 'indigo-5' : props.row.tipo === 'PUBLICO' ? 'blue-6' : 'grey-6'"
-            text-color="white"
-            icon="local_hospital"
-          >
-            {{ props.row.tipo }}
-          </q-chip>
+          <div class="q-gutter-xs">
+            <q-chip v-if="props.row.es_publico"    dense color="blue-6"  text-color="white" icon="local_hospital">Público</q-chip>
+            <q-chip v-if="props.row.es_lab_urbano" dense color="green-6" text-color="white" icon="location_city">Lab. Urbano</q-chip>
+            <q-chip v-if="props.row.es_lab_rural"  dense color="teal-5"  text-color="white" icon="nature_people">Lab. Rural</q-chip>
+            <q-chip v-if="props.row.es_privado"    dense color="indigo-5" text-color="white" icon="business">Privado</q-chip>
+          </div>
         </q-td>
       </template>
 
@@ -165,34 +162,13 @@
               </div>
 
               <div class="col-12 col-sm-6">
-                <q-field label="Tipo" borderless stack-label>
-                  <div class="row items-center q-gutter-sm">
-                    <q-radio
-                      v-model="establecimiento.tipo"
-                      val="PUBLICO"
-                      label="Público"
-                      dense
-                    />
-                    <q-radio
-                      v-model="establecimiento.tipo"
-                      val="URBANO"
-                      label="Laboratorio Urbano"
-                      dense
-                    />
-                    <q-radio
-                      v-model="establecimiento.tipo"
-                      val="RURAL"
-                      label="Laboratorio Rural"
-                      dense
-                    />
-                    <q-radio
-                      v-model="establecimiento.tipo"
-                      val="PRIVADO"
-                      label="Privado"
-                      dense
-                    />
-                  </div>
-                </q-field>
+                <div class="text-caption text-grey-7 q-mb-xs">Tipo</div>
+                <div class="row q-gutter-sm">
+                  <q-checkbox v-model="establecimiento.es_publico"    label="Público"            dense />
+                  <q-checkbox v-model="establecimiento.es_lab_urbano" label="Laboratorio Urbano" dense />
+                  <q-checkbox v-model="establecimiento.es_lab_rural"  label="Laboratorio Rural"  dense />
+                  <q-checkbox v-model="establecimiento.es_privado"    label="Privado"            dense />
+                </div>
               </div>
 
               <div class="col-12 col-sm-6">
@@ -440,7 +416,7 @@ export default {
         { name: 'estado', label: 'Estado', field: 'estado', align: 'center' }
       ],
       filter: '',
-      filterTipo: null,
+      filterTipos: [],
       filterEstado: null,
       tipoOptions: [
         { label: 'Laboratorio Urbano', value: 'URBANO' },
@@ -506,7 +482,7 @@ export default {
       this.$axios.get('establecimientos', {
         params: {
           q: this.filter || null,
-          tipo: this.filterTipo || null,
+          tipos: this.filterTipos.length ? this.filterTipos.join(',') : null,
           estado: this.filterEstado || null
         }
       })
@@ -532,7 +508,10 @@ export default {
     nuevo () {
       this.establecimiento = {
         nombre: '',
-        tipo: 'PUBLICO',
+        es_publico: false,
+        es_lab_urbano: false,
+        es_lab_rural: false,
+        es_privado: false,
         nivel: 'NIVEL I',
         direccion: '',
         telefono_contacto: '',
@@ -616,7 +595,7 @@ export default {
     async exportarExcel () {
       try {
         const res = await this.$axios.get('establecimientos/export/excel', {
-          params: { tipo: this.filterTipo || null, estado: this.filterEstado || null, q: this.filter || null },
+          params: { tipos: this.filterTipos.length ? this.filterTipos.join(',') : null, estado: this.filterEstado || null, q: this.filter || null },
           responseType: 'blob'
         });
         this._descargar(res.data, 'establecimientos.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -628,7 +607,7 @@ export default {
     async exportarPdf () {
       try {
         const res = await this.$axios.get('establecimientos/export/pdf', {
-          params: { tipo: this.filterTipo || null, estado: this.filterEstado || null, q: this.filter || null },
+          params: { tipos: this.filterTipos.length ? this.filterTipos.join(',') : null, estado: this.filterEstado || null, q: this.filter || null },
           responseType: 'blob'
         });
         this._descargar(res.data, 'establecimientos.pdf', 'application/pdf');

@@ -302,6 +302,16 @@
             <div class="center small muted">
                 Método: {{ val($q,'metodo') ?: '—' }} &nbsp; • &nbsp;
                 Equipo: {{ $q->equipo == 'Otros' ? $q->equipo_otro : $q->equipo ?? '—' }}
+                @if(val($q,'metodo2') || val($q,'equipo2'))
+                &nbsp; | &nbsp;
+                Método 2: {{ val($q,'metodo2') ?: '—' }} &nbsp; • &nbsp;
+                Equipo 2: {{ val($q,'equipo2') ?: '—' }}
+                @endif
+                @if(val($q,'metodo3') || val($q,'equipo3'))
+                &nbsp; | &nbsp;
+                Método 3: {{ val($q,'metodo3') ?: '—' }} &nbsp; • &nbsp;
+                Equipo 3: {{ val($q,'equipo3') ?: '—' }}
+                @endif
             </div>
 
             <!-- ===================== 2 COLUMNAS PRINCIPALES ===================== -->
