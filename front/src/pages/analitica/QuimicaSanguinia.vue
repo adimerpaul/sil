@@ -132,7 +132,7 @@
               'ÁCIDO ÚRICO',
               'ALBUMINA',
               'PROTEINAS TOTALES',
-              'Glucosa (glicemia)',
+              'GLICEMIA (GLUCOSA)',
               'UREA',
               'NITROGENO UREICO SERICO (NUS)',
               'CREATININA SÉRICA',
@@ -189,7 +189,7 @@
                 <td>{{ rangoUnidad('Proteinas totales') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['Glucosa (glicemia)','PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)','PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)','GLUCOSA'])">
+              <tr v-if="canServicios(['GLICEMIA (GLUCOSA)','PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)','PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)','GLUCOSA'])">
                 <td>Glucosa</td>
                 <td>
                   <q-input v-model.number="form.glucosa" dense outlined type="number" step="0.01"
