@@ -186,6 +186,7 @@ class DatabaseSeeder extends Seeder
             'Módulo movimiento',
             'Módulo de faltantes y sobrantes',
             'Reportes',
+            'Ver todos los pedidos',
         ];
 //        protected $fillable = [
 //        'fecha_recepcion', 'hora_recepcion',

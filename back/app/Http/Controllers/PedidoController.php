@@ -20,7 +20,8 @@ class PedidoController extends Controller
 
         $user = auth()->user();
         $isAdmin = ($user->role ?? null) === 'Administrador'
-            || (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['admin', 'jefe-almacen']));
+            || (method_exists($user, 'hasAnyRole') && $user->hasAnyRole(['admin', 'jefe-almacen']))
+            || (method_exists($user, 'hasPermissionTo') && $user->hasPermissionTo('Ver todos los pedidos'));
         if (! $isAdmin) {
             $query->deUsuario();
         }

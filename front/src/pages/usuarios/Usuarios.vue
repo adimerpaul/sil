@@ -151,57 +151,59 @@
       <!--      </template>-->
     </q-table>
 <!--    <pre>{{ users }}</pre>-->
-    <q-dialog v-model="userDialog" persistent>
-      <q-card style="width: 400px">
+    <q-dialog v-model="userDialog" persistent :maximized="$q.screen.lt.sm">
+      <q-card class="user-dialog-card">
         <q-card-section class="q-pb-none row items-center">
-          <div>
-            {{ actionUser }} user
-          </div>
+          <q-icon name="person" size="20px" class="text-primary q-mr-sm"/>
+          <span class="text-weight-bold">{{ actionUser }} usuario</span>
           <q-space/>
           <q-btn icon="close" flat round dense @click="userDialog = false"/>
         </q-card-section>
-        <q-card-section class="q-pt-none">
+        <q-card-section class="q-pt-sm user-dialog-body">
           <q-form @submit="user.id ? userPut() : userPost()">
-            <q-input v-model="user.name" label="Nombre" dense outlined :rules="[val => !!val || 'Campo requerido']"/>
-            <q-input v-model="user.username" label="Usuario" dense outlined
-                     :rules="[val => !!val || 'Campo requerido']"/>
-            <q-input v-model="user.email" label="Email" dense outlined hint="" />
-            <q-input v-model="user.celular" label="Celular" dense outlined />
-            <q-input v-model="user.password" label="Contraseña" dense outlined
-                     :rules="[val => !!val || 'Campo requerido']" v-if="!user.id"/>
-            <q-select v-model="user.role" label="Rol" dense outlined :options="roles"
-                      :rules="[val => !!val || 'Campo requerido']"/>
-<!--            area-->
-            <q-select v-model="user.area_id" label="Area" dense outlined :options="areas"
-                      :option-label="'name'"
-                      :option-value="'id'"
-                      emit-value map-options
-                      clearable/>
-<!--            <pre>{{areas}}</pre>-->
-<!--            <pre>{{user.area_id}}</pre>-->
-            <q-select v-model="user.establecimiento_id" label="Establecimiento" dense outlined
-                      :options="filteredEstablecimientos"
-                      option-label="label" option-value="value"
-                      emit-value map-options
-                      use-input input-debounce="0"
-                      @filter="filterEstablecimientos"
-                      clearable>
-              <template v-slot:no-option>
-                <q-item><q-item-section class="text-grey">Sin resultados</q-item-section></q-item>
-              </template>
-            </q-select>
-            <q-select v-model="user.unidad_id" label="Unidad" dense outlined
-                      :options="filteredUnidadesOpts"
-                      option-label="nombre" option-value="id"
-                      emit-value map-options
-                      use-input input-debounce="0"
-                      @filter="filterUnidades"
-                      clearable>
-              <template v-slot:no-option>
-                <q-item><q-item-section class="text-grey">Sin resultados</q-item-section></q-item>
-              </template>
-            </q-select>
-            <div class="row q-col-gutter-sm q-mt-xs">
+            <div class="row q-col-gutter-sm">
+              <div class="col-12 col-sm-6">
+                <q-input v-model="user.name" label="Nombre" dense outlined :rules="[val => !!val || 'Campo requerido']"/>
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-input v-model="user.username" label="Usuario" dense outlined :rules="[val => !!val || 'Campo requerido']"/>
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-input v-model="user.email" label="Email" dense outlined/>
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-input v-model="user.celular" label="Celular" dense outlined/>
+              </div>
+              <div class="col-12 col-sm-6" v-if="!user.id">
+                <q-input v-model="user.password" label="Contraseña" dense outlined :rules="[val => !!val || 'Campo requerido']"/>
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-select v-model="user.role" label="Rol" dense outlined :options="roles" :rules="[val => !!val || 'Campo requerido']"/>
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-select v-model="user.area_id" label="Area" dense outlined :options="areas"
+                          :option-label="'name'" :option-value="'id'" emit-value map-options clearable/>
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-select v-model="user.establecimiento_id" label="Establecimiento" dense outlined
+                          :options="filteredEstablecimientos" option-label="label" option-value="value"
+                          emit-value map-options use-input input-debounce="0"
+                          @filter="filterEstablecimientos" clearable>
+                  <template v-slot:no-option>
+                    <q-item><q-item-section class="text-grey">Sin resultados</q-item-section></q-item>
+                  </template>
+                </q-select>
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-select v-model="user.unidad_id" label="Unidad" dense outlined
+                          :options="filteredUnidadesOpts" option-label="nombre" option-value="id"
+                          emit-value map-options use-input input-debounce="0"
+                          @filter="filterUnidades" clearable>
+                  <template v-slot:no-option>
+                    <q-item><q-item-section class="text-grey">Sin resultados</q-item-section></q-item>
+                  </template>
+                </q-select>
+              </div>
               <div class="col-6">
                 <q-checkbox v-model="user.mostrar_firma" label="Mostrar firma" dense/>
               </div>
@@ -209,9 +211,74 @@
                 <q-checkbox v-model="user.mostrar_sello" label="Mostrar sello" dense/>
               </div>
             </div>
+
+            <q-separator class="q-my-sm"/>
+
+            <div class="row items-center q-mb-xs">
+              <q-icon name="admin_panel_settings" size="18px" class="text-primary q-mr-xs"/>
+              <span class="text-weight-bold text-body2">Permisos</span>
+              <q-space/>
+              <q-badge color="primary" outline>{{ selectedPermissionsCount }} activos</q-badge>
+            </div>
+            <q-input v-model="permFilter" dense outlined clearable placeholder="Filtrar permisos..." class="q-mb-sm">
+              <template v-slot:prepend><q-icon name="search"/></template>
+            </q-input>
+            <div class="user-dialog-perms-body">
+              <div v-if="loading && !permissions.length" class="text-center q-pa-md">
+                <q-spinner-dots color="primary" size="30px"/>
+              </div>
+              <q-list v-else dense class="permission-groups">
+                <q-expansion-item
+                  v-for="group in filteredPermissionGroups"
+                  :key="group.key"
+                  dense dense-toggle expand-separator
+                  :default-opened="group.defaultOpened || Boolean(permFilter)"
+                  header-class="permission-group-header"
+                >
+                  <template v-slot:header>
+                    <q-item-section avatar class="permission-group-header__icon">
+                      <q-icon :name="group.icon" size="19px"/>
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-weight-bold">{{ group.label }}</q-item-label>
+                      <q-item-label caption>{{ group.checkedCount }}/{{ group.permissions.length }} activos</q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <div class="row no-wrap">
+                        <q-btn dense flat round icon="done_all" size="sm" @click.stop="setGroupPermissions(group, true)">
+                          <q-tooltip>Activar grupo</q-tooltip>
+                        </q-btn>
+                        <q-btn dense flat round icon="remove_done" size="sm" @click.stop="setGroupPermissions(group, false)">
+                          <q-tooltip>Desactivar grupo</q-tooltip>
+                        </q-btn>
+                      </div>
+                    </q-item-section>
+                  </template>
+                  <div class="permission-grid">
+                    <q-item v-for="perm in group.permissions" :key="perm.id" dense clickable
+                            class="permission-row" @click="perm.checked = !perm.checked">
+                      <q-item-section avatar class="permission-row__icon">
+                        <q-icon :name="perm.checked ? 'check_circle' : 'radio_button_unchecked'"
+                                :color="perm.checked ? 'primary' : 'grey-5'" size="18px"/>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label lines="2" class="permission-row__label">{{ perm.name }}</q-item-label>
+                      </q-item-section>
+                      <q-item-section side>
+                        <q-toggle v-model="perm.checked" dense color="primary" @click.stop/>
+                      </q-item-section>
+                    </q-item>
+                  </div>
+                </q-expansion-item>
+              </q-list>
+              <div v-if="!loading && filteredPermissionGroups.length === 0" class="permission-empty">
+                No hay permisos para mostrar
+              </div>
+            </div>
+
             <div class="text-right q-mt-sm">
               <q-btn color="negative" label="Cancelar" @click="userDialog = false" no-caps :loading="loading"/>
-              <q-btn color="primary" label="Guardar" type="submit" no-caps :loading="loading" class="q-ml-sm"/>
+              <q-btn color="primary" :label="user.id ? 'Guardar' : 'Crear'" type="submit" no-caps :loading="loading" class="q-ml-sm"/>
             </div>
           </q-form>
         </q-card-section>
@@ -630,6 +697,7 @@ const ALMACEN_PERMISSION_NAMES = [
   'Módulo movimiento',
   'Módulo de faltantes y sobrantes',
   'Ver Pedidos',
+  'Ver todos los pedidos',
   'Crear Pedidos',
   'Editar Pedidos',
   'Anular Pedidos',
@@ -997,7 +1065,7 @@ export default {
     //     this.$alert.error(error.response.data.message)
     //   })
     // },
-    userNew() {
+    async userNew() {
       this.user = {
         name: '',
         email: '',
@@ -1010,7 +1078,18 @@ export default {
         unidad_id: this.unidades.find(u => u.nombre.includes('INGENIERÍA'))?.id || null,
       }
       this.actionUser = 'Nuevo'
+      this.permFilter = ''
+      this.permissions = []
       this.userDialog = true
+      this.loading = true
+      try {
+        const all = await this.$axios.get('permissions').then(r => r.data)
+        this.permissions = all.map(p => ({ ...p, checked: false }))
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'Error cargando permisos')
+      } finally {
+        this.loading = false
+      }
     },
     usersGet() {
       this.loading = true
@@ -1033,30 +1112,38 @@ export default {
         this.loading = false
       })
     },
-    userPost() {
+    async userPost() {
       this.loading = true
-      this.$axios.post('users', this.user).then(res => {
+      try {
+        const res = await this.$axios.post('users', this.user)
+        const newUserId = res.data.id
+        const ids = this.permissions.filter(p => p.checked).map(p => p.id)
+        if (ids.length > 0) {
+          await this.$axios.put(`users/${newUserId}/permissions`, { permissions: ids })
+        }
         this.userDialog = false
-        this.$alert.success('User creado')
+        this.$alert.success('Usuario creado')
         this.usersGet()
-        // this.users.push(res.data)
-      }).catch(error => {
-        this.$alert.error(error.response.data.message)
-      }).finally(() => {
+      } catch (error) {
+        this.$alert.error(error.response?.data?.message || 'Error al crear')
+      } finally {
         this.loading = false
-      })
+      }
     },
-    userPut() {
+    async userPut() {
       this.loading = true
-      this.$axios.put('users/' + this.user.id, this.user).then(res => {
+      try {
+        await this.$axios.put('users/' + this.user.id, this.user)
+        const ids = this.permissions.filter(p => p.checked).map(p => p.id)
+        await this.$axios.put(`users/${this.user.id}/permissions`, { permissions: ids })
         this.usersGet()
         this.userDialog = false
-        this.$alert.success('User actualizado')
-      }).catch(error => {
-        this.$alert.error(error.response.data.message)
-      }).finally(() => {
+        this.$alert.success('Usuario actualizado')
+      } catch (error) {
+        this.$alert.error(error.response?.data?.message || 'Error al actualizar')
+      } finally {
         this.loading = false
-      })
+      }
     },
     async permisosShow(user) {
       this.user = { ...user }
@@ -1133,10 +1220,24 @@ export default {
           })
         })
     },
-    userEdit(user) {
-      this.user = {...user}
+    async userEdit(user) {
+      this.user = { ...user }
       this.actionUser = 'Editar'
+      this.permFilter = ''
+      this.permissions = []
       this.userDialog = true
+      this.loading = true
+      try {
+        const [all, userPermIds] = await Promise.all([
+          this.$axios.get('permissions').then(r => r.data),
+          this.$axios.get(`users/${user.id}/permissions`).then(r => r.data),
+        ])
+        this.permissions = all.map(p => ({ ...p, checked: userPermIds.includes(p.id) }))
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'Error cargando permisos')
+      } finally {
+        this.loading = false
+      }
     },
     userDelete(id) {
       this.$alert.dialog('¿Desea eliminar el user?')
@@ -1226,6 +1327,44 @@ export default {
 </script>
 
 <style scoped>
+.user-dialog-card {
+  width: min(94vw, 780px);
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-dialog-body {
+  overflow-y: auto;
+  max-height: calc(90vh - 64px);
+  flex: 1;
+}
+
+.user-dialog-perms-body {
+  max-height: 280px;
+  overflow-y: auto;
+  background: #f7fafc;
+  border-radius: 8px;
+  padding: 6px;
+}
+
+@media (max-width: 599px) {
+  .user-dialog-card {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    border-radius: 0;
+  }
+
+  .user-dialog-body {
+    max-height: calc(100vh - 64px);
+  }
+
+  .user-dialog-perms-body {
+    max-height: 220px;
+  }
+}
+
 .subpartida-card {
   width: min(94vw, 720px);
   max-width: 720px;

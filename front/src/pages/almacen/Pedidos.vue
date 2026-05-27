@@ -726,6 +726,7 @@ const userPermissions = computed(() => proxy.$store.permissions || [])
 const currentUser = computed(() => proxy.$store.user || {})
 const isAdminUser = computed(() => currentUser.value?.role === 'Administrador')
 
+const canSeeAll = computed(() => isAdminUser.value || userPermissions.value.includes('Ver todos los pedidos'))
 const canCreate = computed(() => isAdminUser.value || userPermissions.value.includes('Crear Pedidos'))
 const canEdit = computed(() => isAdminUser.value || userPermissions.value.includes('Editar Pedidos'))
 const canDelete = computed(() => isAdminUser.value || userPermissions.value.includes('Anular Pedidos'))
