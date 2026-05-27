@@ -88,6 +88,8 @@ class ReporteServiciosController extends Controller
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
+        $sheet->setAutoFilter("A3:{$lastCol}3");
+
         $sheet->getStyle("A3:{$lastCol}3")->applyFromArray([
             'font'      => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
             'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF283593']],
@@ -189,14 +191,7 @@ class ReporteServiciosController extends Controller
             'totalMonto'  => $totalMonto,
             'embarazadas' => $embarazadas,
             'totalCount'  => $rows->count(),
-            'limit'       => $rows->count(),
-        ])->setPaper('letter', 'landscape')
-          ->setOptions([
-              'isPhpEnabled'    => false,
-              'isRemoteEnabled' => false,
-              'defaultFont'     => 'DejaVu Sans',
-              'dpi'             => 96,
-          ]);
+        ])->setPaper('letter', 'landscape');
 
         return $pdf->stream("solicitudes_{$dateFrom}_{$dateTo}.pdf");
     }
@@ -210,6 +205,7 @@ class ReporteServiciosController extends Controller
         $genero     = $request->get('genero');
         $embarazada = $request->get('embarazada'); // '1' | '0' | null
         $cama       = $request->get('cama');
+        $paciente   = $request->get('paciente');
 
         return DB::table('solicitudes as s')
             ->leftJoin('users as u', 'u.id', '=', 's.user_id')
@@ -220,6 +216,13 @@ class ReporteServiciosController extends Controller
             ->when(
                 $cama !== null && $cama !== '',
                 fn ($q) => $q->where('s.cama', 'like', "%{$cama}%")
+            )
+            ->when(
+                $paciente !== null && $paciente !== '',
+                fn ($q) => $q->where(function ($qq) use ($paciente) {
+                    $qq->where('s.paciente_nombre', 'like', "%{$paciente}%")
+                       ->orWhere('s.paciente_ci', 'like', "%{$paciente}%");
+                })
             )
             ->when(
                 $embarazada !== null && $embarazada !== '',

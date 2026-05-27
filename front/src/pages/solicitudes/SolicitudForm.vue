@@ -985,7 +985,9 @@
                       <div v-for="servicio in filteredServicios(area)" :key="servicio.id || servicio.codigo"
                            class="col-12 col-sm-6">
 <!--                        <pre>{{servicio}}</pre>-->
-                        <q-checkbox v-model="servicio.seleccionado" :true-value="1" :false-value="0" dense>
+                        <q-checkbox v-model="servicio.seleccionado" :true-value="1" :false-value="0" dense
+                          @update:model-value="onServicioToggle(servicio, $event)"
+                        >
                           <div>
                             {{ textCapitalize(servicio.nombre) }}
                             <span class="text-primary">(Bs. {{ servicio.precio }})</span>
@@ -1783,6 +1785,23 @@ export default {
       this.solicitud.paciente_discapacidad_cual = this.toUpperText(this.solicitud.paciente_discapacidad_cual || '')
       this.solicitud.paciente_discapacidad_otro = this.toUpperText(this.solicitud.paciente_discapacidad_otro || '')
     },
+    onServicioToggle (servicio, value) {
+      if (value !== 1) return
+      const nombre = (servicio.nombre || '').toUpperCase().trim()
+
+      // UREA → auto-seleccionar NITRÓGENO UREICO SÉRICO (NUS)
+      if (nombre === 'UREA') {
+        this.areas.forEach(area => {
+          (area.servicios || []).forEach(s => {
+            const n = (s.nombre || '').toUpperCase()
+            if (n.includes('NITROGENO UREICO') || n.includes('NUS')) {
+              s.seleccionado = 1
+            }
+          })
+        })
+      }
+    },
+
     selecinarCodigo(codigos){
       // this.areas.forEach(area => {
       //   (area.servicios || []).forEach(s => {

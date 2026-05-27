@@ -616,6 +616,16 @@
                 <td>{{ rangoUnidad('Creatinuria 24 hrs.') }}</td>
               </tr>
 
+              <tr v-if="canServicios(['PROTEINURIA 24 HRS','CREATININA EN ORINA (CREATINURIA)'])">
+                <td>Creatinuria Casual</td>
+                <td>
+                  <q-input v-model.number="form.creatinuria_casual" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('Creatinuria Casual', form.creatinuria_casual)" />
+                </td>
+                <td>{{ rangoTexto('Creatinuria Casual') }}</td>
+                <td>{{ rangoUnidad('Creatinuria Casual') }}</td>
+              </tr>
+
               <tr v-if="canServicios('PROTEINURIA 24 HRS')">
                 <td>Proteinuria de 24 hrs.</td>
                 <td>
@@ -1327,15 +1337,24 @@
           </div>
           <!-- GASOMETRÍA -->
           <div
-            v-if="hasAnyServicios(['GASOMETRÍA', 'GASOMETRIA'])"
+            v-if="hasAnyServicios(['GASOMETRÍA ARTERIAL O VENOSA', 'GASOMETRÍA', 'GASOMETRIA'])"
             class="q-mb-md"
           >
             <div class="section-title q-mb-xs">Gasometría</div>
             <div class="row q-col-gutter-sm">
               <div class="col-12 col-sm-4">
                 <q-select
+                  v-model="form.gasometria_tipo"
+                  :options="['Arterial', 'Venosa']"
+                  dense outlined clearable
+                  class="bg-white"
+                  label="Tipo de gasometría"
+                />
+              </div>
+              <div class="col-12 col-sm-4">
+                <q-select
                   v-model="form.gasometria_muestra_estado"
-                  :options="['Muestra procesada', 'No trajo muestra']"
+                  :options="['Muestra procesada', 'Muestra no procesada', 'Muestra pendiente']"
                   dense outlined clearable
                   class="bg-white"
                   label="Estado de la muestra"
@@ -1414,6 +1433,7 @@ export default {
         fosforo: null,
         magnesio: null,
         creatinuria_24h: null,
+        creatinuria_casual: null,
         proteinuria_24h: null,
         volumen_24h: null,
         aso: null,
@@ -1438,6 +1458,7 @@ export default {
         reaccion_widal_b_valor: '',
         tipo_de_muestra: '',
         citoquimico_observaciones: '',
+        gasometria_tipo: '',
         gasometria_muestra_estado: '',
         observaciones: '',
         metodo: '',

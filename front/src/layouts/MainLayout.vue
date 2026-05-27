@@ -246,7 +246,7 @@ const menuSections = [
     icon: 'local_hospital',
     defaultOpened: true,
     links: [
-      { title: 'Resumen de Atención de los Pacientes', icon: 'dashboard', link: '/', can: 'Dashboard' },
+      { title: 'Resumen', icon: 'dashboard', link: '/', can: 'Dashboard' },
       { title: 'Usuarios', icon: 'people', link: '/usuarios', can: 'Usuarios' },
       { title: 'Pacientes', icon: 'folder_shared', link: '/pacientes', can: 'Pacientes' },
       { title: 'Doctores', icon: 'medical_services', link: '/doctores', can: 'Doctores' },

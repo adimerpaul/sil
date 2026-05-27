@@ -757,6 +757,15 @@
                                                             </tr>
                                                         @endif
 
+                                                        @if($canServicios(['PROTEINURIA 24 HRS','CREATININA EN ORINA (CREATINURIA)']) && hasVal($q,'creatinuria_casual'))
+                                                            <tr>
+                                                                <td>Creatinuria Casual</td>
+                                                                <td class="center">{{ val($q,'creatinuria_casual') }}</td>
+                                                                <td class="center">{{ rangoTexto('Creatinuria Casual',$rangosMap) }}</td>
+                                                                <td class="center">{{ rangoUnidad('Creatinuria Casual',$rangosMap) }}</td>
+                                                            </tr>
+                                                        @endif
+
                                                         @if($canServicios('PROTEINURIA 24 HRS'))
                                                             <tr>
                                                                 <td>Proteinuria de 24 hrs.</td>
@@ -1031,6 +1040,29 @@
                                         @endif
 
                                         </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- ===================== GASOMETRÍA ===================== --}}
+                        @if($canServicios(['GASOMETRÍA ARTERIAL O VENOSA','GASOMETRÍA','GASOMETRIA']) && (hasVal($q,'gasometria_tipo') || hasVal($q,'gasometria_muestra_estado')))
+                            <div class="block">
+                                <div class="title">Gasometría</div>
+                                <div class="body">
+                                    <table class="tbl">
+                                        @if(hasVal($q,'gasometria_tipo'))
+                                        <tr>
+                                            <td class="bold" style="width:30%">Tipo</td>
+                                            <td>{{ val($q,'gasometria_tipo') }}</td>
+                                        </tr>
+                                        @endif
+                                        @if(hasVal($q,'gasometria_muestra_estado'))
+                                        <tr>
+                                            <td class="bold" style="width:30%">Estado de la muestra</td>
+                                            <td>{{ val($q,'gasometria_muestra_estado') }}</td>
+                                        </tr>
+                                        @endif
                                     </table>
                                 </div>
                             </div>

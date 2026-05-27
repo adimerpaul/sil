@@ -1,6 +1,24 @@
 <template>
   <q-page class="q-pa-md bg-grey-2">
 
+    <!-- LOADING PDF OVERLAY -->
+    <q-dialog v-model="loadingPdf" persistent>
+      <q-card flat class="q-pa-lg text-center" style="min-width:260px">
+        <q-spinner-dots color="negative" size="48px" class="q-mb-md" />
+        <div class="text-subtitle1 text-weight-bold">Generando PDF...</div>
+        <div class="text-caption text-grey-6 q-mt-xs">Esto puede tardar unos segundos con muchos datos.</div>
+      </q-card>
+    </q-dialog>
+
+    <!-- LOADING EXCEL OVERLAY -->
+    <q-dialog v-model="loadingExcel" persistent>
+      <q-card flat class="q-pa-lg text-center" style="min-width:260px">
+        <q-spinner-dots color="primary" size="48px" class="q-mb-md" />
+        <div class="text-subtitle1 text-weight-bold">Generando Excel...</div>
+        <div class="text-caption text-grey-6 q-mt-xs">Preparando el archivo, por favor espera.</div>
+      </q-card>
+    </q-dialog>
+
     <!-- ENCABEZADO -->
     <div class="row items-center q-mb-md">
       <div class="col">
@@ -83,6 +101,18 @@
             />
           </div>
 
+          <!-- Paciente -->
+          <div class="col-12 col-sm-4 col-md-2">
+            <q-input
+              v-model="filters.paciente"
+              dense outlined clearable
+              label="Paciente / CI"
+              @keyup.enter="fetchData"
+            >
+              <template v-slot:prepend><q-icon name="person_search" /></template>
+            </q-input>
+          </div>
+
           <!-- Botones -->
           <div class="col-12 col-sm col-md-auto row q-gutter-sm items-center">
             <q-btn
@@ -132,12 +162,14 @@
           <div class="row q-gutter-sm q-mb-xs">
             <q-btn
               outline color="primary" icon="grid_on" label="Excel" no-caps size="sm"
-              :disable="loading || rows.length === 0"
+              :loading="loadingExcel"
+              :disable="loading || loadingPdf || rows.length === 0"
               @click="downloadExcel"
             />
             <q-btn
               outline color="negative" icon="picture_as_pdf" label="PDF" no-caps size="sm"
-              :disable="loading || rows.length === 0"
+              :loading="loadingPdf"
+              :disable="loading || loadingExcel || rows.length === 0"
               @click="openPdf"
             />
           </div>
@@ -285,6 +317,8 @@ export default {
   data () {
     return {
       loading: false,
+      loadingPdf: false,
+      loadingExcel: false,
       tableFilter: '',
 
       filters: {
@@ -294,7 +328,8 @@ export default {
         servicio_id: null,
         genero: null,
         embarazada: null,
-        cama: ''
+        cama: '',
+        paciente: ''
       },
 
       rows: [],
@@ -339,8 +374,9 @@ export default {
   },
 
   async mounted () {
-    this.filters.date_from = moment().subtract(30, 'days').format('YYYY-MM-DD')
-    this.filters.date_to   = moment().format('YYYY-MM-DD')
+    const hoy = moment().format('YYYY-MM-DD')
+    this.filters.date_from = hoy
+    this.filters.date_to   = hoy
 
     await this.loadAreas()
     this.servicioOptionsFiltrados = this.allServicioOptions
@@ -414,6 +450,7 @@ export default {
           params.embarazada = this.filters.embarazada
         }
         if (this.filters.cama)        params.cama        = this.filters.cama
+        if (this.filters.paciente)    params.paciente    = this.filters.paciente
 
         const res  = await this.$axios.get('reportes/servicios-resumen', { params })
         const data = res.data || {}
@@ -429,13 +466,14 @@ export default {
 
     clearFilters () {
       this.filters = {
-        date_from: moment().subtract(30, 'days').format('YYYY-MM-DD'),
+        date_from: moment().format('YYYY-MM-DD'),
         date_to:   moment().format('YYYY-MM-DD'),
         area_id: null,
         servicio_id: null,
         genero: null,
         embarazada: null,
-        cama: ''
+        cama: '',
+        paciente: ''
       }
       this.servicioOptionsFiltrados = this.allServicioOptions
     },
@@ -451,14 +489,17 @@ export default {
         p.embarazada = this.filters.embarazada
       }
       if (this.filters.cama)        p.cama        = this.filters.cama
+      if (this.filters.paciente)    p.paciente    = this.filters.paciente
       return p
     },
 
     async downloadExcel () {
+      this.loadingExcel = true
       try {
         const res = await this.$axios.get('reportes/servicios-resumen/excel', {
           params: this.buildParams(),
-          responseType: 'blob'
+          responseType: 'blob',
+          timeout: 120000
         })
         const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
         const url  = window.URL.createObjectURL(blob)
@@ -469,20 +510,26 @@ export default {
         window.URL.revokeObjectURL(url)
       } catch (e) {
         this.$q?.notify({ type: 'negative', message: 'Error generando Excel' })
+      } finally {
+        this.loadingExcel = false
       }
     },
 
     async openPdf () {
+      this.loadingPdf = true
       try {
         const res = await this.$axios.get('reportes/servicios-resumen/pdf', {
           params: this.buildParams(),
-          responseType: 'blob'
+          responseType: 'blob',
+          timeout: 180000
         })
         const blob = new Blob([res.data], { type: 'application/pdf' })
         const url  = window.URL.createObjectURL(blob)
         window.open(url, '_blank')
       } catch (e) {
-        this.$q?.notify({ type: 'negative', message: 'Error generando PDF' })
+        this.$q?.notify({ type: 'negative', message: 'Error generando PDF. Intenta con un rango de fechas más corto.' })
+      } finally {
+        this.loadingPdf = false
       }
     }
   }

@@ -61,6 +61,7 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'ldh',
 
         'creatinuria_24h',
+        'creatinuria_casual',
         'proteinuria_24h',
         'volumen_24h',
 
@@ -138,6 +139,7 @@ class QuimicaSanguinea extends Model implements AuditableContract
         'fr_dilucion',
         'pcr_dilucion',
         'microalbuminuria',
+        'gasometria_tipo',
         'gasometria_observacion',
         'gasometria_muestra_estado',
         'citoquimico_observaciones',
