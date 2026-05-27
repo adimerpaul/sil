@@ -360,6 +360,8 @@ export default {
       }
 
       const precioUnitario = Number(product.precio_unitario || 0)
+      // mesnaje de agregado
+      this.$alert.success(`${product.nombre}`, 'Producto agregado',)
       const item = {
         producto_id: productoId,
         imagen: product.imagen,

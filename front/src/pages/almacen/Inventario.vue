@@ -150,9 +150,21 @@
       >
         <template #body-cell-imagen="props">
           <q-td :props="props">
-            <q-avatar rounded size="42px" class="item-image">
-              <q-img :src="itemImageUrl(props.row)" ratio="1" fit="cover" />
-            </q-avatar>
+            <div
+              class="table-img-drop"
+              :class="{ 'table-img-drop--over': draggingDirectId === props.row.id }"
+              @dragover.prevent="draggingDirectId = props.row.id"
+              @dragleave.prevent="draggingDirectId = null"
+              @drop.prevent="onTableImageDrop($event, props.row)"
+            >
+              <q-avatar rounded size="42px" class="item-image">
+                <q-spinner-dots v-if="uploadingImageId === props.row.id" color="primary" size="24px" />
+                <q-img v-else :src="itemImageUrl(props.row)" ratio="1" fit="cover" />
+              </q-avatar>
+              <div class="table-img-drop__hint">
+                <q-icon name="upload" size="14px" color="white" />
+              </div>
+            </div>
           </q-td>
         </template>
 
@@ -653,6 +665,8 @@ export default {
       itemImageFile: null,
       itemPreviewUrl: '',
       draggingItemImage: false,
+      draggingDirectId: null,
+      uploadingImageId: null,
       summary: {
         items: 0,
         cantidad: 0,
@@ -1017,6 +1031,32 @@ export default {
         this.$alert?.error && this.$alert.error('No se pudo pegar la imagen (puede ser por permisos del navegador)')
       }
     },
+    onTableImageDrop (e, row) {
+      this.draggingDirectId = null
+      const file = e?.dataTransfer?.files?.[0]
+      if (!file) return
+      if (!String(file.type || '').startsWith('image/')) {
+        this.$alert.error('Solo se permiten imágenes')
+        return
+      }
+      this.uploadDirectImage(row, file)
+    },
+    async uploadDirectImage (row, file) {
+      this.uploadingImageId = row.id
+      try {
+        const form = new FormData()
+        form.append('imagen', file)
+        form.append('_method', 'PUT')
+        const res = await this.$axios.post(`almacen-items/${row.id}`, form)
+        const idx = this.items.findIndex(i => i.id === row.id)
+        if (idx !== -1) this.items[idx] = { ...this.items[idx], imagen: res.data.imagen }
+        this.$alert.success('Imagen actualizada')
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'No se pudo actualizar la imagen')
+      } finally {
+        this.uploadingImageId = null
+      }
+    },
     itemImageUrl (row) {
       return `${this.$url}/../images/productos/${row?.imagen || 'default.png'}`
     },
@@ -1262,6 +1302,40 @@ export default {
 
 .history-item {
   padding: 10px 14px;
+}
+
+.table-img-drop {
+  position: relative;
+  display: inline-flex;
+  border-radius: 6px;
+  cursor: grab;
+}
+
+.table-img-drop__hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+
+.table-img-drop:hover .table-img-drop__hint {
+  opacity: 1;
+}
+
+.table-img-drop--over {
+  outline: 2px dashed #1976d2;
+  border-radius: 6px;
+}
+
+.table-img-drop--over .table-img-drop__hint {
+  opacity: 1;
+  background: rgba(25, 118, 210, 0.45);
 }
 
 .item-image-dropzone {
