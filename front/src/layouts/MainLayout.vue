@@ -302,7 +302,7 @@ const menuSections = [
     icon: 'insert_chart',
     defaultOpened: false,
     links: [
-      { title: 'Servicios resumen', icon: 'bar_chart', link: '/reportes/servicios-resumen', can: ['Reportes', 'Usuarios'] },
+      { title: 'Servicios resumen', icon: 'bar_chart', link: '/reportes/servicios-resumen', can: ['Reportes'] },
       { title: 'Consentimientos', icon: 'assignment', link: '/reporte/consentimiento', can: 'Consentimientos' },
       { title: 'Solicitudes', icon: 'summarize', link: '/reporte/solicitudes', can: ['Solicitudes', 'Consentimientos'] },
     ],
