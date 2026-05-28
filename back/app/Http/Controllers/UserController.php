@@ -209,6 +209,12 @@ class UserController extends Controller{
         $perms = Permission::whereIn('name', ['Ver Pedidos', 'Crear Pedidos'])->get();
         $user->syncPermissions($perms);
 
+        // Asignar subpartida Papel 32100 por defecto
+        $subpartida = \App\Models\Subpartida::where('codigo', '32100')->first();
+        if ($subpartida) {
+            $user->subpartidas()->attach($subpartida->id);
+        }
+
         return response()->json([
             'username' => $username,
             'password' => $request->ci,
