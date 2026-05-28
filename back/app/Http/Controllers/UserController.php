@@ -130,6 +130,28 @@ class UserController extends Controller{
         ]);
     }
 
+    public function usernamePreview(Request $request)
+    {
+        $name  = $request->input('name', '');
+        $words = array_values(array_filter(preg_split('/\s+/', strtolower(trim($name)))));
+
+        if (empty($words)) {
+            return response()->json(['username' => '']);
+        }
+
+        $base     = $words[0];
+        $second   = isset($words[1]) ? substr($words[1], 0, 1) : '';
+        $username = $base . $second;
+
+        $original = $username;
+        $counter  = 2;
+        while (User::where('username', $username)->exists()) {
+            $username = $original . $counter++;
+        }
+
+        return response()->json(['username' => $username]);
+    }
+
     public function register(Request $request)
     {
         $request->validate([

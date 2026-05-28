@@ -125,10 +125,15 @@
                   </q-input>
 
                   <!-- Preview username -->
-                  <div v-if="reg.usernamePreview" class="q-mb-md q-mt-xs">
-                    <q-chip dense color="blue-1" text-color="primary" icon="alternate_email">
-                      Usuario: <strong class="q-ml-xs">{{ reg.usernamePreview }}</strong>
+                  <div v-if="reg.usernamePreview" class="q-mb-md q-mt-xs" style="overflow:hidden">
+                    <q-chip dense :color="usernameModificado ? 'orange-2' : 'blue-1'"
+                            :text-color="usernameModificado ? 'orange-9' : 'primary'"
+                            icon="alternate_email" style="max-width:100%">
+                      Tu usuario será: <strong class="q-ml-xs">{{ reg.usernamePreview }}</strong>
                     </q-chip>
+                    <div v-if="usernameModificado" class="text-caption text-orange-9 q-mt-xs">
+                      <q-icon name="info" size="12px"/> Ya existe un usuario con ese nombre, se asignará <b>{{ reg.usernamePreview }}</b>
+                    </div>
                   </div>
 
                   <div class="row q-col-gutter-sm q-mb-xs">
@@ -218,6 +223,8 @@ let   tempToken              = ''
 // ── Registro ─────────────────────────────────────────────
 const loadingReg             = ref(false)
 const unidades               = ref([])
+const usernameModificado     = ref(false)
+let   usernameTimer          = null
 const reg                    = ref({
   name: '', email: '', celular: '', ci: '', unidad_id: null, usernamePreview: '',
 })
@@ -230,10 +237,27 @@ onMounted(() => {
 
 function actualizarUsername() {
   const palabras = (reg.value.name || '').trim().toLowerCase().split(/\s+/).filter(Boolean)
-  if (!palabras.length) { reg.value.usernamePreview = ''; return }
+  if (!palabras.length) {
+    reg.value.usernamePreview = ''
+    usernameModificado.value = false
+    clearTimeout(usernameTimer)
+    return
+  }
   const base = palabras[0]
   const segunda = palabras[1] ? palabras[1][0] : ''
-  reg.value.usernamePreview = base + segunda
+  const local = base + segunda
+  reg.value.usernamePreview = local
+  usernameModificado.value = false
+
+  clearTimeout(usernameTimer)
+  usernameTimer = setTimeout(async () => {
+    try {
+      const res = await proxy.$axios.get('username-preview', { params: { name: reg.value.name } })
+      const real = res.data.username
+      reg.value.usernamePreview = real
+      usernameModificado.value = real !== local
+    } catch {}
+  }, 500)
 }
 
 function irRegistro() {
@@ -340,11 +364,19 @@ function registrar() {
 .login-wrap {
   position: relative;
   z-index: 1;
+  width: 100%;
   max-width: 520px;
   margin: 0 auto;
   padding: 24px 12px;
+  box-sizing: border-box;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
   min-height: 100vh;
+}
+.login-card {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 </style>

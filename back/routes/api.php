@@ -36,6 +36,7 @@ use App\Http\Controllers\ReporteUnidadController;
 Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
 Route::post('/register', [App\Http\Controllers\UserController::class, 'register']);
 Route::get('/unidades-public', [App\Http\Controllers\UnidadController::class, 'index']);
+Route::get('/username-preview', [App\Http\Controllers\UserController::class, 'usernamePreview']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
