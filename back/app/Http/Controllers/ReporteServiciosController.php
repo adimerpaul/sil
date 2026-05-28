@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -165,6 +166,131 @@ class ReporteServiciosController extends Controller
         $sheet->getColumnDimension('O')->setWidth(22);
 
         $filename = "solicitudes_{$dateFrom}_{$dateTo}.xlsx";
+        $path     = storage_path("app/{$filename}");
+
+        (new Xlsx($spreadsheet))->save($path);
+
+        return response()->download($path, $filename)->deleteFileAfterSend(true);
+    }
+
+    public function exportExcelMensual(Request $request)
+    {
+        ini_set('memory_limit', '256M');
+
+        $dateFrom = $request->get('date_from', date('Y-m-01'));
+        $dateTo   = $request->get('date_to',   date('Y-m-t'));
+
+        // Solicitudes del período con datos de quimica_sanguinea (serología VIH/RPR/HVB/HVC)
+        $rows = $this->baseQuery($request)->get();
+
+        // Obtener resultados serológicos indexados por solicitude_id
+        $solicitudeIds = $rows->pluck('id')->toArray();
+        $serologias = \Illuminate\Support\Facades\DB::table('quimica_sanguineas')
+            ->whereIn('solicitude_id', $solicitudeIds)
+            ->whereNull('deleted_at')
+            ->select([
+                'solicitude_id',
+                'prueba_rapida_vih',
+                'rpr',
+                'prueba_rapida_hepatitis_b',
+                'prueba_rapida_hepatitis_c',
+                'prueba_rapida_sifilis',
+            ])
+            ->get()
+            ->keyBy('solicitude_id');
+
+        $templatePath = storage_path('app/templates/registro_vih_mensual.xlsx');
+        $spreadsheet  = IOFactory::load($templatePath);
+
+        // Nombre del mes en español
+        $meses = [
+            1=>'ENERO',2=>'FEBRERO',3=>'MARZO',4=>'ABRIL',5=>'MAYO',6=>'JUNIO',
+            7=>'JULIO',8=>'AGOSTO',9=>'SEPTIEMBRE',10=>'OCTUBRE',11=>'NOVIEMBRE',12=>'DICIEMBRE',
+        ];
+        $mes = $dateFrom ? $meses[(int) date('n', strtotime($dateFrom))] : '';
+
+        // Filas de datos: primera fila = 14, hasta fila 33 (20 filas por hoja)
+        $firstDataRow = 14;
+        $rowsPerSheet = 20;
+
+        $chunks = $rows->chunk($rowsPerSheet);
+
+        foreach ($chunks as $sheetIndex => $chunk) {
+            if ($sheetIndex >= $spreadsheet->getSheetCount()) {
+                break; // solo usamos las hojas que trae el template
+            }
+
+            $sheet = $spreadsheet->getSheet($sheetIndex);
+
+            // Actualizar mes en la celda V9
+            $sheet->setCellValue('V9', $mes);
+
+            $rowNum = $firstDataRow;
+            foreach ($chunk as $item) {
+                $sero = $serologias->get($item->id);
+
+                // ── Datos del paciente ─────────────────────────────────────
+                $sheet->setCellValue("C{$rowNum}", $item->fecha_solicitud);
+                $sheet->setCellValue("D{$rowNum}", $item->paciente_nombre);
+                $sheet->setCellValue("N{$rowNum}", $item->codigo_solicitud ?? '');
+                $sheet->setCellValue("R{$rowNum}", $item->paciente_ci);
+
+                // Edad en columna V (masculino) o W (femenino)
+                $edad = (int) ($item->paciente_edad ?? 0);
+                if ($item->paciente_genero === 'M') {
+                    $sheet->setCellValue("V{$rowNum}", $edad);
+                } elseif ($item->paciente_genero === 'F') {
+                    $sheet->setCellValue("W{$rowNum}", $edad);
+                }
+
+                // Embarazada → marca X en columna X
+                if ($item->paciente_embarazo) {
+                    $sheet->setCellValue("X{$rowNum}", 'X');
+                }
+
+                // ── Resultados serológicos ─────────────────────────────────
+                if ($sero) {
+                    $reactivo = fn($val) => strtolower(trim((string)($val ?? ''))) === 'reactivo';
+
+                    // VIH 1ª prueba rápida: AE=prueba hecha, AF=reactivo
+                    if ($sero->prueba_rapida_vih !== null) {
+                        $sheet->setCellValue("AE{$rowNum}", 'X');
+                        if ($reactivo($sero->prueba_rapida_vih)) {
+                            $sheet->setCellValue("AF{$rowNum}", 'X');
+                        }
+                    }
+
+                    // Sifilis (RPR o prueba rápida): AM=prueba hecha, AN=reactivo
+                    $sifilisVal = $sero->prueba_rapida_sifilis ?? $sero->rpr;
+                    if ($sifilisVal !== null) {
+                        $sheet->setCellValue("AM{$rowNum}", 'X');
+                        if ($reactivo($sifilisVal)) {
+                            $sheet->setCellValue("AN{$rowNum}", 'X');
+                        }
+                    }
+
+                    // HVB: AQ=prueba hecha, AR=reactivo
+                    if ($sero->prueba_rapida_hepatitis_b !== null) {
+                        $sheet->setCellValue("AQ{$rowNum}", 'X');
+                        if ($reactivo($sero->prueba_rapida_hepatitis_b)) {
+                            $sheet->setCellValue("AR{$rowNum}", 'X');
+                        }
+                    }
+
+                    // HVC: AS=prueba hecha, AT=reactivo
+                    if ($sero->prueba_rapida_hepatitis_c !== null) {
+                        $sheet->setCellValue("AS{$rowNum}", 'X');
+                        if ($reactivo($sero->prueba_rapida_hepatitis_c)) {
+                            $sheet->setCellValue("AT{$rowNum}", 'X');
+                        }
+                    }
+                }
+
+                $rowNum++;
+            }
+        }
+
+        $filename = "registro_vih_{$dateFrom}_{$dateTo}.xlsx";
         $path     = storage_path("app/{$filename}");
 
         (new Xlsx($spreadsheet))->save($path);

@@ -19,6 +19,15 @@
       </q-card>
     </q-dialog>
 
+    <!-- LOADING EXCEL MENSUAL OVERLAY -->
+    <q-dialog v-model="loadingExcelMensual" persistent>
+      <q-card flat class="q-pa-lg text-center" style="min-width:260px">
+        <q-spinner-dots color="teal" size="48px" class="q-mb-md" />
+        <div class="text-subtitle1 text-weight-bold">Generando Registro Mensual...</div>
+        <div class="text-caption text-grey-6 q-mt-xs">Llenando plantilla VIH, por favor espera.</div>
+      </q-card>
+    </q-dialog>
+
     <!-- ENCABEZADO -->
     <div class="row items-center q-mb-md">
       <div class="col">
@@ -163,13 +172,19 @@
             <q-btn
               outline color="primary" icon="grid_on" label="Excel" no-caps size="sm"
               :loading="loadingExcel"
-              :disable="loading || loadingPdf || rows.length === 0"
+              :disable="loading || loadingPdf || loadingExcelMensual || rows.length === 0"
               @click="downloadExcel"
+            />
+            <q-btn
+              outline color="teal" icon="table_chart" label="Excel Registro Mensual" no-caps size="sm"
+              :loading="loadingExcelMensual"
+              :disable="loading || loadingExcel || loadingPdf || rows.length === 0"
+              @click="downloadExcelMensual"
             />
             <q-btn
               outline color="negative" icon="picture_as_pdf" label="PDF" no-caps size="sm"
               :loading="loadingPdf"
-              :disable="loading || loadingExcel || rows.length === 0"
+              :disable="loading || loadingExcel || loadingExcelMensual || rows.length === 0"
               @click="openPdf"
             />
           </div>
@@ -319,6 +334,7 @@ export default {
       loading: false,
       loadingPdf: false,
       loadingExcel: false,
+      loadingExcelMensual: false,
       tableFilter: '',
 
       filters: {
@@ -512,6 +528,28 @@ export default {
         this.$q?.notify({ type: 'negative', message: 'Error generando Excel' })
       } finally {
         this.loadingExcel = false
+      }
+    },
+
+    async downloadExcelMensual () {
+      this.loadingExcelMensual = true
+      try {
+        const res = await this.$axios.get('reportes/servicios-resumen/excel-mensual', {
+          params: this.buildParams(),
+          responseType: 'blob',
+          timeout: 120000
+        })
+        const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        const url  = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href     = url
+        link.download = `registro_vih_${this.filters.date_from}_${this.filters.date_to}.xlsx`
+        link.click()
+        window.URL.revokeObjectURL(url)
+      } catch (e) {
+        this.$q?.notify({ type: 'negative', message: 'Error generando Registro Mensual' })
+      } finally {
+        this.loadingExcelMensual = false
       }
     },
 

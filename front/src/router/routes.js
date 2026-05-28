@@ -150,6 +150,11 @@ const routes = [
         meta: {requiresAuth: true, perm: ['Ver Herramientas Almacén', 'Herramientas de Almacén']}
       },
       {
+        path: '/usuarios/herramientas',
+        component: () => import('pages/usuarios/HerramientaUsuario.vue'),
+        meta: {requiresAuth: true, perm: 'Tiempo creación de usuario'}
+      },
+      {
         path: '/almacen/reporte-valorado',
         component: () => import('pages/almacen/ReporteValorado.vue'),
         meta: {requiresAuth: true, perm: 'Reporte Valorado'}

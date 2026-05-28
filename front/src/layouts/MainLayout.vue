@@ -242,6 +242,7 @@ const menuSections = [
     links: [
       { title: 'Resumen', icon: 'dashboard', link: '/', can: 'Dashboard' },
       { title: 'Usuarios', icon: 'people', link: '/usuarios', can: 'Usuarios' },
+      { title: 'Tiempo de registro', icon: 'schedule', link: '/usuarios/herramientas', can: 'Tiempo creación de usuario' },
       { title: 'Pacientes', icon: 'folder_shared', link: '/pacientes', can: 'Pacientes' },
       { title: 'Doctores', icon: 'medical_services', link: '/doctores', can: 'Doctores' },
       { title: 'Establecimientos', icon: 'domain_add', link: '/establecimientos', can: 'Establecimientos' },

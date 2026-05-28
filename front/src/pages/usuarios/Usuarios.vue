@@ -7,6 +7,8 @@
                class="q-mr-sm"/>
         <q-btn color="secondary" label="Unidades" @click="abrirUnidades(false)" no-caps icon="business"
                class="q-mr-sm"/>
+        <q-btn v-if="canGestionarTiempoRegistro" color="deep-orange" label="Tiempo de registro"
+               @click="$router.push('/usuarios/herramientas')" no-caps icon="schedule" class="q-mr-sm"/>
         <q-btn color="primary" label="Actualizar" @click="usersGet" no-caps icon="refresh" :loading="loading"/>
         <q-input v-model="filter" label="Buscar" dense outlined>
           <template v-slot:append>
@@ -694,6 +696,61 @@
       </q-card>
     </q-dialog>
 
+    <!-- Dialog Tiempo de registro de usuarios -->
+    <q-dialog v-model="dialogoHerramientaUsuario" persistent>
+      <q-card style="width: min(94vw, 500px)">
+        <q-card-section class="row items-center q-pb-xs">
+          <q-icon name="schedule" color="deep-orange" size="22px" class="q-mr-sm"/>
+          <div>
+            <div class="text-subtitle1 text-weight-bold">Tiempo de registro de usuarios</div>
+            <div class="text-caption text-grey-7">Período en que los usuarios pueden crear su propia cuenta</div>
+          </div>
+          <q-space/>
+          <q-btn icon="close" flat round dense @click="dialogoHerramientaUsuario = false"/>
+        </q-card-section>
+
+        <q-separator/>
+
+        <q-card-section class="q-pa-sm q-px-md">
+          <q-banner v-if="herramientaSettings.registro_habilitado" rounded
+                    class="bg-green-1 text-green-10 q-mb-md" style="border:1px solid #a5d6a7">
+            <template #avatar><q-icon name="check_circle" color="green-7" size="24px"/></template>
+            <div class="text-weight-bold">Registro habilitado</div>
+            <div class="text-body2">
+              {{ formatFecha(herramientaSettings.fecha_inicio_registro) }} al {{ formatFecha(herramientaSettings.fecha_fin_registro) }}
+            </div>
+          </q-banner>
+          <q-banner v-else rounded class="bg-orange-1 text-orange-10 q-mb-md" style="border:1px solid #ffcc80">
+            <template #avatar><q-icon name="block" color="orange-7" size="24px"/></template>
+            <div class="text-weight-bold">Registro deshabilitado</div>
+            <div class="text-body2">No hay un período activo en este momento.</div>
+          </q-banner>
+
+          <div class="row q-col-gutter-sm">
+            <div class="col-12 col-sm-6">
+              <q-input v-model="herramientaForm.fecha_inicio_registro" outlined dense type="datetime-local" label="Fecha y hora inicio" :disable="herramientaSaving">
+                <template #prepend><q-icon name="event"/></template>
+              </q-input>
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input v-model="herramientaForm.fecha_fin_registro" outlined dense type="datetime-local" label="Fecha y hora fin" :disable="herramientaSaving">
+                <template #prepend><q-icon name="event_available"/></template>
+              </q-input>
+            </div>
+          </div>
+        </q-card-section>
+
+        <q-separator/>
+
+        <q-card-actions align="right" class="q-pa-sm">
+          <q-btn flat no-caps color="grey-8" icon="clear" label="Limpiar"
+                 :disable="herramientaSaving" @click="herramientaForm.fecha_inicio_registro = ''; herramientaForm.fecha_fin_registro = ''"/>
+          <q-btn unelevated no-caps color="deep-orange" icon="save" label="Guardar"
+                 :loading="herramientaSaving" @click="guardarHerramientaUsuario"/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
   </q-page>
 </template>
 <script>
@@ -706,6 +763,7 @@ const HOSPITAL_PERMISSION_NAMES = [
   'Doctores',
   'Establecimientos',
   'Servicios',
+  'Tiempo creación de usuario',
 ]
 
 const ALMACEN_PERMISSION_NAMES = [
@@ -823,6 +881,10 @@ export default {
       editandoUnidad: null,
       inputNombreUnidad: '',
       unidadFilter: '',
+      dialogoHerramientaUsuario: false,
+      herramientaSettings: { fecha_inicio_registro: null, fecha_fin_registro: null, registro_habilitado: false },
+      herramientaForm: { fecha_inicio_registro: '', fecha_fin_registro: '' },
+      herramientaSaving: false,
     }
   },
   async mounted() {
@@ -912,6 +974,44 @@ export default {
         this.filteredUnidadesOpts = this.unidades
           .filter(u => !q || u.nombre.toLowerCase().includes(q))
       })
+    },
+    async abrirHerramientaUsuario() {
+      this.dialogoHerramientaUsuario = true
+      try {
+        const res = await this.$axios.get('herramientas-usuario')
+        this.herramientaSettings = res.data
+        this.herramientaForm.fecha_inicio_registro = res.data.fecha_inicio_registro || ''
+        this.herramientaForm.fecha_fin_registro    = res.data.fecha_fin_registro    || ''
+      } catch {}
+    },
+    async guardarHerramientaUsuario() {
+      const inicio = this.herramientaForm.fecha_inicio_registro
+      const fin    = this.herramientaForm.fecha_fin_registro
+      if ((inicio && !fin) || (!inicio && fin)) {
+        this.$alert.error('Debes definir ambas fechas o dejar las dos vacías')
+        return
+      }
+      if (inicio && fin && fin < inicio) {
+        this.$alert.error('La fecha fin debe ser igual o posterior a la fecha inicio')
+        return
+      }
+      this.herramientaSaving = true
+      try {
+        const res = await this.$axios.put('herramientas-usuario', {
+          fecha_inicio_registro: inicio || null,
+          fecha_fin_registro:    fin    || null,
+        })
+        this.herramientaSettings = res.data
+        this.$alert.success('Configuración guardada')
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'Error al guardar')
+      } finally {
+        this.herramientaSaving = false
+      }
+    },
+    formatFecha(val) {
+      if (!val) return '-'
+      return moment(val).format('DD/MM/YYYY HH:mm')
     },
     abrirUnidades(seleccion) {
       this.modoSeleccionUnidad = seleccion
@@ -1296,6 +1396,11 @@ export default {
     },
   },
   computed: {
+    canGestionarTiempoRegistro() {
+      const role = this.$store?.user?.role
+      const perms = this.$store?.permissions || []
+      return role === 'Administrador' || perms.includes('Tiempo creación de usuario')
+    },
     subpartidasAgrupadas() {
       const q = (this.subpartidaFilter || '').toLowerCase()
       const map = new Map()

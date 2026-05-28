@@ -117,6 +117,28 @@
                 </div>
 
                 <q-form @submit.prevent="registrar">
+                  <!-- Banner estado de registro -->
+                  <q-banner v-if="registroEstado.habilitado === false" rounded
+                            class="bg-red-1 text-red-10 q-mb-md" style="border:1px solid #ef9a9a">
+                    <template #avatar><q-icon name="access_time" color="red-7" size="22px"/></template>
+                    <div class="text-weight-bold">Registro no disponible</div>
+                    <div class="text-body2" v-if="registroEstado.fecha_inicio && registroEstado.fecha_fin">
+                      El horario de registro es del <b>{{ fmtDt(registroEstado.fecha_inicio) }}</b>
+                      al <b>{{ fmtDt(registroEstado.fecha_fin) }}</b>
+                    </div>
+                    <div class="text-body2" v-else>
+                      Por favor comuníquese con el administrador.
+                    </div>
+                  </q-banner>
+                  <q-banner v-else-if="registroEstado.habilitado === true" rounded
+                            class="bg-green-1 text-green-10 q-mb-md" style="border:1px solid #a5d6a7">
+                    <template #avatar><q-icon name="check_circle" color="green-7" size="22px"/></template>
+                    <div class="text-weight-bold">Registro habilitado</div>
+                    <div class="text-body2">
+                      Hasta el <b>{{ fmtDt(registroEstado.fecha_fin) }}</b>
+                    </div>
+                  </q-banner>
+
                   <div class="q-mb-sm text-caption text-grey-7">Nombre completo <span class="text-negative">*</span></div>
                   <q-input v-model="reg.name" outlined dense placeholder="Ej: Adimer Paul Chambi Ajata"
                            :rules="[v => !!v || 'Campo requerido']" class="q-mb-xs"
@@ -173,7 +195,8 @@
 
                   <q-btn color="positive" label="Crear cuenta" class="full-width btnLogin"
                          no-caps unelevated size="16px" icon="person_add"
-                         :loading="loadingReg" type="submit"/>
+                         :loading="loadingReg" type="submit"
+                         :disable="registroEstado.habilitado === false"/>
                 </q-form>
               </q-card-section>
 
@@ -225,6 +248,7 @@ const loadingReg             = ref(false)
 const unidades               = ref([])
 const usernameModificado     = ref(false)
 let   usernameTimer          = null
+const registroEstado         = ref({ habilitado: null, fecha_inicio: null, fecha_fin: null })
 const reg                    = ref({
   name: '', email: '', celular: '', ci: '', unidad_id: null, usernamePreview: '',
 })
@@ -260,9 +284,21 @@ function actualizarUsername() {
   }, 500)
 }
 
-function irRegistro() {
+function fmtDt(val) {
+  if (!val) return ''
+  const d = new Date(val)
+  if (isNaN(d)) return val
+  return d.toLocaleString('es-BO', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })
+}
+
+async function irRegistro() {
   reg.value = { name: '', email: '', celular: '', ci: '', unidad_id: null, usernamePreview: '' }
+  registroEstado.value = { habilitado: null, fecha_inicio: null, fecha_fin: null }
   vista.value = 'registro'
+  try {
+    const res = await proxy.$axios.get('registro-estado')
+    registroEstado.value = res.data
+  } catch {}
 }
 
 

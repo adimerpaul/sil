@@ -28,6 +28,7 @@ use App\Http\Controllers\RecogidoController;
 use App\Http\Controllers\SolicitudSapController;
 use App\Http\Controllers\UnidadController;
 use App\Http\Controllers\HerramientasAlmacenController;
+use App\Http\Controllers\HerramientaUsuarioController;
 use App\Http\Controllers\DespachoController;
 use App\Http\Controllers\ReporteValoradoController;
 use App\Http\Controllers\ReporteResumenDetalleController;
@@ -37,6 +38,7 @@ Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
 Route::post('/register', [App\Http\Controllers\UserController::class, 'register']);
 Route::get('/unidades-public', [App\Http\Controllers\UnidadController::class, 'index']);
 Route::get('/username-preview', [App\Http\Controllers\UserController::class, 'usernamePreview']);
+Route::get('/registro-estado', [App\Http\Controllers\UserController::class, 'registroEstado']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
@@ -105,6 +107,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('solicitudes-sap/{id}/pdf', [SolicitudSapController::class, 'printPdf']);
     Route::get('herramientas-almacen', [HerramientasAlmacenController::class, 'index']);
     Route::put('herramientas-almacen', [HerramientasAlmacenController::class, 'update']);
+    Route::get('herramientas-usuario', [HerramientaUsuarioController::class, 'index']);
+    Route::put('herramientas-usuario', [HerramientaUsuarioController::class, 'update']);
     Route::get('reporte-valorado', [ReporteValoradoController::class, 'index']);
     Route::get('reporte-valorado/pdf', [ReporteValoradoController::class, 'pdf']);
     Route::get('reporte-valorado/excel', [ReporteValoradoController::class, 'excel']);
@@ -219,6 +223,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('reportes/servicios-resumen', [ReporteServiciosController::class, 'index']);
     Route::get('reportes/servicios-resumen/excel', [ReporteServiciosController::class, 'exportExcel']);
+    Route::get('reportes/servicios-resumen/excel-mensual', [ReporteServiciosController::class, 'exportExcelMensual']);
     Route::get('reportes/servicios-resumen/pdf', [ReporteServiciosController::class, 'exportPdf']);
     Route::get('reportes/consentimientos', [ConsentimientoController::class, 'reporte']);
     Route::get('reportes/solicitudes-servicios', [SolicitudeController::class, 'reporteSolicitudesServicios']);

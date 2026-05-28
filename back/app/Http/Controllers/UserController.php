@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 //use App\Mail\UserCreatedMail;
+use App\Models\HerramientaUsuario;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -130,6 +131,19 @@ class UserController extends Controller{
         ]);
     }
 
+    public function registroEstado()
+    {
+        $inicio     = HerramientaUsuario::obtener('fecha_inicio_registro');
+        $fin        = HerramientaUsuario::obtener('fecha_fin_registro');
+        $habilitado = HerramientaUsuario::registroHabilitado();
+
+        return response()->json([
+            'habilitado'    => $habilitado,
+            'fecha_inicio'  => $inicio,
+            'fecha_fin'     => $fin,
+        ]);
+    }
+
     public function usernamePreview(Request $request)
     {
         $name  = $request->input('name', '');
@@ -154,6 +168,12 @@ class UserController extends Controller{
 
     public function register(Request $request)
     {
+        if (! HerramientaUsuario::registroHabilitado()) {
+            return response()->json([
+                'message' => 'No se puede crear la cuenta en este momento, por favor comuníquese con el administrador.',
+            ], 403);
+        }
+
         $request->validate([
             'name'      => 'required|string|max:255',
             'email'     => 'nullable|email|max:255',
