@@ -34,12 +34,12 @@
                   <q-item-label>Eliminar</q-item-label>
                 </q-item-section>
               </q-item>
-              <q-item clickable @click="userEditPassword(props.row)" v-close-popup>
+              <q-item clickable @click="userResetPassword(props.row)" v-close-popup>
                 <q-item-section avatar>
                   <q-icon name="lock_reset"/>
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label>Cambiar contraseña</q-item-label>
+                  <q-item-label>Restablecer contraseña</q-item-label>
                 </q-item-section>
               </q-item>
               <q-item clickable @click="cambiarAvatar(props.row)" v-close-popup>
@@ -173,6 +173,9 @@
               </div>
               <div class="col-12 col-sm-6">
                 <q-input v-model="user.celular" label="Celular" dense outlined/>
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-input v-model="user.ci" label="CI" dense outlined/>
               </div>
               <div class="col-12 col-sm-6" v-if="!user.id">
                 <q-input v-model="user.password" label="Contraseña" dense outlined :rules="[val => !!val || 'Campo requerido']"/>
@@ -1246,18 +1249,16 @@ export default {
         permission.checked = checked
       })
     },
-    userEditPassword(user) {
-      this.user = {...user}
-      this.$alert.dialogPrompt('Nueva contraseña', 'Ingrese la nueva contraseña', 'password')
-        .onOk(password => {
-          this.$axios.put('updatePassword/' + user.id, {
-            password: password
-          }).then(res => {
-            this.usersGet()
-            this.$alert.success('Contraseña actualizada de ' + user.username)
-          }).catch(error => {
-            this.$alert.error(error.response.data.message)
-          })
+    userResetPassword(user) {
+      this.$alert.dialog(`¿Restablecer la contraseña de "${user.username}" a 123456?`)
+        .onOk(() => {
+          this.$axios.put('resetPassword/' + user.id)
+            .then(() => {
+              this.$alert.success(`Contraseña de ${user.username} restablecida a 123456`)
+            })
+            .catch(error => {
+              this.$alert.error(error.response?.data?.message || 'Error al restablecer')
+            })
         })
     },
     async userEdit(user) {

@@ -114,7 +114,7 @@
 
     <tr>
         <td><span class="label">EST. DE SALUD:</span></td>
-        <td colspan="3"><div class=" clip">{{ $solicitud->establecimiento_salud == 'Hospital General' ? 'HGSJJDD bloque central' : ($solicitud->establecimiento_salud ?? '-') }}</div></td>
+        <td colspan="3"><div class=" clip">{{ $solicitud->establecimiento_salud == 'Hospital General' ? 'HGSJDD BLOQUE CENTRAL' : ($solicitud->establecimiento_salud ?? '-') }}</div></td>
         <td colspan="2"><span class="label">FECHA DE RESULTADO:</span></td>
         <td colspan="2"><div class=" clip">{{ $fecha_solicitud ?? '-' }}</div></td>
     </tr>

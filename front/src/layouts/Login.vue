@@ -4,8 +4,9 @@
       <q-page class="full-height">
         <div class="login-bg-overlay"></div>
 
-        <q-form @submit="login" class="login-wrap">
+        <div class="login-wrap">
           <q-card flat bordered class="login-card">
+
             <q-card-section class="q-pt-lg text-center">
               <q-img src="logo.png" width="110px" class="q-mb-sm" ratio="1" fit="contain" />
               <br>
@@ -16,72 +17,133 @@
 
             <q-separator spaced />
 
-            <q-card-section class="q-pt-none">
-              <div class="text-h6 text-bold q-mb-xs">Iniciar sesión</div>
-              <div class="text-body2 text-grey-7 q-mb-md">
-                Accede al panel de administración usando tus credenciales.
-              </div>
+            <!-- ── Formulario de login ── -->
+            <template v-if="!mustChangePassword">
+              <q-card-section class="q-pt-none">
+                <q-form @submit.prevent="login">
+                  <div class="text-h6 text-bold q-mb-xs">Iniciar sesión</div>
+                  <div class="text-body2 text-grey-7 q-mb-md">
+                    Accede al panel de administración usando tus credenciales.
+                  </div>
 
-              <div class="q-mb-sm text-caption text-grey-7">Nombre de usuario</div>
-              <q-input
-                v-model="username"
-                outlined dense
-                placeholder="Nombre de usuario"
-                :rules="[v => !!v || 'Ingrese su nombre de usuario']"
-                class="q-mb-md"
-              >
-                <template #prepend><q-icon name="account_circle" size="18px" /></template>
-              </q-input>
+                  <div class="q-mb-sm text-caption text-grey-7">Nombre de usuario</div>
+                  <q-input
+                    v-model="username"
+                    outlined dense
+                    placeholder="Nombre de usuario"
+                    :rules="[v => !!v || 'Ingrese su nombre de usuario']"
+                    class="q-mb-md"
+                  >
+                    <template #prepend><q-icon name="account_circle" size="18px" /></template>
+                  </q-input>
 
-              <div class="q-mb-sm text-caption text-grey-7">Contraseña</div>
-              <q-input
-                v-model="password"
-                outlined dense
-                :type="showPassword ? 'text' : 'password'"
-                placeholder="Contraseña"
-                :rules="[v => !!v || 'Ingrese su contraseña']"
-              >
-                <template #prepend><q-icon name="lock" size="18px" /></template>
-                <template #append>
-                  <q-icon
-                    :name="showPassword ? 'visibility' : 'visibility_off'"
-                    size="18px"
-                    class="cursor-pointer"
-                    @click="showPassword = !showPassword"
+                  <div class="q-mb-sm text-caption text-grey-7">Contraseña</div>
+                  <q-input
+                    v-model="password"
+                    outlined dense
+                    :type="showPassword ? 'text' : 'password'"
+                    placeholder="Contraseña"
+                    :rules="[v => !!v || 'Ingrese su contraseña']"
+                  >
+                    <template #prepend><q-icon name="lock" size="18px" /></template>
+                    <template #append>
+                      <q-icon
+                        :name="showPassword ? 'visibility' : 'visibility_off'"
+                        size="18px"
+                        class="cursor-pointer"
+                        @click="showPassword = !showPassword"
+                      />
+                    </template>
+                  </q-input>
+
+                  <div class="row items-center q-mt-sm q-mb-md">
+                    <q-checkbox v-model="rememberMe" label="Recuérdame" color="primary" dense />
+                  </div>
+
+                  <q-btn
+                    color="primary"
+                    label="Iniciar sesión"
+                    class="full-width btnLogin"
+                    no-caps unelevated size="16px"
+                    :loading="loading"
+                    type="submit"
                   />
-                </template>
-              </q-input>
+                </q-form>
+              </q-card-section>
 
-              <div class="row items-center q-mt-sm q-mb-md">
-                <q-checkbox v-model="rememberMe" label="Recuérdame" color="primary" dense />
-                <q-space />
-                <q-btn flat dense no-caps class="text-weight-medium link-muted" label="¿Olvidaste tu contraseña?" />
-              </div>
+              <q-card-section class="q-pt-none text-center">
+                <q-separator spaced />
+                <div class="text-caption text-grey-6">
+                  © {{ year }} San Juan de Dios. Todos los derechos reservados.
+                </div>
+              </q-card-section>
+            </template>
 
-              <q-btn
-                color="primary"
-                label="Iniciar sesión"
-                class="full-width btnLogin"
-                no-caps
-                unelevated
-                size="16px"
-                :loading="loading"
-                type="submit"
-              />
-            </q-card-section>
+            <!-- ── Formulario de cambio de contraseña obligatorio ── -->
+            <template v-else>
+              <q-card-section class="q-pt-none">
+                <div class="row items-center q-mb-xs">
+                  <q-icon name="lock_reset" color="warning" size="22px" class="q-mr-sm"/>
+                  <span class="text-h6 text-bold">Cambia tu contraseña</span>
+                </div>
+                <q-banner rounded class="bg-orange-1 text-orange-9 q-mb-md" dense>
+                  <template #avatar><q-icon name="warning" color="warning"/></template>
+                  Por seguridad debes establecer una nueva contraseña antes de continuar.
+                </q-banner>
 
-            <q-card-section class="q-pt-none text-center">
-              <div class="text-body2">
-                ¿Eres usuario nuevo?
-                <q-btn flat dense no-caps class="text-weight-medium" label="Regístrate" />
-              </div>
-              <q-separator spaced />
-              <div class="text-caption text-grey-6">
-                © {{ year }} San Juan de Dios. Todos los derechos reservados.
-              </div>
-            </q-card-section>
+                <q-form @submit.prevent="cambiarPassword">
+                  <div class="q-mb-sm text-caption text-grey-7">Nueva contraseña</div>
+                  <q-input
+                    v-model="newPassword"
+                    outlined dense
+                    :type="showNewPassword ? 'text' : 'password'"
+                    placeholder="Nueva contraseña"
+                    :rules="[v => !!v || 'Campo requerido', v => v.length >= 6 || 'Mínimo 6 caracteres']"
+                    class="q-mb-md"
+                  >
+                    <template #prepend><q-icon name="lock" size="18px"/></template>
+                    <template #append>
+                      <q-icon :name="showNewPassword ? 'visibility' : 'visibility_off'"
+                              size="18px" class="cursor-pointer"
+                              @click="showNewPassword = !showNewPassword"/>
+                    </template>
+                  </q-input>
+
+                  <div class="q-mb-sm text-caption text-grey-7">Repetir nueva contraseña</div>
+                  <q-input
+                    v-model="newPasswordConfirm"
+                    outlined dense
+                    :type="showNewPasswordConfirm ? 'text' : 'password'"
+                    placeholder="Repetir nueva contraseña"
+                    :rules="[
+                      v => !!v || 'Campo requerido',
+                      v => v === newPassword || 'Las contraseñas no coinciden'
+                    ]"
+                    class="q-mb-md"
+                  >
+                    <template #prepend><q-icon name="lock_reset" size="18px"/></template>
+                    <template #append>
+                      <q-icon :name="showNewPasswordConfirm ? 'visibility' : 'visibility_off'"
+                              size="18px" class="cursor-pointer"
+                              @click="showNewPasswordConfirm = !showNewPasswordConfirm"/>
+                    </template>
+                  </q-input>
+
+                  <q-btn
+                    color="primary"
+                    label="Guardar y entrar"
+                    class="full-width btnLogin"
+                    no-caps unelevated size="16px"
+                    icon="check_circle"
+                    :loading="loadingChange"
+                    type="submit"
+                  />
+                </q-form>
+              </q-card-section>
+            </template>
+
           </q-card>
-        </q-form>
+        </div>
       </q-page>
     </q-page-container>
   </q-layout>
@@ -89,34 +151,67 @@
 
 <script setup>
 import { getCurrentInstance, ref, computed } from 'vue'
-import {useCounterStore} from "stores/example-store.js";
+
 const { proxy } = getCurrentInstance()
 
-const username = ref('')
-const password = ref('')
-const showPassword = ref(false)
-const rememberMe = ref(false)
-const loading = ref(false)
-const year = computed(() => new Date().getFullYear())
+const username             = ref('')
+const password             = ref('')
+const showPassword         = ref(false)
+const rememberMe           = ref(false)
+const loading              = ref(false)
+const year                 = computed(() => new Date().getFullYear())
 
-function login () {
+const mustChangePassword      = ref(false)
+const newPassword             = ref('')
+const newPasswordConfirm      = ref('')
+const showNewPassword         = ref(false)
+const showNewPasswordConfirm  = ref(false)
+const loadingChange           = ref(false)
+let   tempToken               = ''
+
+function login() {
   loading.value = true
   proxy.$axios.post('/login', { username: username.value, password: password.value })
     .then(res => {
-      const { user, token } = res.data
+      const { user, token, must_change_password } = res.data
       proxy.$axios.defaults.headers.common.Authorization = `Bearer ${token}`
-      proxy.$store.isLogged = true
       proxy.$store.user = user
-      proxy.$store.permissions = (user.permissions || []).map(p => p.name)
-      localStorage.setItem('tokenSil', token)
-      localStorage.setItem('user', JSON.stringify(user))
-      proxy.$alert.success('Bienvenido ', user.name)
-      proxy.$router.push('/')
+
+      if (must_change_password) {
+        tempToken = token
+        mustChangePassword.value = true
+      } else {
+        proxy.$store.isLogged = true
+        proxy.$store.permissions = (user.permissions || []).map(p => p.name)
+        localStorage.setItem('tokenSil', token)
+        localStorage.setItem('user', JSON.stringify(user))
+        proxy.$alert.success('Bienvenido ', user.name)
+        proxy.$router.push('/')
+      }
     })
     .catch(err => {
       proxy.$alert.error(err?.response?.data?.message || 'Error de autenticación', 'Error')
     })
     .finally(() => { loading.value = false })
+}
+
+function cambiarPassword() {
+  loadingChange.value = true
+  proxy.$axios.put('cambiar-password', {
+    password_actual:             '123456',
+    password_nuevo:              newPassword.value,
+    password_nuevo_confirmation: newPasswordConfirm.value,
+  }).then(() => {
+    const user = proxy.$store.user
+    proxy.$store.isLogged    = true
+    proxy.$store.permissions = (user.permissions || []).map(p => p.name)
+    localStorage.setItem('tokenSil', tempToken)
+    localStorage.setItem('user', JSON.stringify(user))
+    proxy.$alert.success('Contraseña actualizada. ¡Bienvenido!')
+    proxy.$router.push('/')
+  }).catch(err => {
+    proxy.$alert.error(err?.response?.data?.message || 'Error al cambiar contraseña')
+  }).finally(() => { loadingChange.value = false })
 }
 </script>
 
@@ -146,44 +241,5 @@ function login () {
   display: flex;
   align-items: center;
   min-height: 100vh;
-}
-.login-card {
-  width: 100%;
-  border-radius: 18px;
-  background: rgba(255,255,255,0.78);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.6);
-  box-shadow:
-    0 10px 25px rgba(0,0,0,0.08),
-    0 2px 8px rgba(0,0,0,0.05);
-}
-
-/* ===== Tipografía & detalles ===== */
-.brand-chip {
-  display: inline-block;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.06);
-}
-.link-muted { color: #6b7280 !important; }
-.link-muted:hover { color: var(--q-primary) !important; }
-
-/* ===== Botón ===== */
-.btnLogin {
-  height: 42px;
-  border-radius: 10px;
-  transition: all .25s ease;
-}
-.btnLogin:hover {
-  background-color: #fff !important;
-  color: var(--q-primary) !important;
-  outline: 1px solid var(--q-primary) !important;
-}
-
-/* ===== Responsivo ===== */
-@media (max-width: 768px) {
-  .login-wrap { max-width: 92vw; padding: 16px 8px; }
-  .login-card { border-radius: 14px; }
 }
 </style>

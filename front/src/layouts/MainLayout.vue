@@ -44,27 +44,21 @@
               </div>
             </template>
 
-            <q-item clickable v-close-popup>
+            <q-item clickable v-ripple v-close-popup @click="$router.push('/perfil')">
+              <q-item-section avatar>
+                <q-icon name="manage_accounts" />
+              </q-item-section>
               <q-item-section>
-                <q-item-label class="text-grey-7">
-                  Permisos asignados
-                </q-item-label>
-                <q-item-label caption class="q-mt-xs">
-                  <div class="row q-col-gutter-xs" style="min-width: 150px; max-width: 150px;">
-                    <q-chip
-                      v-for="(p, i) in $store.permissions"
-                      :key="i"
-                      dense
-                      color="grey-3"
-                      text-color="black"
-                      size="12px"
-                      class="q-mr-xs q-mb-xs"
-                    >
-                      {{ p }}
-                    </q-chip>
-                    <q-badge v-if="!$store.permissions?.length" color="grey-5" outline>Sin permisos</q-badge>
-                  </div>
-                </q-item-label>
+                <q-item-label>Mi perfil</q-item-label>
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable v-ripple v-close-popup @click="$router.push('/cambiar-password')">
+              <q-item-section avatar>
+                <q-icon name="lock_reset" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Cambiar contraseña</q-item-label>
               </q-item-section>
             </q-item>
 

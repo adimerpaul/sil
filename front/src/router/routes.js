@@ -10,6 +10,16 @@ const routes = [
         meta: {requiresAuth: true, perm: 'Usuarios'}
       },
       {
+        path: '/perfil',
+        component: () => import('pages/usuarios/MiPerfil.vue'),
+        meta: {requiresAuth: true}
+      },
+      {
+        path: '/cambiar-password',
+        component: () => import('pages/usuarios/CambiarPassword.vue'),
+        meta: {requiresAuth: true}
+      },
+      {
         path: '/pacientes',
         component: () => import('pages/pacientes/Pacientes.vue'),
         meta: {requiresAuth: true, perm: 'Pacientes'}

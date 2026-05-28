@@ -124,9 +124,17 @@ class UserController extends Controller{
         }
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json([
-            'token' => $token,
-            'user' => $user,
+            'token'               => $token,
+            'user'                => $user,
+            'must_change_password' => password_verify('123456', $user->password),
         ]);
+    }
+
+    public function resetPassword($id)
+    {
+        $user = User::findOrFail($id);
+        $user->update(['password' => bcrypt('123456')]);
+        return response()->json(['message' => 'Contraseña restablecida a 123456']);
     }
     function logout(Request $request){
         $request->user()->currentAccessToken()->delete();
@@ -169,6 +177,38 @@ class UserController extends Controller{
             'password' => bcrypt($request->password),
         ]);
         return $user;
+    }
+
+    public function updatePerfil(Request $request)
+    {
+        $user = $request->user();
+        $request->validate([
+            'name'          => 'sometimes|required|string|max:255',
+            'email'         => 'nullable|email|max:255',
+            'celular'       => 'nullable|string|max:50',
+            'ci'            => 'nullable|string|max:50',
+            'mostrar_firma' => 'nullable|boolean',
+            'mostrar_sello' => 'nullable|boolean',
+        ]);
+        $user->update($request->only(['name', 'email', 'celular', 'ci', 'mostrar_firma', 'mostrar_sello']));
+        return response()->json($user);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'password_actual'              => 'required|string',
+            'password_nuevo'               => 'required|string|min:6',
+            'password_nuevo_confirmation'  => 'required|same:password_nuevo',
+        ]);
+
+        $user = $request->user();
+        if (!password_verify($request->password_actual, $user->getAuthPassword())) {
+            return response()->json(['message' => 'La contraseña actual es incorrecta'], 422);
+        }
+
+        $user->update(['password' => bcrypt($request->password_nuevo)]);
+        return response()->json(['message' => 'Contraseña actualizada correctamente']);
     }
     function store(Request $request){
         $validatedData = $request->validate([

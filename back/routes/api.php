@@ -39,12 +39,15 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/me', [App\Http\Controllers\UserController::class, 'me']);
     Route::post('/logout', [App\Http\Controllers\UserController::class, 'logout']);
+    Route::put('/perfil', [App\Http\Controllers\UserController::class, 'updatePerfil']);
+    Route::put('/cambiar-password', [App\Http\Controllers\UserController::class, 'changePassword']);
 
     Route::get('/users', [App\Http\Controllers\UserController::class, 'index']);
     Route::post('/users', [App\Http\Controllers\UserController::class, 'store']);
     Route::put('/users/{user}', [App\Http\Controllers\UserController::class, 'update']);
     Route::delete('/users/{user}', [App\Http\Controllers\UserController::class, 'destroy']);
     Route::put('/updatePassword/{user}', [App\Http\Controllers\UserController::class, 'updatePassword']);
+    Route::put('/resetPassword/{user}', [App\Http\Controllers\UserController::class, 'resetPassword']);
     Route::post('/{user}/avatar', [App\Http\Controllers\UserController::class, 'updateAvatar']);
     Route::post('/{user}/firma',  [App\Http\Controllers\UserController::class, 'updateFirma']);
     Route::post('/{user}/sello',  [App\Http\Controllers\UserController::class, 'updateSello']);
