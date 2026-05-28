@@ -102,17 +102,17 @@
             />
           </q-card>
         </div>
-        <div class="col-12 col-md-4">
-          <q-card flat bordered class="q-pa-md">
-            <div class="text-subtitle1 text-weight-bold q-mb-sm">Estados de solicitudes</div>
-            <apexchart
-              type="donut"
-              height="320"
-              :options="chartAlmacenSolicitudes.options"
-              :series="chartAlmacenSolicitudes.series"
-            />
-          </q-card>
-        </div>
+<!--        <div class="col-12 col-md-4">-->
+<!--          <q-card flat bordered class="q-pa-md">-->
+<!--            <div class="text-subtitle1 text-weight-bold q-mb-sm">Estados de solicitudes</div>-->
+<!--            <apexchart-->
+<!--              type="donut"-->
+<!--              height="320"-->
+<!--              :options="chartAlmacenSolicitudes.options"-->
+<!--              :series="chartAlmacenSolicitudes.series"-->
+<!--            />-->
+<!--          </q-card>-->
+<!--        </div>-->
       </div>
 
       <div class="row q-col-gutter-md">
@@ -941,7 +941,7 @@ export default {
   computed: {
     isAlmacenRole () {
       const user = this.$store?.user?.role ? this.$store.user : JSON.parse(localStorage.getItem('user') || '{}')
-      return ['Almacén', 'Almacen'].includes(user?.role)
+      return ['Almacén', 'Almacen','Usuario'].includes(user?.role)
     },
     areasDisponibles () {
       return this.porArea.filter(a => a.area_id)

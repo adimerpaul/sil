@@ -624,16 +624,24 @@
           <q-btn icon="close" flat round dense @click="dialogoUnidades = false"/>
         </q-card-section>
 
-        <!-- Agregar nueva unidad -->
+        <!-- Formulario crear / editar -->
         <q-card-section class="q-pt-sm q-pb-none">
-          <q-form @submit.prevent="unidadPost" class="row q-col-gutter-xs items-center">
+          <q-form @submit.prevent="editandoUnidad ? unidadPut() : unidadPost()" class="row q-col-gutter-xs items-center">
             <div class="col">
-              <q-input v-model="nuevaUnidad.nombre" label="Nueva unidad" dense outlined
-                       placeholder="Nombre de la unidad"/>
+              <q-input
+                v-model="inputNombreUnidad"
+                :label="editandoUnidad ? 'Modificar unidad' : 'Nueva unidad'"
+                dense outlined placeholder="Nombre de la unidad"
+                :color="editandoUnidad ? 'primary' : 'positive'"
+              />
             </div>
-            <div class="col-auto">
-              <q-btn type="submit" icon="add" color="positive" dense :loading="loading">
-                <q-tooltip>Agregar</q-tooltip>
+            <div class="col-auto row no-wrap q-col-gutter-xs">
+              <q-btn v-if="editandoUnidad" icon="close" flat dense color="grey-7" @click="editandoUnidad = null; inputNombreUnidad = ''">
+                <q-tooltip>Cancelar edición</q-tooltip>
+              </q-btn>
+              <q-btn type="submit" :icon="editandoUnidad ? 'save' : 'add'"
+                     :color="editandoUnidad ? 'primary' : 'positive'" dense :loading="loading">
+                <q-tooltip>{{ editandoUnidad ? 'Guardar cambios' : 'Agregar' }}</q-tooltip>
               </q-btn>
             </div>
           </q-form>
@@ -652,20 +660,27 @@
             <q-item v-if="filteredUnidades.length === 0" class="text-grey-6 text-caption">
               <q-item-section>Sin resultados</q-item-section>
             </q-item>
-            <q-item v-for="u in filteredUnidades" :key="u.id" dense>
+            <q-item v-for="u in filteredUnidades" :key="u.id" dense :active="editandoUnidad?.id === u.id" active-class="bg-blue-1">
+              <q-item-section avatar style="min-width: 0">
+                <q-btn-dropdown dense flat color="primary" dropdown-icon="more_vert" no-icon-animation size="sm">
+                  <q-list dense style="min-width: 140px">
+                    <q-item v-if="modoSeleccionUnidad" clickable v-close-popup @click="seleccionarUnidad(u)">
+                      <q-item-section avatar><q-icon name="check_circle" color="primary" size="18px"/></q-item-section>
+                      <q-item-section>Seleccionar</q-item-section>
+                    </q-item>
+                    <q-item clickable v-close-popup @click="editarUnidad(u)">
+                      <q-item-section avatar><q-icon name="edit" color="primary" size="18px"/></q-item-section>
+                      <q-item-section>Modificar</q-item-section>
+                    </q-item>
+                    <q-item clickable v-close-popup @click="unidadDelete(u.id)">
+                      <q-item-section avatar><q-icon name="delete" color="negative" size="18px"/></q-item-section>
+                      <q-item-section class="text-negative">Eliminar</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-btn-dropdown>
+              </q-item-section>
               <q-item-section>
                 <q-item-label class="text-caption">{{ u.nombre }}</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <div class="row no-wrap q-col-gutter-xs">
-                  <q-btn v-if="modoSeleccionUnidad" icon="check_circle" dense flat color="primary"
-                         @click="seleccionarUnidad(u)">
-                    <q-tooltip>Seleccionar</q-tooltip>
-                  </q-btn>
-                  <q-btn icon="delete" dense flat color="negative" @click="unidadDelete(u.id)">
-                    <q-tooltip>Eliminar</q-tooltip>
-                  </q-btn>
-                </div>
               </q-item-section>
             </q-item>
           </q-list>
@@ -802,6 +817,8 @@ export default {
       dialogoUnidades: false,
       modoSeleccionUnidad: false,
       nuevaUnidad: { nombre: '' },
+      editandoUnidad: null,
+      inputNombreUnidad: '',
       unidadFilter: '',
     }
   },
@@ -896,19 +913,42 @@ export default {
     abrirUnidades(seleccion) {
       this.modoSeleccionUnidad = seleccion
       this.unidadFilter = ''
-      this.nuevaUnidad = { nombre: '' }
+      this.inputNombreUnidad = ''
+      this.editandoUnidad = null
       this.dialogoUnidades = true
+    },
+    editarUnidad(u) {
+      this.editandoUnidad = { ...u }
+      this.inputNombreUnidad = u.nombre
+    },
+    unidadPut() {
+      if (!this.inputNombreUnidad.trim()) return
+      this.loading = true
+      this.$axios.put('unidades/' + this.editandoUnidad.id, { nombre: this.inputNombreUnidad })
+        .then(res => {
+          const idx = this.unidades.findIndex(u => u.id === this.editandoUnidad.id)
+          if (idx !== -1) this.unidades.splice(idx, 1, res.data)
+          this.filteredUnidadesOpts = [...this.unidades]
+          this.editandoUnidad = null
+          this.inputNombreUnidad = ''
+          this.$alert.success('Unidad actualizada')
+        })
+        .catch(error => {
+          this.$alert.error(error.response?.data?.message || 'Error al actualizar')
+        })
+        .finally(() => { this.loading = false })
     },
     seleccionarUnidad(unidad) {
       this.user.unidad_id = unidad.id
       this.dialogoUnidades = false
     },
     unidadPost() {
-      if (!this.nuevaUnidad.nombre.trim()) return
+      if (!this.inputNombreUnidad.trim()) return
       this.loading = true
-      this.$axios.post('unidades', this.nuevaUnidad).then(res => {
+      this.$axios.post('unidades', { nombre: this.inputNombreUnidad }).then(res => {
         this.unidades.push(res.data)
-        this.nuevaUnidad = { nombre: '' }
+        this.filteredUnidadesOpts = [...this.unidades]
+        this.inputNombreUnidad = ''
         this.$alert.success('Unidad agregada')
       }).catch(error => {
         this.$alert.error(error.response?.data?.message || 'Error al guardar')
