@@ -225,6 +225,19 @@ class AlmacenItemController extends Controller
         return response()->json($item->load('subpartida.partida.grupo'));
     }
 
+    public function updateImagen(Request $request, $id)
+    {
+        $item = AlmacenItem::findOrFail($id);
+
+        $request->validate([
+            'imagen' => 'required|image|mimes:jpg,jpeg,png,webp|max:8192',
+        ]);
+
+        $item->update(['imagen' => $this->saveImage($request)]);
+
+        return response()->json(['imagen' => $item->imagen]);
+    }
+
     public function destroy($id)
     {
         $item = AlmacenItem::findOrFail($id);

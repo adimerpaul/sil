@@ -34,6 +34,8 @@ use App\Http\Controllers\ReporteResumenDetalleController;
 use App\Http\Controllers\ReporteUnidadController;
 
 Route::post('/login', [App\Http\Controllers\UserController::class, 'login']);
+Route::post('/register', [App\Http\Controllers\UserController::class, 'register']);
+Route::get('/unidades-public', [App\Http\Controllers\UnidadController::class, 'index']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
@@ -91,6 +93,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('almacen-items/reporte/pdf', [AlmacenItemController::class, 'reportPdf']);
     Route::get('reportes/almacen-dashboard', [AlmacenItemController::class, 'dashboard']);
     Route::apiResource('almacen-items', AlmacenItemController::class);
+    Route::post('almacen-items/{id}/imagen', [AlmacenItemController::class, 'updateImagen']);
     Route::get('almacen/productos-por-vencer', [ProductoPorVencerController::class, 'index']);
     Route::get('almacen/productos-vencidos', [ProductoVencidoController::class, 'index']);
     Route::get('compras/{id}/pdf', [CompraController::class, 'printPdf']);

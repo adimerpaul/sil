@@ -130,6 +130,49 @@ class UserController extends Controller{
         ]);
     }
 
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name'      => 'required|string|max:255',
+            'email'     => 'nullable|email|max:255',
+            'celular'   => 'nullable|string|max:50',
+            'ci'        => 'required|string|max:50',
+            'unidad_id' => 'nullable|exists:unidades,id',
+        ]);
+
+        // Generar username: primera palabra + primera letra de segunda palabra
+        $words    = preg_split('/\s+/', strtolower(trim($request->name)));
+        $base     = $words[0] ?? 'usuario';
+        $second   = isset($words[1]) ? substr($words[1], 0, 1) : '';
+        $username = $base . $second;
+
+        // Manejar duplicados
+        $original = $username;
+        $counter  = 2;
+        while (User::where('username', $username)->exists()) {
+            $username = $original . $counter++;
+        }
+
+        $user = User::create([
+            'name'      => $request->name,
+            'username'  => $username,
+            'email'     => $request->email,
+            'celular'   => $request->celular,
+            'ci'        => $request->ci,
+            'role'      => 'Almacén',
+            'password'  => bcrypt($request->ci),
+            'unidad_id' => $request->unidad_id,
+        ]);
+
+        $perms = Permission::whereIn('name', ['Ver Pedidos', 'Crear Pedidos'])->get();
+        $user->syncPermissions($perms);
+
+        return response()->json([
+            'username' => $username,
+            'password' => $request->ci,
+        ], 201);
+    }
+
     public function resetPassword($id)
     {
         $user = User::findOrFail($id);

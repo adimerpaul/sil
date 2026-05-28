@@ -189,6 +189,7 @@
         'ALBUMINA',
         'PROTEINAS TOTALES',
         'Glucosa (glicemia)',
+        'GLICEMIA (GLUCOSA)',
         'UREA',
         'NITROGENO UREICO SERICO (NUS)',
         'CREATININA SÉRICA',
@@ -379,7 +380,7 @@
                                             </tr>
                                         @endif
 
-                                        @if($canServicios(['Glucosa (glicemia)','PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)','PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)','GLUCOSA']))
+                                        @if($canServicios(['Glucosa (glicemia)','GLICEMIA (GLUCOSA)','PRUEBA DE TOLERANCIA A LA GLUCOSA (3 MEDICIONES) (PTG)','PRUEBA DE TOLERANCIA A LA GLUCOSA (4 MEDICIONES) (PTG)','GLUCOSA']))
                                             <tr>
                                                 <td>Glucosa</td>
                                                 <td class="center {{ outOfRangeQ('Glucosa',val($q,'glucosa'),$rangosMap)?'out-range':'' }}">{{ val($q,'glucosa') }}</td>
@@ -967,8 +968,8 @@
                                             <tr>
                                                 <td>Sífilis</td>
                                                 <td class="center">{{ val($q,'prueba_rapida_sifilis') }}</td>
-                                                <td class="center">{{ rangoTexto('Sífilis',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('Sífilis',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoTexto('Prueba rápida Sífilis',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoUnidad('Prueba rápida Sífilis',$rangosMap) }}</td>
                                             </tr>
                                         @endif
 

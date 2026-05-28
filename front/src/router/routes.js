@@ -177,13 +177,13 @@ const routes = [
       {
         path: '/area-preanalitica',
         component: () => import('pages/areaPreanalitica/AreaPreanalitica.vue'),
-        meta: {requiresAuth: true, perm: 'Area Preanalitica'}
+        meta: {requiresAuth: true, perm: 'Area preanalitica'}
       },
       // area-preanalitica-procesadas
       {
         path: '/area-preanalitica-procesadas',
         component: () => import('pages/areaPreanalitica/AreaPreanaliticaProcesadas.vue'),
-        meta: {requiresAuth: true, perm: 'Area Preanalitica' }
+        meta: {requiresAuth: true, perm: 'Area preanalitica' }
       },
       {
         path: '/analitica',

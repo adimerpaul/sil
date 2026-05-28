@@ -1046,10 +1046,9 @@ export default {
       try {
         const form = new FormData()
         form.append('imagen', file)
-        form.append('_method', 'PUT')
-        const res = await this.$axios.post(`almacen-items/${row.id}`, form)
+        const res = await this.$axios.post(`almacen-items/${row.id}/imagen`, form)
         const idx = this.items.findIndex(i => i.id === row.id)
-        if (idx !== -1) this.items[idx] = { ...this.items[idx], imagen: res.data.imagen }
+        if (idx !== -1) this.items.splice(idx, 1, { ...this.items[idx], imagen: res.data.imagen, _ts: Date.now() })
         this.$alert.success('Imagen actualizada')
       } catch (e) {
         this.$alert.error(e.response?.data?.message || 'No se pudo actualizar la imagen')
@@ -1058,7 +1057,8 @@ export default {
       }
     },
     itemImageUrl (row) {
-      return `${this.$url}/../images/productos/${row?.imagen || 'default.png'}`
+      const ts = row?._ts ? `?t=${row._ts}` : ''
+      return `${this.$url}/../images/productos/${row?.imagen || 'default.png'}${ts}`
     },
     deleteItem (row) {
       this.$alert.dialog(`Desea eliminar ${row.nombre}?`).onOk(async () => {
