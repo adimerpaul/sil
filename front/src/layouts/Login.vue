@@ -214,6 +214,39 @@
               </q-card-section>
             </template>
 
+            <!-- ── Credenciales creadas ── -->
+            <template v-else-if="vista === 'credenciales'">
+              <q-card-section class="q-pt-none text-center">
+                <q-icon name="check_circle" color="positive" size="52px"/>
+                <div class="text-h6 text-weight-bold q-mt-sm">¡Cuenta creada!</div>
+                <div class="text-body2 text-grey-7 q-mt-xs q-mb-md">
+                  Guarda estos datos, los necesitarás para ingresar
+                </div>
+
+                <q-banner rounded class="bg-blue-1 text-primary q-mb-sm text-left">
+                  <template #avatar><q-icon name="account_circle" color="primary" size="22px"/></template>
+                  <div class="text-caption text-grey-7">Tu nombre de usuario</div>
+                  <div class="text-h6 text-weight-bold">{{ credenciales.username }}</div>
+                </q-banner>
+
+                <q-banner rounded class="bg-green-1 text-positive text-left">
+                  <template #avatar><q-icon name="lock" color="positive" size="22px"/></template>
+                  <div class="text-caption text-grey-7">Tu contraseña (tu carnet)</div>
+                  <div class="text-h6 text-weight-bold">{{ credenciales.password }}</div>
+                </q-banner>
+
+                <div class="text-caption text-grey-6 q-mt-sm">
+                  Puedes cambiar tu contraseña desde "Mi perfil" una vez adentro
+                </div>
+              </q-card-section>
+
+              <q-card-section class="q-pt-none">
+                <q-btn color="primary" label="Ingresar al sistema" class="full-width btnLogin"
+                       no-caps unelevated size="16px" icon="login"
+                       :loading="loadingIngreso" @click="ingresarAlSistema"/>
+              </q-card-section>
+            </template>
+
           </q-card>
         </div>
       </q-page>
@@ -228,7 +261,7 @@ import { getCurrentInstance, ref, computed, onMounted } from 'vue'
 const { proxy } = getCurrentInstance()
 
 // ── Login ────────────────────────────────────────────────
-const vista                  = ref('login')   // 'login' | 'cambiar' | 'registro'
+const vista                  = ref('login')   // 'login' | 'cambiar' | 'registro' | 'credenciales'
 const username               = ref('')
 const password               = ref('')
 const showPassword           = ref(false)
@@ -249,6 +282,8 @@ const unidades               = ref([])
 const usernameModificado     = ref(false)
 let   usernameTimer          = null
 const registroEstado         = ref({ habilitado: null, fecha_inicio: null, fecha_fin: null })
+const credenciales           = ref({ username: '', password: '' })
+const loadingIngreso         = ref(false)
 const reg                    = ref({
   name: '', email: '', celular: '', ci: '', unidad_id: null, usernamePreview: '',
 })
@@ -361,25 +396,36 @@ function registrar() {
         ci:        reg.value.ci,
         unidad_id: reg.value.unidad_id || null,
       })
-      const { username: newUser, password: newPass } = regRes.data
-
-      const loginRes = await proxy.$axios.post('/login', { username: newUser, password: newPass })
-      const { user, token } = loginRes.data
-
-      proxy.$axios.defaults.headers.common.Authorization = `Bearer ${token}`
-      proxy.$store.user        = user
-      proxy.$store.isLogged    = true
-      proxy.$store.permissions = (user.permissions || []).map(p => p.name)
-      localStorage.setItem('tokenSil', token)
-      localStorage.setItem('user', JSON.stringify(user))
-      proxy.$alert.success('¡Cuenta creada! Bienvenido, ' + user.name)
-      proxy.$router.push('/')
+      credenciales.value = { username: regRes.data.username, password: regRes.data.password }
+      vista.value = 'credenciales'
     } catch (err) {
       proxy.$alert.error(err?.response?.data?.message || 'Error al crear la cuenta')
     } finally {
       loadingReg.value = false
     }
   })
+}
+
+async function ingresarAlSistema() {
+  loadingIngreso.value = true
+  try {
+    const loginRes = await proxy.$axios.post('/login', {
+      username: credenciales.value.username,
+      password: credenciales.value.password,
+    })
+    const { user, token } = loginRes.data
+    proxy.$axios.defaults.headers.common.Authorization = `Bearer ${token}`
+    proxy.$store.user        = user
+    proxy.$store.isLogged    = true
+    proxy.$store.permissions = (user.permissions || []).map(p => p.name)
+    localStorage.setItem('tokenSil', token)
+    localStorage.setItem('user', JSON.stringify(user))
+    proxy.$router.push('/')
+  } catch (err) {
+    proxy.$alert.error(err?.response?.data?.message || 'Error al ingresar')
+  } finally {
+    loadingIngreso.value = false
+  }
 }
 </script>
 
