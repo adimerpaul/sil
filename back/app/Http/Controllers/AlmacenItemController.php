@@ -64,6 +64,187 @@ class AlmacenItemController extends Controller
         return $this->buildReportPdf($request);
     }
 
+    public function reportExcel(Request $request)
+    {
+        @set_time_limit(300);
+        @ini_set('memory_limit', '512M');
+
+        $existente = $request->boolean('existente');
+
+        $query = $this->reportQuery($request);
+        if ($existente) {
+            $query->havingRaw('cantidad > 0');
+        }
+        $items   = $query->orderBy('grupos.nombre')->orderBy('partidas.nombre')
+                         ->orderBy('subpartidas.nombre')->orderBy('almacen_items.nombre')
+                         ->get();
+        $filters = $this->filterLabels($request);
+        $title   = $existente ? 'INVENTARIO EXISTENTE' : 'INVENTARIO COMPLETO';
+
+        // ── Colores ───────────────────────────────────────────────────
+        $cAzul     = 'FF1A237E';
+        $cAzulMed  = 'FF283593';
+        $cAzulCla  = 'FFE8EAF6';
+        $cGrisCab  = 'FF455A64';
+        $cVerde    = 'FF1B5E20';
+        $cVerdeClaro = 'FFE8F5E9';
+        $cAmarillo = 'FFFFF9C4';
+        $cBlanco   = 'FFFFFFFF';
+        $cGrisFila = 'FFF5F5F5';
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Inventario');
+
+        // Definir anchos de columnas
+        // A=Nro  B=Nombre  C=Unidad  D=P.U.  E=Cantidad  F=Valor Total  G=Grupo  H=Partida  I=Subpartida
+        $sheet->getColumnDimension('A')->setWidth(6);
+        $sheet->getColumnDimension('B')->setWidth(48);
+        $sheet->getColumnDimension('C')->setWidth(12);
+        $sheet->getColumnDimension('D')->setWidth(14);
+        $sheet->getColumnDimension('E')->setWidth(13);
+        $sheet->getColumnDimension('F')->setWidth(16);
+        $sheet->getColumnDimension('G')->setWidth(30);
+        $sheet->getColumnDimension('H')->setWidth(30);
+        $sheet->getColumnDimension('I')->setWidth(30);
+
+        // ── Fila 1: Título ─────────────────────────────────────────────
+        $sheet->mergeCells('A1:I1');
+        $sheet->setCellValue('A1', 'LABORATORIO CLÍNICO SIL — '.$title);
+        $sheet->getStyle('A1')->applyFromArray([
+            'font'      => ['bold'=>true, 'size'=>14, 'color'=>['argb'=>$cBlanco]],
+            'fill'      => ['fillType'=>Fill::FILL_SOLID, 'startColor'=>['argb'=>$cAzul]],
+            'alignment' => ['horizontal'=>Alignment::HORIZONTAL_CENTER, 'vertical'=>Alignment::VERTICAL_CENTER],
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(24);
+
+        // ── Fila 2: Meta info ──────────────────────────────────────────
+        $sheet->mergeCells('A2:I2');
+        $metaInfo = 'Generado: '.now()->format('d/m/Y H:i')
+            .'   |   Grupo: '.$filters['grupo']
+            .'   |   Partida: '.$filters['partida']
+            .'   |   Subpartida: '.$filters['subpartida'];
+        if ($filters['busqueda'] !== 'Sin busqueda') {
+            $metaInfo .= '   |   Búsqueda: '.$filters['busqueda'];
+        }
+        $sheet->setCellValue('A2', $metaInfo);
+        $sheet->getStyle('A2')->applyFromArray([
+            'font'      => ['italic'=>true, 'size'=>9, 'color'=>['argb'=>'FF333333']],
+            'fill'      => ['fillType'=>Fill::FILL_SOLID, 'startColor'=>['argb'=>$cAzulCla]],
+            'alignment' => ['horizontal'=>Alignment::HORIZONTAL_LEFT],
+        ]);
+        $sheet->getRowDimension(2)->setRowHeight(14);
+
+        // ── Fila 3: Totales resumen ────────────────────────────────────
+        $totalItems    = $items->count();
+        $totalCantidad = $items->sum('cantidad');
+        $totalValor    = $items->sum(fn ($i) => $i->cantidad * $i->precio_unitario);
+
+        $sheet->mergeCells('A3:C3');
+        $sheet->setCellValue('A3', "Total ítems: {$totalItems}");
+        $sheet->setCellValue('D3', 'Existencia total:');
+        $sheet->setCellValue('E3', $totalCantidad);
+        $sheet->setCellValue('F3', $totalValor);
+        $sheet->getStyle('A3:I3')->applyFromArray([
+            'font' => ['bold'=>true, 'size'=>9, 'color'=>['argb'=>$cBlanco]],
+            'fill' => ['fillType'=>Fill::FILL_SOLID, 'startColor'=>['argb'=>$cGrisCab]],
+            'alignment' => ['horizontal'=>Alignment::HORIZONTAL_CENTER],
+        ]);
+        $sheet->getStyle('F3')->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+        $sheet->getRowDimension(3)->setRowHeight(14);
+
+        // ── Fila 4: Cabeceras ──────────────────────────────────────────
+        $headers = ['A'=>'Nro', 'B'=>'Nombre del Ítem', 'C'=>'Unidad', 'D'=>'P. Unitario (Bs)',
+                    'E'=>'Cantidad', 'F'=>'Valor Total (Bs)', 'G'=>'Grupo', 'H'=>'Partida', 'I'=>'Subpartida'];
+
+        foreach ($headers as $col => $label) {
+            $sheet->setCellValue("{$col}4", $label);
+        }
+        $sheet->getStyle('A4:I4')->applyFromArray([
+            'font'      => ['bold'=>true, 'size'=>9, 'color'=>['argb'=>$cBlanco]],
+            'fill'      => ['fillType'=>Fill::FILL_SOLID, 'startColor'=>['argb'=>$cAzulMed]],
+            'alignment' => ['horizontal'=>Alignment::HORIZONTAL_CENTER, 'vertical'=>Alignment::VERTICAL_CENTER, 'wrapText'=>true],
+            'borders'   => ['allBorders'=>['borderStyle'=>Border::BORDER_THIN, 'color'=>['argb'=>'FF90A4AE']]],
+        ]);
+        $sheet->getRowDimension(4)->setRowHeight(18);
+        $sheet->setAutoFilter('A4:I4');
+        $sheet->freezePane('A5');
+
+        // ── Filas de datos ─────────────────────────────────────────────
+        $row = 5;
+        $grupoActual = null;
+
+        foreach ($items as $i => $item) {
+            $cantidad   = (float) $item->cantidad;
+            $precio     = (float) $item->precio_unitario;
+            $valorTotal = round($cantidad * $precio, 2);
+
+            // Separador de grupo
+            if ($item->grupo_nombre !== $grupoActual) {
+                $grupoActual = $item->grupo_nombre;
+                $sheet->mergeCells("A{$row}:I{$row}");
+                $sheet->setCellValue("A{$row}", '  '.strtoupper($item->grupo_codigo.' — '.$item->grupo_nombre));
+                $sheet->getStyle("A{$row}")->applyFromArray([
+                    'font' => ['bold'=>true, 'size'=>8, 'color'=>['argb'=>$cBlanco]],
+                    'fill' => ['fillType'=>Fill::FILL_SOLID, 'startColor'=>['argb'=>$cGrisCab]],
+                ]);
+                $sheet->getRowDimension($row)->setRowHeight(13);
+                $row++;
+            }
+
+            $bg = $cantidad > 0
+                ? ($i % 2 === 0 ? $cBlanco : $cGrisFila)
+                : $cAmarillo; // Sin stock → amarillo claro
+
+            $sheet->setCellValue("A{$row}", $i + 1);
+            $sheet->setCellValue("B{$row}", $item->nombre);
+            $sheet->setCellValue("C{$row}", $item->unidad_medida);
+            $sheet->setCellValue("D{$row}", $precio);
+            $sheet->setCellValue("E{$row}", $cantidad);
+            $sheet->setCellValue("F{$row}", $valorTotal);
+            $sheet->setCellValue("G{$row}", $item->grupo_nombre);
+            $sheet->setCellValue("H{$row}", $item->partida_nombre);
+            $sheet->setCellValue("I{$row}", $item->subpartida_nombre);
+
+            $sheet->getStyle("A{$row}:I{$row}")->applyFromArray([
+                'fill'    => ['fillType'=>Fill::FILL_SOLID, 'startColor'=>['argb'=>$bg]],
+                'borders' => ['allBorders'=>['borderStyle'=>Border::BORDER_THIN, 'color'=>['argb'=>'FFDDDDDD']]],
+                'font'    => ['size'=>8],
+            ]);
+            $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("C{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("D{$row}:F{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $sheet->getStyle("E{$row}")->getFont()->setBold($cantidad > 0);
+            if ($cantidad > 0) {
+                $sheet->getStyle("E{$row}")->getFont()->getColor()->setARGB($cVerde);
+            }
+            $sheet->getStyle("D{$row}:F{$row}")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+            $sheet->getRowDimension($row)->setRowHeight(13);
+            $row++;
+        }
+
+        // ── Fila de totales final ──────────────────────────────────────
+        $sheet->mergeCells("A{$row}:C{$row}");
+        $sheet->setCellValue("A{$row}", 'TOTALES');
+        $sheet->setCellValue("D{$row}", '');
+        $sheet->setCellValue("E{$row}", $totalCantidad);
+        $sheet->setCellValue("F{$row}", $totalValor);
+        $sheet->getStyle("A{$row}:I{$row}")->applyFromArray([
+            'font'      => ['bold'=>true, 'size'=>9, 'color'=>['argb'=>$cBlanco]],
+            'fill'      => ['fillType'=>Fill::FILL_SOLID, 'startColor'=>['argb'=>$cAzul]],
+            'alignment' => ['horizontal'=>Alignment::HORIZONTAL_RIGHT],
+            'borders'   => ['allBorders'=>['borderStyle'=>Border::BORDER_MEDIUM, 'color'=>['argb'=>'FF90A4AE']]],
+        ]);
+        $sheet->getStyle("E{$row}:F{$row}")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+        $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+        $filename = ($existente ? 'inventario_existente' : 'inventario_completo').'_'.now()->format('Ymd_His').'.xlsx';
+        $path     = storage_path("app/{$filename}");
+        (new Xlsx($spreadsheet))->save($path);
+
+        return response()->download($path, $filename)->deleteFileAfterSend(true);
+    }
+
     public function dashboard(Request $request)
     {
         $dateFrom = $request->input('date_from');

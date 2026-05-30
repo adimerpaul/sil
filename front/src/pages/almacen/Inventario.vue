@@ -16,24 +16,35 @@
           :loading="!!reportLoading"
           :disable="!!reportLoading"
         >
-          <q-list dense style="min-width: 190px">
+          <q-list dense style="min-width: 210px">
             <q-item clickable v-close-popup :disable="!!reportLoading" @click="printReport(false)">
               <q-item-section avatar>
                 <q-spinner v-if="reportLoading === 'all'" color="primary" size="20px" />
-                <q-icon v-else name="print" />
+                <q-icon v-else name="picture_as_pdf" color="negative" />
               </q-item-section>
-              <q-item-section>
-                {{ reportLoading === 'all' ? 'Generando todo...' : 'Imprimir todo' }}
-              </q-item-section>
+              <q-item-section>{{ reportLoading === 'all' ? 'Generando...' : 'PDF — Todo' }}</q-item-section>
             </q-item>
             <q-item clickable v-close-popup :disable="!!reportLoading" @click="printReport(true)">
               <q-item-section avatar>
                 <q-spinner v-if="reportLoading === 'existing'" color="primary" size="20px" />
-                <q-icon v-else name="inventory" />
+                <q-icon v-else name="picture_as_pdf" color="orange" />
               </q-item-section>
-              <q-item-section>
-                {{ reportLoading === 'existing' ? 'Generando existente...' : 'Imprimir existente' }}
+              <q-item-section>{{ reportLoading === 'existing' ? 'Generando...' : 'PDF — Existente' }}</q-item-section>
+            </q-item>
+            <q-separator />
+            <q-item clickable v-close-popup :disable="!!reportLoading" @click="downloadExcel(false)">
+              <q-item-section avatar>
+                <q-spinner v-if="reportLoading === 'excel-all'" color="positive" size="20px" />
+                <q-icon v-else name="grid_on" color="positive" />
               </q-item-section>
+              <q-item-section>{{ reportLoading === 'excel-all' ? 'Generando...' : 'Excel — Todo' }}</q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup :disable="!!reportLoading" @click="downloadExcel(true)">
+              <q-item-section avatar>
+                <q-spinner v-if="reportLoading === 'excel-existing'" color="teal" size="20px" />
+                <q-icon v-else name="grid_on" color="teal" />
+              </q-item-section>
+              <q-item-section>{{ reportLoading === 'excel-existing' ? 'Generando...' : 'Excel — Existente' }}</q-item-section>
             </q-item>
           </q-list>
         </q-btn-dropdown>
@@ -1170,10 +1181,7 @@ export default {
       this.reportLoading = existente ? 'existing' : 'all'
       try {
         const res = await this.$axios.get('almacen-items/reporte/pdf', {
-          params: {
-            existente: existente ? 1 : 0,
-            ...this.filters,
-          },
+          params: { existente: existente ? 1 : 0, ...this.filters },
           responseType: 'blob',
         })
         const blob = new Blob([res.data], { type: 'application/pdf' })
@@ -1182,6 +1190,28 @@ export default {
         window.setTimeout(() => window.URL.revokeObjectURL(url), 60000)
       } catch (e) {
         this.$alert.error(e.response?.data?.message || 'No se pudo generar el reporte')
+      } finally {
+        this.reportLoading = null
+      }
+    },
+
+    async downloadExcel (existente) {
+      this.reportLoading = existente ? 'excel-existing' : 'excel-all'
+      try {
+        const res = await this.$axios.get('almacen-items/reporte/excel', {
+          params: { existente: existente ? 1 : 0, ...this.filters },
+          responseType: 'blob',
+          timeout: 120000,
+        })
+        const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        const url  = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href     = url
+        link.download = (existente ? 'inventario_existente' : 'inventario_completo') + '_' + new Date().toISOString().slice(0,10) + '.xlsx'
+        link.click()
+        window.URL.revokeObjectURL(url)
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'No se pudo generar el Excel')
       } finally {
         this.reportLoading = null
       }
