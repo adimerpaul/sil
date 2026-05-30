@@ -485,7 +485,8 @@
               'CALCIO',
               'FÓSFORO',
               'MAGNESIO',
-              'HIERRO'
+              'HIERRO',
+              'TRANSFERRINA'
             ])"
           >
             <div class="section-title q-mb-xs">Electrolitos y minerales</div>
@@ -569,14 +570,14 @@
                 <td>{{ rangoTexto('Hierro sérico') }}</td>
                 <td>{{ rangoUnidad('Hierro sérico') }}</td>
               </tr>
-              <tr v-if="canServicios(['HIERRO'])">
-                <td>TRF</td>
+              <tr v-if="canServicios(['HIERRO', 'TRANSFERRINA'])">
+                <td>Transferrina (TRF)</td>
                 <td>
                   <q-input v-model.number="form.trf" dense outlined type="number" step="0.01"
-                           :input-class="inputRangeClass('trf', form.trf)" />
+                           :input-class="inputRangeClass('Transferrina', form.trf)" />
                 </td>
-                <td>{{ rangoTexto('trf') }}</td>
-                <td>{{ rangoUnidad('trf') }}</td>
+                <td>{{ rangoTexto('Transferrina') || '2.00 - 3.60' }}</td>
+                <td>{{ rangoUnidad('Transferrina') || 'gr/L' }}</td>
               </tr>
               </tbody>
             </q-markup-table>

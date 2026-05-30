@@ -28,6 +28,15 @@
       </q-card>
     </q-dialog>
 
+    <!-- LOADING ENTs OVERLAY -->
+    <q-dialog v-model="loadingEnts" persistent>
+      <q-card flat class="q-pa-lg text-center" style="min-width:260px">
+        <q-spinner-dots color="deep-orange" size="48px" class="q-mb-md" />
+        <div class="text-subtitle1 text-weight-bold">Generando Informe ENTs...</div>
+        <div class="text-caption text-grey-6 q-mt-xs">Calculando indicadores por parámetro.</div>
+      </q-card>
+    </q-dialog>
+
     <!-- ENCABEZADO -->
     <div class="row items-center q-mb-md">
       <div class="col">
@@ -168,26 +177,36 @@
       <div class="col-6 col-sm-3">
         <q-card flat bordered class="q-pa-md">
           <div class="text-caption text-grey-7 q-mb-sm">Exportar</div>
-          <div class="row q-gutter-sm q-mb-xs">
-            <q-btn
-              outline color="primary" icon="grid_on" label="Excel" no-caps size="sm"
-              :loading="loadingExcel"
-              :disable="loading || loadingPdf || loadingExcelMensual || rows.length === 0"
-              @click="downloadExcel"
-            />
-            <q-btn
-              outline color="teal" icon="table_chart" label="Excel Registro Mensual" no-caps size="sm"
-              :loading="loadingExcelMensual"
-              :disable="loading || loadingExcel || loadingPdf || rows.length === 0"
-              @click="downloadExcelMensual"
-            />
-            <q-btn
-              outline color="negative" icon="picture_as_pdf" label="PDF" no-caps size="sm"
-              :loading="loadingPdf"
-              :disable="loading || loadingExcel || loadingExcelMensual || rows.length === 0"
-              @click="openPdf"
-            />
-          </div>
+          <q-btn-dropdown
+            color="primary" icon="download" label="Exportar" no-caps
+            :loading="loadingExcel || loadingExcelMensual || loadingPdf || loadingEnts"
+            :disable="loading || rows.length === 0"
+            dropdown-icon="expand_more"
+          >
+            <q-list dense>
+              <q-item clickable v-close-popup @click="downloadExcel" :disable="loadingExcel">
+                <q-item-section avatar><q-icon name="grid_on" color="primary" /></q-item-section>
+                <q-item-section>Excel — Solicitudes</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="downloadExcelMensual" :disable="loadingExcelMensual">
+                <q-item-section avatar><q-icon name="table_chart" color="teal" /></q-item-section>
+                <q-item-section>Excel — Registro Mensual VIH</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="openPdf" :disable="loadingPdf">
+                <q-item-section avatar><q-icon name="picture_as_pdf" color="negative" /></q-item-section>
+                <q-item-section>PDF — Solicitudes</q-item-section>
+              </q-item>
+              <q-separator />
+              <q-item clickable v-close-popup @click="downloadExcelEnts" :disable="loadingEnts">
+                <q-item-section avatar><q-icon name="bar_chart" color="deep-orange" /></q-item-section>
+                <q-item-section>Excel — Informe ENTs Química</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="openPdfEnts" :disable="loadingEnts">
+                <q-item-section avatar><q-icon name="assessment" color="deep-orange" /></q-item-section>
+                <q-item-section>PDF — Informe ENTs Química</q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
         </q-card>
       </div>
 
@@ -335,6 +354,7 @@ export default {
       loadingPdf: false,
       loadingExcel: false,
       loadingExcelMensual: false,
+      loadingEnts: false,
       tableFilter: '',
 
       filters: {
@@ -568,6 +588,46 @@ export default {
         this.$q?.notify({ type: 'negative', message: 'Error generando PDF. Intenta con un rango de fechas más corto.' })
       } finally {
         this.loadingPdf = false
+      }
+    },
+
+    async downloadExcelEnts () {
+      this.loadingEnts = true
+      try {
+        const res = await this.$axios.get('reportes/servicios-resumen/excel-ents', {
+          params: this.buildParams(),
+          responseType: 'blob',
+          timeout: 120000
+        })
+        const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        const url  = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href     = url
+        link.download = `ents_quimica_${this.filters.date_from}_${this.filters.date_to}.xlsx`
+        link.click()
+        window.URL.revokeObjectURL(url)
+      } catch (e) {
+        this.$q?.notify({ type: 'negative', message: 'Error generando Excel ENTs' })
+      } finally {
+        this.loadingEnts = false
+      }
+    },
+
+    async openPdfEnts () {
+      this.loadingEnts = true
+      try {
+        const res = await this.$axios.get('reportes/servicios-resumen/pdf-ents', {
+          params: this.buildParams(),
+          responseType: 'blob',
+          timeout: 120000
+        })
+        const blob = new Blob([res.data], { type: 'application/pdf' })
+        const url  = window.URL.createObjectURL(blob)
+        window.open(url, '_blank')
+      } catch (e) {
+        this.$q?.notify({ type: 'negative', message: 'Error generando PDF ENTs' })
+      } finally {
+        this.loadingEnts = false
       }
     }
   }

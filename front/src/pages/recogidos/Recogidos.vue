@@ -110,23 +110,31 @@
 
       <template #body-cell-servicios="props">
         <q-td :props="props">
-          <div class="row q-gutter-xs items-center q-mb-xs">
-            <q-chip
+          <div class="row q-gutter-xs items-start q-mb-xs">
+            <div
               v-for="ga in groupedAreas(props.row.servicio_solicitudes)"
               :key="`${props.row.id}-${ga.area_id}`"
-              :color="areaStatusColor(ga)"
-              :text-color="areaTextColor(ga)"
-              :icon="areaStatusIcon(ga)"
-              clickable
-              dense
-              square
-              class="q-ma-none"
-              style="cursor: pointer"
-              @click="openDialogByAreas(props.row, [ga])"
+              class="column items-start"
             >
-              {{ ga.area_nombre }}
-              <span class="q-ml-xs text-caption opacity-75">({{ ga.recogidos }}/{{ ga.total_servicios }})</span>
-            </q-chip>
+              <q-chip
+                :color="areaStatusColor(ga)"
+                :text-color="areaTextColor(ga)"
+                :icon="areaStatusIcon(ga)"
+                clickable
+                dense
+                square
+                class="q-ma-none"
+                style="cursor: pointer"
+                @click="openDialogByAreas(props.row, [ga])"
+              >
+                {{ ga.area_nombre }}
+                <span class="q-ml-xs text-caption opacity-75">({{ ga.recogidos }}/{{ ga.total_servicios }})</span>
+              </q-chip>
+              <div v-if="ga.all_recogido && ga.recogido_en_dia" class="text-grey-6 q-mt-none" style="font-size:10px; line-height:1.3;">
+                <q-icon name="schedule" size="10px" color="grey-5" />
+                {{ formatRecogidoDate(ga.recogido_en_dia) }}
+              </div>
+            </div>
           </div>
           <q-btn
             v-if="groupedAreas(props.row.servicio_solicitudes).length > 1"
@@ -343,11 +351,17 @@ export default {
             realizados: 0,
             all_recogido: false,
             all_realizado: false,
+            recogido_en_dia: null,
           }
         }
 
         map[areaId].total_servicios += 1
-        if (ss.fue_recogido) map[areaId].recogidos += 1
+        if (ss.fue_recogido) {
+          map[areaId].recogidos += 1
+          if (ss.recogido_en_dia && (!map[areaId].recogido_en_dia || ss.recogido_en_dia > map[areaId].recogido_en_dia)) {
+            map[areaId].recogido_en_dia = ss.recogido_en_dia
+          }
+        }
         if ((ss.realizado || '').toUpperCase() === 'REALIZADO') map[areaId].realizados += 1
       })
 
@@ -371,6 +385,9 @@ export default {
       if (ga.all_recogido) return 'check_circle'
       if (ga.all_realizado) return 'science'
       return 'hourglass_empty'
+    },
+    formatRecogidoDate (date) {
+      return moment(date).format('DD/MM/YY HH:mm')
     },
     openDialogByAreas (solicitud, areasList) {
       this.selectedSolicitud = solicitud
@@ -424,7 +441,7 @@ export default {
               grado_parentesco: this.form.fue_recogido ? this.form.grado_parentesco : null,
               telefono_recogido: this.form.fue_recogido ? this.form.telefono_recogido : null,
               ci_recogido: this.form.fue_recogido ? this.form.ci_recogido : null,
-              recogido_en_dia: this.form.fue_recogido ? this.form.recogido_en_dia : null,
+              recogido_en_dia: this.form.fue_recogido ? moment().format('YYYY-MM-DD HH:mm:ss') : null,
             }
           })
         }

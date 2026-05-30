@@ -8,9 +8,11 @@ return new class extends Migration
     public function up(): void
     {
         $area = DB::table('areas')
-            ->where('title', 'QUIMICA SANGUINEA')
+            ->where('id', 2)
+            ->orWhere('title', 'QUIMICA SANGUINEA')
             ->orWhere('title', 'Química sanguínea')
             ->orWhere('name', 'QUIMICA SANGUINEA')
+            ->orWhereRaw("LOWER(title) LIKE '%quimica%sanguinea%'")
             ->first();
 
         if (! $area) {

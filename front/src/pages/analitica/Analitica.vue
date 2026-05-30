@@ -523,7 +523,7 @@
               <thead>
                 <tr class="bg-grey-2">
                   <th style="width:36px"></th>
-                  <th class="text-left">ID Prest.</th>
+                  <th class="text-left">ID</th>
                   <th class="text-left">Nro Registro</th>
                   <th class="text-left">Paciente</th>
                   <th class="text-left">Prestación</th>
@@ -535,7 +535,7 @@
                 <template v-for="sol in grupo.solicitudes" :key="sol.solicitud_id">
                   <tr v-for="(srv, i) in sol.servicios" :key="srv.id">
                     <td><q-checkbox v-if="i === 0" dense v-model="seleccionados" :val="sol.solicitud_id" color="teal" /></td>
-                    <td class="text-weight-bold text-primary">{{ srv.id }}</td>
+                    <td v-if="i === 0" :rowspan="sol.servicios.length" class="text-weight-bold text-primary">{{ sol.analisis_id ?? sol.solicitud_id }}</td>
                     <td>{{ sol.nro_registro }}</td>
                     <td>{{ sol.paciente_nombre }}</td>
                     <td>{{ srv.nombre }}</td>

@@ -27,7 +27,7 @@ class ServicioSolicitude extends Model implements AuditableContract
 
     protected $casts = [
         'fue_recogido' => 'boolean',
-        'recogido_en_dia' => 'date:Y-m-d',
+        'recogido_en_dia' => 'datetime:Y-m-d H:i:s',
     ];
 
     protected $hidden = [

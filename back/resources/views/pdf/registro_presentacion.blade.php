@@ -129,10 +129,10 @@
 <body>
 
 @php
-    $nro     = 1;
-    $ahora   = \Carbon\Carbon::now()->format('d/m/Y H:i');
+    $nro      = 1;
+    $ahora    = \Carbon\Carbon::now()->format('d/m/Y H:i');
     $fechaFmt = \Carbon\Carbon::parse($fecha)->format('d/m/Y');
-    $total   = collect($grupos)->sum(fn($g) => collect($g['solicitudes'])->sum(fn($s) => count($s['servicios'])));
+    $total    = collect($grupos)->sum(fn($g) => count($g['solicitudes']));
 @endphp
 
 {{-- ══════════════ CABECERA ══════════════ --}}
@@ -160,25 +160,23 @@
         <thead>
             <tr>
                 <th class="col-nro">Nro</th>
-                <th class="col-id">ID<br>Prest.</th>
+                <th class="col-id">ID</th>
                 <th class="col-reg">Nro<br>Registro</th>
                 <th class="col-pac">Nombre del Paciente</th>
-                <th class="col-anal">Análisis / Prestación</th>
+                <th class="col-anal">Análisis / Prestaciones</th>
                 <th class="col-firma" style="text-align:center;">Firma del Receptor</th>
             </tr>
         </thead>
         <tbody>
             @foreach($grupo['solicitudes'] as $sol)
-                @foreach($sol['servicios'] as $srv)
-                <tr>
-                    <td class="col-nro">{{ $nro++ }}</td>
-                    <td class="col-id">{{ $srv['id'] }}</td>
-                    <td class="col-reg">{{ $sol['nro_registro'] ?? '—' }}</td>
-                    <td class="col-pac">{{ $sol['paciente_nombre'] }}</td>
-                    <td class="col-anal">{{ $srv['nombre'] }}</td>
-                    <td class="col-firma"><div class="firma-box"></div></td>
-                </tr>
-                @endforeach
+            <tr>
+                <td class="col-nro">{{ $nro++ }}</td>
+                <td class="col-id">{{ $sol['analisis_id'] ?? $sol['solicitud_id'] }}</td>
+                <td class="col-reg">{{ $sol['nro_registro'] ?? '—' }}</td>
+                <td class="col-pac">{{ $sol['paciente_nombre'] }}</td>
+                <td class="col-anal">{{ collect($sol['servicios'])->pluck('nombre')->implode(', ') }}</td>
+                <td class="col-firma"><div class="firma-box"></div></td>
+            </tr>
             @endforeach
         </tbody>
     </table>

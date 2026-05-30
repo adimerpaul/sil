@@ -221,7 +221,8 @@
         'CALCIO',
         'FÓSFORO',
         'MAGNESIO',
-        'HIERRO'
+        'HIERRO',
+        'TRANSFERRINA'
     ]);
 
     $showOrina24 = $hasAnyServicios([
@@ -703,14 +704,15 @@
                                                 <td class="center">{{ rangoTexto('Hierro sérico',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Hierro sérico',$rangosMap) }}</td>
                                             </tr>
-                                            @if(hasVal($q,'trf'))
+                                        @endif
+
+                                        @if(($canServicios('HIERRO') || $canServicios('TRANSFERRINA')) && hasVal($q,'trf'))
                                             <tr>
-                                                <td>TRF</td>
-                                                <td class="center {{ outOfRangeQ('trf',val($q,'trf'),$rangosMap)?'out-range':'' }}">{{ val($q,'trf') }}</td>
-                                                <td class="center">{{ rangoTexto('trf',$rangosMap) ?: '2.00 - 3.60' }}</td>
-                                                <td class="center">{{ rangoUnidad('trf',$rangosMap) ?: 'gr/L' }}</td>
+                                                <td>Transferrina (TRF)</td>
+                                                <td class="center {{ outOfRangeQ('Transferrina',val($q,'trf'),$rangosMap)?'out-range':'' }}">{{ val($q,'trf') }}</td>
+                                                <td class="center">{{ rangoTexto('Transferrina',$rangosMap) ?: '2.00 - 3.60' }}</td>
+                                                <td class="center">{{ rangoUnidad('Transferrina',$rangosMap) ?: 'gr/L' }}</td>
                                             </tr>
-                                            @endif
                                         @endif
 
                                         </tbody>

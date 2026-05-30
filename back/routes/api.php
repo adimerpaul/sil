@@ -225,6 +225,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('reportes/servicios-resumen/excel', [ReporteServiciosController::class, 'exportExcel']);
     Route::get('reportes/servicios-resumen/excel-mensual', [ReporteServiciosController::class, 'exportExcelMensual']);
     Route::get('reportes/servicios-resumen/pdf', [ReporteServiciosController::class, 'exportPdf']);
+    Route::get('reportes/servicios-resumen/excel-ents', [ReporteServiciosController::class, 'exportExcelEnts']);
+    Route::get('reportes/servicios-resumen/pdf-ents', [ReporteServiciosController::class, 'exportPdfEnts']);
     Route::get('reportes/consentimientos', [ConsentimientoController::class, 'reporte']);
     Route::get('reportes/solicitudes-servicios', [SolicitudeController::class, 'reporteSolicitudesServicios']);
 

@@ -261,51 +261,60 @@
             </div>
 
             <template v-if="solicitud.tipo_atencion === 'NO'">
+              <div class="col-12 col-md-4">
+                <q-select
+                  v-model="solicitud.tipo_paciente_externo"
+                  :options="[
+                    'PACIENTES SOAT',
+                    'PROG. CHAGAS EPIDEMIOLOGIA',
+                    'PROG. CHAGAS BANCO DE SANGRE',
+                    'PROG. EPID. LEISHMANIA',
+                    'TRABAJO SOCIAL'
+                  ]"
+                  dense outlined clearable
+                  label="Programa / Tipo paciente externo"
+                  @update:model-value="val => { if (!val) solicitud.autorizado_por = '' }"
+                />
+              </div>
+              <div class="col-12 col-md-4" v-if="solicitud.tipo_paciente_externo">
+                <q-input
+                  v-model="solicitud.autorizado_por"
+                  label="Autorizado por"
+                  dense outlined clearable
+                  @update:model-value="val => solicitud.autorizado_por = (val || '').toUpperCase()"
+                />
+              </div>
               <div class="col-6 col-md-3" >
 <!--                <q-input  v-model="solicitud.tipo_otro"-->
 <!--                          label="Especificar tipo de atención" dense outlined />-->
                 <q-select
                   v-model="solicitud.establecimiento_salud"
-                  :options="establecimientosPrivados"
+                  :options="establecimientos"
                   option-label="nombre"
                   use-input
                   @filter="(val, update) => {
                   update(() => {
                     const text = (val || '').toLowerCase().trim()
-
-                    if (!text) {
-                      this.establecimientosPrivados = this.establecimientosPrivadosAll
-                      return
-                    }
-
-                    this.establecimientosPrivados = this.establecimientosPrivadosAll
+                    if (!text) { this.establecimientos = this.establecimientosAll; return }
+                    this.establecimientos = this.establecimientosAll
                       .filter(e => {
                         const nombre = String(e.nombre || '').toLowerCase()
                         const tipo = String(e.tipo || '').toLowerCase()
                         const nivel = String(e.nivel || '').toLowerCase()
-                        return (
-                          nombre.includes(text) ||
-                          tipo.includes(text) ||
-                          nivel.includes(text)
-                        )
+                        return nombre.includes(text) || tipo.includes(text) || nivel.includes(text)
                       })
-                      .slice(0, 50) // 🔥 limita resultados (performance)
+                      .slice(0, 50)
                   })
                 }"
                   option-value="nombre"
                   emit-value map-options
-                  label="Establecimiento de salud (SUS)"
+                  label="Establecimiento de salud"
                   dense outlined clearable
                   @update:model-value="onEstablecimientoChange"
                 >
                   <template #after>
-                    <q-btn
-                      flat
-                      dense
-                      icon="add_business"
-                      color="positive"
-                      @click="openDialogEstablecimiento('PRIVADO')"
-                    />
+                    <q-btn flat dense icon="add_business" color="positive"
+                      @click="openDialogEstablecimiento('PRIVADO')" />
                   </template>
                   <template #option="scope">
                     <q-item v-bind="scope.itemProps">
@@ -325,46 +334,32 @@
             <div class="col-6 col-md-6" v-else>
               <q-select
                 v-model="solicitud.establecimiento_salud"
-                :options="establecimientosPublicos"
+                :options="establecimientos"
                 option-label="nombre"
                 use-input
                 @filter="(val, update) => {
                   update(() => {
                     const text = (val || '').toLowerCase().trim()
-
-                    if (!text) {
-                      this.establecimientosPublicos = this.establecimientosPublicosAll
-                      return
-                    }
-
-                    this.establecimientosPublicos = this.establecimientosPublicosAll
+                    if (!text) { this.establecimientos = this.establecimientosAll; return }
+                    this.establecimientos = this.establecimientosAll
                       .filter(e => {
                         const nombre = String(e.nombre || '').toLowerCase()
                         const tipo = String(e.tipo || '').toLowerCase()
                         const nivel = String(e.nivel || '').toLowerCase()
-                        return (
-                          nombre.includes(text) ||
-                          tipo.includes(text) ||
-                          nivel.includes(text)
-                        )
+                        return nombre.includes(text) || tipo.includes(text) || nivel.includes(text)
                       })
-                      .slice(0, 50) // 🔥 limita resultados (performance)
+                      .slice(0, 50)
                   })
                 }"
                 option-value="nombre"
                 emit-value map-options
-                label="Establecimiento de salud (SUS)"
+                label="Establecimiento de salud"
                 dense outlined clearable
                 @update:model-value="onEstablecimientoChange"
               >
                 <template #after>
-                  <q-btn
-                    flat
-                    dense
-                    icon="add_business"
-                    color="positive"
-                    @click="openDialogEstablecimiento('PUBLICO')"
-                  />
+                  <q-btn flat dense icon="add_business" color="positive"
+                    @click="openDialogEstablecimiento('PUBLICO')" />
                 </template>
                 <template #option="scope">
                   <q-item v-bind="scope.itemProps">
@@ -2145,7 +2140,10 @@ export default {
         doctor_ci: '',
         doctor_telefono: '',
         doctor_email: '',
-        doctor_registro: ''
+        doctor_registro: '',
+
+        tipo_paciente_externo: '',
+        autorizado_por: '',
       }
       this.codigoEditadoManual = false
       this.nroRegistroEditadoManual = false

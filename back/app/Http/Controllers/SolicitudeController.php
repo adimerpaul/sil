@@ -894,12 +894,50 @@ class SolicitudeController extends Controller
                 });
         }
 
-        $grouped = $servicios->groupBy('area_id')->map(function ($items) use ($presentaciones) {
-            $porSolicitud = $items->groupBy('solicitude_id')->map(function ($ss) use ($presentaciones) {
+        // Mapa area_id → modelo analítico para obtener el ID del registro por solicitud
+        $areaModelMap = [
+            1 => \App\Models\Hematologia::class,
+            2 => \App\Models\QuimicaSanguinea::class,
+            3 => \App\Models\Uroanalisis::class,
+            4 => \App\Models\Parasitologia::class,
+            5 => \App\Models\CultivoAntibiograma::class,
+        ];
+        // [area_id][solicitude_id] => analisis_id
+        $analisisIds = [];
+        $areaIdsPresentes = $servicios->pluck('area_id')->unique()->toArray();
+        foreach ($areaIdsPresentes as $areaId) {
+            if (!isset($areaModelMap[$areaId])) continue;
+            $modelClass = $areaModelMap[$areaId];
+            $modelClass::whereIn('solicitude_id', $solicitudeIds)
+                ->get(['id', 'solicitude_id'])
+                ->each(function ($r) use (&$analisisIds, $areaId) {
+                    $analisisIds[$areaId][$r->solicitude_id] = $r->id;
+                });
+        }
+        // Para biología molecular (area_id=7) usar cualquier registro disponible
+        $bioMolModels = [
+            \App\Models\PanelRespiratorio::class,
+            \App\Models\PanelSexual::class,
+            \App\Models\PapilomaHumano::class,
+        ];
+        foreach ($bioMolModels as $modelClass) {
+            $modelClass::whereIn('solicitude_id', $solicitudeIds)
+                ->get(['id', 'solicitude_id'])
+                ->each(function ($r) use (&$analisisIds) {
+                    if (!isset($analisisIds[7][$r->solicitude_id])) {
+                        $analisisIds[7][$r->solicitude_id] = $r->id;
+                    }
+                });
+        }
+
+        $grouped = $servicios->groupBy('area_id')->map(function ($items) use ($presentaciones, $analisisIds) {
+            $areaId = $items->first()->area_id;
+            $porSolicitud = $items->groupBy('solicitude_id')->map(function ($ss) use ($presentaciones, $analisisIds, $areaId) {
                 $sol = $ss->first()->solicitud;
                 $pres = $presentaciones[$sol->id] ?? null;
                 return [
                     'solicitud_id'       => $sol->id,
+                    'analisis_id'        => $analisisIds[$areaId][$sol->id] ?? null,
                     'paciente_nombre'    => $sol->paciente_nombre,
                     'nro_registro'       => $sol->nro_registro,
                     'user_presentacion'  => $pres['user_presentacion'] ?? null,
@@ -912,7 +950,7 @@ class SolicitudeController extends Controller
             })->values();
 
             return [
-                'area_id'     => $items->first()->area_id,
+                'area_id'     => $areaId,
                 'area_nombre' => $items->first()->area?->name ?? 'Sin área',
                 'solicitudes' => $porSolicitud,
             ];
@@ -962,22 +1000,50 @@ class SolicitudeController extends Controller
 
         $servicios = $query->orderBy('area_id')->orderBy('solicitude_id')->get();
 
-        $grupos = $servicios->groupBy('area_id')->map(function ($items) {
-            $solicitudes = $items->groupBy('solicitude_id')->map(function ($ss) {
+        $solicitudeIds = $servicios->pluck('solicitude_id')->unique()->toArray();
+        $areaModelMap = [
+            1 => \App\Models\Hematologia::class,
+            2 => \App\Models\QuimicaSanguinea::class,
+            3 => \App\Models\Uroanalisis::class,
+            4 => \App\Models\Parasitologia::class,
+            5 => \App\Models\CultivoAntibiograma::class,
+        ];
+        $analisisIds = [];
+        foreach ($servicios->pluck('area_id')->unique()->toArray() as $aid) {
+            if (!isset($areaModelMap[$aid])) continue;
+            $areaModelMap[$aid]::whereIn('solicitude_id', $solicitudeIds)
+                ->get(['id', 'solicitude_id'])
+                ->each(function ($r) use (&$analisisIds, $aid) {
+                    $analisisIds[$aid][$r->solicitude_id] = $r->id;
+                });
+        }
+        foreach ([\App\Models\PanelRespiratorio::class, \App\Models\PanelSexual::class, \App\Models\PapilomaHumano::class] as $m) {
+            $m::whereIn('solicitude_id', $solicitudeIds)->get(['id', 'solicitude_id'])
+                ->each(function ($r) use (&$analisisIds) {
+                    if (!isset($analisisIds[7][$r->solicitude_id])) {
+                        $analisisIds[7][$r->solicitude_id] = $r->id;
+                    }
+                });
+        }
+
+        $grupos = $servicios->groupBy('area_id')->map(function ($items) use ($analisisIds) {
+            $areaId = $items->first()->area_id;
+            $solicitudes = $items->groupBy('solicitude_id')->map(function ($ss) use ($analisisIds, $areaId) {
                 $sol = $ss->first()->solicitud;
                 return [
                     'solicitud_id'    => $sol->id,
+                    'analisis_id'     => $analisisIds[$areaId][$sol->id] ?? null,
                     'paciente_nombre' => $sol->paciente_nombre,
                     'nro_registro'    => $sol->nro_registro,
                     'servicios'       => $ss->map(fn ($s) => [
-                        'id'    => $s->id,
+                        'id'     => $s->id,
                         'nombre' => $s->nombre,
                     ])->values(),
                 ];
             })->values();
 
             return [
-                'area_id'     => $items->first()->area_id,
+                'area_id'     => $areaId,
                 'area_nombre' => $items->first()->area?->name ?? 'Sin área',
                 'solicitudes' => $solicitudes,
             ];
