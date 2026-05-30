@@ -94,6 +94,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('partidas', PartidaController::class);
     Route::apiResource('subpartidas', SubpartidaController::class);
     Route::get('almacen-items/reporte/pdf', [AlmacenItemController::class, 'reportPdf']);
+    Route::get('almacen-items/reporte/excel', [AlmacenItemController::class, 'reportExcel']);
     Route::get('reportes/almacen-dashboard', [AlmacenItemController::class, 'dashboard']);
     Route::apiResource('almacen-items', AlmacenItemController::class);
     Route::post('almacen-items/{id}/imagen', [AlmacenItemController::class, 'updateImagen']);
