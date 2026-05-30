@@ -3,7 +3,16 @@
     <template v-if="isAlmacenRole">
       <div class="row items-center q-mb-md">
         <div class="col-12 col-md-6">
-          <div class="text-h5 text-weight-bold">Dashboard de Almacén</div>
+          <div class="row items-center q-gutter-sm">
+            <div class="text-h5 text-weight-bold">Dashboard de Almacén</div>
+            <q-chip
+              dense
+              :color="almacenCanVerTodos ? 'primary' : 'orange'"
+              text-color="white"
+              :icon="almacenCanVerTodos ? 'groups' : 'person'"
+              :label="almacenCanVerTodos ? 'General — todos los pedidos' : 'Personal — solo mis pedidos'"
+            />
+          </div>
           <div class="text-caption text-grey-7">
             Seguimiento de pedidos, despachos, solicitudes e inventario
           </div>
@@ -837,6 +846,7 @@ export default {
       resumen: {},
       porArea: [],
       ultimas: [],
+      almacenCanVerTodos: false,
       almacenResumen: {},
       almacenUltimosPedidos: [],
       almacenUltimosDespachos: [],
@@ -1129,6 +1139,7 @@ export default {
       })
 
       const data = res.data || {}
+      this.almacenCanVerTodos = !!data.can_ver_todos
       this.almacenResumen = data.resumen || {}
       this.almacenUltimosPedidos = data.ultimos_pedidos || []
       this.almacenUltimosDespachos = data.ultimos_despachos || []

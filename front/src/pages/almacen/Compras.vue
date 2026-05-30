@@ -635,8 +635,9 @@ export default {
 .detail-dialog {
   width: 760px;
   max-width: 94vw;
+  max-height: 92vh;
   border-radius: 10px;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .detail-header {

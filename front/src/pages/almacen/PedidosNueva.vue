@@ -56,6 +56,10 @@
               </div>
               <div class="product-info">
                 <div class="product-qty">{{ item.unidad_medida || '-' }}</div>
+                <div v-if="canVerStock" class="product-stock">
+                  <q-icon name="inventory_2" size="10px" />
+                  {{ item.cantidad }} disponibles
+                </div>
                 <div class="product-price">{{ money(item.precio_unitario) }} Bs</div>
               </div>
             </div>
@@ -295,6 +299,11 @@ export default {
     currentUsername () {
       return this.$store?.user?.username || this.$store?.user?.name || '-'
     },
+    canVerStock () {
+      const perms = this.$store?.permissions || []
+      const role  = this.$store?.user?.role || ''
+      return role === 'Administrador' || perms.includes('Ver todos los pedidos')
+    },
     total () {
       return this.selectedItems.reduce((sum, item) => sum + Number(item.subtotal || 0), 0)
     },
@@ -338,6 +347,7 @@ export default {
             rowsPerPage: this.productPagination.rowsPerPage,
             q: this.productFilter,
             solo_mis_subpartidas: true,
+            existente: 1,
           },
         })
         this.products = res.data.data || []
@@ -518,6 +528,15 @@ export default {
   font-size: 10px;
   color: #999;
   text-transform: capitalize;
+}
+
+.product-stock {
+  font-size: 10px;
+  color: #2e7d32;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .product-price {

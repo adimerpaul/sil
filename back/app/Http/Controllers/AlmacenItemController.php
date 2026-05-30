@@ -248,7 +248,14 @@ class AlmacenItemController extends Controller
     public function dashboard(Request $request)
     {
         $dateFrom = $request->input('date_from');
-        $dateTo = $request->input('date_to');
+        $dateTo   = $request->input('date_to');
+        $user     = $request->user();
+
+        // Verificar si puede ver todos los pedidos
+        $canVerTodos = $user && (
+            $user->role === 'Administrador' ||
+            $user->hasPermissionTo('Ver todos los pedidos')
+        );
 
         $inventoryQuery = $this->reportQuery(new Request);
         $inventory = DB::query()
@@ -260,6 +267,12 @@ class AlmacenItemController extends Controller
             ->first();
 
         $pedidosQuery = DB::table('pedidos')->whereNull('deleted_at');
+
+        // Sin permiso → solo sus propios pedidos
+        if (! $canVerTodos && $user) {
+            $pedidosQuery->where('user_id', $user->id);
+        }
+
         if ($dateFrom) {
             $pedidosQuery->whereDate('fecha_hora', '>=', $dateFrom);
         }
@@ -335,6 +348,7 @@ class AlmacenItemController extends Controller
             ->get();
 
         return response()->json([
+            'can_ver_todos' => $canVerTodos,
             'resumen' => [
                 'pedidos' => (int) (clone $pedidosQuery)->count(),
                 'pedidos_pendientes' => (int) ($pedidosPorEstado['PENDIENTE'] ?? 0),

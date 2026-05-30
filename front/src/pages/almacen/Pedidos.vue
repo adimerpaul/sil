@@ -239,19 +239,19 @@
                   </q-item-section>
                   <q-item-section>Imprimir</q-item-section>
                 </q-item>
-                <q-item
-                  v-if="canPrint"
-                  clickable
-                  v-close-popup
-                  :disable="whatsappId === props.row.id"
-                  @click="sendPedidoWhatsApp(props.row.id)"
-                >
-                  <q-item-section avatar>
-                    <q-spinner v-if="whatsappId === props.row.id" color="green" size="20px" />
-                    <q-icon v-else name="send" color="green" />
-                  </q-item-section>
-                  <q-item-section>Enviar por WhatsApp</q-item-section>
-                </q-item>
+<!--                <q-item-->
+<!--                  v-if="canPrint"-->
+<!--                  clickable-->
+<!--                  v-close-popup-->
+<!--                  :disable="whatsappId === props.row.id"-->
+<!--                  @click="sendPedidoWhatsApp(props.row.id)"-->
+<!--                >-->
+<!--                  <q-item-section avatar>-->
+<!--                    <q-spinner v-if="whatsappId === props.row.id" color="green" size="20px" />-->
+<!--                    <q-icon v-else name="send" color="green" />-->
+<!--                  </q-item-section>-->
+<!--                  <q-item-section>Enviar por WhatsApp</q-item-section>-->
+<!--                </q-item>-->
                 <q-separator v-if="canDelete" />
                 <q-item
                   v-if="canDelete"
@@ -556,17 +556,17 @@
             :loading="printingId === selectedPedido.id"
             @click="printPedido(selectedPedido.id)"
           />
-          <q-btn
-            v-if="selectedPedido && canPrint"
-            unelevated
-            no-caps
-            color="green"
-            icon="send"
-            label="Enviar WhatsApp"
-            :disable="editingItems"
-            :loading="whatsappId === selectedPedido.id"
-            @click="sendPedidoWhatsApp(selectedPedido.id)"
-          />
+<!--          <q-btn-->
+<!--            v-if="selectedPedido && canPrint"-->
+<!--            unelevated-->
+<!--            no-caps-->
+<!--            color="green"-->
+<!--            icon="send"-->
+<!--            label="Enviar WhatsApp"-->
+<!--            :disable="editingItems"-->
+<!--            :loading="whatsappId === selectedPedido.id"-->
+<!--            @click="sendPedidoWhatsApp(selectedPedido.id)"-->
+<!--          />-->
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -713,10 +713,10 @@ const estadoFilterOptions = [
 
 const columns = [
   { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'left', style: 'width: 130px' },
+  { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
   { name: 'id', label: 'ID', field: 'id', align: 'left', style: 'width: 80px' },
   { name: 'fecha_hora', label: 'Fecha', field: 'fecha_hora', align: 'left' },
   { name: 'nombre_usuario', label: 'Usuario', field: 'nombre_usuario', align: 'left' },
-  { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
   { name: 'modificado', label: 'Modificado', field: 'modificado', align: 'left' },
   { name: 'total', label: 'Total', field: 'total', align: 'right' }
 ]

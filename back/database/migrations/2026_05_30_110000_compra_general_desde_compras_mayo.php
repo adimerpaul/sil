@@ -45,17 +45,11 @@ return new class extends Migration
 
         $items = DB::table('compras_mayo')
             ->whereNotNull('almacen_item_id')
-            ->where(function ($q) {
-                $q->whereRaw('(saldo_inicial + entradas) > 0')
-                  ->orWhere('saldo_final', '>', 0);
-            })
+            ->where('saldo_final', '>', 0)
             ->select(
                 'almacen_item_id',
                 'nombre',
                 'precio_unitario',
-                'saldo_inicial',
-                'entradas',
-                'salidas',
                 'saldo_final',
                 'id as mayo_id'
             )
@@ -66,11 +60,10 @@ return new class extends Migration
         $mayoIds     = [];
 
         foreach ($items as $item) {
-            $cantidad      = max(0, $item->saldo_inicial + $item->entradas);
-            $cantidadVenta = max(0, $item->salidas);
-            $precio        = (float) $item->precio_unitario;
-            $total         = round($precio * $cantidad, 2);
-            $totalCompra  += $total;
+            $cantidad    = (int) $item->saldo_final;
+            $precio      = (float) $item->precio_unitario;
+            $total       = round($precio * $cantidad, 2);
+            $totalCompra += $total;
 
             $batch[] = [
                 'compra_id'      => $compraId,
@@ -80,7 +73,7 @@ return new class extends Migration
                 'nombre'         => $item->nombre,
                 'precio'         => $precio,
                 'cantidad'       => $cantidad,
-                'cantidad_venta' => $cantidadVenta,
+                'cantidad_venta' => 0,
                 'total'          => $total,
                 'estado'         => 'ACTIVO',
                 'created_at'     => $now,
