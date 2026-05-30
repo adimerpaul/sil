@@ -46,7 +46,7 @@ return new class extends Migration
 
             $batch[] = [
                 'n'               => (int) trim($n),
-                'nombre'          => trim($nombre),
+                'nombre'          => preg_replace('/\s+/', ' ', trim($nombre)),
                 'unidad_medida'   => trim($unidad) ?: null,
                 'precio_unitario' => (float) str_replace(',', '.', trim($precio)),
                 'saldo_inicial'   => (int) trim($saldoIni),

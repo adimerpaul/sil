@@ -48,6 +48,14 @@
             </q-item>
           </q-list>
         </q-btn-dropdown>
+        <q-btn
+          color="deep-orange" icon="link_off" no-caps dense
+          @click="openSinVincular"
+        >
+          <span>Sin vincular</span>
+          <q-badge v-if="sinVincularCount > 0" color="white" text-color="deep-orange"
+                   floating :label="sinVincularCount" style="font-size:10px" />
+        </q-btn>
         <q-btn color="indigo" icon="account_tree" label="Catalogo" no-caps dense @click="openCatalogManager" />
         <q-btn color="positive" icon="add_circle_outline" label="Nuevo item" no-caps dense @click="openItemDialog()" />
         <q-btn dense flat round icon="refresh" :loading="loading" @click="reloadAll">
@@ -654,6 +662,140 @@
         </q-tab-panels>
       </q-card>
     </q-dialog>
+
+    <!-- ═══════════════════════════════════════════════════════
+         DIÁLOGO SIN VINCULAR
+         ═══════════════════════════════════════════════════════ -->
+    <q-dialog v-model="sinVincularDialog" maximized>
+      <q-card>
+        <!-- Cabecera -->
+        <q-card-section class="row items-center bg-deep-orange text-white q-pa-sm">
+          <q-icon name="link_off" size="22px" class="q-mr-sm" />
+          <div class="text-subtitle1 text-weight-bold">
+            Productos sin vincular
+            <q-badge color="white" text-color="deep-orange" class="q-ml-sm" :label="sinVincularRows.length" />
+          </div>
+          <q-space />
+          <q-input v-model="sinVincularSearch" dense outlined dark placeholder="Buscar..." clearable
+                   style="min-width:220px" class="q-mr-sm">
+            <template v-slot:append><q-icon name="search" /></template>
+          </q-input>
+          <q-btn flat round dense icon="close" color="white" v-close-popup />
+        </q-card-section>
+
+        <q-card-section class="q-pa-none">
+          <q-table
+            :rows="sinVincularFiltered"
+            :columns="sinVincularCols"
+            row-key="id"
+            dense flat
+            :loading="sinVincularLoading"
+            :rows-per-page-options="[25, 50, 0]"
+            :pagination="{ rowsPerPage: 25 }"
+          >
+            <!-- Precio unitario -->
+            <template v-slot:body-cell-precio_unitario="props">
+              <q-td :props="props" class="text-right">{{ props.row.precio_unitario }}</q-td>
+            </template>
+
+            <!-- Sugerencias + acción vincular -->
+            <template v-slot:body-cell-accion="props">
+              <q-td :props="props" style="min-width:340px; max-width:420px">
+                <div v-if="props.row._modo === 'nuevo'" class="row q-col-gutter-xs items-end">
+                  <div class="col-12">
+                    <q-select v-model="props.row._grupoId" :options="grupoOptions" dense outlined
+                              emit-value map-options label="Grupo" clearable
+                              @update:model-value="onSVGrupoChange(props.row)" />
+                  </div>
+                  <div class="col-12">
+                    <q-select v-model="props.row._partidaId"
+                              :options="props.row._partidaOpts || []"
+                              dense outlined emit-value map-options label="Partida" clearable
+                              @update:model-value="onSVPartidaChange(props.row)" />
+                  </div>
+                  <div class="col-12">
+                    <q-select v-model="props.row._subpartidaId"
+                              :options="props.row._subpartidaOpts || []"
+                              dense outlined emit-value map-options label="Subpartida" clearable />
+                  </div>
+                  <div class="col-auto">
+                    <q-btn dense no-caps color="positive" icon="check" label="Crear y vincular"
+                           :loading="props.row._saving"
+                           :disable="!props.row._subpartidaId"
+                           @click="vincularNuevo(props.row)" />
+                  </div>
+                  <div class="col-auto">
+                    <q-btn dense flat no-caps color="grey" icon="close" @click="props.row._modo = null" />
+                  </div>
+                </div>
+
+                <div v-else-if="props.row._modo === 'buscar'" class="row q-col-gutter-xs items-center">
+                  <div class="col">
+                    <q-select
+                      v-model="props.row._itemSeleccionado"
+                      :options="props.row._busquedaOpts || []"
+                      dense outlined clearable use-input
+                      option-label="nombre" option-value="id"
+                      label="Buscar ítem..."
+                      input-debounce="300"
+                      @filter="(val, update) => buscarItemOpts(val, update, props.row)"
+                    >
+                      <template v-slot:option="scope">
+                        <q-item v-bind="scope.itemProps">
+                          <q-item-section>
+                            <q-item-label>{{ scope.opt.nombre }}</q-item-label>
+                            <q-item-label caption>{{ scope.opt.grupo_nombre }} › {{ scope.opt.subpartida_nombre }}</q-item-label>
+                          </q-item-section>
+                        </q-item>
+                      </template>
+                    </q-select>
+                  </div>
+                  <div class="col-auto">
+                    <q-btn dense no-caps color="primary" icon="link" label="Vincular"
+                           :loading="props.row._saving"
+                           :disable="!props.row._itemSeleccionado"
+                           @click="vincularExistente(props.row)" />
+                  </div>
+                  <div class="col-auto">
+                    <q-btn dense flat no-caps color="grey" icon="close" @click="props.row._modo = null" />
+                  </div>
+                </div>
+
+                <div v-else>
+                  <!-- Sugerencias rápidas -->
+                  <div v-if="props.row.sugerencias && props.row.sugerencias.length" class="q-mb-xs">
+                    <q-chip
+                      v-for="s in props.row.sugerencias" :key="s.id"
+                      dense clickable color="blue-1" text-color="blue-9" size="sm"
+                      icon="link" class="q-mr-xs q-mb-xs"
+                      @click="vincularDirecto(props.row, s)"
+                    >
+                      <q-tooltip>{{ s.grupo_nombre }} › {{ s.subpartida_nombre }}</q-tooltip>
+                      {{ s.nombre.length > 28 ? s.nombre.substring(0, 28) + '…' : s.nombre }}
+                      <span style="font-size:9px" class="q-ml-xs text-grey-6">{{ s.unidad_medida }}</span>
+                    </q-chip>
+                  </div>
+                  <!-- Botones de acción -->
+                  <div class="row q-gutter-xs">
+                    <q-btn dense no-caps outline color="primary" icon="search" label="Buscar ítem"
+                           size="sm" @click="props.row._modo = 'buscar'; props.row._busquedaOpts = props.row.sugerencias" />
+                    <q-btn dense no-caps outline color="positive" icon="add" label="Crear nuevo"
+                           size="sm" @click="props.row._modo = 'nuevo'" />
+                  </div>
+                </div>
+              </q-td>
+            </template>
+
+            <template v-slot:no-data>
+              <div class="full-width row flex-center q-pa-xl text-positive">
+                <q-icon name="check_circle" size="40px" class="q-mr-md" />
+                <span class="text-subtitle1">¡Todos los productos están vinculados!</span>
+              </div>
+            </template>
+          </q-table>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -666,6 +808,19 @@ export default {
       reportLoading: null,
       savingCatalog: false,
       savingItem: false,
+      sinVincularDialog: false,
+      sinVincularLoading: false,
+      sinVincularRows: [],
+      sinVincularSearch: '',
+      sinVincularCount: 0,
+      sinVincularCols: [
+        { name: 'n',               label: '#',       field: 'n',               align: 'center', sortable: true, style: 'width:48px' },
+        { name: 'nombre',          label: 'Nombre CSV',   field: 'nombre',     align: 'left',   sortable: true },
+        { name: 'unidad_medida',   label: 'Unidad',  field: 'unidad_medida',   align: 'center', sortable: true, style: 'width:80px' },
+        { name: 'precio_unitario', label: 'P.U.',    field: 'precio_unitario', align: 'right',  sortable: true, style: 'width:90px' },
+        { name: 'saldo_final',     label: 'Stock',   field: 'saldo_final',     align: 'center', sortable: true, style: 'width:70px' },
+        { name: 'accion',          label: 'Vincular a ítem del inventario', field: 'accion',  align: 'left' },
+      ],
       items: [],
       grupos: [],
       grupoOptionsFiltered: [],
@@ -727,6 +882,11 @@ export default {
     }
   },
   computed: {
+    sinVincularFiltered () {
+      const q = (this.sinVincularSearch || '').toLowerCase()
+      if (!q) return this.sinVincularRows
+      return this.sinVincularRows.filter(r => r.nombre.toLowerCase().includes(q) || (r.unidad_medida || '').toLowerCase().includes(q))
+    },
     grupoOptions () {
       return this.grupos.map(g => ({ label: `${g.codigo} - ${g.nombre}`, value: g.id }))
     },
@@ -819,12 +979,124 @@ export default {
   },
   mounted () {
     this.reloadAll()
+    this.fetchSinVincularCount()
   },
   methods: {
     async reloadAll () {
       await this.fetchCatalog()
       await this.fetchItems()
     },
+
+    // ── Sin vincular ───────────────────────────────────────────────
+    async fetchSinVincularCount () {
+      try {
+        const res = await this.$axios.get('compras-mayo/sin-vincular/count')
+        this.sinVincularCount = res.data.count || 0
+      } catch {}
+    },
+
+    async openSinVincular () {
+      this.sinVincularDialog = true
+      this.sinVincularRows = []
+      this.sinVincularLoading = true
+      try {
+        const res = await this.$axios.get('compras-mayo/sin-vincular')
+        this.sinVincularRows = (res.data.data || []).map(r => ({
+          ...r,
+          _modo: null,
+          _saving: false,
+          _grupoId: null,
+          _partidaId: null,
+          _subpartidaId: null,
+          _partidaOpts: [],
+          _subpartidaOpts: [],
+          _itemSeleccionado: null,
+          _busquedaOpts: r.sugerencias || [],
+        }))
+      } catch (e) {
+        this.$alert.error('Error cargando productos sin vincular')
+      } finally {
+        this.sinVincularLoading = false
+      }
+    },
+
+    onSVGrupoChange (row) {
+      row._partidaId = null
+      row._subpartidaId = null
+      row._subpartidaOpts = []
+      const grupo = this.grupos.find(g => g.id === row._grupoId)
+      row._partidaOpts = (grupo?.partidas || []).map(p => ({ label: `${p.codigo} - ${p.nombre}`, value: p.id, _subpartidas: p.subpartidas }))
+    },
+
+    onSVPartidaChange (row) {
+      row._subpartidaId = null
+      const partida = row._partidaOpts.find(p => p.value === row._partidaId)
+      row._subpartidaOpts = (partida?._subpartidas || []).map(s => ({ label: `${s.codigo} - ${s.nombre}`, value: s.id }))
+    },
+
+    async buscarItemOpts (val, update, row) {
+      try {
+        const res = await this.$axios.get('compras-mayo/buscar-item', { params: { q: val } })
+        update(() => { row._busquedaOpts = res.data || [] })
+      } catch {
+        update(() => {})
+      }
+    },
+
+    async vincularDirecto (row, sugerencia) {
+      if (row._saving) return
+      row._saving = true
+      try {
+        await this.$axios.post(`compras-mayo/${row.id}/vincular`, { almacen_item_id: sugerencia.id })
+        this._quitarVinculado(row)
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'Error al vincular')
+      } finally {
+        row._saving = false
+      }
+    },
+
+    async vincularExistente (row) {
+      if (!row._itemSeleccionado || row._saving) return
+      row._saving = true
+      try {
+        await this.$axios.post(`compras-mayo/${row.id}/vincular`, {
+          almacen_item_id: row._itemSeleccionado.id,
+        })
+        this._quitarVinculado(row)
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'Error al vincular')
+      } finally {
+        row._saving = false
+      }
+    },
+
+    async vincularNuevo (row) {
+      if (!row._subpartidaId || row._saving) return
+      row._saving = true
+      try {
+        await this.$axios.post(`compras-mayo/${row.id}/vincular`, {
+          subpartida_id:   row._subpartidaId,
+          nombre:          row.nombre,
+          unidad_medida:   row.unidad_medida,
+          precio_unitario: row.precio_unitario,
+        })
+        this._quitarVinculado(row)
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'Error al crear y vincular')
+      } finally {
+        row._saving = false
+      }
+    },
+
+    _quitarVinculado (row) {
+      const idx = this.sinVincularRows.findIndex(r => r.id === row.id)
+      if (idx !== -1) this.sinVincularRows.splice(idx, 1)
+      this.sinVincularCount = Math.max(0, this.sinVincularCount - 1)
+      this.$alert?.success?.('Vinculado correctamente')
+      this.fetchItems() // refresca el inventario
+    },
+    // ── Fin sin vincular ───────────────────────────────────────────
     async fetchCatalog () {
       const res = await this.$axios.get('grupos', { params: { with_partidas: 1 } })
       this.grupos = res.data || []

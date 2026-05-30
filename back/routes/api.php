@@ -94,6 +94,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('partidas', PartidaController::class);
     Route::apiResource('subpartidas', SubpartidaController::class);
     Route::get('almacen-items/reporte/pdf', [AlmacenItemController::class, 'reportPdf']);
+    Route::get('compras-mayo/sin-vincular/count', [\App\Http\Controllers\ComprasMayoController::class, 'count']);
+    Route::get('compras-mayo/sin-vincular', [\App\Http\Controllers\ComprasMayoController::class, 'sinVincular']);
+    Route::get('compras-mayo/buscar-item', [\App\Http\Controllers\ComprasMayoController::class, 'buscarItem']);
+    Route::post('compras-mayo/{id}/vincular', [\App\Http\Controllers\ComprasMayoController::class, 'vincular']);
+    Route::post('compras-mayo/{id}/desvincular', [\App\Http\Controllers\ComprasMayoController::class, 'desvincular']);
     Route::get('almacen-items/reporte/excel', [AlmacenItemController::class, 'reportExcel']);
     Route::get('reportes/almacen-dashboard', [AlmacenItemController::class, 'dashboard']);
     Route::apiResource('almacen-items', AlmacenItemController::class);
