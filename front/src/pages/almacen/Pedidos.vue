@@ -176,6 +176,16 @@
           </q-td>
         </template>
 
+        <template #body-cell-unidad="props">
+          <q-td :props="props">
+            <div v-if="props.row.unidad" class="row items-center no-wrap">
+              <q-icon name="apartment" size="14px" color="teal-8" class="q-mr-xs" />
+              <div class="text-caption text-weight-medium" style="max-width: 200px; white-space: normal; line-height: 1.2">{{ props.row.unidad.nombre }}</div>
+            </div>
+            <span v-else class="text-grey-5">-</span>
+          </q-td>
+        </template>
+
         <template #body-cell-fecha_hora="props">
           <q-td :props="props">
             <div class="text-weight-medium">{{ formatDate(props.row.fecha_hora) }}</div>
@@ -201,6 +211,13 @@
             >
               {{ props.row.modificado ? 'Sí' : 'No' }}
             </q-chip>
+            <div
+              v-if="props.row.modificacion_detalle"
+              class="text-caption text-grey-7 q-mt-xs modificacion-text"
+              :title="props.row.modificacion_detalle"
+            >
+              {{ props.row.modificacion_detalle }}
+            </div>
           </q-td>
         </template>
 
@@ -330,11 +347,21 @@
                   <div class="meta-value">{{ formatDateTime(selectedPedido.fecha_hora) }}</div>
                 </div>
               </div>
-              <div class="meta-item">
+              <div class="meta-item" :class="selectedPedido.modificado ? 'meta-item--modified' : ''">
                 <q-icon name="edit_note" size="20px" class="meta-icon" />
                 <div class="meta-content">
                   <div class="meta-label">Modificado</div>
                   <div class="meta-value">{{ selectedPedido.modificado ? 'Sí' : 'No' }}</div>
+                  <div v-if="selectedPedido.modificacion_detalle" class="text-caption text-amber-9 q-mt-xs" style="font-weight:500; white-space:pre-line">
+                    {{ selectedPedido.modificacion_detalle }}
+                  </div>
+                </div>
+              </div>
+              <div v-if="selectedPedido.unidad" class="meta-item">
+                <q-icon name="apartment" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">Unidad</div>
+                  <div class="meta-value">{{ selectedPedido.unidad.nombre }}</div>
                 </div>
               </div>
               <div class="meta-item">
@@ -382,7 +409,39 @@
                   option-label="label"
                   :loading="loadingProductOptions"
                   @filter="filterAddProducts"
-                />
+                  popup-content-style="max-height: 320px"
+                >
+                  <template #option="scope">
+                    <q-item v-bind="scope.itemProps">
+                      <q-item-section avatar style="min-width:44px">
+                        <q-img
+                          :src="productoImgUrl(scope.opt.imagen)"
+                          width="40px" height="40px"
+                          fit="cover"
+                          style="border-radius:6px; border:1px solid #e5eaf2"
+                        />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="text-weight-medium">{{ scope.opt.nombre }}</q-item-label>
+                        <q-item-label caption>
+                          {{ scope.opt.unidad_medida || '-' }}
+                          <span v-if="scope.opt.subpartida" class="q-ml-xs text-grey-6">
+                            · {{ scope.opt.subpartida.codigo }} {{ scope.opt.subpartida.nombre }}
+                          </span>
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section side>
+                        <q-chip
+                          dense size="sm"
+                          :color="scope.opt.cantidad > 0 ? 'teal' : 'grey-5'"
+                          text-color="white"
+                        >
+                          {{ scope.opt.cantidad }} disp.
+                        </q-chip>
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
               </div>
               <div class="col-6 col-sm-2">
                 <q-input
@@ -717,6 +776,7 @@ const columns = [
   { name: 'id', label: 'ID', field: 'id', align: 'left', style: 'width: 80px' },
   { name: 'fecha_hora', label: 'Fecha', field: 'fecha_hora', align: 'left' },
   { name: 'nombre_usuario', label: 'Usuario', field: 'nombre_usuario', align: 'left' },
+  { name: 'unidad', label: 'Unidad', field: 'unidad', align: 'left' },
   { name: 'modificado', label: 'Modificado', field: 'modificado', align: 'left' },
   { name: 'total', label: 'Total', field: 'total', align: 'right' }
 ]
@@ -915,6 +975,8 @@ async function loadProductOptions (q = '') {
       precio_unitario: Number(item.precio_unitario || 0),
       unidad_medida: item.unidad_medida,
       imagen: item.imagen,
+      cantidad: Number(item.cantidad ?? 0),
+      subpartida: item.subpartida ?? null,
     }))
   } finally {
     loadingProductOptions.value = false
@@ -1087,6 +1149,10 @@ function formatDateTime (value) {
 function itemImageUrl (det) {
   const imagen = det?.producto?.imagen || det?.imagen || 'default.png'
   return `${proxy.$url}/../images/productos/${imagen}`
+}
+
+function productoImgUrl (imagen) {
+  return `${proxy.$url}/../images/productos/${imagen || 'default.png'}`
 }
 
 async function openHistorial (row) {
@@ -1268,6 +1334,19 @@ async function fetchHistorial () {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.modificacion-text {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #b45309;
+}
+
+.meta-item--modified {
+  border-color: #fbbf24;
+  background: #fffbeb;
 }
 
 .detail-item-total {

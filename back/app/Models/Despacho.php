@@ -13,6 +13,7 @@ class Despacho extends Model
 
     protected $fillable = [
         'pedido_id',
+        'unidad_id',
         'user_id',
         'nro',
         'fecha_entrega',
@@ -42,5 +43,10 @@ class Despacho extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function unidad()
+    {
+        return $this->belongsTo(Unidad::class);
     }
 }

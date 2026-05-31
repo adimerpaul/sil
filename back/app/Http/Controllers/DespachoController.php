@@ -12,7 +12,7 @@ class DespachoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Despacho::with(['user:id,name', 'pedido:id,nombre_usuario'])
+        $query = Despacho::with(['user:id,name', 'pedido:id,nombre_usuario', 'unidad:id,nombre'])
             ->withCount('detalles');
 
         if ($request->filled('producto_id')) {
@@ -66,13 +66,14 @@ class DespachoController extends Controller
         return Despacho::with([
             'user:id,name,firma,sello,mostrar_firma,mostrar_sello',
             'pedido:id,nombre_usuario,fecha_hora',
+            'unidad:id,nombre',
             'detalles',
         ])->findOrFail($id);
     }
 
     public function pedidoLookup($id)
     {
-        $pedido = Pedido::with(['user.unidad', 'detalles.producto:id,nombre,unidad_medida,imagen,subpartida_id'])
+        $pedido = Pedido::with(['user', 'unidad:id,nombre', 'detalles.producto:id,nombre,unidad_medida,imagen,subpartida_id'])
             ->find($id);
 
         if (! $pedido) {
@@ -119,7 +120,8 @@ class DespachoController extends Controller
                 'comentario' => $pedido->comentario,
                 'estado' => $pedido->estado,
                 'total' => (float) $pedido->total,
-                'unidad' => $pedido->user?->unidad?->nombre,
+                'unidad_id' => $pedido->unidad_id,
+                'unidad' => $pedido->unidad,
             ],
             'detalles' => $detalles,
         ]);
@@ -140,7 +142,7 @@ class DespachoController extends Controller
             'items.*.precio_unitario' => 'nullable|numeric|min:0',
         ]);
 
-        $pedido = Pedido::with('user.unidad')->findOrFail($data['pedido_id']);
+        $pedido = Pedido::findOrFail($data['pedido_id']);
 
         if ($pedido->estado !== 'ACEPTADO') {
             return response()->json(['message' => "El pedido está {$pedido->estado} y no puede despacharse. Solo se pueden despachar pedidos confirmados (ACEPTADO)."], 422);
@@ -179,10 +181,11 @@ class DespachoController extends Controller
             $nro = 'DSP-'.str_pad($count, 4, '0', STR_PAD_LEFT).'/'.$year;
 
             $solicitante = $pedido->nombre_usuario ?? $pedido->user?->name;
-            $servicio = $pedido->user?->unidad?->nombre;
+            $servicio = $pedido->unidad;
 
             $despacho = Despacho::create([
                 'pedido_id' => $pedido->id,
+                'unidad_id' => $pedido->unidad_id,
                 'user_id' => $request->user()->id,
                 'nro' => $nro,
                 'fecha_entrega' => $data['fecha_entrega'] ?? now(),

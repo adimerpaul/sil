@@ -70,8 +70,8 @@
             <q-item>
               <q-item-section avatar><q-icon name="apartment" color="primary" /></q-item-section>
               <q-item-section>
-                <q-item-label caption>Servicio / Unidad</q-item-label>
-                <q-item-label class="text-weight-medium">{{ pedido.unidad || '-' }}</q-item-label>
+                <q-item-label caption>Unidad</q-item-label>
+                <q-item-label class="text-weight-medium">{{ pedido.unidad ? pedido.unidad.nombre : '-' }}</q-item-label>
               </q-item-section>
             </q-item>
             <q-item v-if="pedido.comentario">

@@ -173,11 +173,20 @@
           <q-td :props="props">
             <div class="row items-center no-wrap">
               <q-avatar size="30px" color="primary" text-color="white" icon="person" class="q-mr-sm" />
-              <div class="column">
-                <div class="text-weight-medium">{{ props.row.solicitante || '-' }}</div>
-                <div v-if="props.row.servicio" class="text-caption text-grey-7">{{ props.row.servicio }}</div>
+              <div class="text-weight-medium">{{ props.row.solicitante || '-' }}</div>
+            </div>
+          </q-td>
+        </template>
+
+        <template #body-cell-servicio="props">
+          <q-td :props="props">
+            <div v-if="props.row.unidad || props.row.servicio" class="row items-center no-wrap">
+              <q-icon name="apartment" size="14px" color="teal-8" class="q-mr-xs" />
+              <div class="text-caption text-weight-medium" style="max-width: 200px; white-space: normal; line-height: 1.2">
+                {{ props.row.unidad ? props.row.unidad.nombre : props.row.servicio }}
               </div>
             </div>
+            <span v-else class="text-grey-5">-</span>
           </q-td>
         </template>
 
@@ -254,8 +263,8 @@
               <div class="meta-item">
                 <q-icon name="apartment" size="20px" class="meta-icon" />
                 <div class="meta-content">
-                  <div class="meta-label">Servicio</div>
-                  <div class="meta-value">{{ selected.servicio || '-' }}</div>
+                  <div class="meta-label">Unidad</div>
+                  <div class="meta-value">{{ selected.unidad ? selected.unidad.nombre : (selected.servicio || '-') }}</div>
                 </div>
               </div>
               <div class="meta-item">
@@ -378,6 +387,7 @@ export default {
         { name: 'nro', label: 'N° Despacho', field: 'nro', align: 'left' },
         { name: 'fecha_entrega', label: 'Fecha entrega', field: 'fecha_entrega', align: 'left' },
         { name: 'solicitante', label: 'Solicitante', field: 'solicitante', align: 'left' },
+        { name: 'servicio', label: 'Unidad', field: 'servicio', align: 'left' },
         { name: 'recepcion', label: 'Recepción', field: 'personal_recepcion', align: 'left' },
         { name: 'detalles_count', label: 'Items', field: 'detalles_count', align: 'center' },
         { name: 'total', label: 'Total', field: 'total', align: 'right' },

@@ -15,7 +15,7 @@ class PedidoController extends Controller
     public function index(Request $request)
     {
 
-        $query = Pedido::with(['user:id,name', 'detalles.producto:id,nombre,imagen'])
+        $query = Pedido::with(['user:id,name', 'unidad:id,nombre', 'detalles.producto:id,nombre,imagen'])
             ->withCount('detalles');
 
         $isAdmin = $this->isAdmin();
@@ -54,7 +54,7 @@ class PedidoController extends Controller
     public function show($id)
     {
 
-        $pedido = Pedido::with(['user:id,name,firma,sello,mostrar_firma,mostrar_sello', 'detalles.producto'])->findOrFail($id);
+        $pedido = Pedido::with(['user:id,name,firma,sello,mostrar_firma,mostrar_sello', 'unidad:id,nombre', 'detalles.producto'])->findOrFail($id);
 
         if (! $this->isAdmin() && $pedido->user_id !== auth()->id()) {
             abort(403, 'No autorizado para ver este pedido');
@@ -88,6 +88,7 @@ class PedidoController extends Controller
 
             $pedido = Pedido::create([
                 'user_id' => $currentUser->id,
+                'unidad_id' => $currentUser->unidad_id,
                 'fecha_hora' => now(),
                 'nombre_usuario' => $nombreUsuario,
                 'comentario' => $data['comentario'] ?? null,
@@ -117,7 +118,7 @@ class PedidoController extends Controller
     public function update(Request $request, $id)
     {
 
-        $pedido = Pedido::with('detalles')->findOrFail($id);
+        $pedido = Pedido::with('detalles.producto:id,nombre')->findOrFail($id);
 
         if (! $this->isAdmin() && $pedido->user_id !== auth()->id()) {
             abort(403, 'No autorizado para modificar este pedido');
@@ -159,10 +160,13 @@ class PedidoController extends Controller
                 return $precio * (int) $item['cantidad'];
             });
 
+            $modificacionDetalle = $this->calcularDiff($pedido->detalles, $data['items'], $productos);
+
             $pedido->update([
                 'comentario' => $data['comentario'] ?? $pedido->comentario,
                 'total' => $total,
                 'modificado' => true,
+                'modificacion_detalle' => $modificacionDetalle,
             ]);
 
             $pedido->detalles()->delete();
@@ -181,7 +185,7 @@ class PedidoController extends Controller
                 ]);
             }
 
-            return response()->json($pedido->load(['user:id,name', 'detalles.producto']));
+            return response()->json($pedido->load(['user:id,name', 'unidad:id,nombre', 'detalles.producto']));
         });
     }
 
@@ -211,7 +215,7 @@ class PedidoController extends Controller
         //            abort(403, 'No autorizado para imprimir este pedido');
         //        }
 
-        $pedido = Pedido::with(['user:id,name', 'detalles.producto'])->findOrFail($id);
+        $pedido = Pedido::with(['user:id,name', 'unidad:id,nombre', 'detalles.producto'])->findOrFail($id);
 
         if (! $this->isAdmin() && $pedido->user_id !== auth()->id()) {
             abort(403, 'No autorizado para imprimir este pedido');
@@ -224,6 +228,33 @@ class PedidoController extends Controller
         $filename = 'pedido_'.$pedido->id.'_'.now()->format('Ymd_His').'.pdf';
 
         return $pdf->stream($filename);
+    }
+
+    private function calcularDiff($detallesOriginales, array $itemsNuevos, $productos): string
+    {
+        $originales = $detallesOriginales->keyBy('producto_id');
+        $nuevos = collect($itemsNuevos)->keyBy('producto_id');
+        $cambios = [];
+
+        foreach ($originales as $pid => $det) {
+            $nombre = $det->producto?->nombre ?? "Producto #{$pid}";
+            if (! $nuevos->has($pid)) {
+                $cambios[] = "Se quitó {$nombre} x{$det->cantidad}";
+            } elseif ((int) $nuevos[$pid]['cantidad'] !== (int) $det->cantidad) {
+                $antes = (int) $det->cantidad;
+                $despues = (int) $nuevos[$pid]['cantidad'];
+                $cambios[] = "{$nombre}: {$antes}→{$despues}";
+            }
+        }
+
+        foreach ($nuevos as $pid => $item) {
+            if (! $originales->has($pid)) {
+                $nombre = $productos[$pid]?->nombre ?? "Producto #{$pid}";
+                $cambios[] = "Se agregó {$nombre} x{$item['cantidad']}";
+            }
+        }
+
+        return empty($cambios) ? 'Sin cambios en productos' : implode('; ', $cambios);
     }
 
     private function isAdmin(): bool

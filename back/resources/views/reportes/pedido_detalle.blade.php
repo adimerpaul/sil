@@ -176,7 +176,7 @@
 @php
     $fechaPedido = $pedido->fecha_hora ? \Carbon\Carbon::parse($pedido->fecha_hora) : null;
     $solicitante = $pedido->nombre_usuario ?: '-';
-    $servicioSolicitante = $pedido->comentario ?: '-';
+    $servicioSolicitante = $pedido->unidad?->nombre ?: '-';
     $respPedido = optional($pedido->user)->name ?: '-';
     $pedidoUser = $pedido->user;
     $firmaPedidoPath = $pedidoUser && $pedidoUser->mostrar_firma && $pedidoUser->firma ? public_path('images/'.$pedidoUser->firma) : null;

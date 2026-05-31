@@ -19,6 +19,9 @@
             <q-badge color="warning" text-color="black" v-if="roleText" class="text-bold">
               {{ $store.user.area ? $store.user.area.name : roleText }}
             </q-badge>
+            <q-badge v-if="$store.user.unidad" color="teal-8" text-color="white" class="text-bold q-ml-xs">
+              <q-icon name="apartment" size="12px" class="q-mr-xs" />{{ $store.user.unidad.nombre }}
+            </q-badge>
           </div>
         </div>
 

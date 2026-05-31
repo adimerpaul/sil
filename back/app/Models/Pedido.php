@@ -13,12 +13,14 @@ class Pedido extends Model
 
     protected $fillable = [
         'user_id',
+        'unidad_id',
         'fecha_hora',
         'nombre_usuario',
         'comentario',
         'estado',
         'total',
         'modificado',
+        'modificacion_detalle',
     ];
 
     public function detalles()
@@ -29,6 +31,11 @@ class Pedido extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function unidad()
+    {
+        return $this->belongsTo(Unidad::class);
     }
 
     public function scopeDeUsuario($query)
