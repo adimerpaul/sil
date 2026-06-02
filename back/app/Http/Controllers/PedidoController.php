@@ -230,6 +230,21 @@ class PedidoController extends Controller
         return $pdf->stream($filename);
     }
 
+    public function cambiarUnidad(Request $request, $id)
+    {
+        $pedido = Pedido::findOrFail($id);
+
+        if (! $this->isAdmin() && $pedido->user_id !== auth()->id()) {
+            abort(403, 'No autorizado para modificar este pedido');
+        }
+
+        $request->validate(['unidad_id' => 'required|exists:unidades,id']);
+
+        $pedido->update(['unidad_id' => $request->unidad_id]);
+
+        return response()->json($pedido->load(['user:id,name', 'unidad:id,nombre', 'detalles.producto']));
+    }
+
     private function calcularDiff($detallesOriginales, array $itemsNuevos, $productos): string
     {
         $originales = $detallesOriginales->keyBy('producto_id');

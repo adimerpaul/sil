@@ -192,9 +192,9 @@ class RecogidoController extends Controller
         }
 
         $user = $request->user();
-        if (($user->role ?? null) !== 'Administrador' && (int) $data['area_id'] !== (int) $user->area_id) {
-            return response()->json(['message' => 'No autorizado para actualizar esta area'], 403);
-        }
+//        if (($user->role ?? null) !== 'Administrador' && (int) $data['area_id'] !== (int) $user->area_id) {
+//            return response()->json(['message' => 'No autorizado para actualizar esta area'], 403);
+//        }
 
         $query = Recogido::query()
             ->where('solicitude_id', $data['solicitude_id'])

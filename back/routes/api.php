@@ -108,6 +108,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('compras/{id}/pdf', [CompraController::class, 'printPdf']);
     Route::apiResource('compras', CompraController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
     Route::get('pedidos/{id}/pdf', [PedidoController::class, 'printPdf']);
+    Route::patch('pedidos/{id}/unidad', [PedidoController::class, 'cambiarUnidad']);
     Route::apiResource('pedidos', PedidoController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
     Route::apiResource('solicitudes-sap', SolicitudSapController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
     Route::get('solicitudes-sap/{id}/pdf', [SolicitudSapController::class, 'printPdf']);
@@ -128,6 +129,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('despachos/pedido-lookup/{id}', [DespachoController::class, 'pedidoLookup']);
     Route::get('despachos/{id}/pdf', [DespachoController::class, 'printPdf']);
     Route::post('despachos/{id}/anular', [DespachoController::class, 'anular']);
+    Route::patch('despachos/{id}/unidad', [DespachoController::class, 'cambiarUnidad']);
     Route::apiResource('despachos', DespachoController::class)->only(['index', 'show', 'store', 'destroy']);
 
     Route::apiResource('areas', AreaController::class);

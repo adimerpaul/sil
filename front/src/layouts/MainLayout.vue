@@ -17,10 +17,14 @@
           <div class="text-subtitle1 text-weight-medium" style="line-height: 0.9">
             Dashboard de Gestión <br>
             <q-badge color="warning" text-color="black" v-if="roleText" class="text-bold">
+              <span style="font-size: 10px; text-transform: lowercase;">
               {{ $store.user.area ? $store.user.area.name : roleText }}
+              </span>
             </q-badge>
-            <q-badge v-if="$store.user.unidad" color="teal-8" text-color="white" class="text-bold q-ml-xs">
-              <q-icon name="apartment" size="12px" class="q-mr-xs" />{{ $store.user.unidad.nombre }}
+            <q-badge v-if="$store.user.unidad" color="teal-8" text-color="white" class="text-bold ">
+              <span style="font-size: 10px;text-transform: lowercase;width: 120px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
+                <q-icon name="apartment" size="12px" class="q-mr-xs" />{{ $store.user.unidad.nombre }}
+              </span>
             </q-badge>
           </div>
         </div>

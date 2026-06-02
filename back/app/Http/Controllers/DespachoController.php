@@ -263,6 +263,27 @@ class DespachoController extends Controller
         });
     }
 
+    public function cambiarUnidad(Request $request, $id)
+    {
+        $despacho = Despacho::findOrFail($id);
+
+        $request->validate(['unidad_id' => 'required|exists:unidades,id']);
+
+        $unidad = \App\Models\Unidad::findOrFail($request->unidad_id);
+
+        $despacho->update([
+            'unidad_id' => $unidad->id,
+            'servicio'  => $unidad->nombre,
+        ]);
+
+        return response()->json($despacho->load([
+            'user:id,name',
+            'unidad:id,nombre',
+            'pedido:id,nombre_usuario,fecha_hora',
+            'detalles',
+        ]));
+    }
+
     public function anular($id)
     {
         $despacho = Despacho::with('detalles')->findOrFail($id);

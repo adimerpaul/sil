@@ -243,6 +243,10 @@
                   <q-item-section avatar><q-icon name="visibility" color="primary" /></q-item-section>
                   <q-item-section>Ver detalle</q-item-section>
                 </q-item>
+                <q-item v-if="canEdit" clickable v-close-popup @click="openCambiarUnidad(props.row)">
+                  <q-item-section avatar><q-icon name="apartment" color="teal-7" /></q-item-section>
+                  <q-item-section>Cambiar unidad</q-item-section>
+                </q-item>
                 <q-item
                   v-if="canPrint"
                   clickable
@@ -630,6 +634,48 @@
       </q-card>
     </q-dialog>
 
+    <!-- Dialog cambiar unidad -->
+    <q-dialog v-model="showUnidadDialog" persistent>
+      <q-card style="min-width:400px; max-width:94vw">
+        <q-card-section class="row items-center no-wrap bg-teal-8 text-white">
+          <q-icon name="apartment" size="22px" class="q-mr-sm" />
+          <div>
+            <div class="text-subtitle1 text-weight-bold">Cambiar unidad</div>
+            <div class="text-caption text-teal-2">Pedido #{{ unidadDialogPedido?.id }} — {{ unidadDialogPedido?.nombre_usuario }}</div>
+          </div>
+          <q-space />
+          <q-btn flat round dense icon="close" color="white" @click="showUnidadDialog = false" />
+        </q-card-section>
+        <q-card-section class="q-pt-md">
+          <q-select
+            v-model="selectedUnidadId"
+            :options="unidades"
+            option-value="id"
+            option-label="nombre"
+            emit-value
+            map-options
+            outlined
+            dense
+            label="Seleccionar unidad"
+            use-input
+            input-debounce="0"
+            :filter-method="(val, update) => update(() => {})"
+          >
+            <template #prepend><q-icon name="apartment" /></template>
+          </q-select>
+        </q-card-section>
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn flat no-caps color="grey-8" label="Cancelar" @click="showUnidadDialog = false" />
+          <q-btn
+            unelevated no-caps color="teal-8" icon="save" label="Guardar"
+            :loading="savingUnidad"
+            :disable="!selectedUnidadId"
+            @click="saveUnidad"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <q-dialog v-model="showHistorialDialog">
       <q-card class="historial-dialog">
         <div class="historial-header">
@@ -728,6 +774,12 @@ const productToAdd = ref(null)
 const productAddQty = ref(1)
 const savingDetail = ref(false)
 const savingEstado = ref(null)
+
+const showUnidadDialog = ref(false)
+const unidadDialogPedido = ref(null)
+const selectedUnidadId = ref(null)
+const unidades = ref([])
+const savingUnidad = ref(false)
 
 const showHistorialDialog = ref(false)
 const historialUser = ref('')
@@ -1114,6 +1166,35 @@ async function sendPedidoWhatsApp (id) {
     })
   } finally {
     whatsappId.value = null
+  }
+}
+
+async function openCambiarUnidad (row) {
+  unidadDialogPedido.value = row
+  selectedUnidadId.value = row.unidad?.id ?? null
+  if (unidades.value.length === 0) {
+    const res = await proxy.$axios.get('unidades')
+    unidades.value = res.data
+  }
+  showUnidadDialog.value = true
+}
+
+async function saveUnidad () {
+  if (!selectedUnidadId.value || !unidadDialogPedido.value) return
+  savingUnidad.value = true
+  try {
+    await proxy.$axios.patch(`pedidos/${unidadDialogPedido.value.id}/unidad`, { unidad_id: selectedUnidadId.value })
+    $q.notify({ color: 'positive', message: 'Unidad actualizada', position: 'top' })
+    showUnidadDialog.value = false
+    if (selectedPedido.value?.id === unidadDialogPedido.value.id) {
+      const res = await proxy.$axios.get(`pedidos/${unidadDialogPedido.value.id}`)
+      selectedPedido.value = res.data
+    }
+    await applyFilters()
+  } catch (e) {
+    $q.notify({ color: 'negative', message: e?.response?.data?.message || 'Error al actualizar unidad', position: 'top' })
+  } finally {
+    savingUnidad.value = false
   }
 }
 

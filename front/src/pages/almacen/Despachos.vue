@@ -125,6 +125,10 @@
                   <q-item-section avatar><q-icon name="visibility" color="primary" /></q-item-section>
                   <q-item-section>Ver detalle</q-item-section>
                 </q-item>
+                <q-item clickable v-close-popup @click="openCambiarUnidad(props.row)">
+                  <q-item-section avatar><q-icon name="apartment" color="teal-7" /></q-item-section>
+                  <q-item-section>Cambiar unidad</q-item-section>
+                </q-item>
                 <q-item
                   v-if="canPrint"
                   clickable v-close-popup
@@ -217,6 +221,45 @@
         </template>
       </q-table>
     </q-card>
+
+    <!-- Dialog cambiar unidad -->
+    <q-dialog v-model="showUnidadDialog" persistent>
+      <q-card style="min-width:400px; max-width:94vw">
+        <q-card-section class="row items-center no-wrap bg-teal-8 text-white">
+          <q-icon name="apartment" size="22px" class="q-mr-sm" />
+          <div>
+            <div class="text-subtitle1 text-weight-bold">Cambiar unidad</div>
+            <div class="text-caption text-teal-2">Despacho {{ unidadDialogRow?.nro || `#${unidadDialogRow?.id}` }}</div>
+          </div>
+          <q-space />
+          <q-btn flat round dense icon="close" color="white" @click="showUnidadDialog = false" />
+        </q-card-section>
+        <q-card-section class="q-pt-md">
+          <q-select
+            v-model="selectedUnidadId"
+            :options="unidades"
+            option-value="id"
+            option-label="nombre"
+            emit-value
+            map-options
+            outlined
+            dense
+            label="Seleccionar unidad"
+          >
+            <template #prepend><q-icon name="apartment" /></template>
+          </q-select>
+        </q-card-section>
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn flat no-caps color="grey-8" label="Cancelar" @click="showUnidadDialog = false" />
+          <q-btn
+            unelevated no-caps color="teal-8" icon="save" label="Guardar"
+            :loading="savingUnidad"
+            :disable="!selectedUnidadId"
+            @click="saveUnidad"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <!-- Detail dialog -->
     <q-dialog v-model="showDetail">
@@ -396,6 +439,11 @@ export default {
       printingId: null,
       showDetail: false,
       selected: null,
+      showUnidadDialog: false,
+      unidadDialogRow: null,
+      selectedUnidadId: null,
+      unidades: [],
+      savingUnidad: false,
     }
   },
   computed: {
@@ -474,6 +522,33 @@ export default {
         }
         await this.fetchRows()
       })
+    },
+    async openCambiarUnidad (row) {
+      this.unidadDialogRow = row
+      this.selectedUnidadId = row.unidad?.id ?? null
+      if (this.unidades.length === 0) {
+        const res = await this.$axios.get('unidades')
+        this.unidades = res.data
+      }
+      this.showUnidadDialog = true
+    },
+    async saveUnidad () {
+      if (!this.selectedUnidadId || !this.unidadDialogRow) return
+      this.savingUnidad = true
+      try {
+        await this.$axios.patch(`despachos/${this.unidadDialogRow.id}/unidad`, { unidad_id: this.selectedUnidadId })
+        this.$q.notify({ color: 'positive', message: 'Unidad actualizada', position: 'top' })
+        this.showUnidadDialog = false
+        if (this.selected?.id === this.unidadDialogRow.id) {
+          const res = await this.$axios.get(`despachos/${this.unidadDialogRow.id}`)
+          this.selected = res.data
+        }
+        await this.fetchRows()
+      } catch (e) {
+        this.$q.notify({ color: 'negative', message: e?.response?.data?.message || 'Error al actualizar unidad', position: 'top' })
+      } finally {
+        this.savingUnidad = false
+      }
     },
     estadoColor (estado) {
       if (estado === 'DESPACHADO') return 'green'

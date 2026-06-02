@@ -413,10 +413,10 @@ export default {
       this.openDialogByAreas(solicitud, grouped)
     },
     async saveRecogidoAreas () {
-      if (!this.form.telefono_recogido) {
-        this.$alert.error('El teléfono es obligatorio si fue recogido')
-        return
-      }
+      // if (!this.form.telefono_recogido) {
+      //   this.$alert.error('El teléfono es obligatorio si fue recogido')
+      //   return
+      // }
       if (!this.selectedSolicitud?.id || !this.selectedDialogAreas.length) return
       this.saving = true
 
