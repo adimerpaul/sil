@@ -816,12 +816,19 @@ class SolicitudeController extends Controller
 
         $user = $request->user();
 
-        // Si NO es administrador, filtrar por el área del usuario
-        if ($user && $user->role !== 'Administrador' && $user->area_id) {
-            $areaId = $user->area_id;
+        // Si NO es administrador, filtrar por los permisos de área analítica del usuario
+        if ($user && $user->role !== 'Administrador') {
+            $areaPermisoIds = [12, 13, 14, 15, 16, 17, 18];
+            $permisosNombres = $user->getAllPermissions()
+                ->whereIn('id', $areaPermisoIds)
+                ->pluck('name');
 
-            $query->whereHas('servicios', function ($q) use ($areaId) {
-                $q->where('servicio_solicitudes.area_id', $areaId);
+            $areaIds = \DB::table('areas')
+                ->whereIn('title', $permisosNombres)
+                ->pluck('id');
+
+            $query->whereHas('servicios', function ($q) use ($areaIds) {
+                $q->whereIn('servicio_solicitudes.area_id', $areaIds);
             });
         }
 
