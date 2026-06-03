@@ -129,6 +129,11 @@ const routes = [
         meta: {requiresAuth: true, perm: 'Crear Pedidos'}
       },
       {
+        path: '/pedidos/emergencia',
+        component: () => import('pages/almacen/PedidosEmergencia.vue'),
+        meta: {requiresAuth: true, perm: 'Crear Pedidos de Emergencia'}
+      },
+      {
         path: '/solicitudes-sap',
         component: () => import('pages/almacen/SolicitudesSap.vue'),
         meta: {requiresAuth: true, perm: 'Ver Solicitudes SAP'}

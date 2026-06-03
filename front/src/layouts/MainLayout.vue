@@ -282,6 +282,7 @@ const menuSections = [
       { title: 'Compras nuevas', icon: 'add_shopping_cart', link: '/almacen/compras/nueva', can: ['Modulo compras', 'Módulo movimiento'] },
       { title: 'Compras detalle', icon: 'receipt_long', link: '/almacen/compras', can: ['Modulo detalle compras', 'Módulo movimiento'] },
       { title: 'Pedidos nuevos', icon: 'post_add', link: '/pedidos/nuevo', can: 'Crear Pedidos' },
+      { title: 'Pedido de emergencia', icon: 'warning', link: '/pedidos/emergencia', can: 'Crear Pedidos de Emergencia' },
       { title: 'Pedidos detalles', icon: 'shopping_bag', link: '/pedidos', can: 'Ver Pedidos' },
       { title: 'Nuevo despacho', icon: 'local_shipping', link: '/despachos/nuevo', can: 'Crear Despachos' },
       { title: 'Despachos', icon: 'inventory', link: '/despachos', can: 'Ver Despachos' },

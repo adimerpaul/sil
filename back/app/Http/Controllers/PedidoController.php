@@ -53,11 +53,20 @@ class PedidoController extends Controller
 
     public function show($id)
     {
-
         $pedido = Pedido::with(['user:id,name,firma,sello,mostrar_firma,mostrar_sello', 'unidad:id,nombre', 'detalles.producto'])->findOrFail($id);
 
         if (! $this->isAdmin() && $pedido->user_id !== auth()->id()) {
             abort(403, 'No autorizado para ver este pedido');
+        }
+
+        $productoIds = $pedido->detalles->pluck('producto_id')->filter()->unique()->toArray();
+        if (! empty($productoIds)) {
+            $stocks = AlmacenItem::stockByIds($productoIds);
+            $pedido->detalles->each(function ($det) use ($stocks) {
+                if ($det->producto) {
+                    $det->producto->cantidad = $stocks[$det->producto_id] ?? 0;
+                }
+            });
         }
 
         return $pedido;
@@ -68,15 +77,26 @@ class PedidoController extends Controller
 
         $data = $this->validateData($request);
 
-        $currentUser = $request->user();
+        $requester = $request->user();
+        $esEmergencia = $request->filled('user_id') && (int) $request->user_id !== $requester->id;
 
-        if (! HerramientaAlmacen::pedidosHabilitados()) {
+        if ($esEmergencia) {
+            if (! (method_exists($requester, 'hasPermissionTo') && $requester->hasPermissionTo('Crear Pedidos de Emergencia'))
+                && ($requester->role ?? null) !== 'Administrador') {
+                return response()->json(['message' => 'No autorizado para crear pedidos de emergencia.'], 403);
+            }
+            $targetUser = \App\Models\User::findOrFail((int) $request->user_id);
+        } else {
+            $targetUser = $requester;
+        }
+
+        if (! $esEmergencia && ! HerramientaAlmacen::pedidosHabilitados()) {
             return response()->json([
                 'message' => 'Los pedidos no están habilitados. Configura una fecha de inicio y una fecha de finalización activas en Herramientas de Almacén.',
             ], 422);
         }
 
-        return DB::transaction(function () use ($data, $currentUser) {
+        return DB::transaction(function () use ($data, $targetUser) {
             $productos = AlmacenItem::whereIn('id', collect($data['items'])->pluck('producto_id'))->get()->keyBy('id');
             $total = collect($data['items'])->sum(function ($item) use ($productos) {
                 $precio = (float) ($item['precio_unitario'] ?? $productos[$item['producto_id']]->precio_unitario ?? 0);
@@ -84,11 +104,11 @@ class PedidoController extends Controller
                 return $precio * (int) $item['cantidad'];
             });
 
-            $nombreUsuario = $currentUser->username ?: $currentUser->name;
+            $nombreUsuario = $targetUser->username ?: $targetUser->name;
 
             $pedido = Pedido::create([
-                'user_id' => $currentUser->id,
-                'unidad_id' => $currentUser->unidad_id,
+                'user_id' => $targetUser->id,
+                'unidad_id' => $targetUser->unidad_id,
                 'fecha_hora' => now(),
                 'nombre_usuario' => $nombreUsuario,
                 'comentario' => $data['comentario'] ?? null,

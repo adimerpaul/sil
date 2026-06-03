@@ -775,6 +775,7 @@ const ALMACEN_PERMISSION_NAMES = [
   'Ver Pedidos',
   'Ver todos los pedidos',
   'Crear Pedidos',
+  'Crear Pedidos de Emergencia',
   'Editar Pedidos',
   'Anular Pedidos',
   'Imprimir Pedidos',

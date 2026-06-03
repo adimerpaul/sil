@@ -356,8 +356,22 @@
                 <div class="meta-content">
                   <div class="meta-label">Modificado</div>
                   <div class="meta-value">{{ selectedPedido.modificado ? 'Sí' : 'No' }}</div>
-                  <div v-if="selectedPedido.modificacion_detalle" class="text-caption text-amber-9 q-mt-xs" style="font-weight:500; white-space:pre-line">
-                    {{ selectedPedido.modificacion_detalle }}
+                  <div v-if="selectedPedido.modificacion_detalle" class="q-mt-xs">
+                    <div
+                      v-for="(c, i) in parseModificacionDetalle(selectedPedido.modificacion_detalle)"
+                      :key="i"
+                      class="mod-row"
+                    >
+                      <q-icon
+                        :name="c.tipo === 'quito' ? 'remove_circle' : c.tipo === 'agrego' ? 'add_circle' : 'swap_horiz'"
+                        :color="c.tipo === 'quito' ? 'red-7' : c.tipo === 'agrego' ? 'green-7' : 'amber-8'"
+                        size="13px"
+                        class="q-mr-xs"
+                      />
+                      <span :class="c.tipo === 'quito' ? 'text-red-9' : c.tipo === 'agrego' ? 'text-green-9' : 'text-amber-9'">
+                        {{ c.texto }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -482,7 +496,20 @@
                   no-spinner
                 />
                 <div class="detail-item-info">
-                  <div class="detail-item-name">{{ det.producto?.nombre || det.nombre || '-' }}</div>
+                  <div class="detail-item-name">
+                    {{ det.producto?.nombre || det.nombre || '-' }}
+                    <q-chip
+                      v-if="det.producto?.cantidad != null"
+                      dense
+                      size="sm"
+                      :color="det.producto.cantidad > 0 ? 'teal-1' : 'red-1'"
+                      :text-color="det.producto.cantidad > 0 ? 'teal-9' : 'red-9'"
+                      class="q-ml-xs"
+                      style="font-size:10px; padding:0 4px"
+                    >
+                      Stock: {{ det.producto.cantidad }}
+                    </q-chip>
+                  </div>
                   <div class="detail-item-meta">
                     <template v-if="editingItems">
                       <q-input
@@ -1244,6 +1271,15 @@ async function openHistorial (row) {
   await fetchHistorial()
 }
 
+function parseModificacionDetalle (texto) {
+  if (!texto) return []
+  return texto.split('; ').map(cambio => {
+    if (cambio.startsWith('Se quitó ')) return { tipo: 'quito', texto: cambio }
+    if (cambio.startsWith('Se agregó ')) return { tipo: 'agrego', texto: cambio }
+    return { tipo: 'cambio', texto: cambio }
+  })
+}
+
 async function fetchHistorial () {
   loadingHistorial.value = true
   try {
@@ -1428,6 +1464,14 @@ async function fetchHistorial () {
 .meta-item--modified {
   border-color: #fbbf24;
   background: #fffbeb;
+}
+
+.mod-row {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.6;
 }
 
 .detail-item-total {
