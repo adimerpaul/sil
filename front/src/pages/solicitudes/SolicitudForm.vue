@@ -552,8 +552,7 @@
                 </div>
               </q-card>
             </q-dialog>
-            <div class="col-12 col-md-6 q-mt-xs"
-                 v-if="solicitud.diagnostico_select && solicitud.diagnostico_select.toLowerCase().includes('otro')">
+            <div class="col-12 col-md-6 q-mt-xs">
               <q-input v-model="solicitud.diagnostico_clinico" type="textarea"
                        label="Diagnóstico clínico otros" dense outlined autogrow />
             </div>
@@ -593,8 +592,11 @@
               </q-select>
             </div>
 
-            <div class="col-4">
-              <q-input v-model="solicitud.cama" label="Sala / Cama" dense outlined />
+            <div class="col-2">
+              <q-input v-model="solicitud.sala" label="Sala" dense outlined />
+            </div>
+            <div class="col-2">
+              <q-input v-model="solicitud.cama" label="Cama" dense outlined />
             </div>
             <!--            diagnostico_select-->
             <!--            <div class="col-8">-->
@@ -2142,6 +2144,8 @@ export default {
 
         tipo_paciente_externo: '',
         autorizado_por: '',
+        sala: '',
+        cama: '',
       }
       this.codigoEditadoManual = false
       this.nroRegistroEditadoManual = false
