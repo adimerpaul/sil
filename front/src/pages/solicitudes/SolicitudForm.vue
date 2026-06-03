@@ -373,7 +373,7 @@
 <!--              <pre>{{establecimientosPublicos}}</pre>-->
             </div>
 
-            <div v-if="isAdmin" class="col-12 col-md-6 q-mt-xs">
+            <div class="col-12 col-md-6 q-mt-xs">
               <div class="row no-wrap items-start q-gutter-x-xs">
                 <div class="col">
                   <q-select
@@ -576,8 +576,6 @@
                 dense
                 outlined
                 clearable
-                :readonly="!isAdmin"
-                :hint="!isAdmin ? 'Solo administradores pueden modificar' : ''"
                 @filter="filterUnidadesSolicitantes"
                 @update:model-value="onSelectUnidadSolicitante"
               >

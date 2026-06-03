@@ -480,7 +480,7 @@
                ======================= -->
           <div
             v-if="hasAnyServicios([
-              'ELECTROLITOS (SODIO, POTASIO, CLORO) (NA,K,CL)',
+              'ELECTROLITOS (SODIO, POTASIO, CLORO)',
               'IONOGRAMA (NA,K,CL,CA,Mg,P)',
               'CALCIO',
               'FÓSFORO',
@@ -502,7 +502,7 @@
               </thead>
 
               <tbody>
-              <tr v-if="canServicios(['ELECTROLITOS (SODIO, POTASIO, CLORO) (NA,K,CL)','IONOGRAMA (NA,K,CL,CA,Mg,P)'])">
+              <tr v-if="canServicios(['ELECTROLITOS (SODIO, POTASIO, CLORO)','IONOGRAMA (NA,K,CL,CA,Mg,P)'])">
                 <td>Sodio</td>
                 <td>
                   <q-input v-model.number="form.sodio" dense outlined type="number" step="0.01"
@@ -512,7 +512,7 @@
                 <td>{{ rangoUnidad('Sodio') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['ELECTROLITOS (SODIO, POTASIO, CLORO) (NA,K,CL)','IONOGRAMA (NA,K,CL,CA,Mg,P)'])">
+              <tr v-if="canServicios(['ELECTROLITOS (SODIO, POTASIO, CLORO)','IONOGRAMA (NA,K,CL,CA,Mg,P)'])">
                 <td>Potasio</td>
                 <td>
                   <q-input v-model.number="form.potasio" dense outlined type="number" step="0.01"
@@ -522,7 +522,7 @@
                 <td>{{ rangoUnidad('Potasio') }}</td>
               </tr>
 
-              <tr v-if="canServicios(['ELECTROLITOS (SODIO, POTASIO, CLORO) (NA,K,CL)','IONOGRAMA (NA,K,CL,CA,Mg,P)'])">
+              <tr v-if="canServicios(['ELECTROLITOS (SODIO, POTASIO, CLORO)','IONOGRAMA (NA,K,CL,CA,Mg,P)'])">
                 <td>Cloro</td>
                 <td>
                   <q-input v-model.number="form.cloro" dense outlined type="number" step="0.01"

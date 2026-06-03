@@ -72,7 +72,7 @@
             <thead>
             <tr class="bg-primary text-white" >
               <th>Opciones</th>
-              <th>Id</th>
+              <th>Codigo Solicitud</th>
               <th>Paciente</th>
               <th>CI</th>
               <th>Establecimiento</th>
@@ -426,7 +426,7 @@
                   </q-list>
                 </q-btn-dropdown>
               </td>
-              <td>{{ solicitud.id }}</td>
+              <td>{{ solicitud.codigo_solicitud }}</td>
               <td>{{ solicitud.paciente_nombre }}</td>
               <td>{{ solicitud.paciente_ci }}</td>
               <td>{{ solicitud.establecimiento_salud }}</td>
