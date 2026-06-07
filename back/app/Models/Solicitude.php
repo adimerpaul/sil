@@ -172,6 +172,11 @@ class Solicitude extends Model implements AuditableContract
         return $this->belongsTo(User::class, 'user_analitica_id');
     }
 
+    public function entregaResultado()
+    {
+        return $this->hasOne(\App\Models\EntregaResultado::class, 'solicitude_id');
+    }
+
     public function resultados()
     {
         return $this->hasMany(ResultadoLaboratorio::class);

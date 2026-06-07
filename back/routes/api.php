@@ -245,6 +245,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('recogidos/recoger-area', [RecogidoController::class, 'recogerArea']);
     Route::get('reportes/recogidos/pdf', [RecogidoController::class, 'reportePdf']);
 
+    Route::get('entrega-resultados', [\App\Http\Controllers\EntregaResultadoController::class, 'index']);
+    Route::post('entrega-resultados/registrar', [\App\Http\Controllers\EntregaResultadoController::class, 'registrar']);
+
 });
 Route::get('solicitudes-area-preanalitica/pdf', [SolicitudeController::class, 'pdfPreanalitica']);
 Route::get('analitica/pdf-presentacion', [SolicitudeController::class, 'pdfPresentacion']);
