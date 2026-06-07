@@ -264,6 +264,7 @@ const menuSections = [
     links: [
       { title: 'Admisión', icon: 'request_page', link: '/solicitudes', can: 'Solicitudes' },
       { title: 'Recojo de Resultados', icon: 'inventory_2', link: '/recogidos', can: 'Solicitudes' },
+      { title: 'Entrega de Resultados', icon: 'assignment_turned_in', link: '/entrega-resultados', can: 'Entrega de resultados' },
       { title: 'Preanalítica', icon: 'science', link: '/area-preanalitica', can: ['Area preanalitica', 'Area Preanalitica'] },
       { title: 'Estados preanalítica', icon: 'analytics', link: '/area-preanalitica-procesadas', can: ['Area preanalitica', 'Area Preanalitica'] },
       { title: 'Analítica', icon: 'biotech', link: '/analitica', can: 'Analitica', match: '/analitica' },

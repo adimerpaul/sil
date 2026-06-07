@@ -11,16 +11,16 @@ class EntregaResultadoController extends Controller
 {
     public function index(Request $request)
     {
-        $from   = $request->get('from', Carbon::now()->startOfMonth()->toDateString());
-        $to     = $request->get('to', Carbon::now()->endOfMonth()->toDateString());
-        $search = trim((string) $request->get('search', ''));
-        $estado = $request->get('estado', ''); // 'entregado' | 'pendiente' | ''
-        $perPage = min((int) $request->get('per_page', 20), 300);
+        $from    = $request->get('from', Carbon::now()->startOfMonth()->toDateString());
+        $to      = $request->get('to', Carbon::now()->endOfMonth()->toDateString());
+        $search  = trim((string) $request->get('search', ''));
+        $estado  = $request->get('estado', '');
+        $perPage = min((int) $request->get('per_page', 9999), 9999);
         $page    = max((int) $request->get('page', 1), 1);
 
         $query = Solicitude::with([
             'servicios' => fn($q) => $q->with('area'),
-            'entregaResultado.user',
+            'entregaResultados.user',
         ])
         ->whereDate('fecha_solicitud', '>=', $from)
         ->whereDate('fecha_solicitud', '<=', $to)
@@ -32,13 +32,12 @@ class EntregaResultadoController extends Controller
                     $w->where('codigo', 'like', "%{$search}%");
                 } else {
                     $w->where('paciente_nombre', 'like', "%{$search}%")
-                      ->orWhere('paciente_ci', 'like', "%{$search}%")
-                      ->orWhere('doctor_nombre', 'like', "%{$search}%");
+                      ->orWhere('paciente_ci', 'like', "%{$search}%");
                 }
             });
         })
-        ->when($estado === 'entregado', fn($q) => $q->whereHas('entregaResultado'))
-        ->when($estado === 'pendiente', fn($q) => $q->whereDoesntHave('entregaResultado'))
+        ->when($estado === 'entregado', fn($q) => $q->whereHas('entregaResultados'))
+        ->when($estado === 'pendiente', fn($q) => $q->whereDoesntHave('entregaResultados'))
         ->orderByDesc('fecha_solicitud')
         ->orderByDesc('id');
 
@@ -58,9 +57,9 @@ class EntregaResultadoController extends Controller
     public function registrar(Request $request)
     {
         $request->validate([
-            'solicitude_ids'   => 'required|array|min:1',
-            'solicitude_ids.*' => 'integer|exists:solicitudes,id',
-            'observaciones'    => 'nullable|string|max:255',
+            'items'         => 'required|array|min:1',
+            'items.*.solicitude_id' => 'required|integer|exists:solicitudes,id',
+            'items.*.area'          => 'required|string|max:100',
         ]);
 
         $user  = auth()->user();
@@ -68,18 +67,23 @@ class EntregaResultadoController extends Controller
         $fecha = $now->toDateString();
         $hora  = $now->format('H:i:s');
 
-        foreach ($request->solicitude_ids as $id) {
+        foreach ($request->items as $item) {
             EntregaResultado::updateOrCreate(
-                ['solicitude_id' => $id],
                 [
-                    'user_id'        => $user->id,
-                    'fecha_entrega'  => $fecha,
-                    'hora_entrega'   => $hora,
-                    'observaciones'  => $request->observaciones,
+                    'solicitude_id' => $item['solicitude_id'],
+                    'area'          => $item['area'],
+                ],
+                [
+                    'user_id'       => $user->id,
+                    'fecha_entrega' => $fecha,
+                    'hora_entrega'  => $hora,
                 ]
             );
         }
 
-        return response()->json(['message' => 'Entrega registrada correctamente', 'count' => count($request->solicitude_ids)]);
+        return response()->json([
+            'message' => 'Entrega registrada correctamente',
+            'count'   => count($request->items),
+        ]);
     }
 }

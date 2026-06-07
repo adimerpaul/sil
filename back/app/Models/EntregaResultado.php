@@ -10,6 +10,7 @@ class EntregaResultado extends Model
 
     protected $fillable = [
         'solicitude_id',
+        'area',
         'user_id',
         'fecha_entrega',
         'hora_entrega',

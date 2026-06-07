@@ -85,10 +85,6 @@
                       <q-item-section>Hematología</q-item-section>
                     </q-item>
 
-                    <q-item clickable @click="printHematologia(solicitud)" v-close-popup dense v-if="solicitud.hematologia?.code && ($store.user.role === 'Administrador' || hasPermission('HEMATOLOGÍA'))">
-                      <q-item-section avatar><q-icon name="print" /></q-item-section>
-                      <q-item-section>Imprimir Hematología</q-item-section>
-                    </q-item>
                     <!--                    enviar whatsapp dcotor y paciente-->
                     <q-item clickable @click="enviarWhatsApp(solicitud,'HematologiaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.hematologia?.code && ($store.user.role === 'Administrador' || hasPermission('HEMATOLOGÍA'))">
                       <q-item-section avatar>
@@ -141,19 +137,6 @@
 <!--                      <pre>{{$store.user}}</pre>-->
 <!--                    </q-item>-->
 
-                    <!-- IMPRESIÓN DIRECTA QUÍMICA SANGUÍNEA -->
-                    <q-item clickable v-close-popup dense @click="printQuimica(solicitud)" v-if="solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
-                      <q-item-section avatar><q-icon name="print" /></q-item-section>
-                      <q-item-section>Imprimir Química Sanguínea</q-item-section>
-                    </q-item>
-                    <q-item clickable v-close-popup dense @click="printQuimicaTolerancia(solicitud)" v-if="solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
-                      <q-item-section avatar><q-icon name="show_chart" /></q-item-section>
-                      <q-item-section>Imprimir Curva de Tolerancia</q-item-section>
-                    </q-item>
-                    <q-item clickable v-close-popup dense @click="printCitoQuimico(solicitud)" v-if="solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
-                      <q-item-section avatar><q-icon name="biotech" /></q-item-section>
-                      <q-item-section>Imprimir Citoquímico</q-item-section>
-                    </q-item>
                     <!-- WhatsApp Química -->
                     <q-item clickable @click="enviarWhatsApp(solicitud,'QuimicaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
                       <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
@@ -175,10 +158,6 @@
                       </q-item-section>
                     </q-item>
 
-                    <q-item clickable @click="printUroanalisis(solicitud)" v-close-popup dense v-if="solicitud.uroanalisis?.code && ($store.user.role === 'Administrador' || hasPermission('UROANÁLISIS'))">
-                      <q-item-section avatar><q-icon name="print" /></q-item-section>
-                      <q-item-section>Imprimir Uroanálisis</q-item-section>
-                    </q-item>
 
                     <!-- WhatsApp Uroanálisis -->
                     <q-item clickable @click="enviarWhatsApp(solicitud,'UroanalisisDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.uroanalisis?.code && ($store.user.role === 'Administrador' || hasPermission('UROANÁLISIS'))">
@@ -198,10 +177,6 @@
                       <q-item-section>Parasitología</q-item-section>
                     </q-item>
 
-                    <q-item clickable @click="printParasitologia(solicitud)" v-close-popup dense v-if="solicitud.parasitologia?.code && ($store.user.role === 'Administrador' || hasPermission('UROANÁLISIS'))">
-                      <q-item-section avatar><q-icon name="print" /></q-item-section>
-                      <q-item-section>Imprimir Parasitología</q-item-section>
-                    </q-item>
 
                     <!-- WhatsApp Parasitología -->
                     <q-item clickable @click="enviarWhatsApp(solicitud,'ParasitologiaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.parasitologia?.code && ($store.user.role === 'Administrador' || hasPermission('UROANÁLISIS'))">
@@ -277,10 +252,6 @@
                         Inmunología
                         <!--                        <pre>{{solicitud}}</pre>-->
                       </q-item-section>
-                    </q-item>
-                    <q-item clickable @click="printInmunologia(solicitud)" v-close-popup dense v-if="solicitud.inmunologia?.code && ($store.user.role === 'Administrador' || hasPermission('INMUNOLOGÍA'))">
-                      <q-item-section avatar><q-icon name="print" /></q-item-section>
-                      <q-item-section>Imprimir Inmunología</q-item-section>
                     </q-item>
 
                     <!-- WhatsApp Inmunología (solo si hay "code"; si tu backend no usa code, ajusta aquí) -->
