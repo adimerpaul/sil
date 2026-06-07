@@ -273,7 +273,7 @@ class QuimicaSanguineaController extends Controller
         $areaIdQuimica = 2;
         ServicioSolicitude::where('solicitude_id', $solicitudeId)
             ->where('area_id', $areaIdQuimica)
-            ->update(['realizado' => 'REALIZADO']);
+            ->update(['realizado' => 'REALIZADO', 'realizado_por' => auth()->user()->name ?? null]);
 
         if ($request->muestra_rechazada === 'Si') {
             $soliditude->muestra_rechazada = 'Si';

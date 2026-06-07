@@ -13,6 +13,7 @@ class UnidadSolicitante extends Model implements AuditableContract
 
     protected $fillable = [
         'nombre',
+        'abreviatura',
     ];
 
     protected $hidden = [

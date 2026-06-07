@@ -47,7 +47,7 @@ class PapilomaHumanoController extends Controller
         $areaIdHemato = 7;
         ServicioSolicitude::where('solicitude_id', $solicitudeId)
             ->where('area_id', $areaIdHemato)
-            ->update(['realizado' => 'REALIZADO']);
+            ->update(['realizado' => 'REALIZADO', 'realizado_por' => auth()->user()->name ?? null]);
         $soliditude = Solicitude::find($id);
         $soliditude->estado = 'ANALIZADO';
         $soliditude->fecha_finalizacion = now();

@@ -53,7 +53,7 @@ class UroanalisisController extends Controller
         $areaIdHemato = 3;
         ServicioSolicitude::where('solicitude_id', $solicitudeId)
             ->where('area_id', $areaIdHemato)
-            ->update(['realizado' => 'REALIZADO']);
+            ->update(['realizado' => 'REALIZADO', 'realizado_por' => auth()->user()->name ?? null]);
 
         $soliditude = Solicitude::find($solicitudeId);
         $soliditude->estado = 'ANALIZADO';
