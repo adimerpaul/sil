@@ -800,7 +800,10 @@ class SolicitudeController extends Controller
     function solicitudesAnalitica(Request $request)
     {
         $filter = $request->input('filter', '');
-        $fecha = $request->input('fecha', '');
+        $codigo = $request->input('codigo', '');
+        $from   = $request->input('from', now()->startOfMonth()->toDateString());
+        $to     = $request->input('to',   now()->endOfMonth()->toDateString());
+
         $query = Solicitude::with([
             'paciente', 'doctor', 'servicios.area', 'servicios.tiposMuestra', 'resultados',
             'hematologia',
@@ -843,8 +846,17 @@ class SolicitudeController extends Controller
             });
         }
 
-        if (!empty($fecha)) {
-            $query->whereDate('fecha_creacion', $fecha);
+        if (!empty($codigo)) {
+            $query->where(function ($q) use ($codigo) {
+                $q->where('codigo', 'like', "%$codigo%");
+            });
+        }
+
+        if (!empty($from)) {
+            $query->whereDate('fecha_creacion', '>=', $from);
+        }
+        if (!empty($to)) {
+            $query->whereDate('fecha_creacion', '<=', $to);
         }
 
         return $query->orderBy('id', 'desc')->get();
@@ -1280,10 +1292,12 @@ class SolicitudeController extends Controller
     }
     public function solicitudesAreaPreanaliticaEstado(Request $request)
     {
-        $fecha  = $request->query('fecha') ?: now()->toDateString();
-        $filter = trim((string) $request->query('filter', ''));
+        $from    = $request->query('from') ?: now()->startOfMonth()->toDateString();
+        $to      = $request->query('to')   ?: now()->endOfMonth()->toDateString();
+        $filter  = trim((string) $request->query('filter', ''));
+        $codigo  = trim((string) $request->query('codigo', ''));
         $perPage = (int) $request->query('per_page', 10);
-        $perPage = max(1, min($perPage, 100)); // límite sano
+        $perPage = max(1, min($perPage, 300));
 
         $query = Solicitude::with([
             'paciente',
@@ -1296,7 +1310,8 @@ class SolicitudeController extends Controller
             'userAnalitica',
             'user',
         ])
-            ->whereDate('fecha_creacion', $fecha)
+            ->whereDate('fecha_creacion', '>=', $from)
+            ->whereDate('fecha_creacion', '<=', $to)
             ->whereIn('estado', ['ATENDIENDO','MUESTRA RECHAZADA','ENVIADO_ANALITICA','ANALIZADO','MUESTRA NO TOMADA']);
 
 
@@ -1309,16 +1324,24 @@ class SolicitudeController extends Controller
             });
         }
 
+        if (!empty($codigo)) {
+            $query->where(function ($q) use ($codigo) {
+                $q->where('codigo', 'like', "%$codigo%");
+            });
+        }
+
         $query->orderByRaw("FIELD(estado, 'ATENDIENDO', 'ENVIADO_ANALITICA', 'ANALIZADO', 'MUESTRA RECHAZADA', 'MUESTRA NO TOMADA') ASC")
             ->orderByDesc('id');
 
-        return $query->paginate($perPage); // usa ?page= y devuelve total/data/etc
+        return $query->paginate($perPage);
     }
 
     public function solicitudesAreaPreanalitica(Request $request)
     {
-        $filter = $request->input('filter', '');
-        $fecha = $request->input('fecha', '');
+        $filter  = $request->input('filter', '');
+        $codigo  = $request->input('codigo', '');
+        $from    = $request->input('from', now()->startOfMonth()->toDateString());
+        $to      = $request->input('to',   now()->endOfMonth()->toDateString());
 
         $query = Solicitude::with([
             'paciente',
@@ -1332,13 +1355,20 @@ class SolicitudeController extends Controller
             'solicitudRechazadas.user',
             'solicitudRechazadas.area',
         ])
-            ->whereDate('fecha_creacion', $fecha)
+            ->whereDate('fecha_creacion', '>=', $from)
+            ->whereDate('fecha_creacion', '<=', $to)
             ->whereIn('estado', ['CREADO', 'ATENDIENDO','MUESTRA RECHAZADA']);
 
         if (!empty($filter)) {
             $query->whereHas('paciente', function ($q) use ($filter) {
                 $q->where('nombre_completo', 'like', "%$filter%")
                     ->orWhere('ci', 'like', "%$filter%");
+            });
+        }
+
+        if (!empty($codigo)) {
+            $query->where(function ($q) use ($codigo) {
+                $q->where('codigo', 'like', "%$codigo%");
             });
         }
 
@@ -1533,6 +1563,13 @@ class SolicitudeController extends Controller
 
         if ($request->filled('tipo_atencion')) {
             $query->where('tipo_atencion', $request->tipo_atencion);
+        }
+
+        if ($request->filled('codigo')) {
+            $c = $request->codigo;
+            $query->where(function ($q) use ($c) {
+                $q->where('codigo', 'like', "%$c%");
+            });
         }
 
         return $query->orderBy('id', 'desc')->get();
