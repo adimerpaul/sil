@@ -59,29 +59,29 @@
           <span class="text-caption text-grey-6 q-mr-xs">Filtrar por estado:</span>
           <q-chip
             dense square clickable class="q-ma-none text-caption"
-            :color="filters.estado === '' ? 'blue-grey-7' : 'grey-3'"
-            :text-color="filters.estado === '' ? 'white' : 'grey-7'"
+            :color="filters.estado === '' ? 'blue-grey-7' : 'blue-grey-2'"
+            :text-color="filters.estado === '' ? 'white' : 'blue-grey-9'"
             icon="list"
             @click="setEstado('')"
           >Todos</q-chip>
           <q-chip
             dense square clickable class="q-ma-none text-caption"
-            :color="filters.estado === 'pendiente' ? 'grey-7' : 'grey-3'"
-            :text-color="filters.estado === 'pendiente' ? 'white' : 'grey-8'"
+            :color="filters.estado === 'pendiente' ? 'orange-7' : 'orange-2'"
+            :text-color="filters.estado === 'pendiente' ? 'white' : 'orange-10'"
             icon="hourglass_empty"
             @click="setEstado('pendiente')"
           >Pendiente</q-chip>
           <q-chip
             dense square clickable class="q-ma-none text-caption"
-            :color="filters.estado === 'con_resultado' ? 'orange-7' : 'grey-3'"
-            :text-color="filters.estado === 'con_resultado' ? 'white' : 'grey-8'"
+            :color="filters.estado === 'con_resultado' ? 'teal-7' : 'teal-2'"
+            :text-color="filters.estado === 'con_resultado' ? 'white' : 'teal-10'"
             icon="science"
             @click="setEstado('con_resultado')"
           >Con resultado</q-chip>
           <q-chip
             dense square clickable class="q-ma-none text-caption"
-            :color="filters.estado === 'recogido' ? 'green-7' : 'grey-3'"
-            :text-color="filters.estado === 'recogido' ? 'white' : 'grey-8'"
+            :color="filters.estado === 'recogido' ? 'green-7' : 'green-2'"
+            :text-color="filters.estado === 'recogido' ? 'white' : 'green-10'"
             icon="check_circle"
             @click="setEstado('recogido')"
           >Recogido</q-chip>

@@ -442,7 +442,7 @@
                                         @if($canServicios(['COLESTEROL','PERFIL LIPÍDICO O LIPIDOGRAMA (COLESTEROL, TRIGLICERIDOS, HDLc,LDLc,VLDLc)']))
                                             <tr>
                                                 <td>Colesterol total</td>
-                                                <td class="center">{{ val($q,'colesterol_total') }}</td>
+                                                <td class="center {{ outOfRangeQ('Colesterol total',val($q,'colesterol_total'),$rangosMap)?'out-range':'' }}">{{ val($q,'colesterol_total') }}</td>
                                                 <td class="center">{{ rangoTexto('Colesterol total',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Colesterol total',$rangosMap) }}</td>
                                             </tr>
@@ -451,7 +451,7 @@
                                         @if($canServicios(['TRIGLICÉRIDOS','PERFIL LIPÍDICO O LIPIDOGRAMA (COLESTEROL, TRIGLICERIDOS, HDLc,LDLc,VLDLc)']))
                                             <tr>
                                                 <td>Triglicéridos</td>
-                                                <td class="center">{{ val($q,'trigliceridos') }}</td>
+                                                <td class="center {{ outOfRangeQ('Triglicéridos',val($q,'trigliceridos'),$rangosMap)?'out-range':'' }}">{{ val($q,'trigliceridos') }}</td>
                                                 <td class="center">{{ rangoTexto('Triglicéridos',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Triglicéridos',$rangosMap) }}</td>
                                             </tr>
@@ -460,19 +460,19 @@
                                         @if($canServicios(['HDLc, LDLc, VLDLc','PERFIL LIPÍDICO O LIPIDOGRAMA (COLESTEROL, TRIGLICERIDOS, HDLc,LDLc,VLDLc)']))
                                             <tr>
                                                 <td>HDL</td>
-                                                <td class="center">{{ val($q,'hdl_colesterol') }}</td>
+                                                <td class="center {{ outOfRangeQ('HDL Colesterol',val($q,'hdl_colesterol'),$rangosMap)?'out-range':'' }}">{{ val($q,'hdl_colesterol') }}</td>
                                                 <td class="center">{{ rangoTexto('HDL Colesterol',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('HDL Colesterol',$rangosMap) }}</td>
                                             </tr>
                                             <tr>
                                                 <td>LDL</td>
-                                                <td class="center">{{ val($q,'ldl_colesterol') }}</td>
+                                                <td class="center {{ outOfRangeQ('LDL Colesterol',val($q,'ldl_colesterol'),$rangosMap)?'out-range':'' }}">{{ val($q,'ldl_colesterol') }}</td>
                                                 <td class="center">{{ rangoTexto('LDL Colesterol',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('LDL Colesterol',$rangosMap) }}</td>
                                             </tr>
                                             <tr>
                                                 <td>VLDL</td>
-                                                <td class="center">{{ val($q,'vldl_colesterol') }}</td>
+                                                <td class="center {{ outOfRangeQ('VLDL Colesterol',val($q,'vldl_colesterol'),$rangosMap)?'out-range':'' }}">{{ val($q,'vldl_colesterol') }}</td>
                                                 <td class="center">{{ rangoTexto('VLDL Colesterol',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('VLDL Colesterol',$rangosMap) }}</td>
                                             </tr>
@@ -502,7 +502,7 @@
                                         @if($canServicios('CK TOTAL'))
                                             <tr>
                                                 <td>CK-Total</td>
-                                                <td class="center">{{ val($q,'ck_total') }}</td>
+                                                <td class="center {{ outOfRangeQ('CK-Total',val($q,'ck_total'),$rangosMap)?'out-range':'' }}">{{ val($q,'ck_total') }}</td>
                                                 <td class="center">{{ rangoTexto('CK-Total',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('CK-Total',$rangosMap) }}</td>
                                             </tr>
@@ -511,7 +511,7 @@
                                         @if($canServicios('CK MB'))
                                             <tr>
                                                 <td>CK MB</td>
-                                                <td class="center">{{ val($q,'ck_mb') }}</td>
+                                                <td class="center {{ outOfRangeQ('CK-MB',val($q,'ck_mb'),$rangosMap)?'out-range':'' }}">{{ val($q,'ck_mb') }}</td>
                                                 <td class="center">{{ rangoTexto('CK-MB',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('CK-MB',$rangosMap) }}</td>
                                             </tr>
@@ -529,7 +529,7 @@
                                         @if($canServicios('LIPASA'))
                                             <tr>
                                                 <td>Lipasa</td>
-                                                <td class="center">{{ val($q,'lipasa') }}</td>
+                                                <td class="center {{ outOfRangeQ('Lipasa',val($q,'lipasa'),$rangosMap)?'out-range':'' }}">{{ val($q,'lipasa') }}</td>
                                                 <td class="center">{{ rangoTexto('Lipasa',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Lipasa',$rangosMap) }}</td>
                                             </tr>
@@ -564,19 +564,19 @@
                                         @if($canServicios(['BILIRRUBINAS TOTALES Y FRACCIONADAS','PERFIL HEPÁTICO O HEPATOGRAMA (BILIRRUBINAS TOTALES Y FRACCIONADAS, FOSFATASA ALCALINA, GOT, GPT, GGT, TP)']))
                                             <tr>
                                                 <td>Bilirrubina Total</td>
-                                                <td class="center">{{ val($q,'bilirrubina_total') }}</td>
+                                                <td class="center {{ outOfRangeQ('Bilirrubina Total',val($q,'bilirrubina_total'),$rangosMap)?'out-range':'' }}">{{ val($q,'bilirrubina_total') }}</td>
                                                 <td class="center">{{ rangoTexto('Bilirrubina Total',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Bilirrubina Total',$rangosMap) }}</td>
                                             </tr>
                                             <tr>
                                                 <td>Bilirrubina Directa</td>
-                                                <td class="center">{{ val($q,'bilirrubina_directa') }}</td>
+                                                <td class="center {{ outOfRangeQ('Bilirrubina Directa',val($q,'bilirrubina_directa'),$rangosMap)?'out-range':'' }}">{{ val($q,'bilirrubina_directa') }}</td>
                                                 <td class="center">{{ rangoTexto('Bilirrubina Directa',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Bilirrubina Directa',$rangosMap) }}</td>
                                             </tr>
                                             <tr>
                                                 <td>Bilirrubina Indirecta</td>
-                                                <td class="center">{{ val($q,'bilirrubina_indirecta') }}</td>
+                                                <td class="center {{ outOfRangeQ('Bilirrubina Indirecta',val($q,'bilirrubina_indirecta'),$rangosMap)?'out-range':'' }}">{{ val($q,'bilirrubina_indirecta') }}</td>
                                                 <td class="center">{{ rangoTexto('Bilirrubina Indirecta',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Bilirrubina Indirecta',$rangosMap) }}</td>
                                             </tr>
@@ -585,7 +585,7 @@
                                         @if($canServicios(['TRANSAMINASAS GOT- (ALT)','PERFIL HEPÁTICO O HEPATOGRAMA (BILIRRUBINAS TOTALES Y FRACCIONADAS, FOSFATASA ALCALINA, GOT, GPT, GGT, TP)']))
                                             <tr>
                                                 <td>G.O.T. (TGO)</td>
-                                                <td class="center">{{ val($q,'got') }}</td>
+                                                <td class="center {{ outOfRangeQ('G.O.T. (TGO)',val($q,'got'),$rangosMap)?'out-range':'' }}">{{ val($q,'got') }}</td>
                                                 <td class="center">{{ rangoTexto('G.O.T. (TGO)',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('G.O.T. (TGO)',$rangosMap) }}</td>
                                             </tr>
@@ -594,7 +594,7 @@
                                         @if($canServicios(['TRANSAMINASAS GPT','PERFIL HEPÁTICO O HEPATOGRAMA (BILIRRUBINAS TOTALES Y FRACCIONADAS, FOSFATASA ALCALINA, GOT, GPT, GGT, TP)']))
                                             <tr>
                                                 <td>G.P.T. (TGP)</td>
-                                                <td class="center">{{ val($q,'gpt') }}</td>
+                                                <td class="center {{ outOfRangeQ('G.P.T. (TGP)',val($q,'gpt'),$rangosMap)?'out-range':'' }}">{{ val($q,'gpt') }}</td>
                                                 <td class="center">{{ rangoTexto('G.P.T. (TGP)',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('G.P.T. (TGP)',$rangosMap) }}</td>
                                             </tr>
@@ -603,7 +603,7 @@
                                         @if($canServicios(['FOSFATASA ALCALINA','PERFIL HEPÁTICO O HEPATOGRAMA (BILIRRUBINAS TOTALES Y FRACCIONADAS, FOSFATASA ALCALINA, GOT, GPT, GGT, TP)']))
                                             <tr>
                                                 <td>Fosfatasa Alcalina</td>
-                                                <td class="center">{{ val($q,'fosfatasa_alcalina') }}</td>
+                                                <td class="center {{ outOfRangeQ('Fosfatasa Alcalina',val($q,'fosfatasa_alcalina'),$rangosMap)?'out-range':'' }}">{{ val($q,'fosfatasa_alcalina') }}</td>
                                                 <td class="center">{{ rangoTexto('Fosfatasa Alcalina',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Fosfatasa Alcalina',$rangosMap) }}</td>
                                             </tr>
@@ -612,7 +612,7 @@
                                         @if($canServicios(['GAMA GLUTAMIL TRANSFERASA (GGT)','PERFIL HEPÁTICO O HEPATOGRAMA (BILIRRUBINAS TOTALES Y FRACCIONADAS, FOSFATASA ALCALINA, GOT, GPT, GGT, TP)']))
                                             <tr>
                                                 <td>GGT</td>
-                                                <td class="center">{{ val($q,'ggt') }}</td>
+                                                <td class="center {{ outOfRangeQ('GGT',val($q,'ggt'),$rangosMap)?'out-range':'' }}">{{ val($q,'ggt') }}</td>
                                                 <td class="center">{{ rangoTexto('GGT',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('GGT',$rangosMap) }}</td>
                                             </tr>
@@ -621,7 +621,7 @@
                                         @if($canServicios('AMILASA'))
                                             <tr>
                                                 <td>Amilasa</td>
-                                                <td class="center">{{ val($q,'amilasa') }}</td>
+                                                <td class="center {{ outOfRangeQ('Amilasa',val($q,'amilasa'),$rangosMap)?'out-range':'' }}">{{ val($q,'amilasa') }}</td>
                                                 <td class="center">{{ rangoTexto('Amilasa',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Amilasa',$rangosMap) }}</td>
                                             </tr>
@@ -652,19 +652,19 @@
                                         @if($canServicios(['ELECTROLITOS (SODIO, POTASIO, CLORO) (NA,K,CL)','IONOGRAMA (NA,K,CL,CA,Mg,P)']))
                                             <tr>
                                                 <td>Sodio</td>
-                                                <td class="center">{{ val($q,'sodio') }}</td>
+                                                <td class="center {{ outOfRangeQ('Sodio',val($q,'sodio'),$rangosMap)?'out-range':'' }}">{{ val($q,'sodio') }}</td>
                                                 <td class="center">{{ rangoTexto('Sodio',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Sodio',$rangosMap) }}</td>
                                             </tr>
                                             <tr>
                                                 <td>Potasio</td>
-                                                <td class="center">{{ val($q,'potasio') }}</td>
+                                                <td class="center {{ outOfRangeQ('Potasio',val($q,'potasio'),$rangosMap)?'out-range':'' }}">{{ val($q,'potasio') }}</td>
                                                 <td class="center">{{ rangoTexto('Potasio',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Potasio',$rangosMap) }}</td>
                                             </tr>
                                             <tr>
                                                 <td>Cloro</td>
-                                                <td class="center">{{ val($q,'cloro') }}</td>
+                                                <td class="center {{ outOfRangeQ('Cloro',val($q,'cloro'),$rangosMap)?'out-range':'' }}">{{ val($q,'cloro') }}</td>
                                                 <td class="center">{{ rangoTexto('Cloro',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Cloro',$rangosMap) }}</td>
                                             </tr>
@@ -673,7 +673,7 @@
                                         @if($canServicios(['CALCIO','IONOGRAMA (NA,K,CL,CA,Mg,P)']))
                                             <tr>
                                                 <td>Calcio</td>
-                                                <td class="center">{{ val($q,'calcio') }}</td>
+                                                <td class="center {{ outOfRangeQ('Calcio',val($q,'calcio'),$rangosMap)?'out-range':'' }}">{{ val($q,'calcio') }}</td>
                                                 <td class="center">{{ rangoTexto('Calcio',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Calcio',$rangosMap) }}</td>
                                             </tr>
@@ -682,7 +682,7 @@
                                         @if($canServicios(['FÓSFORO','IONOGRAMA (NA,K,CL,CA,Mg,P)']))
                                             <tr>
                                                 <td>Fósforo</td>
-                                                <td class="center">{{ val($q,'fosforo') }}</td>
+                                                <td class="center {{ outOfRangeQ('Fósforo',val($q,'fosforo'),$rangosMap)?'out-range':'' }}">{{ val($q,'fosforo') }}</td>
                                                 <td class="center">{{ rangoTexto('Fósforo',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Fósforo',$rangosMap) }}</td>
                                             </tr>
@@ -691,7 +691,7 @@
                                         @if($canServicios(['MAGNESIO','IONOGRAMA (NA,K,CL,CA,Mg,P)']))
                                             <tr>
                                                 <td>Magnesio</td>
-                                                <td class="center">{{ val($q,'magnesio') }}</td>
+                                                <td class="center {{ outOfRangeQ('Magnesio',val($q,'magnesio'),$rangosMap)?'out-range':'' }}">{{ val($q,'magnesio') }}</td>
                                                 <td class="center">{{ rangoTexto('Magnesio',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Magnesio',$rangosMap) }}</td>
                                             </tr>
@@ -754,7 +754,7 @@
                                                         @if($canServicios('CREATININA EN ORINA (CREATINURIA)'))
                                                             <tr>
                                                                 <td>Creatinuria 24 hrs.</td>
-                                                                <td class="center">{{ val($q,'creatinuria_24h') }}</td>
+                                                                <td class="center {{ outOfRangeQ('Creatinuria 24 hrs.',val($q,'creatinuria_24h'),$rangosMap)?'out-range':'' }}">{{ val($q,'creatinuria_24h') }}</td>
                                                                 <td class="center">{{ rangoTexto('Creatinuria 24 hrs.',$rangosMap) }}</td>
                                                                 <td class="center">{{ rangoUnidad('Creatinuria 24 hrs.',$rangosMap) }}</td>
                                                             </tr>
@@ -763,7 +763,7 @@
                                                         @if($canServicios(['PROTEINURIA 24 HRS','CREATININA EN ORINA (CREATINURIA)']) && hasVal($q,'creatinuria_casual'))
                                                             <tr>
                                                                 <td>Creatinuria Casual</td>
-                                                                <td class="center">{{ val($q,'creatinuria_casual') }}</td>
+                                                                <td class="center {{ outOfRangeQ('Creatinuria Casual',val($q,'creatinuria_casual'),$rangosMap)?'out-range':'' }}">{{ val($q,'creatinuria_casual') }}</td>
                                                                 <td class="center">{{ rangoTexto('Creatinuria Casual',$rangosMap) }}</td>
                                                                 <td class="center">{{ rangoUnidad('Creatinuria Casual',$rangosMap) }}</td>
                                                             </tr>
@@ -772,7 +772,7 @@
                                                         @if($canServicios('PROTEINURIA 24 HRS'))
                                                             <tr>
                                                                 <td>Proteinuria de 24 hrs.</td>
-                                                                <td class="center">{{ val($q,'proteinuria_24h') }}</td>
+                                                                <td class="center {{ outOfRangeQ('Proteinuria de 24 hrs.',val($q,'proteinuria_24h'),$rangosMap)?'out-range':'' }}">{{ val($q,'proteinuria_24h') }}</td>
                                                                 <td class="center">{{ rangoTexto('Proteinuria de 24 hrs.',$rangosMap) }}</td>
                                                                 <td class="center">{{ rangoUnidad('Proteinuria de 24 hrs.',$rangosMap) }}</td>
                                                             </tr>
@@ -781,7 +781,7 @@
                                                         @if($canServicios(['PROTEINURIA 24 HRS','CREATININA EN ORINA (CREATINURIA)','CLEARENCE DE CREATININA']))
                                                             <tr>
                                                                 <td>Volumen 24 h</td>
-                                                                <td class="center">{{ val($q,'volumen_24h') }}</td>
+                                                                <td class="center {{ outOfRangeQ('VOLUMEN',val($q,'volumen_24h'),$rangosMap)?'out-range':'' }}">{{ val($q,'volumen_24h') }}</td>
                                                                 <td class="center">{{ rangoTexto('VOLUMEN',$rangosMap) }}</td>
                                                                 <td class="center">{{ rangoUnidad('VOLUMEN',$rangosMap) }}</td>
                                                             </tr>
@@ -789,7 +789,7 @@
                                                         @if($canServicios('CLEARENCE DE CREATININA') || hasVal($q,'dce'))
                                                             <tr>
                                                                 <td>DCE</td>
-                                                                <td class="center">{{ val($q,'dce') }}</td>
+                                                                <td class="center {{ outOfRangeQ('DCE',val($q,'dce'),$rangosMap)?'out-range':'' }}">{{ val($q,'dce') }}</td>
                                                                 <td class="center">{{ rangoTexto('DCE',$rangosMap) ?: 'H: 97-137 / M: 88-128' }}</td>
                                                                 <td class="center">{{ rangoUnidad('DCE',$rangosMap) ?: 'ml/min' }}</td>
                                                             </tr>
@@ -1145,7 +1145,7 @@
                                         @if(hasVal($q,'citoquimico_ph'))
                                             <tr>
                                                 <td>pH</td>
-                                                <td class="center">{{ val($q,'citoquimico_ph') }}</td>
+                                                <td class="center {{ outOfRangeQ('pH',val($q,'citoquimico_ph'),$rangosMap)?'out-range':'' }}">{{ val($q,'citoquimico_ph') }}</td>
                                                 <td class="center">{{ rangoTexto('pH',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('pH',$rangosMap) }}</td>
                                             </tr>
@@ -1161,7 +1161,7 @@
                                         @if(hasVal($q,'citoquimico_densidad'))
                                             <tr>
                                                 <td>Densidad</td>
-                                                <td class="center">{{ val($q,'citoquimico_densidad') }}</td>
+                                                <td class="center {{ outOfRangeQ('Densidad',val($q,'citoquimico_densidad'),$rangosMap)?'out-range':'' }}">{{ val($q,'citoquimico_densidad') }}</td>
                                                 <td class="center">{{ rangoTexto('Densidad',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Densidad',$rangosMap) }}</td>
                                             </tr>

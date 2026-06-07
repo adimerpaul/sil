@@ -606,6 +606,7 @@ class ReporteServiciosController extends Controller
             }))
             ->select(
                 's.id',
+                's.codigo',
                 's.codigo_solicitud',
                 's.fecha_solicitud',
                 's.hora_solicitud',

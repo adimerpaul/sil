@@ -10,14 +10,22 @@
           </div>
         </div>
         <div class="col-12 col-sm-2">
-          <!--          fecha-->
+          <q-input v-model="from" dense outlined label="Desde" type="date" />
+        </div>
+        <div class="col-12 col-sm-2">
+          <q-input v-model="to" dense outlined label="Hasta" type="date" />
+        </div>
+
+        <div class="col-12 col-sm-2">
           <q-input
-            v-model="fecha"
+            v-model="codigoFilter"
             dense
             outlined
-            label="Fecha de Solicitud"
-            type="date"
-          />
+            clearable
+            label="Código solicitud"
+          >
+            <template #prepend><q-icon name="tag" /></template>
+          </q-input>
         </div>
 
         <div class="col-12 col-sm-2">
@@ -26,7 +34,7 @@
             dense
             outlined
             debounce="400"
-            label="Buscar (paciente / CI / establecimiento)"
+            label="Buscar paciente / CI"
           >
             <template #prepend>
               <q-icon name="search" />
@@ -157,18 +165,8 @@
         <!-- COLUMNA CÓDIGO -->
         <template #body-cell-codigo="props">
           <q-td :props="props">
-            <div v-if="props.row.codigo">
-              <!--              <q-chip dense color="deep-purple-6" text-color="white" icon="confirmation_number">-->
-              <span class="text-bold">
-                {{ props.row.codigo }} -
-                {{ props.row.nro_registro }}
-                </span>
-              <!--              </q-chip>-->
-              <!--              <pre>{{props.row}}</pre>-->
-            </div>
-            <div v-else class="text-negative text-caption">
-              Sin código
-            </div>
+            <span v-if="props.row.codigo" class="text-bold text-primary">{{ props.row.codigo }}</span>
+            <span v-else class="text-negative text-caption">Sin código</span>
           </q-td>
         </template>
 
@@ -990,7 +988,9 @@ export default {
       dialogConsentimiento: false,
       dialogTestEmbarazo: false,
       rows: [],
-      fecha: moment().format('YYYY-MM-DD'),
+      from: moment().startOf('month').format('YYYY-MM-DD'),
+      to: moment().endOf('month').format('YYYY-MM-DD'),
+      codigoFilter: '',
       loading: false,
       moment: moment,
       filter: '',
@@ -1022,6 +1022,13 @@ export default {
       columns: [
         { name: 'actions', label: 'Opciones', field: 'id', align: 'left' },
         {
+          name: 'codigo',
+          label: 'Código',
+          field: 'codigo',
+          align: 'left',
+          style: 'font-weight:600'
+        },
+        {
           name: 'fecha_creacion',
           label: 'Fecha Solicitud',
           field: row => row.fecha_creacion,
@@ -1037,7 +1044,6 @@ export default {
           sortable: true,
           align: 'left'
         },
-        // userPreanalitica
         {
           name: 'user_preanalitica',
           label: 'Responsable Preanalítica',
@@ -1055,13 +1061,6 @@ export default {
           name: 'paciente',
           label: 'Paciente',
           field: row => row.paciente_nombre || (row.paciente && row.paciente.nombre_completo) || '',
-          align: 'left'
-        },
-        // doctor
-        {
-          name: 'codigo',
-          label: 'Código',
-          field: 'codigo',
           align: 'left'
         },
         {
@@ -1119,9 +1118,9 @@ export default {
     this.areasTipoMuestrasGet()
   },
   watch: {
-    fecha () {
-      this.resetToFirstPageAndReload()
-    },
+    from () { this.resetToFirstPageAndReload() },
+    to ()   { this.resetToFirstPageAndReload() },
+    codigoFilter () { this.resetToFirstPageAndReload() },
     filter () {
       this.resetToFirstPageAndReload()
     }
@@ -1254,9 +1253,10 @@ export default {
         })
     },
     imprimirSolicitud () {
-      const base = this.$axios.defaults.baseURL // ej: http://tuapi/api
+      const base = this.$axios.defaults.baseURL
       const qs = new URLSearchParams({
-        fecha: this.fecha || '',
+        from: this.from || '',
+        to: this.to || '',
         filter: this.filter || ''
       }).toString()
 
@@ -1512,7 +1512,9 @@ export default {
       this.loading = true
       this.$axios.get('solicitudes-area-preanalitica-estado', {
         params: {
-          fecha: this.fecha,
+          from: this.from,
+          to: this.to,
+          codigo: this.codigoFilter || '',
           page: pagination.page,
           per_page: pagination.rowsPerPage,
           filter: filter || ''

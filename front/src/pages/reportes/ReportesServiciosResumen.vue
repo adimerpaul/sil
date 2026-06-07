@@ -380,8 +380,7 @@ export default {
       servicioOptionsFiltrados: [],
 
       columns: [
-        { name: 'id',               label: 'ID',     field: 'id',               align: 'center', sortable: true },
-        { name: 'codigo_solicitud', label: 'Código', field: 'codigo_solicitud', align: 'left', sortable: true },
+        { name: 'codigo',           label: 'Código', field: 'codigo',           align: 'center', sortable: true, style: 'font-weight:600' },
         { name: 'fecha_solicitud',  label: 'Fecha',  field: 'fecha_solicitud',  align: 'center', sortable: true },
         { name: 'paciente_nombre',  label: 'Paciente', field: 'paciente_nombre', align: 'left', sortable: true },
         { name: 'paciente_ci',      label: 'CI',     field: 'paciente_ci',      align: 'center', sortable: true },

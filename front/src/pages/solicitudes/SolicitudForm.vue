@@ -774,7 +774,7 @@
 <!--            ☐ Tiempo de coagulación y tiempo de sangría-->
             <div class="col-12 col-md-6">
               <q-checkbox v-model="extras.tiempo_coagulacion" :true-value="1" :false-value="null" dense
-                @update:model-value="selecinarCodigo([10,12,13])"
+                @update:model-value="selecinarCodigo([10,12,13,1])"
                           class="text-subtitle2"
               >
                 Coagulograma

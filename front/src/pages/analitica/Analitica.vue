@@ -10,40 +10,42 @@
           <!--          </div>-->
         </div>
 
-        <div class="col-12 col-sm-3">
+        <div class="col-12 col-sm-2">
+          <q-input v-model="from" type="date" dense outlined label="Desde">
+            <template #prepend><q-icon name="event" /></template>
+          </q-input>
+        </div>
+        <div class="col-12 col-sm-2">
+          <q-input v-model="to" type="date" dense outlined label="Hasta">
+            <template #prepend><q-icon name="event" /></template>
+          </q-input>
+        </div>
+
+        <div class="col-12 col-sm-2">
+          <q-input
+            v-model="codigoFilter"
+            dense
+            outlined
+            clearable
+            label="Código solicitud"
+          >
+            <template #prepend><q-icon name="tag" /></template>
+          </q-input>
+        </div>
+
+        <div class="col-12 col-sm-2">
           <q-input
             v-model="filter"
             dense
             outlined
             debounce="400"
-            label="Buscar (paciente / CI / establecimiento)"
+            label="Buscar paciente / CI"
           >
             <template #prepend>
               <q-icon name="search" />
             </template>
             <template #append>
-              <q-btn
-                flat
-                round
-                dense
-                icon="clear"
-                @click="clearFilter"
-                v-if="filter"
-              />
-            </template>
-          </q-input>
-        </div>
-        <!--        inout fecha-->
-        <div class="col-12 col-sm-3">
-          <q-input
-            v-model="fecha"
-            type="date"
-            dense
-            outlined
-            label="Fecha de Solicitud"
-          >
-            <template #prepend>
-              <q-icon name="event" />
+              <q-btn flat round dense icon="clear" @click="clearFilter" v-if="filter" />
             </template>
           </q-input>
         </div>
@@ -72,7 +74,7 @@
             <thead>
             <tr class="bg-primary text-white" >
               <th>Opciones</th>
-              <th>Codigo Solicitud</th>
+              <th>Código</th>
               <th>Paciente</th>
               <th>CI</th>
               <th>Establecimiento</th>
@@ -89,7 +91,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="solicitud in solicitudes" :key="solicitud.id" style="cursor: pointer;" >
+            <tr v-for="solicitud in solicitudesPaginadas" :key="solicitud.id" style="cursor: pointer;" >
               <td>
               <q-btn-dropdown dense color="primary" no-caps label="Opciones" size="10px">
                   <q-list>
@@ -426,7 +428,7 @@
                   </q-list>
                 </q-btn-dropdown>
               </td>
-              <td>{{ solicitud.codigo_solicitud }}</td>
+              <td class="text-bold text-primary">{{ solicitud.codigo }}</td>
               <td>{{ solicitud.paciente_nombre }}</td>
               <td>{{ solicitud.paciente_ci }}</td>
               <td>{{ solicitud.establecimiento_salud }}</td>
@@ -484,6 +486,32 @@
             </tr>
             </tbody>
           </q-markup-table>
+
+          <!-- Paginación -->
+          <div class="row items-center justify-between q-px-sm q-py-xs q-mt-xs">
+            <div class="col-auto text-caption text-grey-7">
+              Mostrando <b>{{ paginacionInfo.desde }}-{{ paginacionInfo.hasta }}</b> de <b>{{ solicitudes.length }}</b> solicitudes
+            </div>
+            <div class="col-auto row items-center q-gutter-sm">
+              <q-select
+                v-model="rowsPerPage"
+                :options="[10, 25, 50, 100]"
+                dense outlined options-dense
+                style="width:85px"
+                label="Filas"
+              />
+              <q-pagination
+                v-model="page"
+                :max="pagesNumber"
+                max-pages="7"
+                boundary-links direction-links
+                icon-first="first_page" icon-last="last_page"
+                icon-prev="chevron_left" icon-next="chevron_right"
+                size="sm"
+                color="primary"
+              />
+            </div>
+          </div>
         </div>
       </q-card-section>
     </q-card>
@@ -493,7 +521,7 @@
     <q-card>
       <q-card-section class="row items-center bg-teal text-white q-pa-sm">
         <q-icon name="print" size="24px" class="q-mr-sm" />
-        <div class="text-subtitle1 text-weight-bold">Registro de entrega — {{ fecha }}</div>
+        <div class="text-subtitle1 text-weight-bold">Registro de entrega — {{ from }} / {{ to }}</div>
         <q-space />
         <q-chip color="white" text-color="teal" dense icon="checklist">{{ seleccionadosSolicitudes.length }} solicitudes</q-chip>
         <q-btn flat round dense icon="close" color="white" v-close-popup class="q-ml-sm" />
@@ -567,10 +595,15 @@ export default {
   name: 'AreaAnaliticaListPage',
   data () {
     return {
+      from: moment().startOf('month').format('YYYY-MM-DD'),
+      to: moment().endOf('month').format('YYYY-MM-DD'),
       fecha: moment().format('YYYY-MM-DD'),
+      codigoFilter: '',
       solicitudes: [],
       loading: false,
       filter: '',
+      page: 1,
+      rowsPerPage: 25,
       dialogPresentacion: false,
       loadingPresentacion: false,
       gruposPresentacion: [],
@@ -580,6 +613,20 @@ export default {
   computed: {
     seleccionadosSolicitudes () {
       return [...new Set(this.seleccionados)]
+    },
+    pagesNumber () {
+      return Math.max(1, Math.ceil(this.solicitudes.length / this.rowsPerPage))
+    },
+    solicitudesPaginadas () {
+      const start = (this.page - 1) * this.rowsPerPage
+      return this.solicitudes.slice(start, start + this.rowsPerPage)
+    },
+    paginacionInfo () {
+      const total = this.solicitudes.length
+      if (!total) return { desde: 0, hasta: 0 }
+      const desde = (this.page - 1) * this.rowsPerPage + 1
+      const hasta = Math.min(this.page * this.rowsPerPage, total)
+      return { desde, hasta }
     }
   },
   mounted () {
@@ -751,10 +798,13 @@ export default {
       try {
         const params = {
           filter: this.filter,
-          fecha: this.fecha,
+          from: this.from,
+          to: this.to,
+          codigo: this.codigoFilter || '',
         }
         const response = await this.$axios.get('/solicitudesAnalitica', { params })
         this.solicitudes = response.data
+        this.page = 1
       } catch (error) {
         this.$alert.error('Error al cargar las solicitudes de analítica.')
       } finally {
@@ -771,7 +821,7 @@ export default {
     async cargarParaPresentacion () {
       this.loadingPresentacion = true
       try {
-        const res = await this.$axios.get('analitica/para-presentacion', { params: { fecha: this.fecha } })
+        const res = await this.$axios.get('analitica/para-presentacion', { params: { fecha: this.from } })
         this.gruposPresentacion = res.data
         this.seleccionados = []
         this.gruposPresentacion.forEach(g => {
@@ -810,7 +860,7 @@ export default {
           solicitude_ids: this.seleccionadosSolicitudes
         })
         const base = this.$axios.defaults.baseURL.replace(/\/api\/?$/, '')
-        window.open(`${base}/api/analitica/pdf-presentacion?fecha=${this.fecha}`, '_blank')
+        window.open(`${base}/api/analitica/pdf-presentacion?fecha=${this.from}`, '_blank')
       } catch {
         this.$alert.error('Error al registrar la presentación.')
       } finally {

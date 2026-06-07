@@ -20,8 +20,13 @@
       </q-card-section>
 
       <q-card-section class="row items-center q-col-gutter-xs">
-        <div class="col-12 col-sm-6">
-          <q-input dense outlined v-model="filter" label="Buscar">
+        <div class="col-12 col-sm-3">
+          <q-input dense outlined v-model="filters.codigo" label="Código solicitud" clearable>
+            <template #prepend><q-icon name="tag" /></template>
+          </q-input>
+        </div>
+        <div class="col-12 col-sm-3">
+          <q-input dense outlined v-model="filter" label="Buscar paciente / CI">
             <template #append><q-icon name="search" /></template>
           </q-input>
         </div>
@@ -89,7 +94,8 @@
       :columns="columns"
       row-key="id"
       dense flat bordered
-      :rows-per-page-options="[0]"
+      :rows-per-page-options="[10, 25, 50, 100, 200]"
+      :pagination="{ rowsPerPage: 25 }"
       :filter="filter"
       title="Solicitudes"
     >
@@ -315,22 +321,22 @@ export default {
       rows: [],
       columns: [
         { name: 'actions', label: 'Acciones', align: 'center' },
-        // { name: 'id', label: 'ID', field: 'id', align: 'left' },
-        { name: 'codigo', label: 'Codigo', field: row => `${row.codigo || ''}${row.nro_registro || ''}` },
-        { name: 'fecha_solicitud', label: 'Fecha', field: row => row.fecha_solicitud, format: v => v || '' },
-        { name: 'paciente', label: 'Paciente', field: row => row?.paciente_nombre || '' },
-        { name: 'doctor', label: 'Doctor', field: row => row.doctor?.nombre || row.doctor_nombre || '' },
-        { name: 'tipo_atencion', label: 'Tipo atencion', field: 'tipo_atencion' },
-        { name: 'estado', label: 'Estado', field: 'estado' },
-        { name: 'consentimiento', label: 'Consentimiento', field: row => row?.consentimiento?.tipo || '' }
+        { name: 'codigo', label: 'Código', field: 'codigo', align: 'left', style: 'font-weight:600' },
+        { name: 'fecha_solicitud', label: 'Fecha', field: row => row.fecha_solicitud, format: v => v || '', align: 'left' },
+        { name: 'paciente', label: 'Paciente', field: row => row?.paciente_nombre || '', align: 'left' },
+        { name: 'doctor', label: 'Doctor', field: row => row.doctor?.nombre || row.doctor_nombre || '', align: 'left' },
+        { name: 'tipo_atencion', label: 'Tipo atención', field: 'tipo_atencion', align: 'left' },
+        { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
+        { name: 'consentimiento', label: 'Consentimiento', field: row => row?.consentimiento?.tipo || '', align: 'left' }
       ],
       filter: '',
       loading: false,
       filters: {
-        from: moment().format('YYYY-MM-DD'),
-        to: moment().format('YYYY-MM-DD'),
+        from: moment().startOf('month').format('YYYY-MM-DD'),
+        to: moment().endOf('month').format('YYYY-MM-DD'),
         tipo_atencion: '',
-        estado: ''
+        estado: '',
+        codigo: ''
       },
       exportLoading: false,
       muestrasRechazadas: [],
@@ -473,7 +479,8 @@ export default {
         from: this.filters.from || '',
         to: this.filters.to || '',
         ...(this.filters.estado ? { estado: this.filters.estado } : {}),
-        ...(this.filters.tipo_atencion ? { tipo_atencion: this.filters.tipo_atencion } : {})
+        ...(this.filters.tipo_atencion ? { tipo_atencion: this.filters.tipo_atencion } : {}),
+        ...(this.filters.codigo ? { codigo: this.filters.codigo } : {})
       }
     },
     async exportarExcel () {
