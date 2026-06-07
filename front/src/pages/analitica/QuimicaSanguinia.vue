@@ -1553,9 +1553,14 @@ export default {
     async save () {
       try {
         this.loading = true
-        await this.$axios.post(`/quimica-sanguinea/solicitud/${this.solicitudId}`, this.form)
+        const res = await this.$axios.post(`/quimica-sanguinea/solicitud/${this.solicitudId}`, this.form)
         if (this.$alert?.success) this.$alert.success('Química sanguínea guardada correctamente')
         else console.log('Química sanguínea guardada correctamente')
+        const code = res.data?.code
+        if (code) {
+          const url = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${code}/pdf`
+          window.open(url, '_blank')
+        }
         this.$router.back()
       } catch (e) {
         const msg = e.response?.data?.message || e.message

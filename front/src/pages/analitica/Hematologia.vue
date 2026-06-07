@@ -1429,10 +1429,14 @@ export default {
     async save () {
       try {
         this.loading = true
-        await this.$axios.post(`/hematologia/solicitud/${this.solicitudId}`, this.form)
+        const res = await this.$axios.post(`/hematologia/solicitud/${this.solicitudId}`, this.form)
         if (this.$alert && this.$alert.success) this.$alert.success('Hematología guardada correctamente')
         else console.log('Hematología guardada correctamente')
-        // irse a analitica
+        const code = res.data?.code
+        if (code) {
+          const url = `${this.$axios.defaults.baseURL}/hematologia/solicitud/${code}/pdf`
+          window.open(url, '_blank')
+        }
         this.$router.push('/analitica')
       } catch (e) {
         const msg = e.response?.data?.message || e.message

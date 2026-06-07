@@ -20,14 +20,9 @@
       </q-card-section>
 
       <q-card-section class="row items-center q-col-gutter-xs">
-        <div class="col-12 col-sm-3">
-          <q-input dense outlined v-model="filters.codigo" label="Código solicitud" clearable>
-            <template #prepend><q-icon name="tag" /></template>
-          </q-input>
-        </div>
-        <div class="col-12 col-sm-3">
-          <q-input dense outlined v-model="filter" label="Buscar paciente / CI">
-            <template #append><q-icon name="search" /></template>
+        <div class="col-12 col-sm-4">
+          <q-input dense outlined v-model="search" clearable label="Buscar por código, paciente o CI">
+            <template #prepend><q-icon name="search" /></template>
           </q-input>
         </div>
         <div class="col-12 col-sm-6 text-right q-gutter-xs">
@@ -96,7 +91,7 @@
       dense flat bordered
       :rows-per-page-options="[10, 25, 50, 100, 200]"
       :pagination="{ rowsPerPage: 25 }"
-      :filter="filter"
+      :filter="search"
       title="Solicitudes"
     >
       <template #body-cell-actions="props">
@@ -329,14 +324,13 @@ export default {
         { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
         { name: 'consentimiento', label: 'Consentimiento', field: row => row?.consentimiento?.tipo || '', align: 'left' }
       ],
-      filter: '',
+      search: '',
       loading: false,
       filters: {
         from: moment().startOf('month').format('YYYY-MM-DD'),
         to: moment().endOf('month').format('YYYY-MM-DD'),
         tipo_atencion: '',
         estado: '',
-        codigo: ''
       },
       exportLoading: false,
       muestrasRechazadas: [],

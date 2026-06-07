@@ -21,32 +21,16 @@
           </q-input>
         </div>
 
-        <div class="col-12 col-sm-2">
-          <q-input
-            v-model="codigoFilter"
-            dense
-            outlined
-            clearable
-            label="Código solicitud"
-          >
-            <template #prepend><q-icon name="tag" /></template>
-          </q-input>
-        </div>
-
-        <div class="col-12 col-sm-2">
+        <div class="col-12 col-sm-3">
           <q-input
             v-model="filter"
             dense
             outlined
             debounce="400"
-            label="Buscar paciente / CI"
+            clearable
+            label="Buscar por código, paciente o CI"
           >
-            <template #prepend>
-              <q-icon name="search" />
-            </template>
-            <template #append>
-              <q-btn flat round dense icon="clear" @click="clearFilter" v-if="filter" />
-            </template>
+            <template #prepend><q-icon name="search" /></template>
           </q-input>
         </div>
 
@@ -157,48 +141,18 @@
 <!--                      <pre>{{$store.user}}</pre>-->
 <!--                    </q-item>-->
 
-                    <!-- SUBMENÚ: IMPRESIÓN -->
-                    <q-item dense  class="cursor-pointer" v-if="solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
-                      <q-item-section avatar>
-                        <q-icon name="print" />
-                      </q-item-section>
-
-                      <q-item-section>
-                        Impresión
-                      </q-item-section>
-
-                      <q-item-section side>
-                        <q-icon name="chevron_right" />
-                      </q-item-section>
-
-                      <q-menu anchor="top end" self="top start">
-                        <q-list dense style="min-width: 220px">
-
-                          <q-item clickable v-close-popup dense @click="printQuimica(solicitud)">
-                            <q-item-section avatar><q-icon name="science" /></q-item-section>
-                            <q-item-section>Imprimir Química</q-item-section>
-                          </q-item>
-
-                          <q-item clickable v-close-popup dense @click="printQuimicaTolerancia(solicitud)">
-                            <q-item-section avatar><q-icon name="show_chart" /></q-item-section>
-                            <q-item-section>Curva de Tolerancia</q-item-section>
-                          </q-item>
-
-                          <q-item clickable v-close-popup dense @click="printCitoQuimico(solicitud)">
-                            <q-item-section avatar><q-icon name="biotech" /></q-item-section>
-                            <q-item-section>Citoquímico</q-item-section>
-                          </q-item>
-
-                          <!-- FUTURO: aquí vas agregando más items de impresión -->
-                          <!--
-                          <q-item clickable v-close-popup dense @click="printOtroFormulario(solicitud)">
-                            <q-item-section avatar><q-icon name="description" /></q-item-section>
-                            <q-item-section>Otro Formulario</q-item-section>
-                          </q-item>
-                          -->
-
-                        </q-list>
-                      </q-menu>
+                    <!-- IMPRESIÓN DIRECTA QUÍMICA SANGUÍNEA -->
+                    <q-item clickable v-close-popup dense @click="printQuimica(solicitud)" v-if="solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
+                      <q-item-section avatar><q-icon name="print" /></q-item-section>
+                      <q-item-section>Imprimir Química Sanguínea</q-item-section>
+                    </q-item>
+                    <q-item clickable v-close-popup dense @click="printQuimicaTolerancia(solicitud)" v-if="solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
+                      <q-item-section avatar><q-icon name="show_chart" /></q-item-section>
+                      <q-item-section>Imprimir Curva de Tolerancia</q-item-section>
+                    </q-item>
+                    <q-item clickable v-close-popup dense @click="printCitoQuimico(solicitud)" v-if="solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
+                      <q-item-section avatar><q-icon name="biotech" /></q-item-section>
+                      <q-item-section>Imprimir Citoquímico</q-item-section>
                     </q-item>
                     <!-- WhatsApp Química -->
                     <q-item clickable @click="enviarWhatsApp(solicitud,'QuimicaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
@@ -479,6 +433,9 @@
                       <span class="text-grey" style="font-size: 0.8em;">
                         {{ $filters.textCapitalize(servicio.area.name) }}
                       </span>
+                      <span v-if="servicio.pivot.realizado_por" class="text-teal-8 text-weight-medium q-ml-xs" style="font-size:0.8em;">
+                        · {{ servicio.pivot.realizado_por }}
+                      </span>
                     </li>
                   </ul>
                 </div>
@@ -598,7 +555,6 @@ export default {
       from: moment().startOf('month').format('YYYY-MM-DD'),
       to: moment().endOf('month').format('YYYY-MM-DD'),
       fecha: moment().format('YYYY-MM-DD'),
-      codigoFilter: '',
       solicitudes: [],
       loading: false,
       filter: '',
@@ -796,11 +752,12 @@ export default {
     async analiticaGet () {
       this.loading = true
       try {
+        const isNumeric = /^\d+$/.test((this.filter || '').trim())
         const params = {
-          filter: this.filter,
+          filter: isNumeric ? '' : this.filter,
           from: this.from,
           to: this.to,
-          codigo: this.codigoFilter || '',
+          codigo: isNumeric ? this.filter : '',
         }
         const response = await this.$axios.get('/solicitudesAnalitica', { params })
         this.solicitudes = response.data

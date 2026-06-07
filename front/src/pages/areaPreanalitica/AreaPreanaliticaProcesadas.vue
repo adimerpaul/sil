@@ -16,32 +16,16 @@
           <q-input v-model="to" dense outlined label="Hasta" type="date" />
         </div>
 
-        <div class="col-12 col-sm-2">
-          <q-input
-            v-model="codigoFilter"
-            dense
-            outlined
-            clearable
-            label="Código solicitud"
-          >
-            <template #prepend><q-icon name="tag" /></template>
-          </q-input>
-        </div>
-
-        <div class="col-12 col-sm-2">
+        <div class="col-12 col-sm-3">
           <q-input
             v-model="filter"
             dense
             outlined
             debounce="400"
-            label="Buscar paciente / CI"
+            clearable
+            label="Buscar por código, paciente o CI"
           >
-            <template #prepend>
-              <q-icon name="search" />
-            </template>
-            <template #append>
-              <q-btn flat round dense icon="clear" @click="clearFilter" v-if="filter" />
-            </template>
+            <template #prepend><q-icon name="search" /></template>
           </q-input>
         </div>
 
@@ -990,7 +974,6 @@ export default {
       rows: [],
       from: moment().startOf('month').format('YYYY-MM-DD'),
       to: moment().endOf('month').format('YYYY-MM-DD'),
-      codigoFilter: '',
       loading: false,
       moment: moment,
       filter: '',
@@ -1120,10 +1103,7 @@ export default {
   watch: {
     from () { this.resetToFirstPageAndReload() },
     to ()   { this.resetToFirstPageAndReload() },
-    codigoFilter () { this.resetToFirstPageAndReload() },
-    filter () {
-      this.resetToFirstPageAndReload()
-    }
+    filter () { this.resetToFirstPageAndReload() }
   },
   methods: {
     hasTestEmbarazo (row) {
@@ -1510,14 +1490,15 @@ export default {
 
     fetchFromServer (pagination, filter) {
       this.loading = true
+      const isNumeric = /^\d+$/.test((filter || '').trim())
       this.$axios.get('solicitudes-area-preanalitica-estado', {
         params: {
           from: this.from,
           to: this.to,
-          codigo: this.codigoFilter || '',
+          codigo: isNumeric ? (filter || '') : '',
           page: pagination.page,
           per_page: pagination.rowsPerPage,
-          filter: filter || ''
+          filter: isNumeric ? '' : (filter || '')
         }
       })
         .then(res => {

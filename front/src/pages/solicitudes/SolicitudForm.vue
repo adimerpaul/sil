@@ -77,6 +77,8 @@
                   :loading="loadingPacientes"
                   @update:model-value="buscarPacientesInput"
                   @clear="limpiarPaciente"
+                  @keydown="blockSearchSpecialChars"
+                  @paste.prevent="onPastePaciente"
                 >
                   <template #append>
                     <q-icon name="search" color="grey-5" v-if="!loadingPacientes" />
@@ -373,50 +375,50 @@
 <!--              <pre>{{establecimientosPublicos}}</pre>-->
             </div>
 
-            <div class="col-12 col-md-6 q-mt-xs">
-              <div class="row no-wrap items-start q-gutter-x-xs">
-                <div class="col">
-                  <q-select
-                    v-model="solicitud.diagnostico_select"
-                    :options="diagnosticos"
-                    option-label="cie10"
-                    option-value="cie10"
-                    dense
-                    outlined
-                    clearable
-                    label="Buscar diagnóstico clínico"
-                    use-input
-                    emit-value
-                    map-options
-                    input-debounce="500"
-                    @filter="onFilterDiagnosticos"
-                    no-options-label="Escriba al menos 2 caracteres para buscar"
-                  >
-                    <template #option="scope">
-                      <q-item v-bind="scope.itemProps">
-                        <q-item-section>
-                          <q-item-label>{{ scope.opt.cie10 }}</q-item-label>
-                          <q-item-label caption>
-                            Especialidad: {{ scope.opt.especialidad }}
-                          </q-item-label>
-                        </q-item-section>
-                      </q-item>
-                    </template>
-                  </q-select>
-                </div>
-                <!-- Botón gestionar diagnósticos — solo Administrador -->
-                <q-btn
-                  v-if="isAdmin"
-                  flat dense round
-                  icon="settings"
-                  color="primary"
-                  style="margin-top:2px"
-                  @click="abrirGestionDiagnosticos"
-                >
-                  <q-tooltip>Gestionar diagnósticos</q-tooltip>
-                </q-btn>
-              </div>
-            </div>
+<!--            <div class="col-12 col-md-6 q-mt-xs">-->
+<!--              <div class="row no-wrap items-start q-gutter-x-xs">-->
+<!--                <div class="col">-->
+<!--                  <q-select-->
+<!--                    v-model="solicitud.diagnostico_select"-->
+<!--                    :options="diagnosticos"-->
+<!--                    option-label="cie10"-->
+<!--                    option-value="cie10"-->
+<!--                    dense-->
+<!--                    outlined-->
+<!--                    clearable-->
+<!--                    label="Buscar diagnóstico clínico"-->
+<!--                    use-input-->
+<!--                    emit-value-->
+<!--                    map-options-->
+<!--                    input-debounce="500"-->
+<!--                    @filter="onFilterDiagnosticos"-->
+<!--                    no-options-label="Escriba al menos 2 caracteres para buscar"-->
+<!--                  >-->
+<!--                    <template #option="scope">-->
+<!--                      <q-item v-bind="scope.itemProps">-->
+<!--                        <q-item-section>-->
+<!--                          <q-item-label>{{ scope.opt.cie10 }}</q-item-label>-->
+<!--                          <q-item-label caption>-->
+<!--                            Especialidad: {{ scope.opt.especialidad }}-->
+<!--                          </q-item-label>-->
+<!--                        </q-item-section>-->
+<!--                      </q-item>-->
+<!--                    </template>-->
+<!--                  </q-select>-->
+<!--                </div>-->
+<!--                &lt;!&ndash; Botón gestionar diagnósticos — solo Administrador &ndash;&gt;-->
+<!--                <q-btn-->
+<!--                  v-if="isAdmin"-->
+<!--                  flat dense round-->
+<!--                  icon="settings"-->
+<!--                  color="primary"-->
+<!--                  style="margin-top:2px"-->
+<!--                  @click="abrirGestionDiagnosticos"-->
+<!--                >-->
+<!--                  <q-tooltip>Gestionar diagnósticos</q-tooltip>-->
+<!--                </q-btn>-->
+<!--              </div>-->
+<!--            </div>-->
 
             <!-- ══════════ DIÁLOGO GESTIÓN DE DIAGNÓSTICOS (solo admin) ══════════ -->
             <q-dialog v-model="dialogDiagnosticos" maximized transition-show="slide-up" transition-hide="slide-down">
@@ -566,7 +568,7 @@
               <q-select
                 v-model="solicitud.unidad_solicitante_id"
                 :options="unidadesSolicitantes"
-                option-label="nombre"
+                :option-label="(opt) => opt && opt.abreviatura ? opt.abreviatura + ' — ' + opt.nombre : (opt && opt.nombre || '')"
                 option-value="id"
                 use-input
                 emit-value
@@ -942,25 +944,38 @@
             </div>
 
           </div>
-          <q-card-section class="row q-col-gutter-xs">
-            <div class="col-12 col-sm-6">
-              <q-input v-model="serviciosFilter" dense outlined
-                       label="Buscar servicio (nombre / código / subárea)" clearable
-                       bg-color="indigo-2"
-              >
-                <template #append><q-icon name="search" /></template>
-              </q-input>
+          <div style="
+            margin: 4px 0;
+            padding: 10px 12px;
+            background-color: #fff9c4;
+            background-image: radial-gradient(#fdd835 1.5px, transparent 1.5px);
+            background-size: 14px 14px;
+            border: 2px solid #f9a825;
+            border-radius: 8px;
+          ">
+            <div class="row items-center q-mb-sm">
+              <q-icon name="manage_search" color="amber-9" size="20px" class="q-mr-xs" />
+              <span style="font-weight:700; font-size:13px; color:#795548;">Buscar y filtrar servicios</span>
             </div>
-            <div class="col-12 col-sm-6">
-              <q-select v-model="serviciosAreaId" :options="areas" option-label="name" option-value="id"
-                        dense outlined clearable label="Filtrar por área" emit-value map-options
-                        bg-color="indigo-2"
-              >
-                <template #prepend><q-icon name="science" /></template>
-              </q-select>
-              <!--                <pre>{{serviciosAreaId}}</pre>-->
+            <div class="row q-col-gutter-sm">
+              <div class="col-12 col-sm-6">
+                <q-input v-model="serviciosFilter" dense outlined
+                         label="Nombre / código / subárea" clearable
+                         bg-color="white"
+                >
+                  <template #prepend><q-icon name="search" color="amber-9" /></template>
+                </q-input>
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-select v-model="serviciosAreaId" :options="areas" option-label="name" option-value="id"
+                          dense outlined clearable label="Filtrar por área" emit-value map-options
+                          bg-color="white"
+                >
+                  <template #prepend><q-icon name="science" color="amber-9" /></template>
+                </q-select>
+              </div>
             </div>
-          </q-card-section>
+          </div>
 
           <div class="row q-col-gutter-xs">
             <div class="col-12">
@@ -1272,16 +1287,35 @@
       <q-separator />
       <q-card-section>
         <div class="row q-col-gutter-sm q-mb-md">
-          <div class="col-12 col-md-7">
+          <div class="col-12 col-md-5">
             <q-input
               v-model="unidadSolicitanteForm.nombre"
               label="Nombre de la unidad solicitante"
               dense
               outlined
               autofocus
+              @update:model-value="autoAbreviatura"
             />
           </div>
-          <div class="col-12 col-md-5 row items-center justify-end q-gutter-sm">
+          <div class="col-12 col-md-3">
+            <q-input
+              v-model="unidadSolicitanteForm.abreviatura"
+              label="Abreviatura"
+              dense
+              outlined
+              hint="Única, p.ej. CP"
+              :rules="[v => !!v || 'Requerida', v => v.length <= 20 || 'Máx 20 chars']"
+            >
+              <template #append>
+                <q-btn flat dense round icon="auto_fix_high" size="xs" color="primary"
+                  @click="unidadSolicitanteForm.abreviatura = generarAbreviatura(unidadSolicitanteForm.nombre)"
+                >
+                  <q-tooltip>Regenerar</q-tooltip>
+                </q-btn>
+              </template>
+            </q-input>
+          </div>
+          <div class="col-12 col-md-4 row items-center justify-end q-gutter-sm">
             <q-btn
               flat
               no-caps
@@ -1374,13 +1408,14 @@ export default {
       unidadSolicitanteEditando: false,
       unidadSolicitanteSearch: '',
       unidadSolicitanteColumns: [
-        { name: 'actions', label: 'Acciones', align: 'center' },
-        { name: 'id', label: 'ID', field: 'id', align: 'left' },
-        { name: 'nombre', label: 'Nombre', field: 'nombre', align: 'left' }
+        { name: 'actions',      label: 'Acciones',     align: 'center' },
+        { name: 'abreviatura',  label: 'Abrev.',       field: 'abreviatura', align: 'left' },
+        { name: 'nombre',       label: 'Nombre',       field: 'nombre',      align: 'left' }
       ],
       unidadSolicitanteForm: {
         id: null,
-        nombre: ''
+        nombre: '',
+        abreviatura: ''
       },
       doctor: {
         estado: 'ACTIVO'
@@ -1596,11 +1631,14 @@ export default {
       const sala = String(this.solicitud.sala || '').trim().toLowerCase()
       if (!sala) return
 
-      const encontrada = this.unidadesSolicitantesAll.find(item => String(item.nombre || '').trim().toLowerCase() === sala)
+      const encontrada = this.unidadesSolicitantesAll.find(item =>
+        String(item.abreviatura || '').trim().toLowerCase() === sala ||
+        String(item.nombre || '').trim().toLowerCase() === sala
+      )
       if (!encontrada) return
 
       this.solicitud.unidad_solicitante_id = encontrada.id
-      this.solicitud.sala = encontrada.nombre
+      this.solicitud.sala = encontrada.abreviatura || encontrada.nombre
     },
     filterUnidadesSolicitantes (val, update) {
       update(() => {
@@ -1612,7 +1650,10 @@ export default {
         }
 
         this.unidadesSolicitantes = this.unidadesSolicitantesAll
-          .filter(item => String(item.nombre || '').toLowerCase().includes(text))
+          .filter(item =>
+            String(item.nombre || '').toLowerCase().includes(text) ||
+            String(item.abreviatura || '').toLowerCase().includes(text)
+          )
           .slice(0, 50)
       })
     },
@@ -1627,36 +1668,54 @@ export default {
       if (!unidad) return
 
       this.solicitud.unidad_solicitante_id = unidad.id
-      this.solicitud.sala = unidad.nombre
+      this.solicitud.sala = unidad.abreviatura || unidad.nombre
     },
     abrirDialogUnidadSolicitante () {
       this.dialogUnidadSolicitante = true
       this.resetUnidadSolicitanteForm()
     },
+    generarAbreviatura (nombre) {
+      const palabras = (nombre || '').trim().split(/\s+/).filter(w => w.length > 0)
+      if (palabras.length === 0) return ''
+      if (palabras.length === 1) return palabras[0].substring(0, 4).toUpperCase()
+      return palabras.map(w => w[0].toUpperCase()).join('')
+    },
+    autoAbreviatura (nombre) {
+      if (!this.unidadSolicitanteEditando) {
+        this.unidadSolicitanteForm.abreviatura = this.generarAbreviatura(nombre)
+      }
+    },
     resetUnidadSolicitanteForm () {
       this.unidadSolicitanteEditando = false
       this.unidadSolicitanteForm = {
         id: null,
-        nombre: ''
+        nombre: '',
+        abreviatura: ''
       }
     },
     editarUnidadSolicitante (row) {
       this.unidadSolicitanteEditando = true
       this.unidadSolicitanteForm = {
         id: row.id,
-        nombre: row.nombre
+        nombre: row.nombre,
+        abreviatura: row.abreviatura || ''
       }
     },
     guardarUnidadSolicitante () {
-      const nombre = String(this.unidadSolicitanteForm.nombre || '').trim()
+      const nombre      = String(this.unidadSolicitanteForm.nombre || '').trim()
+      const abreviatura = String(this.unidadSolicitanteForm.abreviatura || '').trim().toUpperCase()
 
       if (!nombre) {
         this.$alert?.error ? this.$alert.error('Ingrese el nombre de la unidad solicitante') : null
         return
       }
+      if (!abreviatura) {
+        this.$alert?.error ? this.$alert.error('Ingrese la abreviatura de la unidad solicitante') : null
+        return
+      }
 
       this.unidadSolicitanteLoading = true
-      const payload = { nombre }
+      const payload = { nombre, abreviatura }
 
       const request = this.unidadSolicitanteEditando
         ? this.$axios.put(`unidad-solicitantes/${this.unidadSolicitanteForm.id}`, payload)
@@ -1898,8 +1957,16 @@ export default {
         this.loading = false
       })
     },
+    blockSearchSpecialChars (e) {
+      if (/[\/\.\*\-]/.test(e.key)) e.preventDefault()
+    },
+    onPastePaciente (e) {
+      const text = (e.clipboardData || window.clipboardData).getData('text')
+      const clean = text.replace(/[\/\.\*\-]/g, '')
+      this.buscarPacientesInput((this.solicitud.paciente_nombre || '') + clean)
+    },
     buscarPacientesInput (val) {
-      this.solicitud.paciente_nombre = (val || '').toUpperCase()
+      this.solicitud.paciente_nombre = (val || '').replace(/[\/\.\*\-]/g, '').toUpperCase()
       clearTimeout(this._pacienteTimer)
       if (!val || val.trim().length < 2) {
         this.pacientesOptions = []
@@ -2226,6 +2293,7 @@ export default {
       this.solicitud.paciente_embarazo = p.embarazo ?? 0
       this.solicitud.paciente_fum = p.fum || ''
       this.solicitud.paciente_sem_gest = p.sem_gest
+      this.nroRegistroEditadoManual = false
       this.aplicarNroRegistroSugerido()
     },
 

@@ -387,9 +387,13 @@ export default {
     async save () {
       try {
         this.loading = true
-        await this.$axios.post(`/parasitologia/solicitud/${this.solicitudId}`, this.form)
+        const res = await this.$axios.post(`/parasitologia/solicitud/${this.solicitudId}`, this.form)
         this.$alert?.success ? this.$alert.success('Parasitología guardada correctamente') : console.log('OK')
-        // ir a traz
+        const code = res.data?.code
+        if (code) {
+          const url = `${this.$axios.defaults.baseURL}/parasitologia/solicitud/${code}/pdf`
+          window.open(url, '_blank')
+        }
         this.$router.back()
       } catch (e) {
         const msg = e.response?.data?.message || e.message

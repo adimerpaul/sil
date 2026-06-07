@@ -1068,7 +1068,7 @@ export default {
     async save () {
       try {
         this.loading = true
-        await this.$axios.post(
+        const res = await this.$axios.post(
           `/uroanalisis/solicitud/${this.solicitudId}`,
           this.form
         )
@@ -1077,6 +1077,11 @@ export default {
           this.$alert.success('Uroanálisis guardado correctamente')
         } else {
           console.log('Uroanálisis guardado correctamente')
+        }
+        const code = res.data?.code
+        if (code) {
+          const url = `${this.$axios.defaults.baseURL}/uroanalisis/solicitud/${code}/pdf`
+          window.open(url, '_blank')
         }
         this.$router.back()
       } catch (e) {

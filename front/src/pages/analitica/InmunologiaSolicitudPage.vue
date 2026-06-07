@@ -362,6 +362,7 @@ export default {
         }
 
         this.$q.notify({ type: 'positive', message: 'Guardado' })
+        this.printOne(this.selected)
       } catch (e) {
         console.error(e)
         this.$q.notify({ type: 'negative', message: 'No se pudo guardar' })

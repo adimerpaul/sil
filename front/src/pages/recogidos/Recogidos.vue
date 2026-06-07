@@ -103,8 +103,8 @@
       title="Recojo de resultados por área"
     >
       <template #body-cell-codigo="props">
-        <q-td :props="props" class="text-weight-medium">
-          {{ `${props.row.codigo || ''}${props.row.nro_registro || ''}` }}
+        <q-td :props="props" class="text-weight-bold text-primary">
+          {{ props.row.codigo || '-' }}
         </q-td>
       </template>
 
@@ -176,22 +176,61 @@
 
         <q-card-section>
           <q-form @submit.prevent="saveRecogidoAreas">
+
+            <!-- Radio Interno / Externo -->
+            <div class="row q-col-gutter-sm q-mb-sm">
+              <div class="col-12">
+                <q-btn-toggle
+                  v-model="tipoRecogido"
+                  spread
+                  no-caps
+                  rounded
+                  unelevated
+                  :options="[
+                    { label: 'Interno (paciente retira)', value: 'interno', icon: 'person' },
+                    { label: 'Externo (otra persona)', value: 'externo', icon: 'group' }
+                  ]"
+                  :toggle-color="tipoRecogido === 'interno' ? 'teal' : 'orange'"
+                  color="grey-3"
+                  text-color="grey-8"
+                  @update:model-value="onTipoRecogidoChange"
+                />
+              </div>
+            </div>
+
             <div class="row q-col-gutter-sm">
               <div class="col-12 col-sm-6">
-                <q-input v-model="form.recogido_por_personal" dense outlined label="Recogido por" />
+                <q-input
+                  v-model="form.recogido_por_personal"
+                  dense outlined label="Recogido por"
+                  :readonly="tipoRecogido === 'interno'"
+                  :bg-color="tipoRecogido === 'interno' ? 'teal-1' : ''"
+                />
               </div>
               <div class="col-12 col-sm-6">
                 <q-select
                   v-model="form.grado_parentesco"
-                  :options="['Padre', 'Madre', 'Hno/a', 'Abuelo/a', 'Tio/a', 'Primo/a', 'Otro', 'Personal', 'Interno', 'Personal sala']"
+                  :options="tipoRecogido === 'interno'
+                    ? ['Interno', 'Personal', 'Personal sala']
+                    : ['Padre', 'Madre', 'Hno/a', 'Abuelo/a', 'Tio/a', 'Primo/a', 'Otro', 'Personal', 'Interno', 'Personal sala']"
                   dense outlined label="Parentesco / Relación"
                 />
               </div>
               <div class="col-12 col-sm-6">
-                <q-input v-model="form.telefono_recogido" dense outlined label="Teléfono" />
+                <q-input
+                  v-model="form.telefono_recogido"
+                  dense outlined label="Teléfono"
+                  :readonly="tipoRecogido === 'interno'"
+                  :bg-color="tipoRecogido === 'interno' ? 'teal-1' : ''"
+                />
               </div>
               <div class="col-12 col-sm-6">
-                <q-input v-model="form.ci_recogido" dense outlined label="C.I." />
+                <q-input
+                  v-model="form.ci_recogido"
+                  dense outlined label="C.I."
+                  :readonly="tipoRecogido === 'interno'"
+                  :bg-color="tipoRecogido === 'interno' ? 'teal-1' : ''"
+                />
               </div>
             </div>
 
@@ -219,8 +258,7 @@ export default {
       rows: [],
       areas: [],
       columns: [
-        { name: 'id', label: 'ID', field: 'id', align: 'left', style: 'width: 60px' },
-        { name: 'codigo', label: 'Código', field: 'codigo', align: 'left', style: 'width: 100px' },
+        { name: 'codigo', label: 'Código', field: 'codigo', align: 'left', style: 'width: 90px; font-weight:600' },
         { name: 'fecha', label: 'Fecha', field: row => row.fecha_solicitud || row.fecha_creacion || '', align: 'left', style: 'width: 100px' },
         { name: 'paciente', label: 'Paciente', field: row => row.paciente_nombre || '', align: 'left' },
         { name: 'doctor', label: 'Doctor', field: row => row.doctor?.nombre || row.doctor_nombre || '', align: 'left' },
@@ -241,6 +279,7 @@ export default {
         estado: '',
       },
       dialog: false,
+      tipoRecogido: 'externo',
       selectedSolicitud: null,
       selectedDialogAreas: [],
       form: {
@@ -389,6 +428,19 @@ export default {
     formatRecogidoDate (date) {
       return moment(date).format('DD/MM/YY HH:mm')
     },
+    onTipoRecogidoChange (val) {
+      if (val === 'interno') {
+        this.form.recogido_por_personal = this.selectedSolicitud?.paciente_nombre || ''
+        this.form.grado_parentesco = 'Interno'
+        this.form.telefono_recogido = this.selectedSolicitud?.paciente_telefono || ''
+        this.form.ci_recogido = this.selectedSolicitud?.paciente_ci || ''
+      } else {
+        this.form.recogido_por_personal = ''
+        this.form.grado_parentesco = ''
+        this.form.telefono_recogido = ''
+        this.form.ci_recogido = ''
+      }
+    },
     openDialogByAreas (solicitud, areasList) {
       this.selectedSolicitud = solicitud
       this.selectedDialogAreas = areasList
@@ -396,10 +448,12 @@ export default {
       const first = areasList[0]
       const firstService = (solicitud.servicio_solicitudes || []).find(x => (x.area_id || x.area?.id) === first.area_id)
 
+      this.tipoRecogido = 'externo'
+
       this.form = {
         fue_recogido: true,
-        recogido_por_personal: firstService?.recogido_por_personal || solicitud.paciente_nombre || '',
-        grado_parentesco: firstService?.grado_parentesco || 'Personal',
+        recogido_por_personal: firstService?.recogido_por_personal || '',
+        grado_parentesco: firstService?.grado_parentesco || '',
         telefono_recogido: firstService?.telefono_recogido || solicitud.paciente_telefono || '',
         ci_recogido: firstService?.ci_recogido || solicitud.paciente_ci || '',
         recogido_en_dia: firstService?.recogido_en_dia || moment().format('YYYY-MM-DD'),
