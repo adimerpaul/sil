@@ -499,7 +499,7 @@
                   <div class="detail-item-name">
                     {{ det.producto?.nombre || det.nombre || '-' }}
                     <q-chip
-                      v-if="det.producto?.cantidad != null"
+                      v-if="det.producto?.cantidad != null && canVerStock"
                       dense
                       size="sm"
                       :color="det.producto.cantidad > 0 ? 'teal-1' : 'red-1'"
@@ -866,6 +866,7 @@ const currentUser = computed(() => proxy.$store.user || {})
 const isAdminUser = computed(() => currentUser.value?.role === 'Administrador')
 
 const canSeeAll = computed(() => isAdminUser.value || userPermissions.value.includes('Ver todos los pedidos'))
+const canVerStock = computed(() => isAdminUser.value || userPermissions.value.includes('Módulo inventario'))
 const canCreate = computed(() => isAdminUser.value || userPermissions.value.includes('Crear Pedidos'))
 const canEdit = computed(() => isAdminUser.value || userPermissions.value.includes('Editar Pedidos'))
 const canDelete = computed(() => isAdminUser.value || userPermissions.value.includes('Anular Pedidos'))
