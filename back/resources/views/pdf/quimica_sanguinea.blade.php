@@ -62,9 +62,9 @@
         }
         .tbl th{
             background:#f7f7f7;
-            font-size: 12px;
+            font-size: 9px;
         }
-        .tbl td{ font-size: 12px; }
+        .tbl td{ font-size: 9px; }
 
         .w-analito{ width:44%; }
         .w-res{ width:16%; }
@@ -216,7 +216,7 @@
     ]);
 
     $showElectro = $hasAnyServicios([
-        'ELECTROLITOS (SODIO, POTASIO, CLORO) (NA,K,CL)',
+        'ELECTROLITOS (SODIO, POTASIO, CLORO)',
         'IONOGRAMA (NA,K,CL,CA,Mg,P)',
         'CALCIO',
         'FÓSFORO',
@@ -264,7 +264,7 @@
         'PERFIL HEPÁTICO O HEPATOGRAMA (BILIRRUBINAS TOTALES Y FRACCIONADAS, FOSFATASA ALCALINA, GOT, GPT, GGT, TP)',
         'PERFIL LIPÍDICO O LIPIDOGRAMA (COLESTEROL, TRIGLICERIDOS, HDLc,LDLc,VLDLc)',
         'IONOGRAMA (NA,K,CL,CA,Mg,P)',
-        'ELECTROLITOS (SODIO, POTASIO, CLORO) (NA,K,CL)',
+        'ELECTROLITOS (SODIO, POTASIO, CLORO)',
         'ÁCIDO ÚRICO','ALBUMINA','PROTEINAS TOTALES','GLICEMIA','UREA','NITROGENO UREICO SERICO (NUS)','CREATININA SÉRICA',
         'BILIRRUBINAS TOTALES Y FRACCIONADAS','TRANSAMINASAS GOT- (ALT)','TRANSAMINASAS GPT','FOSFATASA ALCALINA','GAMA GLUTAMIL TRANSFERASA (GGT)','AMILASA',
         'COLESTEROL','TRIGLICÉRIDOS','HDLc, LDLc, VLDLc','HEMOGLOBINA GLICOSILADA A1c',
@@ -649,7 +649,7 @@
                                         </thead>
                                         <tbody>
 
-                                        @if($canServicios(['ELECTROLITOS (SODIO, POTASIO, CLORO) (NA,K,CL)','IONOGRAMA (NA,K,CL,CA,Mg,P)']))
+                                        @if($canServicios(['ELECTROLITOS (SODIO, POTASIO, CLORO)','IONOGRAMA (NA,K,CL,CA,Mg,P)']))
                                             <tr>
                                                 <td>Sodio</td>
                                                 <td class="center {{ outOfRangeQ('Sodio',val($q,'sodio'),$rangosMap)?'out-range':'' }}">{{ val($q,'sodio') }}</td>

@@ -302,7 +302,7 @@ export default {
     canVerStock () {
       const perms = this.$store?.permissions || []
       const role  = this.$store?.user?.role || ''
-      return role === 'Administrador' || perms.includes('Ver todos los pedidos')
+      return role === 'Administrador' || perms.includes('Módulo inventario')
     },
     total () {
       return this.selectedItems.reduce((sum, item) => sum + Number(item.subtotal || 0), 0)
