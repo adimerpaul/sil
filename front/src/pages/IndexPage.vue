@@ -852,8 +852,7 @@ export default {
       almacenUltimosDespachos: [],
       almacenInventarioCritico: [],
       columnsUltimas: [
-        { name: 'nro_registro', label: 'Nro Registro', field: 'nro_registro', align: 'left' },
-        { name: 'codigo_solicitud', label: 'Cód. Solicitud', field: 'codigo_solicitud', align: 'left' },
+        { name: 'codigo_solicitud', label: 'Cód. Solicitud', field: 'codigo', align: 'left' },
         { name: 'paciente_info', label: 'Paciente (Cód. / Edad)', field: 'paciente_nombre', align: 'left' },
         { name: 'doctor_nombre', label: 'Doctor', field: 'doctor_nombre', align: 'left' },
         { name: 'areas_pruebas', label: 'Áreas / Pruebas', field: row => row.areas || '', align: 'left' },

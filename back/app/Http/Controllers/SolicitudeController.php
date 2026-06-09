@@ -677,6 +677,7 @@ class SolicitudeController extends Controller
         return $q->select(
             'solicitudes.id',
             'solicitudes.nro_registro',
+            'solicitudes.codigo',
             'solicitudes.codigo_solicitud',
             'solicitudes.paciente_nombre',
             'solicitudes.paciente_ci',
