@@ -978,7 +978,12 @@
                                         @if($canServicios(['RPR- VDRL']) || hasVal($q,'rpr'))
                                             <tr>
                                                 <td>RPR / VDRL</td>
-                                                <td class="center">{{ val($q,'rpr') }}</td>
+                                                <td class="center">
+                                                    {{ val($q,'rpr') }}
+                                                    @if(val($q,'rpr_dilucion'))
+                                                        <br><small>{{ val($q,'rpr_dilucion') }}</small>
+                                                    @endif
+                                                </td>
                                                 <td class="center">{{ rangoTexto('RPR / VDRL',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('RPR / VDRL',$rangosMap) }}</td>
                                             </tr>

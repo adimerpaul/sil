@@ -54,19 +54,19 @@
     }
 </style>
 
-<table class="no-border" style="margin-bottom:3px;">
+<table class="no-border" style="margin-bottom:3px;height: 60px">
     <tr>
         <td style="width:13%;">
-            <img src="{{ public_path('img/logo-hospital.png') }}" style="width:54px;">
+{{--            <img src="{{ public_path('img/logo-hospital.png') }}" style="width:54px;">--}}
         </td>
         <td>
-            <div class="lab-title">HOSPITAL GENERAL SAN JUAN DE DIOS ORURO BLOQUE CENTRAL</div>
-            <div class="lab-subtitle">LABORATORIO DE ANÁLISIS CLÍNICO - MICROBIOLÓGICO</div>
-            <div class="lab-small">Dirección: San Felipe entre 6 de Octubre y Tarija</div>
-            <div class="lab-small">REGISTRO CONALAB: 001 &nbsp;&nbsp; REGISTRO CODELAB: 000004</div>
+{{--            <div class="lab-title">HOSPITAL GENERAL SAN JUAN DE DIOS ORURO BLOQUE CENTRAL</div>--}}
+{{--            <div class="lab-subtitle">LABORATORIO DE ANÁLISIS CLÍNICO - MICROBIOLÓGICO</div>--}}
+{{--            <div class="lab-small">Dirección: San Felipe entre 6 de Octubre y Tarija</div>--}}
+{{--            <div class="lab-small">REGISTRO CONALAB: 001 &nbsp;&nbsp; REGISTRO CODELAB: 000004</div>--}}
         </td>
         <td style="width:13%;" style="text-align:right;">
-            <img src="{{ public_path('img/logo-labo.png') }}" style="width:54px;">
+{{--            <img src="{{ public_path('img/logo-labo.png') }}" style="width:54px;">--}}
         </td>
     </tr>
 </table>

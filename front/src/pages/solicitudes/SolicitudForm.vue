@@ -47,9 +47,9 @@
             <q-icon name="person" size="18px" class="q-mr-xs" />
             <div class="text-subtitle2">
               Datos del paciente
-              <q-btn flat dense icon="child_care" color="primary" class="q-ml-sm"
-                     @click="rnnnGet('RN')"
-                     label="RN" />
+<!--              <q-btn flat dense icon="child_care" color="primary" class="q-ml-sm"-->
+<!--                     @click="rnnnGet('RN')"-->
+<!--                     label="RN" />-->
               <q-btn flat dense icon="face" color="primary" class="q-ml-xs"
                      @click="rnnnGet('NN')"
                      label="NN" />
@@ -2192,7 +2192,7 @@ export default {
         paciente_ci: '',
         paciente_telefono: '',
         paciente_direccion: '',
-        paciente_fecha_nac: '',
+        paciente_fecha_nac: new Date().toISOString().substring(0, 10),
         paciente_genero: '',
         paciente_edad: null,
         paciente_discapacidad: 0,
