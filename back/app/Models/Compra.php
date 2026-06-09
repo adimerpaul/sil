@@ -22,6 +22,7 @@ class Compra extends Model
         'comentario',
         'estado',
         'total',
+        'retencion_porcentaje',
         'tipo_pago',
         'nro_factura',
         'categoria_programatica',

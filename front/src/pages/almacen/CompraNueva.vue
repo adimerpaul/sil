@@ -96,6 +96,22 @@
             </div>
           </q-card-section>
 
+          <!-- Retención -->
+          <q-card-section class="q-pa-xs">
+            <div class="row items-center q-col-gutter-xs">
+              <div class="col-auto">
+                <q-checkbox v-model="form.retencion_activa" label="Retención" dense />
+              </div>
+              <div v-if="form.retencion_activa" class="col-3">
+                <q-input
+                  v-model.number="form.retencion_porcentaje"
+                  dense outlined type="number" min="0" max="100" step="0.01"
+                  label="%" suffix="%"
+                />
+              </div>
+            </div>
+          </q-card-section>
+
           <!-- Comentario -->
           <q-card-section class="q-pa-xs">
             <q-input
@@ -179,7 +195,13 @@
 
           <!-- Total y Botón -->
           <q-card-section class="row items-center q-pa-sm bg-blue-1">
-            <div class="text-subtitle2 text-weight-bold">Total: <span class="text-primary text-h6">{{ money(total) }} Bs</span></div>
+            <div>
+              <div class="text-subtitle2 text-weight-bold">Total: <span class="text-primary text-h6">{{ money(total) }} Bs</span></div>
+              <div v-if="form.retencion_activa && form.retencion_porcentaje > 0" class="text-caption text-grey-8">
+                Retención {{ form.retencion_porcentaje }}%: <span class="text-negative">-{{ money(retencionMonto) }} Bs</span>
+                &nbsp;|&nbsp; Neto: <span class="text-weight-bold">{{ money(totalNeto) }} Bs</span>
+              </div>
+            </div>
             <q-space />
             <q-btn color="primary" :icon="isEditMode ? 'save' : 'add_circle'" :label="isEditMode ? 'Guardar cambios' : 'Registrar compra'" no-caps :loading="saving" :disable="selectedItems.length === 0" @click="confirmSave" />
           </q-card-section>
@@ -329,10 +351,16 @@
               <span class="summary-label">Items</span>
               <span class="summary-value">{{ selectedItems.length }}</span>
             </div>
+            <template v-if="form.retencion_activa && form.retencion_porcentaje > 0">
+              <div class="summary-row">
+                <span class="summary-label">Retención {{ form.retencion_porcentaje }}%</span>
+                <span class="summary-value text-negative">-{{ money(retencionMonto) }} Bs</span>
+              </div>
+            </template>
             <q-separator class="q-my-sm" />
             <div class="summary-row total-row">
-              <span class="total-label">Total a registrar</span>
-              <span class="total-value">{{ money(total) }} Bs</span>
+              <span class="total-label">{{ form.retencion_activa && form.retencion_porcentaje > 0 ? 'Neto a pagar' : 'Total a registrar' }}</span>
+              <span class="total-value">{{ money(form.retencion_activa && form.retencion_porcentaje > 0 ? totalNeto : total) }} Bs</span>
             </div>
             <div v-if="confirmData?.comentario" class="summary-comment">
               <div class="summary-comment-label">Comentario</div>
@@ -391,6 +419,8 @@ export default {
         categoria_programatica: '',
         orden_de_compra: '',
         codigo_interno: '',
+        retencion_activa: false,
+        retencion_porcentaje: 7,
       },
       entradaMotivos: ['COMPRA', 'DONACION', 'TRANSFERENCIA', 'JUSTO','AJUSTE POSITIVO', 'AJUSTE NEGATIVO', 'OTRO'],
       pagoOptions: [
@@ -405,6 +435,13 @@ export default {
   computed: {
     total () {
       return this.selectedItems.reduce((sum, item) => sum + Number(item.total || 0), 0)
+    },
+    retencionMonto () {
+      if (!this.form.retencion_activa || !this.form.retencion_porcentaje) return 0
+      return Math.round(this.total * this.form.retencion_porcentaje / 100 * 100) / 100
+    },
+    totalNeto () {
+      return Math.round((this.total - this.retencionMonto) * 100) / 100
     },
     productPages () {
       return Math.max(1, Math.ceil(this.productPagination.rowsNumber / this.productPagination.rowsPerPage))
@@ -560,6 +597,7 @@ export default {
         const payload = {
           ...this.form,
           fecha_hora: this.form.fecha_hora ? this.form.fecha_hora.replace('T', ' ') : null,
+          retencion_porcentaje: this.form.retencion_activa ? (this.form.retencion_porcentaje || 0) : 0,
           items: this.selectedItems,
         }
         if (this.isEditMode) {
@@ -602,6 +640,8 @@ export default {
         this.form.categoria_programatica = compra.categoria_programatica || ''
         this.form.orden_de_compra = compra.orden_de_compra || ''
         this.form.codigo_interno = compra.codigo_interno || ''
+        this.form.retencion_porcentaje = parseFloat(compra.retencion_porcentaje) || 7
+        this.form.retencion_activa = parseFloat(compra.retencion_porcentaje) > 0
         this.onProveedorChange()
         this.selectedItems = (compra.detalles || []).map(d => ({
           producto_id: d.producto_id,

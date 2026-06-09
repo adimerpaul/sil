@@ -258,18 +258,27 @@
     </tbody>
 </table>
 
+@php
+    $totalBruto   = (float) $compra->total;
+    $retPct       = (float) ($compra->retencion_porcentaje ?? 0);
+    $retMonto     = $retPct > 0 ? round($totalBruto * $retPct / 100, 2) : 0;
+    $totalNeto    = $totalBruto - $retMonto;
+@endphp
+
 <table class="totals-wrap">
     <tr>
-        <td class="label">Subtotal</td>
-        <td class="value">{{ number_format((float) $compra->total, 2, ',', '.') }} Bs</td>
+        <td class="label">Total</td>
+        <td class="value">{{ number_format($totalBruto, 2, ',', '.') }} Bs</td>
     </tr>
+    @if($retPct > 0)
     <tr>
-        <td class="label">Items</td>
-        <td class="value">{{ count($compra->detalles) }}</td>
+        <td class="label">Retención al {{ number_format($retPct, 0) }}%</td>
+        <td class="value">{{ number_format($retMonto, 2, ',', '.') }} Bs</td>
     </tr>
+    @endif
     <tr class="total">
-        <td>Total</td>
-        <td class="value">{{ number_format((float) $compra->total, 2, ',', '.') }} Bs</td>
+        <td>{{ $retPct > 0 ? 'Neto a pagar' : 'Total' }}</td>
+        <td class="value">{{ number_format($totalNeto, 2, ',', '.') }} Bs</td>
     </tr>
 </table>
 <div class="clearfix"></div>
@@ -278,11 +287,11 @@
     <tr>
         <td style="width:16%;" class="bold uppercase obs-label">Observaciones:</td>
         <td>{{ $compra->comentario ?: '-' }}</td>
-        <td style="width:13%;" class="right bold">{{ number_format((float) $compra->total, 2, ',', '.') }}</td>
+        <td style="width:13%;" class="right bold">{{ number_format($totalNeto, 2, ',', '.') }}</td>
     </tr>
     <tr>
         <td class="bold uppercase obs-label">Son:</td>
-        <td colspan="2" class="uppercase bold">{{ numero_a_letras((float) $compra->total) }}</td>
+        <td colspan="2" class="uppercase bold">{{ numero_a_letras($totalNeto) }}</td>
     </tr>
 </table>
 
