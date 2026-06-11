@@ -179,7 +179,7 @@
 <div class="subtitle-meta">
     Creado: <span class="highlight">{{ $fechaCompra ? $fechaCompra->format('d/m/Y H:i') : '-' }}</span>
     &nbsp;|&nbsp;
-    Usuario: <span class="highlight">{{ optional($compra->user)->name ?: '-' }}</span>
+{{--    Usuario: <span class="highlight">{{ optional($compra->user)->name ?: '-' }}</span>--}}
 </div>
 
 <table class="info-table mt-6">
@@ -209,7 +209,9 @@
         <td class="cell label">Carnet / NIT</td>
         <td class="cell">{{ $carnetNit }}</td>
         <td class="cell label">Registrado por</td>
-        <td class="cell">{{ optional($compra->user)->name ?: '-' }}</td>
+        <td class="cell">
+{{--            {{ optional($compra->user)->name ?: '-' }}--}}
+        </td>
     </tr>
     <tr>
         <td class="cell label">Estado</td>
@@ -298,19 +300,25 @@
 <table class="signatures">
     <tr>
         <td>
-            @if($firmaCompraPath && file_exists($firmaCompraPath))
-                <img class="firma-img" src="{{ $firmaCompraPath }}" alt="Firma">
-            @else
-                <div class="firma-space"></div>
-            @endif
+{{--            @if($firmaCompraPath && file_exists($firmaCompraPath))--}}
+{{--                <img class="firma-img" src="{{ $firmaCompraPath }}" alt="Firma">--}}
+{{--            @else--}}
+{{--                <div class="firma-space"></div>--}}
+{{--            @endif--}}
             <div class="line"></div>
             <div class="bold uppercase">Responsable de la unidad</div>
-            <div class="stamp">{{ optional($compra->user)->name ?: '-' }}</div>
-            @if($selloCompraPath && file_exists($selloCompraPath))
-                <img class="sello-img" src="{{ $selloCompraPath }}" alt="Sello">
-            @endif
+            <div class="stamp" style="color: white">
+                aa
+{{--                {{ optional($compra->user)->name ?: '-' }}--}}
+            </div>
+{{--            @if($selloCompraPath && file_exists($selloCompraPath))--}}
+{{--                <img class="sello-img" src="{{ $selloCompraPath }}" alt="Sello">--}}
+{{--            @endif--}}
         </td>
         <td>
+            <br>
+            <br>
+            <br>
             <div class="line"></div>
             <div class="bold uppercase">Administrador</div>
             <div class="stamp">Hospital General</div>
