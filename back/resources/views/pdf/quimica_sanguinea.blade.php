@@ -941,7 +941,9 @@
 
                                         @if($canServicios('PRUEBA RAPIDA PARA HEPATITIS B') || hasVal($q,'prueba_rapida_hepatitis_b'))
                                             <tr>
-                                                <td>Hepatitis B</td>
+                                                <td>
+                                                    Prueba rápida Hepatitis B
+                                                </td>
                                                 <td class="center">{{ val($q,'prueba_rapida_hepatitis_b') }}</td>
                                                 <td class="center">{{ rangoTexto('Hepatitis B',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Hepatitis B',$rangosMap) }}</td>
@@ -950,7 +952,7 @@
 
                                         @if($canServicios('PRUEBA RAPIDA PARA HEPATITIS C') || hasVal($q,'prueba_rapida_hepatitis_c'))
                                             <tr>
-                                                <td>Hepatitis C</td>
+                                                <td>Prueba rápida Hepatitis C</td>
                                                 <td class="center">{{ val($q,'prueba_rapida_hepatitis_c') }}</td>
                                                 <td class="center">{{ rangoTexto('Hepatitis C',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Hepatitis C',$rangosMap) }}</td>
@@ -984,8 +986,8 @@
                                                         <br><small>{{ val($q,'rpr_dilucion') }}</small>
                                                     @endif
                                                 </td>
-                                                <td class="center">{{ rangoTexto('RPR / VDRL',$rangosMap) }}</td>
-                                                <td class="center">{{ rangoUnidad('RPR / VDRL',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoTexto('RPR/VDRL',$rangosMap) }}</td>
+                                                <td class="center">{{ rangoUnidad('RPR/VDRL',$rangosMap) }}</td>
                                             </tr>
                                         @endif
 

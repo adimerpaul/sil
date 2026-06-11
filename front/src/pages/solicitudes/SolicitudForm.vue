@@ -1949,6 +1949,8 @@ export default {
       this.loading = true
       this.$axios.get(`pacientes/nn-rn/${tipo}`).then(res => {
         this.solicitud.paciente_nombre = res.data
+        this.nroRegistroEditadoManual = false
+        this.aplicarNroRegistroSugerido()
         this.$alert?.success ? this.$alert.success(`${tipo} generado`) : null
       }).catch(e => {
         const msg = e.response?.data?.message || e.response?.data?.error || e.message
