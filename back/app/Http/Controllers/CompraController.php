@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AlmacenItem;
 use App\Models\Compra;
+use App\Models\Unidad;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -50,13 +51,14 @@ class CompraController extends Controller
 
     public function show($id)
     {
-        return Compra::with(['proveedor', 'user:id,name', 'detalles.producto'])->findOrFail($id);
+        return Compra::with(['proveedor', 'unidad', 'user:id,name', 'detalles.producto'])->findOrFail($id);
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
             'proveedor_id' => 'nullable|exists:proveedores,id',
+            'unidad_id' => 'nullable|exists:unidades,id',
             'fecha_hora' => 'nullable|date',
             'tipo_registro' => ['required', Rule::in(['ENTRADA', 'SALIDA'])],
             'motivo_registro' => 'required|string|max:50',
@@ -86,6 +88,7 @@ class CompraController extends Controller
             $compra = Compra::create([
                 'user_id' => $request->user()->id,
                 'proveedor_id' => $data['proveedor_id'] ?? null,
+                'unidad_id' => $data['unidad_id'] ?? null,
                 'fecha_hora' => $data['fecha_hora'] ?? now(),
                 'tipo_registro' => $data['tipo_registro'],
                 'motivo_registro' => strtoupper($data['motivo_registro']),
@@ -149,6 +152,7 @@ class CompraController extends Controller
 
         $data = $request->validate([
             'proveedor_id' => 'nullable|exists:proveedores,id',
+            'unidad_id' => 'nullable|exists:unidades,id',
             'fecha_hora' => 'nullable|date',
             'tipo_registro' => ['required', Rule::in(['ENTRADA', 'SALIDA'])],
             'motivo_registro' => 'required|string|max:50',
@@ -180,6 +184,7 @@ class CompraController extends Controller
 
             $compra->update([
                 'proveedor_id' => $data['proveedor_id'] ?? null,
+                'unidad_id' => $data['unidad_id'] ?? null,
                 'fecha_hora' => $data['fecha_hora'] ?? $compra->fecha_hora,
                 'tipo_registro' => $data['tipo_registro'],
                 'motivo_registro' => strtoupper($data['motivo_registro']),
@@ -238,7 +243,7 @@ class CompraController extends Controller
         //            abort(403, 'No autorizado para imprimir esta compra');
         //        }
 
-        $compra = Compra::with(['proveedor', 'user:id,name,firma,sello,mostrar_firma,mostrar_sello', 'detalles.producto'])->findOrFail($id);
+        $compra = Compra::with(['proveedor', 'unidad', 'user:id,name,firma,sello,mostrar_firma,mostrar_sello', 'detalles.producto'])->findOrFail($id);
 
         $pdf = Pdf::loadView('reportes.compra_detalle', [
             'compra' => $compra,

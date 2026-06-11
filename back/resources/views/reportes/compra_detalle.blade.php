@@ -201,9 +201,13 @@
         <td class="cell label">Fecha O.C.</td>
         <td class="cell">{{ $fechaCompra ? $fechaCompra->format('d-m-y') : '-' }}</td>
     </tr>
+{{--    <tr>--}}
+{{--        <td class="cell label">Unidad solicitante</td>--}}
+{{--        <td class="cell uppercase" colspan="3">{{ $compra->motivo_registro ?: '-' }}</td>--}}
+{{--    </tr>--}}
     <tr>
-        <td class="cell label">Unidad solicitante</td>
-        <td class="cell uppercase" colspan="3">{{ $compra->motivo_registro ?: '-' }}</td>
+        <td class="cell label">Unidad</td>
+        <td class="cell uppercase" colspan="3">{{ optional($compra->unidad)->nombre ?: '-' }}</td>
     </tr>
     <tr>
         <td class="cell label">Carnet / NIT</td>

@@ -93,6 +93,20 @@
               <div class="col-12 col-sm-4">
                 <q-input v-model="form.codigo_interno" dense outlined label="Código interno" />
               </div>
+              <div class="col-12 col-sm-6">
+                <q-select
+                  v-model="form.unidad_id"
+                  dense outlined
+                  emit-value
+                  map-options
+                  clearable
+                  use-input
+                  input-debounce="0"
+                  label="Unidad (opcional)"
+                  :options="unidadOptionsFiltradas"
+                  @filter="filtrarUnidades"
+                />
+              </div>
             </div>
           </q-card-section>
 
@@ -286,6 +300,13 @@
                   <div class="meta-value">{{ pagoLabel(confirmData?.tipo_pago) }}</div>
                 </div>
               </div>
+              <div v-if="confirmData?.unidad_nombre" class="meta-item">
+                <q-icon name="business" size="20px" class="meta-icon" />
+                <div class="meta-content">
+                  <div class="meta-label">Unidad</div>
+                  <div class="meta-value">{{ confirmData.unidad_nombre }}</div>
+                </div>
+              </div>
               <div v-if="confirmData?.categoria_programatica" class="meta-item">
                 <q-icon name="category" size="20px" class="meta-icon" />
                 <div class="meta-content">
@@ -399,6 +420,8 @@ export default {
       products: [],
       proveedores: [],
       proveedorOptions: [],
+      unidades: [],
+      unidadOptionsFiltradas: [],
       selectedItems: [],
       productFilter: '',
       productPagination: { page: 1, rowsPerPage: 30, rowsNumber: 0 },
@@ -408,6 +431,7 @@ export default {
       confirmData: null,
       form: {
         proveedor_id: null,
+        unidad_id: null,
         fecha_hora: moment().format('YYYY-MM-DDTHH:mm'),
         tipo_registro: 'ENTRADA',
         motivo_registro: 'COMPRA',
@@ -455,9 +479,12 @@ export default {
     editId () {
       return this.id || this.$route.params.id || null
     },
+    unidadOptions () {
+      return this.unidades.map(u => ({ label: u.nombre, value: u.id }))
+    },
   },
   async mounted () {
-    await Promise.all([this.fetchProducts(), this.fetchProveedores()])
+    await Promise.all([this.fetchProducts(), this.fetchProveedores(), this.fetchUnidades()])
     if (this.editId) {
       await this.loadCompra(this.editId)
     }
@@ -478,6 +505,21 @@ export default {
       const res = await this.$axios.get('proveedores')
       this.proveedores = res.data || []
       this.updateProveedorOptions()
+    },
+    async fetchUnidades () {
+      const res = await this.$axios.get('unidades')
+      this.unidades = res.data?.data || res.data || []
+      this.unidadOptionsFiltradas = this.unidadOptions
+    },
+    filtrarUnidades (val, update) {
+      update(() => {
+        if (!val) {
+          this.unidadOptionsFiltradas = this.unidadOptions
+        } else {
+          const needle = val.toLowerCase()
+          this.unidadOptionsFiltradas = this.unidadOptions.filter(o => o.label.toLowerCase().includes(needle))
+        }
+      })
     },
     updateProveedorOptions () {
       this.proveedorOptions = this.proveedores.map(p => ({ label: p.nombre, value: p.id }))
@@ -579,9 +621,11 @@ export default {
     },
     confirmSave () {
       const proveedor = this.proveedores.find(p => p.id === this.form.proveedor_id)
+      const unidad = this.unidades.find(u => u.id === this.form.unidad_id)
       this.confirmData = {
         fecha_hora: this.form.fecha_hora,
         proveedor_nombre: proveedor?.nombre,
+        unidad_nombre: unidad?.nombre || null,
         motivo_registro: this.form.motivo_registro,
         tipo_pago: this.form.tipo_pago,
         comentario: this.form.comentario || '',
@@ -629,6 +673,7 @@ export default {
         }
 
         this.form.proveedor_id = compra.proveedor_id || null
+        this.form.unidad_id = compra.unidad_id || null
         this.form.fecha_hora = compra.fecha_hora ? moment(compra.fecha_hora).format('YYYY-MM-DDTHH:mm') : moment().format('YYYY-MM-DDTHH:mm')
         this.form.tipo_registro = compra.tipo_registro || 'ENTRADA'
         this.form.motivo_registro = compra.motivo_registro || 'COMPRA'
