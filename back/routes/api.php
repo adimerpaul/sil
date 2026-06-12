@@ -285,3 +285,4 @@ Route::get('/cultivo-antibiograma/solicitud/{id}/pdf', [\App\Http\Controllers\Cu
 
 Route::get('/inmunologia/solicitude-formulario/{id}/pdf', [\App\Http\Controllers\InmunologiaController::class, 'pdfOne']);
 Route::get('/inmunologia/solicitud/{id}/pdf-all', [\App\Http\Controllers\InmunologiaController::class, 'pdfAll']);
+Route::get('/inmunologia-analitica/resultado/{codigo}/pdf', [\App\Http\Controllers\InmunologiaAnaliticaController::class, 'pdfBySolicitude']);

@@ -254,14 +254,18 @@
                       </q-item-section>
                     </q-item>
 
-                    <!-- WhatsApp Inmunología (solo si hay "code"; si tu backend no usa code, ajusta aquí) -->
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'InmunologiaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.inmunologia?.code && ($store.user.role === 'Administrador' || hasPermission('INMUNOLOGÍA'))">
-                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
-                      <q-item-section>WhatsApp Doctor({{solicitud.doctor_telefono}})</q-item-section>
+                    <!-- Imprimir + WhatsApp Inmunología Analítica (requiere código UUID) -->
+                    <q-item clickable @click="printInmunologiaAnalitica(solicitud)" v-close-popup dense v-if="solicitud.inmunologia_analitica_codigo && ($store.user.role === 'Administrador' || hasPermission('INMUNOLOGÍA'))">
+                      <q-item-section avatar><q-icon name="print" color="deep-purple" /></q-item-section>
+                      <q-item-section>Imprimir Inmunología</q-item-section>
                     </q-item>
-                    <q-item clickable @click="enviarWhatsApp(solicitud,'InmunologiaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.inmunologia?.code && ($store.user.role === 'Administrador' || hasPermission('INMUNOLOGÍA'))">
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'InmunologiaAnaliticaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.inmunologia_analitica_codigo && ($store.user.role === 'Administrador' || hasPermission('INMUNOLOGÍA'))">
                       <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
-                      <q-item-section>WhatsApp Paciente({{solicitud.paciente_telefono}})</q-item-section>
+                      <q-item-section>WhatsApp Doctor ({{solicitud.doctor_telefono}})</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="enviarWhatsApp(solicitud,'InmunologiaAnaliticaPaciente')" v-close-popup dense v-if="solicitud.paciente_telefono && solicitud.inmunologia_analitica_codigo && ($store.user.role === 'Administrador' || hasPermission('INMUNOLOGÍA'))">
+                      <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
+                      <q-item-section>WhatsApp Paciente ({{solicitud.paciente_telefono}})</q-item-section>
                     </q-item>
 <!--                    <q-item>-->
 <!--                      <pre>{{$store.user}}</pre>-->
@@ -605,8 +609,9 @@ export default {
       } else if (tipo === 'PanelSexualDoctor' || tipo === 'PanelSexualPaciente') {
         linkPdf = `${this.$axios.defaults.baseURL}/panel-sexual/solicitud/${solicitud.panel_sexual?.code}/pdf`
       } else if (tipo === 'InmunologiaDoctor' || tipo === 'InmunologiaPaciente') {
-        // Nota: aquí asumo que Inmunología tiene code (como los demás). Si no, quítalo y usa tu pdf-all.
         linkPdf = `${this.$axios.defaults.baseURL}/inmunologia/solicitud/${solicitud.inmunologia?.code}/pdf`
+      } else if (tipo === 'InmunologiaAnaliticaDoctor' || tipo === 'InmunologiaAnaliticaPaciente') {
+        linkPdf = `${this.$axios.defaults.baseURL}/inmunologia-analitica/resultado/${solicitud.inmunologia_analitica_codigo}/pdf`
       }
 
       // ===== Mensajes Doctor/Paciente =====
@@ -658,6 +663,12 @@ export default {
       } else if (tipo === 'InmunologiaPaciente') {
         mensajeWhatssApp = `Estimado/a ${solicitud.paciente_nombre}, le informamos que sus resultados de Inmunología ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
         telefono = solicitud.paciente_telefono
+      } else if (tipo === 'InmunologiaAnaliticaDoctor') {
+        mensajeWhatssApp = `Estimado Dr. ${solicitud.doctor_nombre}, le informamos que los resultados de Inmunología para el paciente ${solicitud.paciente_nombre} (CI: ${solicitud.paciente_ci}) ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.doctor_telefono
+      } else if (tipo === 'InmunologiaAnaliticaPaciente') {
+        mensajeWhatssApp = `Estimado/a ${solicitud.paciente_nombre}, le informamos que sus resultados de Inmunología ya están disponibles. Puede acceder a los resultados en el siguiente enlace: ${linkPdf}`
+        telefono = solicitud.paciente_telefono
       }
 
       const urlWhatsApp = `https://api.whatsapp.com/send?phone=${telefono}&text=${encodeURIComponent(mensajeWhatssApp)}`
@@ -704,10 +715,11 @@ export default {
       window.open(url, '_blank')
     },
     printInmunologia(solicitud) {
-      // const url = `${this.$axios.defaults.baseURL}/inmunologia/solicitud/${solicitud.id}/pdf`
-      // window.open(url, '_blank')
-      // http://localhost:8000/api/inmunologia/solicitud/3/pdf-all?area_id=5
       const url = `${this.$axios.defaults.baseURL}/inmunologia/solicitud/${solicitud.id}/pdf-all?area_id=5`
+      window.open(url, '_blank')
+    },
+    printInmunologiaAnalitica(solicitud) {
+      const url = `${this.$axios.defaults.baseURL}/inmunologia-analitica/resultado/${solicitud.inmunologia_analitica_codigo}/pdf`
       window.open(url, '_blank')
     },
     selectHematologia(solicitud) {

@@ -13,6 +13,16 @@
         <q-btn flat icon="arrow_back" label="Volver" no-caps @click="$router.back()" />
         <q-btn
           class="q-ml-sm"
+          flat
+          color="deep-purple"
+          icon="print"
+          label="Imprimir"
+          no-caps
+          :disable="!prestaciones.length"
+          @click="imprimirPdf"
+        />
+        <q-btn
+          class="q-ml-sm"
           color="primary"
           icon="save"
           label="Guardar resultados"
@@ -85,6 +95,15 @@
               <q-chip v-if="prest.subarea" dense class="q-ml-xs" color="blue-1" text-color="primary">
                 {{ prest.subarea }}
               </q-chip>
+              <q-space />
+              <template v-if="prest.realizado === 'REALIZADO'">
+                <q-icon name="check_circle" color="green" size="18px" class="q-mr-xs" />
+                <span class="text-caption text-teal-8">{{ prest.realizado_por }}</span>
+              </template>
+              <template v-else>
+                <q-icon name="cancel" color="orange" size="18px" class="q-mr-xs" />
+                <span class="text-caption text-orange-8">Pendiente</span>
+              </template>
             </div>
 
             <div v-if="!prest.rangos.length" class="text-caption text-grey-6 q-mb-sm q-pl-md">
@@ -215,6 +234,16 @@ export default {
       } finally {
         this.saving = false
       }
+    },
+
+    imprimirPdf () {
+      const codigo = this.solicitud?.inmunologia_analitica_codigo
+      if (!codigo) {
+        this.$q.notify({ type: 'warning', message: 'Guarda los resultados primero para generar el código de impresión' })
+        return
+      }
+      const url = `${this.$axios.defaults.baseURL}/inmunologia-analitica/resultado/${codigo}/pdf`
+      window.open(url, '_blank')
     },
 
     calcEstado (rango) {

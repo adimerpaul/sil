@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Servicio;
 use App\Models\Solicitude;
+use App\Models\ServicioSolicitude;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class InmunologiaAnaliticaController extends Controller
 {
@@ -19,11 +23,14 @@ class InmunologiaAnaliticaController extends Controller
     {
         $solicitud = Solicitude::findOrFail($solicitudId);
 
-        // Prestaciones de inmunología seleccionadas en esta solicitud
-        $servicioIds = DB::table('servicio_solicitudes')
+        // Prestaciones de inmunología seleccionadas en esta solicitud (con realizado)
+        $serviciosSolicitud = DB::table('servicio_solicitudes')
             ->where('solicitude_id', $solicitudId)
             ->where('area_id', self::AREA_ID)
-            ->pluck('servicio_id');
+            ->get()
+            ->keyBy('servicio_id');
+
+        $servicioIds = $serviciosSolicitud->keys();
 
         $prestaciones = Servicio::with(['rangos' => function ($q) {
             $q->orderBy('area_rangos.id');
@@ -40,8 +47,8 @@ class InmunologiaAnaliticaController extends Controller
             ->get()
             ->keyBy('area_rango_id');
 
-        // Agregar resultados existentes a cada rango
-        $prestacionesConResultados = $prestaciones->map(function ($servicio) use ($resultados) {
+        $prestacionesConResultados = $prestaciones->map(function ($servicio) use ($resultados, $serviciosSolicitud) {
+            $ss = $serviciosSolicitud->get($servicio->id);
             $rangos = $servicio->rangos->map(function ($rango) use ($resultados) {
                 $resultado = $resultados->get($rango->id);
                 return [
@@ -65,24 +72,27 @@ class InmunologiaAnaliticaController extends Controller
             });
 
             return [
-                'servicio_id' => $servicio->id,
-                'nombre'      => $servicio->nombre,
-                'metodo'      => $servicio->metodo,
-                'subarea'     => $servicio->subarea,
-                'rangos'      => $rangos,
+                'servicio_id'   => $servicio->id,
+                'nombre'        => $servicio->nombre,
+                'metodo'        => $servicio->metodo,
+                'subarea'       => $servicio->subarea,
+                'rangos'        => $rangos,
+                'realizado'     => $ss->realizado ?? 'PENDIENTE',
+                'realizado_por' => $ss->realizado_por ?? null,
             ];
         });
 
         return response()->json([
             'solicitud'    => [
-                'id'               => $solicitud->id,
-                'codigo'           => $solicitud->codigo,
-                'paciente_nombre'  => $solicitud->paciente_nombre,
-                'paciente_edad'    => $solicitud->paciente_edad,
-                'paciente_genero'  => $solicitud->paciente_genero,
-                'doctor_nombre'    => $solicitud->doctor_nombre,
-                'fecha_solicitud'  => $solicitud->fecha_solicitud,
-                'estado'           => $solicitud->estado,
+                'id'                             => $solicitud->id,
+                'codigo'                         => $solicitud->codigo,
+                'inmunologia_analitica_codigo'   => $solicitud->inmunologia_analitica_codigo,
+                'paciente_nombre'                => $solicitud->paciente_nombre,
+                'paciente_edad'                  => $solicitud->paciente_edad,
+                'paciente_genero'                => $solicitud->paciente_genero,
+                'doctor_nombre'                  => $solicitud->doctor_nombre,
+                'fecha_solicitud'                => $solicitud->fecha_solicitud,
+                'estado'                         => $solicitud->estado,
             ],
             'prestaciones' => $prestacionesConResultados,
         ]);
@@ -90,7 +100,7 @@ class InmunologiaAnaliticaController extends Controller
 
     /**
      * POST /inmunologia-analitica/solicitud/{id}/resultados
-     * Guarda o actualiza los valores ingresados para cada rango.
+     * Guarda o actualiza los valores ingresados para cada rango y marca como REALIZADO.
      */
     public function saveResultados(Request $request, $solicitudId)
     {
@@ -121,6 +131,92 @@ class InmunologiaAnaliticaController extends Controller
             );
         }
 
-        return response()->json(['message' => 'Resultados guardados']);
+        ServicioSolicitude::where('solicitude_id', $solicitudId)
+            ->where('area_id', self::AREA_ID)
+            ->update([
+                'realizado'     => 'REALIZADO',
+                'realizado_por' => auth()->user()->name ?? null,
+            ]);
+
+        // Generar código único de acceso al PDF si todavía no existe
+        if (! $solicitud->inmunologia_analitica_codigo) {
+            $solicitud->inmunologia_analitica_codigo = (string) Str::uuid();
+            $solicitud->save();
+        }
+
+        return response()->json([
+            'message' => 'Resultados guardados',
+            'codigo'  => $solicitud->inmunologia_analitica_codigo,
+        ]);
+    }
+
+    /**
+     * GET /inmunologia-analitica/resultado/{codigo}/pdf
+     * Genera el PDF de resultados de inmunología usando el código UUID público.
+     */
+    public function pdfBySolicitude($codigo)
+    {
+        $solicitud = Solicitude::where('inmunologia_analitica_codigo', $codigo)->firstOrFail();
+        $solicitudId = $solicitud->id;
+
+        $serviciosSolicitud = DB::table('servicio_solicitudes')
+            ->where('solicitude_id', $solicitudId)
+            ->where('area_id', self::AREA_ID)
+            ->get()
+            ->keyBy('servicio_id');
+
+        $servicioIds = $serviciosSolicitud->keys();
+
+        $prestaciones = Servicio::with(['rangos' => function ($q) {
+            $q->orderBy('area_rangos.id');
+        }])
+            ->whereIn('id', $servicioIds)
+            ->orderBy('codigo')
+            ->get();
+
+        $resultados = DB::table('resultado_laboratorios')
+            ->where('solicitude_id', $solicitudId)
+            ->where('area_id', self::AREA_ID)
+            ->whereNull('deleted_at')
+            ->get()
+            ->keyBy('area_rango_id');
+
+        $prestacionesData = $prestaciones->map(function ($servicio) use ($resultados, $serviciosSolicitud) {
+            $ss = $serviciosSolicitud->get($servicio->id);
+            $rangos = $servicio->rangos->map(function ($rango) use ($resultados) {
+                $resultado = $resultados->get($rango->id);
+                return (object)[
+                    'id'             => $rango->id,
+                    'rango_nombre'   => $rango->rango_nombre,
+                    'unidad'         => $rango->unidad,
+                    'interpretacion' => $rango->interpretacion,
+                    'rango_minimo'   => $rango->rango_minimo,
+                    'rango_maximo'   => $rango->rango_maximo,
+                    'metodo'         => $rango->metodo,
+                    'valor_final'    => $resultado->valor_final ?? null,
+                ];
+            });
+
+            return (object)[
+                'nombre'        => $servicio->nombre,
+                'metodo'        => $servicio->metodo,
+                'subarea'       => $servicio->subarea,
+                'rangos'        => $rangos,
+                'realizado_por' => $ss->realizado_por ?? null,
+            ];
+        })->filter(fn($p) => $p->rangos->isNotEmpty())->values();
+
+        $url = url("/api/inmunologia-analitica/resultado/{$codigo}/pdf");
+        $qrSvgBase64 = base64_encode(
+            QrCode::format('svg')->size(110)->margin(1)->generate($url)
+        );
+
+        $pdf = Pdf::loadView('pdf.inmunologia_analitica', [
+            'solicitud'    => $solicitud,
+            'prestaciones' => $prestacionesData,
+            'qrSvgBase64'  => $qrSvgBase64,
+        ])->setPaper('letter');
+
+        return $pdf->stream('INMUNOLOGIA_' . $solicitud->codigo . '.pdf');
     }
 }
