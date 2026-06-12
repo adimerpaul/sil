@@ -6,6 +6,25 @@
         <div class="text-caption text-grey-7">{{ isEditMode ? 'Modificación de una entrada de almacén' : 'Registro de entradas de almacén' }}</div>
       </div>
       <q-space />
+      <q-btn
+        v-if="isEditMode"
+        flat
+        icon="print"
+        label="Imprimir"
+        no-caps
+        color="teal"
+        :loading="printing"
+        @click="imprimir"
+      />
+      <q-btn
+        color="primary"
+        :icon="isEditMode ? 'save' : 'add_circle'"
+        :label="isEditMode ? 'Guardar cambios' : 'Registrar compra'"
+        no-caps
+        :loading="saving"
+        :disable="selectedItems.length === 0"
+        @click="confirmSave"
+      />
       <q-btn flat icon="arrow_back" label="Volver" no-caps to="/almacen/compras" />
     </div>
 
@@ -84,6 +103,9 @@
           <!-- Campos documento -->
           <q-card-section class="q-pa-xs">
             <div class="row q-col-gutter-xs">
+              <div class="col-12 col-sm-4">
+                <q-input v-model="form.numero" dense outlined clearable label="Número (impresión)" />
+              </div>
               <div class="col-12 col-sm-4">
                 <q-input v-model="form.categoria_programatica" dense outlined label="Categoría programática" />
               </div>
@@ -416,6 +438,7 @@ export default {
       loadingProducts: false,
       loadingCompra: false,
       saving: false,
+      printing: false,
       savingProveedor: false,
       products: [],
       proveedores: [],
@@ -430,6 +453,7 @@ export default {
       newProveedor: {},
       confirmData: null,
       form: {
+        numero: '',
         proveedor_id: null,
         unidad_id: null,
         fecha_hora: moment().format('YYYY-MM-DDTHH:mm'),
@@ -672,6 +696,7 @@ export default {
           return
         }
 
+        this.form.numero = compra.numero || ''
         this.form.proveedor_id = compra.proveedor_id || null
         this.form.unidad_id = compra.unidad_id || null
         this.form.fecha_hora = compra.fecha_hora ? moment(compra.fecha_hora).format('YYYY-MM-DDTHH:mm') : moment().format('YYYY-MM-DDTHH:mm')
@@ -708,6 +733,18 @@ export default {
         this.$router.push('/almacen/compras')
       } finally {
         this.loadingCompra = false
+      }
+    },
+    async imprimir () {
+      this.printing = true
+      try {
+        const res = await this.$axios.get(`compras/${this.editId}/pdf`, { responseType: 'blob' })
+        const blob = new Blob([res.data], { type: 'application/pdf' })
+        window.open(URL.createObjectURL(blob), '_blank')
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'No se pudo generar el PDF')
+      } finally {
+        this.printing = false
       }
     },
     itemImageUrl (row) {

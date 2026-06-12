@@ -164,7 +164,7 @@
             <table class="doc-number-table">
                 <tr>
                     <td class="bold uppercase center">N&deg;</td>
-                    <td class="center">{{ $compra->id }}</td>
+                    <td class="center">{{ $compra->numero ?: $compra->id }}</td>
                 </tr>
                 <tr>
                     <td class="bold uppercase center">H / Ruta</td>
@@ -197,7 +197,7 @@
     </tr>
     <tr>
         <td class="cell label">Orden compra</td>
-        <td class="cell">{{ $compra->id }}</td>
+        <td class="cell">{{ $compra->numero ?: $compra->id }}</td>
         <td class="cell label">Fecha O.C.</td>
         <td class="cell">{{ $fechaCompra ? $fechaCompra->format('d-m-y') : '-' }}</td>
     </tr>
@@ -206,7 +206,7 @@
 {{--        <td class="cell uppercase" colspan="3">{{ $compra->motivo_registro ?: '-' }}</td>--}}
 {{--    </tr>--}}
     <tr>
-        <td class="cell label">Unidad</td>
+        <td class="cell label">Unidad solicitante</td>
         <td class="cell uppercase" colspan="3">{{ optional($compra->unidad)->nombre ?: '-' }}</td>
     </tr>
     <tr>

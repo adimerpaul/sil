@@ -13,6 +13,7 @@ class Compra extends Model
 
     protected $fillable = [
         'user_id',
+        'numero',
         'proveedor_id',
         'unidad_id',
         'fecha_hora',

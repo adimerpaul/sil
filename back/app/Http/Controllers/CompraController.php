@@ -57,6 +57,7 @@ class CompraController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
+            'numero' => 'nullable|string|max:100',
             'proveedor_id' => 'nullable|exists:proveedores,id',
             'unidad_id' => 'nullable|exists:unidades,id',
             'fecha_hora' => 'nullable|date',
@@ -87,6 +88,7 @@ class CompraController extends Controller
 
             $compra = Compra::create([
                 'user_id' => $request->user()->id,
+                'numero' => $data['numero'] ?? null,
                 'proveedor_id' => $data['proveedor_id'] ?? null,
                 'unidad_id' => $data['unidad_id'] ?? null,
                 'fecha_hora' => $data['fecha_hora'] ?? now(),
@@ -151,6 +153,7 @@ class CompraController extends Controller
         }
 
         $data = $request->validate([
+            'numero' => 'nullable|string|max:100',
             'proveedor_id' => 'nullable|exists:proveedores,id',
             'unidad_id' => 'nullable|exists:unidades,id',
             'fecha_hora' => 'nullable|date',
@@ -183,6 +186,7 @@ class CompraController extends Controller
             $cantidadesVenta = $compra->detalles->keyBy('producto_id')->map(fn ($d) => (int) $d->cantidad_venta);
 
             $compra->update([
+                'numero' => $data['numero'] ?? null,
                 'proveedor_id' => $data['proveedor_id'] ?? null,
                 'unidad_id' => $data['unidad_id'] ?? null,
                 'fecha_hora' => $data['fecha_hora'] ?? $compra->fecha_hora,
