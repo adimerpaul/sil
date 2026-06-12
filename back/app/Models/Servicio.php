@@ -58,4 +58,14 @@ class Servicio extends Model implements AuditableContract
             'area_tipo_muestra_id'
         )->withTimestamps();
     }
+
+    public function rangos()
+    {
+        return $this->belongsToMany(
+            AreaRango::class,
+            'servicio_rangos',
+            'servicio_id',
+            'area_rango_id'
+        )->withPivot('nombre_variable')->withTimestamps();
+    }
 }

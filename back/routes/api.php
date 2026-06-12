@@ -224,6 +224,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('/inmunologia/solicitude-formulario/{id}', [\App\Http\Controllers\InmunologiaController::class, 'update']);
     Route::delete('/inmunologia/solicitude-formulario/{id}', [\App\Http\Controllers\InmunologiaController::class, 'remove']);
 
+    // Inmunología analítica estructurada (basada en rangos vinculados a prestaciones)
+    Route::get('/inmunologia-analitica/solicitud/{id}', [\App\Http\Controllers\InmunologiaAnaliticaController::class, 'show']);
+    Route::post('/inmunologia-analitica/solicitud/{id}/resultados', [\App\Http\Controllers\InmunologiaAnaliticaController::class, 'saveResultados']);
+
+    // Vincular rangos a una prestación/servicio
+    Route::get('/servicios/{id}/rangos', [\App\Http\Controllers\ServicioController::class, 'getRangos']);
+    Route::post('/servicios/{id}/rangos', [\App\Http\Controllers\ServicioController::class, 'syncRangos']);
+
     Route::get('reportes/almacen-unidad/unidades', [ReporteUnidadController::class, 'unidades']);
     Route::get('reportes/almacen-unidad/personas', [ReporteUnidadController::class, 'personas']);
     Route::get('reportes/almacen-unidad', [ReporteUnidadController::class, 'index']);

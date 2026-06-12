@@ -9,7 +9,7 @@ class ServicioController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Servicio::with(['area', 'tiposMuestra.area'])->orderBy('codigo', 'asc');
+        $query = Servicio::with(['area', 'tiposMuestra.area'])->withCount('rangos')->orderBy('codigo', 'asc');
 
         if ($request->filled('area_id')) {
             $query->where('area_id', $request->area_id);
@@ -71,6 +71,35 @@ class ServicioController extends Controller
         $servicio->delete();
 
         return response()->json(['message' => 'Servicio eliminado correctamente']);
+    }
+
+    public function getRangos($id)
+    {
+        $servicio = Servicio::with(['rangos' => function ($q) {
+            $q->orderBy('area_rangos.id');
+        }])->findOrFail($id);
+
+        return response()->json($servicio->rangos);
+    }
+
+    public function syncRangos(Request $request, $id)
+    {
+        $servicio = Servicio::findOrFail($id);
+
+        $data = $request->validate([
+            'rangos'                  => 'array',
+            'rangos.*.area_rango_id'  => 'required|integer|exists:area_rangos,id',
+            'rangos.*.nombre_variable'=> 'nullable|string|max:100',
+        ]);
+
+        $sync = [];
+        foreach ($data['rangos'] ?? [] as $item) {
+            $sync[$item['area_rango_id']] = ['nombre_variable' => $item['nombre_variable'] ?? null];
+        }
+
+        $servicio->rangos()->sync($sync);
+
+        return response()->json($servicio->load('rangos'));
     }
 
     public function syncTiposMuestra(Request $request, $id)
