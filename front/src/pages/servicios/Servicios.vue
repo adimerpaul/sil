@@ -238,6 +238,7 @@
                   dense
                   outlined
                   v-model="searchRango"
+                  clearable
                   label="Buscar rango"
                   class="q-mr-sm"
                   style="max-width: 260px"
@@ -526,13 +527,22 @@
         <q-card-section class="q-pa-sm">
           <q-form @submit="guardarRango">
             <div class="row q-col-gutter-xs">
-              <div class="col-12">
+
+              <div class="col-12 col-sm-8">
                 <q-input
                   v-model="rangoForm.rango_nombre"
-                  label="Nombre del rango (ej. Hemoglobina)"
+                  label="Nombre"
                   dense
                   outlined
                   autofocus
+                />
+              </div>
+              <div class="col-12 col-sm-4">
+                <q-input
+                  v-model="rangoForm.metodo"
+                  label="Método (CLIA, ELISA…)"
+                  dense
+                  outlined
                 />
               </div>
 
@@ -568,13 +578,46 @@
               <div class="col-12">
                 <q-input
                   v-model="rangoForm.interpretacion"
-                  type="textarea"
-                  autogrow
-                  label="Interpretación / texto"
+                  label="Rango de referencia (texto)"
                   dense
                   outlined
                 />
               </div>
+
+              <div class="col-12 col-sm-6">
+                <q-input
+                  v-model="rangoForm.muestra"
+                  label="Muestra (SUERO, PLASMA…)"
+                  dense
+                  outlined
+                />
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-input
+                  v-model="rangoForm.marca"
+                  label="Marca/Reactivo"
+                  dense
+                  outlined
+                />
+              </div>
+
+              <div class="col-12 col-sm-6">
+                <q-input
+                  v-model="rangoForm.resultado"
+                  label="Resultado"
+                  dense
+                  outlined
+                />
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-input
+                  v-model="rangoForm.perfil"
+                  label="Perfil (ej. PERFIL TIROIDEO)"
+                  dense
+                  outlined
+                />
+              </div>
+
             </div>
 
             <div class="text-right q-mt-sm">
@@ -759,40 +802,29 @@ export default {
       rangoForm: {
         id: null,
         area_id: null,
+        metodo: '',
+        resultado: '',
         rango_nombre: '',
         rango_minimo: null,
         rango_maximo: null,
         unidad: '',
-        interpretacion: ''
+        interpretacion: '',
+        muestra: '',
+        marca: '',
+        perfil: ''
       },
 
       columnsRangos: [
         { name: 'actions', label: 'Acciones', align: 'center' },
-        {
-          name: 'rango_nombre',
-          label: 'Nombre',
-          field: 'rango_nombre',
-          align: 'left'
-        },
-        {
-          name: 'rango_minimo',
-          label: 'Mínimo',
-          field: 'rango_minimo',
-          align: 'right'
-        },
-        {
-          name: 'rango_maximo',
-          label: 'Máximo',
-          field: 'rango_maximo',
-          align: 'right'
-        },
+        { name: 'rango_nombre', label: 'Nombre', field: r => r.rango_nombre || r.analito || '', align: 'left' },
+        { name: 'metodo', label: 'Método', field: 'metodo', align: 'left' },
+        { name: 'rango_minimo', label: 'Mínimo', field: 'rango_minimo', align: 'right' },
+        { name: 'rango_maximo', label: 'Máximo', field: 'rango_maximo', align: 'right' },
         { name: 'unidad', label: 'Unidad', field: 'unidad', align: 'left' },
-        {
-          name: 'interpretacion',
-          label: 'Interpretación',
-          field: 'interpretacion',
-          align: 'left'
-        }
+        { name: 'interpretacion', label: 'Referencia', field: 'interpretacion', align: 'left' },
+        { name: 'muestra', label: 'Muestra', field: 'muestra', align: 'left' },
+        { name: 'marca', label: 'Marca', field: 'marca', align: 'left' },
+        { name: 'perfil', label: 'Perfil', field: 'perfil', align: 'left' }
       ],
 
       // TIPOS DE MUESTRA
@@ -1031,11 +1063,16 @@ export default {
       this.rangoForm = {
         id: null,
         area_id: this.selectedAreaId,
+        metodo: '',
+        resultado: '',
         rango_nombre: '',
         rango_minimo: null,
         rango_maximo: null,
         unidad: '',
-        interpretacion: ''
+        interpretacion: '',
+        muestra: '',
+        marca: '',
+        perfil: ''
       }
       this.editandoRango = false
       this.dialogRango = true

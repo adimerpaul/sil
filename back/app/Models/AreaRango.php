@@ -14,13 +14,19 @@ class AreaRango extends Model implements AuditableContract
 
     protected $fillable = [
         'area_id',
+        'analito',
+        'metodo',
+        'resultado',
         'rango_nombre',
         'rango_minimo',
         'rango_maximo',
         'unidad',
         'interpretacion',
+        'muestra',
+        'marca',
+        'perfil',
         'lista',
-        'textarea'
+        'textarea',
     ];
 
     public function area()

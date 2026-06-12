@@ -45,12 +45,21 @@ class AreaRangoController extends Controller
     {
         $data = $request->validate([
             'area_id'        => 'required|exists:areas,id',
-            'rango_nombre'   => 'required|string|max:255',
+            'analito'        => 'nullable|string|max:255',
+            'metodo'         => 'nullable|string|max:50',
+            'resultado'      => 'nullable|string|max:100',
+            'rango_nombre'   => 'nullable|string|max:255',
             'rango_minimo'   => 'nullable|numeric',
             'rango_maximo'   => 'nullable|numeric',
             'unidad'         => 'nullable|string|max:255',
             'interpretacion' => 'nullable|string',
+            'muestra'        => 'nullable|string|max:100',
+            'marca'          => 'nullable|string|max:100',
+            'perfil'         => 'nullable|string|max:150',
         ]);
+
+        // rango_nombre cae en analito si no se especifica
+        $data['rango_nombre'] = $data['rango_nombre'] ?: ($data['analito'] ?? '');
 
         $rango = AreaRango::create($data);
 
@@ -66,12 +75,20 @@ class AreaRangoController extends Controller
 
         $data = $request->validate([
             'area_id'        => 'required|exists:areas,id',
-            'rango_nombre'   => 'required|string|max:255',
+            'analito'        => 'nullable|string|max:255',
+            'metodo'         => 'nullable|string|max:50',
+            'resultado'      => 'nullable|string|max:100',
+            'rango_nombre'   => 'nullable|string|max:255',
             'rango_minimo'   => 'nullable|numeric',
             'rango_maximo'   => 'nullable|numeric',
             'unidad'         => 'nullable|string|max:255',
             'interpretacion' => 'nullable|string',
+            'muestra'        => 'nullable|string|max:100',
+            'marca'          => 'nullable|string|max:100',
+            'perfil'         => 'nullable|string|max:150',
         ]);
+
+        $data['rango_nombre'] = $data['rango_nombre'] ?: ($data['analito'] ?? $rango->rango_nombre);
 
         $rango->update($data);
 
