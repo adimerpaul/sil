@@ -107,6 +107,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('almacen/productos-vencidos', [ProductoVencidoController::class, 'index']);
     Route::get('compras/{id}/pdf', [CompraController::class, 'printPdf']);
     Route::apiResource('compras', CompraController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
+    Route::get('pedidos/limite-mensual', [PedidoController::class, 'limiteMensual']);
     Route::get('pedidos/{id}/pdf', [PedidoController::class, 'printPdf']);
     Route::patch('pedidos/{id}/unidad', [PedidoController::class, 'cambiarUnidad']);
     Route::apiResource('pedidos', PedidoController::class)->only(['index', 'show', 'store', 'update', 'destroy']);

@@ -96,6 +96,22 @@ class PedidoController extends Controller
             ], 422);
         }
 
+        if (! $esEmergencia) {
+            $maxPedidos = (int) ($targetUser->max_pedidos ?? 1);
+            $pedidosMes = Pedido::where('user_id', $targetUser->id)
+                ->where('estado', '!=', 'ANULADO')
+                ->whereYear('fecha_hora', now()->year)
+                ->whereMonth('fecha_hora', now()->month)
+                ->count();
+
+            if ($pedidosMes >= $maxPedidos) {
+                return response()->json([
+                    'message' => "Has alcanzado el límite de {$maxPedidos} pedido(s) permitido(s) este mes. Contacta al administrador para ampliar tu límite.",
+                    'limite_alcanzado' => true,
+                ], 422);
+            }
+        }
+
         return DB::transaction(function () use ($data, $targetUser) {
             $productos = AlmacenItem::whereIn('id', collect($data['items'])->pluck('producto_id'))->get()->keyBy('id');
             $total = collect($data['items'])->sum(function ($item) use ($productos) {
@@ -263,6 +279,23 @@ class PedidoController extends Controller
         $pedido->update(['unidad_id' => $request->unidad_id]);
 
         return response()->json($pedido->load(['user:id,name', 'unidad:id,nombre', 'detalles.producto']));
+    }
+
+    public function limiteMensual(Request $request)
+    {
+        $user = $request->user();
+        $maxPedidos = (int) ($user->max_pedidos ?? 1);
+        $pedidosMes = Pedido::where('user_id', $user->id)
+            ->where('estado', '!=', 'ANULADO')
+            ->whereYear('fecha_hora', now()->year)
+            ->whereMonth('fecha_hora', now()->month)
+            ->count();
+
+        return response()->json([
+            'max_pedidos'  => $maxPedidos,
+            'pedidos_mes'  => $pedidosMes,
+            'bloqueado'    => $pedidosMes >= $maxPedidos,
+        ]);
     }
 
     private function calcularDiff($detallesOriginales, array $itemsNuevos, $productos): string

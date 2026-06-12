@@ -19,8 +19,36 @@
         <q-icon name="block" color="orange-7" size="26px" />
       </template>
       <div class="text-weight-bold">Pedidos deshabilitados</div>
+      <div class="text-body2">{{ ventanaPedidoMensaje }}</div>
+    </q-banner>
+
+    <q-banner
+      v-if="!loadingLimite && limiteMensual.bloqueado"
+      rounded
+      class="bg-red-1 text-red-10 q-mb-sm"
+      style="border: 1px solid #ef9a9a;"
+    >
+      <template #avatar>
+        <q-icon name="shopping_cart_checkout" color="red-7" size="26px" />
+      </template>
+      <div class="text-weight-bold">Límite mensual alcanzado</div>
       <div class="text-body2">
-        {{ ventanaPedidoMensaje }}
+        Ya realizaste {{ limiteMensual.pedidos_mes }} de {{ limiteMensual.max_pedidos }} pedido(s) permitido(s) este mes.
+        Contacta al administrador para que amplíe tu límite.
+      </div>
+    </q-banner>
+
+    <q-banner
+      v-if="!loadingLimite && !limiteMensual.bloqueado && pedidosPermitidos"
+      rounded
+      class="bg-blue-1 text-blue-10 q-mb-sm"
+      style="border: 1px solid #90caf9;"
+    >
+      <template #avatar>
+        <q-icon name="info" color="blue-6" size="22px" />
+      </template>
+      <div class="text-body2">
+        Este mes has realizado <strong>{{ limiteMensual.pedidos_mes }}</strong> de <strong>{{ limiteMensual.max_pedidos }}</strong> pedido(s) permitido(s).
       </div>
     </q-banner>
 
@@ -47,7 +75,7 @@
               v-for="item in products"
               :key="item.id"
               class="product-card"
-              :class="{ 'product-card--disabled': !pedidosPermitidos }"
+              :class="{ 'product-card--disabled': !puedeCrearPedido }"
               @click="addItem(item)"
             >
               <div class="product-image-wrapper">
@@ -194,7 +222,7 @@
               label="Confimar registro"
               :loading="saving"
               no-caps
-              :disable="selectedItems.length === 0 || !pedidosPermitidos"
+              :disable="selectedItems.length === 0 || !puedeCrearPedido"
               @click="confirmSave"
             />
           </q-card-section>
@@ -279,7 +307,9 @@ export default {
     return {
       loadingProducts: false,
       loadingVentana: false,
+      loadingLimite: false,
       saving: false,
+      limiteMensual: { max_pedidos: 1, pedidos_mes: 0, bloqueado: false },
       products: [],
       selectedItems: [],
       comentario: '',
@@ -316,6 +346,9 @@ export default {
     pedidosPermitidos () {
       return this.fechasVentanaConfiguradas && !!this.ventanaPedido.pedidos_habilitados
     },
+    puedeCrearPedido () {
+      return this.pedidosPermitidos && !this.limiteMensual.bloqueado
+    },
     ventanaPedidoMensaje () {
       if (!this.fechasVentanaConfiguradas) {
         return 'No se puede crear un pedido porque falta configurar la fecha de inicio y la fecha de finalización en Herramientas de Almacén.'
@@ -325,7 +358,7 @@ export default {
     },
   },
   async mounted () {
-    await this.fetchVentanaPedido()
+    await Promise.all([this.fetchVentanaPedido(), this.fetchLimiteMensual()])
     await this.fetchProducts()
   },
   methods: {
@@ -336,6 +369,15 @@ export default {
         this.ventanaPedido = res.data || this.ventanaPedido
       } finally {
         this.loadingVentana = false
+      }
+    },
+    async fetchLimiteMensual () {
+      this.loadingLimite = true
+      try {
+        const res = await this.$axios.get('pedidos/limite-mensual')
+        this.limiteMensual = res.data
+      } finally {
+        this.loadingLimite = false
       }
     },
     async fetchProducts () {
@@ -359,6 +401,10 @@ export default {
     addItem (product) {
       if (!this.pedidosPermitidos) {
         this.$q.notify({ color: 'negative', message: this.ventanaPedidoMensaje, position: 'top' })
+        return
+      }
+      if (this.limiteMensual.bloqueado) {
+        this.$q.notify({ color: 'negative', message: `Límite de ${this.limiteMensual.max_pedidos} pedido(s) mensual alcanzado.`, position: 'top' })
         return
       }
       const productoId = product.id
@@ -397,6 +443,10 @@ export default {
     confirmSave () {
       if (!this.pedidosPermitidos) {
         this.$q.notify({ color: 'negative', message: this.ventanaPedidoMensaje, position: 'top' })
+        return
+      }
+      if (this.limiteMensual.bloqueado) {
+        this.$q.notify({ color: 'negative', message: `Límite de ${this.limiteMensual.max_pedidos} pedido(s) mensual alcanzado.`, position: 'top' })
         return
       }
       if (!this.selectedItems.length) {

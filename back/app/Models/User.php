@@ -36,6 +36,7 @@ class User extends Authenticatable implements Auditable
         'establecimiento_id',
         'unidad_id',
         'ci',
+        'max_pedidos',
     ];
 
     /**

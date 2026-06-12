@@ -179,6 +179,16 @@
               <div class="col-12 col-sm-6">
                 <q-input v-model="user.ci" label="CI" dense outlined/>
               </div>
+              <div class="col-12 col-sm-6">
+                <q-input
+                  v-model.number="user.max_pedidos"
+                  label="Máx. pedidos por mes"
+                  dense outlined
+                  type="number"
+                  min="1"
+                  hint="Pedidos activos que puede hacer al mes (mín. 1)"
+                />
+              </div>
               <div class="col-12 col-sm-6" v-if="!user.id">
                 <q-input v-model="user.password" label="Contraseña" dense outlined :rules="[val => !!val || 'Campo requerido']"/>
               </div>
@@ -1220,6 +1230,7 @@ export default {
         cargo: '',
         role: 'Usuario',
         unidad_id: this.unidades.find(u => u.nombre.includes('INGENIERÍA'))?.id || null,
+        max_pedidos: 1,
       }
       this.actionUser = 'Nuevo'
       this.permFilter = ''
