@@ -550,7 +550,7 @@
         flat
         bordered
         :loading="loading"
-        :pagination.sync="pagination"
+        v-model:pagination="pagination"
         :rows-per-page-options="[10, 20, 50]"
         @request="onRequest"
         @rowClick="openDialogSolicitud"
