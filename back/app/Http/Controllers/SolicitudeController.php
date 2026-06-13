@@ -804,6 +804,8 @@ class SolicitudeController extends Controller
         $codigo = $request->input('codigo', '');
         $from   = $request->input('from', now()->startOfMonth()->toDateString());
         $to     = $request->input('to',   now()->endOfMonth()->toDateString());
+        $perPage = (int) $request->input('per_page', 25);
+        $perPage = max(1, min($perPage, 100));
 
         $query = Solicitude::with([
             'paciente', 'doctor', 'servicios.area', 'servicios.tiposMuestra', 'resultados',
@@ -860,7 +862,7 @@ class SolicitudeController extends Controller
             $query->whereDate('fecha_creacion', '<=', $to);
         }
 
-        return $query->orderBy('id', 'desc')->get();
+        return $query->orderBy('id', 'desc')->paginate($perPage);
     }
 
     public function paraPresentacion(Request $request)

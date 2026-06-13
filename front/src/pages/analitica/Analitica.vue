@@ -422,7 +422,7 @@
           <!-- Paginación -->
           <div class="row items-center justify-between q-px-sm q-py-xs q-mt-xs">
             <div class="col-auto text-caption text-grey-7">
-              Mostrando <b>{{ paginacionInfo.desde }}-{{ paginacionInfo.hasta }}</b> de <b>{{ solicitudes.length }}</b> solicitudes
+              Mostrando <b>{{ paginacionInfo.desde }}-{{ paginacionInfo.hasta }}</b> de <b>{{ totalSolicitudes }}</b> solicitudes
             </div>
             <div class="col-auto row items-center q-gutter-sm">
               <q-select
@@ -431,6 +431,7 @@
                 dense outlined options-dense
                 style="width:85px"
                 label="Filas"
+                @update:model-value="onChangeRowsPerPage"
               />
               <q-pagination
                 v-model="page"
@@ -441,6 +442,7 @@
                 icon-prev="chevron_left" icon-next="chevron_right"
                 size="sm"
                 color="primary"
+                @update:model-value="onChangePage"
               />
             </div>
           </div>
@@ -531,6 +533,7 @@ export default {
       to: moment().endOf('month').format('YYYY-MM-DD'),
       fecha: moment().format('YYYY-MM-DD'),
       solicitudes: [],
+      totalSolicitudes: 0,
       loading: false,
       filter: '',
       page: 1,
@@ -546,14 +549,13 @@ export default {
       return [...new Set(this.seleccionados)]
     },
     pagesNumber () {
-      return Math.max(1, Math.ceil(this.solicitudes.length / this.rowsPerPage))
+      return Math.max(1, Math.ceil(this.totalSolicitudes / this.rowsPerPage))
     },
     solicitudesPaginadas () {
-      const start = (this.page - 1) * this.rowsPerPage
-      return this.solicitudes.slice(start, start + this.rowsPerPage)
+      return this.solicitudes
     },
     paginacionInfo () {
-      const total = this.solicitudes.length
+      const total = this.totalSolicitudes
       if (!total) return { desde: 0, hasta: 0 }
       const desde = (this.page - 1) * this.rowsPerPage + 1
       const hasta = Math.min(this.page * this.rowsPerPage, total)
@@ -732,19 +734,34 @@ export default {
       this.filter = ''
       this.analiticaGet()
     },
-    async analiticaGet () {
+    onChangePage (page) {
+      this.page = page
+      this.analiticaGet(false)
+    },
+    onChangeRowsPerPage (val) {
+      this.rowsPerPage = val
+      this.page = 1
+      this.analiticaGet(false)
+    },
+    async analiticaGet (resetPage = true) {
       this.loading = true
       try {
+        if (resetPage) {
+          this.page = 1
+        }
         const isNumeric = /^\d+$/.test((this.filter || '').trim())
         const params = {
           filter: isNumeric ? '' : this.filter,
           from: this.from,
           to: this.to,
           codigo: isNumeric ? this.filter : '',
+          page: this.page,
+          per_page: this.rowsPerPage,
         }
         const response = await this.$axios.get('/solicitudesAnalitica', { params })
-        this.solicitudes = response.data
-        this.page = 1
+        this.solicitudes = response.data.data || []
+        this.totalSolicitudes = response.data.total || 0
+        this.page = response.data.current_page || this.page
       } catch (error) {
         this.$alert.error('Error al cargar las solicitudes de analítica.')
       } finally {
