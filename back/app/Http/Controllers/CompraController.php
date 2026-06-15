@@ -71,6 +71,7 @@ class CompraController extends Controller
             'categoria_programatica' => 'nullable|string|max:255',
             'orden_de_compra' => 'nullable|string|max:255',
             'codigo_interno' => 'nullable|string|max:255',
+            'hoja_de_ruta' => 'nullable|string',
             'retencion_porcentaje' => 'nullable|numeric|min:0|max:100',
             'items' => 'required|array|min:1',
             'items.*.producto_id' => 'required|exists:almacen_items,id',
@@ -105,6 +106,7 @@ class CompraController extends Controller
                 'categoria_programatica' => $data['categoria_programatica'] ?? null,
                 'orden_de_compra' => $data['orden_de_compra'] ?? null,
                 'codigo_interno' => $data['codigo_interno'] ?? null,
+                'hoja_de_ruta' => $data['hoja_de_ruta'] ?? null,
             ]);
 
             foreach ($data['items'] as $item) {
@@ -167,6 +169,7 @@ class CompraController extends Controller
             'categoria_programatica' => 'nullable|string|max:255',
             'orden_de_compra' => 'nullable|string|max:255',
             'codigo_interno' => 'nullable|string|max:255',
+            'hoja_de_ruta' => 'nullable|string',
             'retencion_porcentaje' => 'nullable|numeric|min:0|max:100',
             'items' => 'required|array|min:1',
             'items.*.producto_id' => 'required|exists:almacen_items,id',
@@ -202,6 +205,7 @@ class CompraController extends Controller
                 'categoria_programatica' => $data['categoria_programatica'] ?? null,
                 'orden_de_compra' => $data['orden_de_compra'] ?? null,
                 'codigo_interno' => $data['codigo_interno'] ?? null,
+                'hoja_de_ruta' => $data['hoja_de_ruta'] ?? null,
             ]);
 
             $compra->detalles()->delete();

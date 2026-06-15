@@ -168,7 +168,7 @@
                 </tr>
                 <tr>
                     <td class="bold uppercase center">H / Ruta</td>
-                    <td class="center">{{ $compra->nro_factura ?: '-' }}</td>
+                    <td class="center">{{ $compra->hoja_de_ruta ?: '-' }}</td>
                 </tr>
             </table>
         </td>

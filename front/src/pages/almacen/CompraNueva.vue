@@ -115,6 +115,9 @@
               <div class="col-12 col-sm-4">
                 <q-input v-model="form.codigo_interno" dense outlined label="Código interno" />
               </div>
+              <div class="col-12">
+                <q-input v-model="form.hoja_de_ruta" dense outlined type="textarea" autogrow label="Hoja de ruta (opcional)" />
+              </div>
               <div class="col-12 col-sm-6">
                 <q-select
                   v-model="form.unidad_id"
@@ -467,6 +470,7 @@ export default {
         categoria_programatica: '',
         orden_de_compra: '',
         codigo_interno: '',
+        hoja_de_ruta: '',
         retencion_activa: false,
         retencion_porcentaje: 7,
       },
@@ -710,6 +714,7 @@ export default {
         this.form.categoria_programatica = compra.categoria_programatica || ''
         this.form.orden_de_compra = compra.orden_de_compra || ''
         this.form.codigo_interno = compra.codigo_interno || ''
+        this.form.hoja_de_ruta = compra.hoja_de_ruta || ''
         this.form.retencion_porcentaje = parseFloat(compra.retencion_porcentaje) || 7
         this.form.retencion_activa = parseFloat(compra.retencion_porcentaje) > 0
         this.onProveedorChange()

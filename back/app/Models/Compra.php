@@ -30,6 +30,7 @@ class Compra extends Model
         'categoria_programatica',
         'orden_de_compra',
         'codigo_interno',
+        'hoja_de_ruta',
     ];
 
     public function detalles()
