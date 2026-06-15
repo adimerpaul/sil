@@ -191,7 +191,7 @@
     </tr>
     <tr>
         <td class="cell label">Categoria</td>
-        <td class="cell">{{ strtoupper($compra->tipo_pago ?: 'NINGUNO') }}</td>
+        <td class="cell">{{ strtoupper($compra->categoria_programatica ?: 'NINGUNO') }}</td>
         <td class="cell label">Proveedor</td>
         <td class="cell uppercase">{{ $proveedor }}</td>
     </tr>
