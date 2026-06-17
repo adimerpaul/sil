@@ -185,6 +185,7 @@
                       v-model.number="item.cantidad"
                       type="number"
                       min="0"
+                      step="any"
                       class="input-inline"
                       @change="recalculate(item)"
                     />

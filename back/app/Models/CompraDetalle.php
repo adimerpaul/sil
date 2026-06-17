@@ -13,6 +13,17 @@ class CompraDetalle extends Model
         'existencia',
     ];
 
+    protected $casts = [
+        'cantidad'       => 'float',
+        'cantidad_venta' => 'float',
+        'precio'         => 'decimal:4',
+        'precio13'       => 'decimal:4',
+        'precio_venta'   => 'decimal:4',
+        'total'          => 'decimal:2',
+        'total13'        => 'decimal:2',
+        'fecha_vencimiento' => 'date',
+    ];
+
     protected $fillable = [
         'compra_id',
         'user_id',
@@ -43,10 +54,10 @@ class CompraDetalle extends Model
         return $this->belongsTo(AlmacenItem::class, 'producto_id');
     }
 
-    public function getExistenciaAttribute(): int
+    public function getExistenciaAttribute(): float
     {
-        $cantidad = (int) ($this->cantidad ?? 0);
-        $cantidadVenta = (int) ($this->cantidad_venta ?? 0);
+        $cantidad = (float) ($this->cantidad ?? 0);
+        $cantidadVenta = (float) ($this->cantidad_venta ?? 0);
 
         return max($cantidad - $cantidadVenta, 0);
     }

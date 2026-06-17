@@ -214,7 +214,7 @@
                       <span class="producto-cell-nombre">{{ item.nombre }}</span>
                     </div>
                   </td>
-                  <td><input v-model.number="item.cantidad" type="number" min="0" class="input-inline" @keyup="recalculate(item)" /></td>
+                  <td><input v-model.number="item.cantidad" type="number" min="0" step="any" class="input-inline" @keyup="recalculate(item)" /></td>
                   <td><input v-model.number="item.precio" type="number" step="0.01" class="input-inline" @keyup="recalculate(item)" /></td>
                   <td><input v-model.number="item.total" type="number" step="0.01" class="input-inline" @keyup="recalculatePrice(item)" /></td>
                   <td><input v-model="item.lote" type="text" class="input-inline" /></td>

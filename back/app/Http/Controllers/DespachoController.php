@@ -138,7 +138,7 @@ class DespachoController extends Controller
             'items.*.almacen_item_id' => 'nullable|exists:almacen_items,id',
             'items.*.descripcion' => 'required|string|max:500',
             'items.*.unidad' => 'nullable|string|max:100',
-            'items.*.cantidad' => 'required|integer|min:1',
+            'items.*.cantidad' => 'required|numeric|min:0',
             'items.*.precio_unitario' => 'nullable|numeric|min:0',
         ]);
 
@@ -163,8 +163,8 @@ class DespachoController extends Controller
             if (! $itemId) {
                 continue;
             }
-            $disponible = (int) ($stocks[$itemId] ?? 0);
-            if ((int) $item['cantidad'] > $disponible) {
+            $disponible = (float) ($stocks[$itemId] ?? 0);
+            if ((float) $item['cantidad'] > $disponible) {
                 return response()->json([
                     'message' => "Stock insuficiente para '{$item['descripcion']}'. Disponible: {$disponible}, solicitado: {$item['cantidad']}",
                 ], 422);
@@ -173,7 +173,7 @@ class DespachoController extends Controller
 
         return DB::transaction(function () use ($data, $pedido, $request) {
             $total = collect($data['items'])->sum(
-                fn ($i) => (float) ($i['precio_unitario'] ?? 0) * (int) $i['cantidad']
+                fn ($i) => (float) ($i['precio_unitario'] ?? 0) * (float) $i['cantidad']
             );
 
             $year = now()->year;

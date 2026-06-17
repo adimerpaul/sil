@@ -145,7 +145,7 @@
                     >{{ item.part_presup || '—' }}</span>
                   </td>
                   <td><input v-model="item.unidad" type="text" class="input-inline" /></td>
-                  <td><input v-model.number="item.cantidad" type="number" min="0" step="1" class="input-inline" @input="recalc(item)" /></td>
+                  <td><input v-model.number="item.cantidad" type="number" min="0" step="any" class="input-inline" @input="recalc(item)" /></td>
                   <td><input v-model.number="item.precio_unitario" type="number" step="0.01" class="input-inline" @input="recalc(item)" /></td>
                   <td class="text-right text-weight-bold" style="padding-right:4px;">{{ money(item.total) }}</td>
                   <td class="text-center"><q-btn flat dense round icon="delete" color="negative" size="sm" @click="removeItem(item)" /></td>

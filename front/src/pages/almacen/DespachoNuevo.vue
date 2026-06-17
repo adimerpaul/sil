@@ -181,6 +181,7 @@
                   outlined
                   type="number"
                   :min="0"
+                  step="any"
                   :max="it.stock_disponible"
                   :error="hasItemError(it)"
                   no-error-icon

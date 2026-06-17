@@ -75,7 +75,7 @@ class CompraController extends Controller
             'retencion_porcentaje' => 'nullable|numeric|min:0|max:100',
             'items' => 'required|array|min:1',
             'items.*.producto_id' => 'required|exists:almacen_items,id',
-            'items.*.cantidad' => 'required|integer|min:1',
+            'items.*.cantidad' => 'required|numeric|min:0',
             'items.*.precio' => 'nullable|numeric|min:0',
             'items.*.factor' => 'nullable|numeric|min:0',
             'items.*.precio_venta' => 'nullable|numeric|min:0',
@@ -85,7 +85,7 @@ class CompraController extends Controller
 
         return DB::transaction(function () use ($data, $request) {
             $productos = AlmacenItem::whereIn('id', collect($data['items'])->pluck('producto_id'))->get()->keyBy('id');
-            $total = collect($data['items'])->sum(fn ($item) => (float) ($item['precio'] ?? 0) * (int) $item['cantidad']);
+            $total = collect($data['items'])->sum(fn ($item) => (float) ($item['precio'] ?? 0) * (float) $item['cantidad']);
 
             $compra = Compra::create([
                 'user_id' => $request->user()->id,
@@ -112,7 +112,7 @@ class CompraController extends Controller
             foreach ($data['items'] as $item) {
                 $producto = $productos[$item['producto_id']];
                 $precio = (float) ($item['precio'] ?? $producto->precio_unitario ?? 0);
-                $cantidad = (int) $item['cantidad'];
+                $cantidad = (float) $item['cantidad'];
                 $factor = (float) ($item['factor'] ?? 1.25);
                 $precio13 = round($precio * $factor, 2);
 
@@ -173,7 +173,7 @@ class CompraController extends Controller
             'retencion_porcentaje' => 'nullable|numeric|min:0|max:100',
             'items' => 'required|array|min:1',
             'items.*.producto_id' => 'required|exists:almacen_items,id',
-            'items.*.cantidad' => 'required|integer|min:1',
+            'items.*.cantidad' => 'required|numeric|min:0',
             'items.*.precio' => 'nullable|numeric|min:0',
             'items.*.factor' => 'nullable|numeric|min:0',
             'items.*.precio_venta' => 'nullable|numeric|min:0',
@@ -183,10 +183,10 @@ class CompraController extends Controller
 
         return DB::transaction(function () use ($compra, $data, $request) {
             $productos = AlmacenItem::whereIn('id', collect($data['items'])->pluck('producto_id'))->get()->keyBy('id');
-            $total = collect($data['items'])->sum(fn ($item) => (float) ($item['precio'] ?? 0) * (int) $item['cantidad']);
+            $total = collect($data['items'])->sum(fn ($item) => (float) ($item['precio'] ?? 0) * (float) $item['cantidad']);
 
             // Preservar cantidad_venta existente por producto_id para no perder el tracking de despachos
-            $cantidadesVenta = $compra->detalles->keyBy('producto_id')->map(fn ($d) => (int) $d->cantidad_venta);
+            $cantidadesVenta = $compra->detalles->keyBy('producto_id')->map(fn ($d) => (float) $d->cantidad_venta);
 
             $compra->update([
                 'numero' => $data['numero'] ?? null,
@@ -213,7 +213,7 @@ class CompraController extends Controller
             foreach ($data['items'] as $item) {
                 $producto = $productos[$item['producto_id']];
                 $precio = (float) ($item['precio'] ?? $producto->precio_unitario ?? 0);
-                $cantidad = (int) $item['cantidad'];
+                $cantidad = (float) $item['cantidad'];
                 $factor = (float) ($item['factor'] ?? 1.25);
                 $precio13 = round($precio * $factor, 2);
 

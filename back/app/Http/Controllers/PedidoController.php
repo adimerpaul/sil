@@ -117,7 +117,7 @@ class PedidoController extends Controller
             $total = collect($data['items'])->sum(function ($item) use ($productos) {
                 $precio = (float) ($item['precio_unitario'] ?? $productos[$item['producto_id']]->precio_unitario ?? 0);
 
-                return $precio * (int) $item['cantidad'];
+                return $precio * (float) $item['cantidad'];
             });
 
             $nombreUsuario = $targetUser->username ?: $targetUser->name;
@@ -136,7 +136,7 @@ class PedidoController extends Controller
             foreach ($data['items'] as $item) {
                 $producto = $productos[$item['producto_id']];
                 $precio = (float) ($item['precio_unitario'] ?? $producto->precio_unitario ?? 0);
-                $cantidad = (int) $item['cantidad'];
+                $cantidad = (float) $item['cantidad'];
                 $subtotal = round($precio * $cantidad, 2);
 
                 $pedido->detalles()->create([
@@ -193,7 +193,7 @@ class PedidoController extends Controller
             $total = collect($data['items'])->sum(function ($item) use ($productos) {
                 $precio = (float) ($item['precio_unitario'] ?? $productos[$item['producto_id']]->precio_unitario ?? 0);
 
-                return $precio * (int) $item['cantidad'];
+                return $precio * (float) $item['cantidad'];
             });
 
             $modificacionDetalle = $this->calcularDiff($pedido->detalles, $data['items'], $productos);
@@ -210,7 +210,7 @@ class PedidoController extends Controller
             foreach ($data['items'] as $item) {
                 $producto = $productos[$item['producto_id']];
                 $precio = (float) ($item['precio_unitario'] ?? $producto->precio_unitario ?? 0);
-                $cantidad = (int) $item['cantidad'];
+                $cantidad = (float) $item['cantidad'];
                 $subtotal = round($precio * $cantidad, 2);
 
                 $pedido->detalles()->create([
@@ -308,9 +308,9 @@ class PedidoController extends Controller
             $nombre = $det->producto?->nombre ?? "Producto #{$pid}";
             if (! $nuevos->has($pid)) {
                 $cambios[] = "Se quitó {$nombre} x{$det->cantidad}";
-            } elseif ((int) $nuevos[$pid]['cantidad'] !== (int) $det->cantidad) {
-                $antes = (int) $det->cantidad;
-                $despues = (int) $nuevos[$pid]['cantidad'];
+            } elseif ((float) $nuevos[$pid]['cantidad'] !== (float) $det->cantidad) {
+                $antes = (float) $det->cantidad;
+                $despues = (float) $nuevos[$pid]['cantidad'];
                 $cambios[] = "{$nombre}: {$antes}→{$despues}";
             }
         }
@@ -340,7 +340,7 @@ class PedidoController extends Controller
             'comentario' => 'nullable|string|max:500',
             'items' => 'required|array|min:1',
             'items.*.producto_id' => 'required|exists:almacen_items,id',
-            'items.*.cantidad' => 'required|integer|min:1',
+            'items.*.cantidad' => 'required|numeric|min:0',
             'items.*.precio_unitario' => 'nullable|numeric|min:0',
         ]);
     }

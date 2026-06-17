@@ -28,7 +28,7 @@ class DespachoDetalleReal extends Model implements AuditableContract
     ];
 
     protected $casts = [
-        'cantidad'       => 'integer',
+        'cantidad'       => 'float',
         'precio_unitario' => 'decimal:4',
         'total'          => 'decimal:2',
         'fecha_vencimiento' => 'date',

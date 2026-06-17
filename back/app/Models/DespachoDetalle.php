@@ -26,7 +26,7 @@ class DespachoDetalle extends Model
     ];
 
     protected $casts = [
-        'cantidad' => 'integer',
+        'cantidad' => 'float',
         'precio_unitario' => 'decimal:2',
         'total' => 'decimal:2',
         'fecha_vencimiento' => 'date',
