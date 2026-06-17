@@ -1559,23 +1559,31 @@ class SolicitudeController extends Controller
         if ($request->filled('to')) {
             $query->whereDate('fecha_creacion', '<=', $request->to);
         }
-
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
-
         if ($request->filled('tipo_atencion')) {
             $query->where('tipo_atencion', $request->tipo_atencion);
         }
-
         if ($request->filled('codigo')) {
             $c = $request->codigo;
             $query->where(function ($q) use ($c) {
                 $q->where('codigo', 'like', "%$c%");
             });
         }
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->where('paciente_nombre', 'like', "%$s%")
+                  ->orWhere('codigo_solicitud', 'like', "%$s%")
+                  ->orWhere('nro_registro', 'like', "%$s%")
+                  ->orWhere('doctor_nombre', 'like', "%$s%");
+            });
+        }
 
-        return $query->orderBy('id', 'desc')->get();
+        $perPage = min((int) $request->get('per_page', 25), 200);
+
+        return $query->orderBy('id', 'desc')->paginate($perPage);
     }
 
     public function show($id)

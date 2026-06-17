@@ -90,9 +90,10 @@
       row-key="id"
       dense flat bordered
       :rows-per-page-options="[10, 25, 50, 100, 200]"
-      :pagination="{ rowsPerPage: 25 }"
-      :filter="search"
+      v-model:pagination="pagination"
+      :loading="loading"
       title="Solicitudes"
+      @request="onRequest"
     >
       <template #body-cell-actions="props">
         <q-td :props="props">
@@ -326,6 +327,11 @@ export default {
       ],
       search: '',
       loading: false,
+      pagination: {
+        page: 1,
+        rowsPerPage: 25,
+        rowsNumber: 0
+      },
       filters: {
         from: moment().startOf('month').format('YYYY-MM-DD'),
         to: moment().endOf('month').format('YYYY-MM-DD'),
@@ -387,12 +393,30 @@ export default {
         })
         .finally(() => { this.loading = false })
     },
-    getSolicitudes () {
+    getSolicitudes (resetPage = true) {
+      if (resetPage) this.pagination.page = 1
       this.loading = true
       this.$axios
-        .get('solicitudes', { params: this.filters })
-        .then(res => { this.rows = res.data })
+        .get('solicitudes', {
+          params: {
+            ...this.filters,
+            search: this.search || undefined,
+            page: this.pagination.page,
+            per_page: this.pagination.rowsPerPage
+          }
+        })
+        .then(res => {
+          this.rows = res.data.data
+          this.pagination.rowsNumber = res.data.total
+          this.pagination.page = res.data.current_page
+        })
         .finally(() => { this.loading = false })
+    },
+    onRequest (props) {
+      const { page, rowsPerPage } = props.pagination
+      this.pagination.page = page
+      this.pagination.rowsPerPage = rowsPerPage
+      this.getSolicitudes(false)
     },
     consentimientoBase () {
       return {
