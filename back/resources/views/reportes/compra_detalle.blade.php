@@ -244,7 +244,7 @@
         @forelse ($compra->detalles as $idx => $det)
             <tr>
                 <td class="center">{{ $idx + 1 }}</td>
-                <td class="center tiny">32200</td>
+                <td class="center tiny">{{ optional(optional($det->producto)->subpartida)->codigo ?? '-' }}</td>
                 <td class="center">{{ $det->cantidad }}</td>
                 <td class="center">{{ $det->cantidad }}</td>
                 <td class="center">{{ strtoupper(optional($det->producto)->unidad_medida ?: 'PZA') }}</td>

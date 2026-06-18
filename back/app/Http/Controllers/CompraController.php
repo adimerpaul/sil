@@ -251,7 +251,7 @@ class CompraController extends Controller
         //            abort(403, 'No autorizado para imprimir esta compra');
         //        }
 
-        $compra = Compra::with(['proveedor', 'unidad', 'user:id,name,firma,sello,mostrar_firma,mostrar_sello', 'detalles.producto'])->findOrFail($id);
+        $compra = Compra::with(['proveedor', 'unidad', 'user:id,name,firma,sello,mostrar_firma,mostrar_sello', 'detalles.producto.subpartida'])->findOrFail($id);
 
         $pdf = Pdf::loadView('reportes.compra_detalle', [
             'compra' => $compra,
