@@ -116,7 +116,6 @@
                       class="imn-input"
                       :class="{ 'imn-input--calculado': esFormula(prest, rango) }"
                       :placeholder="rango.unidad || ''"
-                      :readonly="esFormula(prest, rango)"
                       @input="recalcularFormulas(prest)"
                     />
                   </td>
