@@ -76,7 +76,7 @@ class SolicitudCatalogoController extends Controller
             $query->whereDate('fecha_creacion', date('Y-m-d', $timestamp));
         }
 
-        $ultimoCodigo = $query->max('codigo');
+        $ultimoCodigo = $query->where('codigo', '<', 10000)->max('codigo');
 
         return $ultimoCodigo ? ((int) $ultimoCodigo + 1) : 1;
     }

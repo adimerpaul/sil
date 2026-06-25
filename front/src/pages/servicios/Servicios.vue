@@ -543,121 +543,97 @@
 
     <!-- DIALOG RANGO -->
     <q-dialog v-model="dialogRango">
-      <q-card style="min-width: 420px; max-width: 640px;">
+      <q-card style="min-width: 560px; max-width: 720px;">
         <q-card-section class="row items-center q-pa-sm">
-          <div class="text-subtitle1">
-            {{ editandoRango ? 'Editar rango' : 'Nuevo rango' }}
-          </div>
+          <div class="text-subtitle1">{{ editandoRango ? 'Editar rango' : 'Nuevo rango' }}</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
 
         <q-separator />
 
-        <q-card-section class="q-pa-sm">
+        <q-card-section class="q-pa-sm" style="max-height: 80vh; overflow-y: auto">
           <q-form @submit="guardarRango">
             <div class="row q-col-gutter-xs">
-
               <div class="col-12 col-sm-8">
-                <q-input
-                  v-model="rangoForm.rango_nombre"
-                  label="Nombre"
-                  dense
-                  outlined
-                  autofocus
-                />
+                <q-input v-model="rangoForm.rango_nombre" label="Nombre *" dense outlined autofocus />
               </div>
               <div class="col-12 col-sm-4">
-                <q-input
-                  v-model="rangoForm.metodo"
-                  label="Método (CLIA, ELISA…)"
-                  dense
-                  outlined
-                />
+                <q-input v-model="rangoForm.metodo" label="Método (CLIA, ELISA…)" dense outlined />
               </div>
-
-              <div class="col-4">
-                <q-input
-                  v-model.number="rangoForm.rango_minimo"
-                  type="number"
-                  step="0.01"
-                  label="Mínimo"
-                  dense
-                  outlined
-                />
+              <div class="col-12 col-sm-4">
+                <q-input v-model="rangoForm.unidad" label="Unidad" dense outlined />
               </div>
-              <div class="col-4">
-                <q-input
-                  v-model.number="rangoForm.rango_maximo"
-                  type="number"
-                  step="0.01"
-                  label="Máximo"
-                  dense
-                  outlined
-                />
+              <div class="col-12 col-sm-4">
+                <q-input v-model="rangoForm.muestra" label="Muestra" dense outlined />
               </div>
-              <div class="col-4">
-                <q-input
-                  v-model="rangoForm.unidad"
-                  label="Unidad"
-                  dense
-                  outlined
-                />
+              <div class="col-12 col-sm-4">
+                <q-input v-model="rangoForm.marca" label="Marca/Reactivo" dense outlined />
               </div>
-
+              <div class="col-12 col-sm-6">
+                <q-input v-model="rangoForm.perfil" label="Perfil" dense outlined />
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-input v-model="rangoForm.resultado" label="Resultado" dense outlined />
+              </div>
               <div class="col-12">
-                <q-input
-                  v-model="rangoForm.interpretacion"
-                  label="Rango de referencia (texto)"
-                  dense
-                  outlined
-                />
+                <q-input v-model="rangoForm.interpretacion" label="Referencia (texto libre)" dense outlined />
               </div>
-
-              <div class="col-12 col-sm-6">
-                <q-input
-                  v-model="rangoForm.muestra"
-                  label="Muestra (SUERO, PLASMA…)"
-                  dense
-                  outlined
-                />
-              </div>
-              <div class="col-12 col-sm-6">
-                <q-input
-                  v-model="rangoForm.marca"
-                  label="Marca/Reactivo"
-                  dense
-                  outlined
-                />
-              </div>
-
-              <div class="col-12 col-sm-6">
-                <q-input
-                  v-model="rangoForm.resultado"
-                  label="Resultado"
-                  dense
-                  outlined
-                />
-              </div>
-              <div class="col-12 col-sm-6">
-                <q-input
-                  v-model="rangoForm.perfil"
-                  label="Perfil (ej. PERFIL TIROIDEO)"
-                  dense
-                  outlined
-                />
-              </div>
-
             </div>
+
+            <!-- Sub-rangos de referencia -->
+            <div class="q-mt-sm q-mb-xs">
+              <div class="row items-center">
+                <q-icon name="bar_chart" color="primary" class="q-mr-xs" size="16px" />
+                <span class="text-caption text-weight-bold text-primary">RANGOS DE REFERENCIA (hasta 5)</span>
+              </div>
+              <div class="text-caption text-grey-6 q-mb-xs">
+                Ej: Fase folicular: 3,0 – 12,0 · Menopáusia: 35,0 – 151,0
+              </div>
+            </div>
+
+            <table class="sub-rango-table q-mb-sm">
+              <thead>
+                <tr>
+                  <th style="width:28px">#</th>
+                  <th>Descripción</th>
+                  <th style="width:100px">Mínimo</th>
+                  <th style="width:100px">Máximo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="n in 5" :key="n">
+                  <td class="tc text-grey-6">{{ n }}</td>
+                  <td>
+                    <input
+                      v-model="rangoForm[n === 1 ? 'rango_descripcion' : `rango_${n}_descripcion`]"
+                      class="sr-input"
+                      :placeholder="n === 1 ? 'ej. Fase folicular' : `Descripción ${n}`"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      v-model.number="rangoForm[n === 1 ? 'rango_minimo' : `rango_${n}_minimo`]"
+                      class="sr-input sr-input--num"
+                      type="number" step="0.01"
+                      placeholder="0.00"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      v-model.number="rangoForm[n === 1 ? 'rango_maximo' : `rango_${n}_maximo`]"
+                      class="sr-input sr-input--num"
+                      type="number" step="0.01"
+                      placeholder="0.00"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
             <div class="text-right q-mt-sm">
               <q-btn flat label="Cancelar" v-close-popup :loading="loading" />
-              <q-btn
-                color="primary"
-                label="Guardar"
-                type="submit"
-                :loading="loading"
-              />
+              <q-btn color="primary" label="Guardar" type="submit" :loading="loading" />
             </div>
           </q-form>
         </q-card-section>
@@ -863,8 +839,13 @@ export default {
         metodo: '',
         resultado: '',
         rango_nombre: '',
+        rango_descripcion: '',
         rango_minimo: null,
         rango_maximo: null,
+        rango_2_descripcion: '', rango_2_minimo: null, rango_2_maximo: null,
+        rango_3_descripcion: '', rango_3_minimo: null, rango_3_maximo: null,
+        rango_4_descripcion: '', rango_4_minimo: null, rango_4_maximo: null,
+        rango_5_descripcion: '', rango_5_minimo: null, rango_5_maximo: null,
         unidad: '',
         interpretacion: '',
         muestra: '',
@@ -1161,8 +1142,13 @@ export default {
         metodo: '',
         resultado: '',
         rango_nombre: '',
+        rango_descripcion: '',
         rango_minimo: null,
         rango_maximo: null,
+        rango_2_descripcion: '', rango_2_minimo: null, rango_2_maximo: null,
+        rango_3_descripcion: '', rango_3_minimo: null, rango_3_maximo: null,
+        rango_4_descripcion: '', rango_4_minimo: null, rango_4_maximo: null,
+        rango_5_descripcion: '', rango_5_minimo: null, rango_5_maximo: null,
         unidad: '',
         interpretacion: '',
         muestra: '',
@@ -1288,3 +1274,37 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.sub-rango-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.sub-rango-table th {
+  background: #ede9fe;
+  color: #4c1d95;
+  padding: 4px 6px;
+  text-align: left;
+  font-weight: 600;
+  border: 1px solid #ddd6fe;
+}
+.sub-rango-table td {
+  padding: 2px 4px;
+  border: 1px solid #e5e7eb;
+  vertical-align: middle;
+}
+.tc { text-align: center; }
+.sr-input {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  padding: 3px 6px;
+  font-size: 12px;
+  outline: none;
+  background: #fff;
+  box-sizing: border-box;
+}
+.sr-input:focus { border-color: #7c3aed; box-shadow: 0 0 0 2px #ede9fe; }
+.sr-input--num { text-align: right; }
+</style>

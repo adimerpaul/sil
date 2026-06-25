@@ -116,32 +116,44 @@
                       class="imn-input"
                       :class="{ 'imn-input--calculado': esFormula(prest, rango) }"
                       :placeholder="rango.unidad || ''"
-                      @input="recalcularFormulas(prest)"
+                      @input="recalcularFormulas(prest, rango.id)"
                     />
                   </td>
                   <td class="text-grey-6" style="font-size:11px">{{ rango.unidad || '—' }}</td>
                   <td>
+                    <!-- Sub-rangos numéricos -->
+                    <template v-if="subRangos(rango).length">
+                      <div
+                        v-for="(sr, si) in subRangos(rango)"
+                        :key="si"
+                        style="font-size:11px; white-space:nowrap"
+                      >
+                        <span v-if="sr.descripcion" class="text-grey-7">{{ sr.descripcion }}: </span>
+                        <span>
+                          {{ sr.minimo !== null ? sr.minimo : '' }}
+                          {{ sr.minimo !== null && sr.maximo !== null ? ' – ' : '' }}
+                          {{ sr.maximo !== null ? sr.maximo : '' }}
+                        </span>
+                      </div>
+                    </template>
+                    <!-- Texto libre de referencia -->
                     <div
-                      class="ellipsis"
-                      style="max-width:216px; font-size:11px"
+                      v-if="rango.interpretacion"
+                      class="text-grey-6 ellipsis"
+                      style="max-width:216px; font-size:10px"
                       :title="rango.interpretacion"
                     >
-                      {{ rango.interpretacion || '—' }}
+                      {{ rango.interpretacion }}
                     </div>
+                    <span v-if="!subRangos(rango).length && !rango.interpretacion" class="text-grey-5" style="font-size:11px">—</span>
                   </td>
                   <td class="tc">
-                    <template v-if="esFormula(prest, rango)">
-                      <span class="text-caption text-teal-7" style="font-size:10px">calc.</span>
-                    </template>
-                    <template v-else>
-                      <span
-                        v-if="estadoRango(rango)"
-                        class="imn-badge"
-                        :class="`imn-badge--${estadoRango(rango).tipo}`"
-                      >
-                        {{ estadoRango(rango).label }}
+                    <span v-if="esFormula(prest, rango)" class="text-teal-7" style="font-size:10px">calc.</span>
+                    <div v-for="(e, ei) in estadoRango(rango)" :key="ei">
+                      <span class="imn-badge" :class="`imn-badge--${e.tipo}`">
+                        {{ e.label }}
                       </span>
-                    </template>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -167,7 +179,8 @@ export default {
       saving: false,
       solicitud: null,
       prestaciones: [],
-      valores: {}
+      valores: {},
+      manualOverrides: new Set()  // ids de campos calculados editados manualmente
     }
   },
 
@@ -184,11 +197,17 @@ export default {
         this.prestaciones = data.prestaciones.filter(p => p.rangos.length > 0)
 
         this.valores = {}
+        this.manualOverrides = new Set()
         this.prestaciones.forEach(prest => {
           prest.rangos.forEach(rango => {
-            this.valores[rango.id] = rango.resultado?.valor_final ?? ''
+            const valorGuardado = rango.resultado?.valor_final ?? ''
+            this.valores[rango.id] = valorGuardado
+            // Si es campo de fórmula y tiene valor guardado → fue editado manualmente
+            if (valorGuardado !== '' && valorGuardado !== null && this.esFormula(prest, rango)) {
+              this.manualOverrides.add(rango.id)
+            }
           })
-          // Calcular fórmulas con los valores ya cargados
+          // Solo calcular fórmulas que no tienen valor manual guardado
           this.recalcularFormulas(prest)
         })
       } catch (e) {
@@ -214,14 +233,27 @@ export default {
       return (prest.formulas || []).some(f => f.nombre_variable === rango.nombre_variable)
     },
 
+    // Igual pero por id (para uso interno sin el objeto rango completo)
+    esFormulaId (prest, rangoId) {
+      const rango = prest.rangos.find(r => r.id === rangoId)
+      return rango ? this.esFormula(prest, rango) : false
+    },
+
     // Recalcula todos los campos de fórmula de una prestación
-    recalcularFormulas (prest) {
+    recalcularFormulas (prest, editandoId = null) {
       if (!(prest.formulas || []).length) return
       const varMap = this.mapaVariables(prest)
+
+      // Si el usuario editó directamente un campo calculado, marcarlo como override manual
+      if (editandoId !== null && this.esFormulaId(prest, editandoId)) {
+        this.manualOverrides.add(editandoId)
+      }
 
       prest.formulas.forEach(f => {
         const resultId = varMap[f.nombre_variable]
         if (!resultId) return
+        // No sobreescribir campos con override manual
+        if (this.manualOverrides.has(resultId)) return
 
         let expr = f.formula
 
@@ -255,17 +287,49 @@ export default {
       })
     },
 
+    subRangos (rango) {
+      const defs = [
+        { d: 'rango_descripcion', min: 'rango_minimo', max: 'rango_maximo' },
+        { d: 'rango_2_descripcion', min: 'rango_2_minimo', max: 'rango_2_maximo' },
+        { d: 'rango_3_descripcion', min: 'rango_3_minimo', max: 'rango_3_maximo' },
+        { d: 'rango_4_descripcion', min: 'rango_4_minimo', max: 'rango_4_maximo' },
+        { d: 'rango_5_descripcion', min: 'rango_5_minimo', max: 'rango_5_maximo' }
+      ]
+      return defs
+        .map(def => ({
+          descripcion: rango[def.d] || '',
+          minimo: rango[def.min] ?? null,
+          maximo: rango[def.max] ?? null
+        }))
+        .filter(sr => sr.descripcion || sr.minimo !== null || sr.maximo !== null)
+    },
+
     estadoRango (rango) {
       const val = parseFloat(this.valores[rango.id])
-      if (isNaN(val)) return null
-      if (rango.rango_minimo !== null && rango.rango_maximo !== null) {
-        if (val < rango.rango_minimo) return { label: 'Bajo', tipo: 'bajo' }
-        if (val > rango.rango_maximo) return { label: 'Alto', tipo: 'alto' }
-        return { label: 'Normal', tipo: 'normal' }
+      if (isNaN(val)) return []
+
+      const srs = this.subRangos(rango)
+      // Solo entrar en modo descripción si al menos uno tiene descripción Y límites
+      const srConDesc = srs.filter(sr => sr.descripcion && (sr.minimo !== null || sr.maximo !== null))
+
+      if (srConDesc.length) {
+        const coinciden = srConDesc.filter(sr => {
+          const sobreMin = sr.minimo === null || val >= sr.minimo
+          const bajoMax = sr.maximo === null || val <= sr.maximo
+          return sobreMin && bajoMax
+        }).map(sr => ({ label: sr.descripcion, tipo: 'normal' }))
+        return coinciden.length ? coinciden : [{ label: 'Fuera de rango', tipo: 'alto' }]
       }
-      if (rango.rango_maximo !== null && val > rango.rango_maximo) return { label: 'Alto', tipo: 'alto' }
-      if (rango.rango_minimo !== null && val < rango.rango_minimo) return { label: 'Bajo', tipo: 'bajo' }
-      return null
+
+      // Sin descripciones → comportamiento clásico Normal/Alto/Bajo
+      if (rango.rango_minimo !== null && rango.rango_maximo !== null) {
+        if (val < rango.rango_minimo) return [{ label: 'Bajo', tipo: 'bajo' }]
+        if (val > rango.rango_maximo) return [{ label: 'Alto', tipo: 'alto' }]
+        return [{ label: 'Normal', tipo: 'normal' }]
+      }
+      if (rango.rango_maximo !== null && val > rango.rango_maximo) return [{ label: 'Alto', tipo: 'alto' }]
+      if (rango.rango_minimo !== null && val < rango.rango_minimo) return [{ label: 'Bajo', tipo: 'bajo' }]
+      return []
     },
 
     async guardar () {
