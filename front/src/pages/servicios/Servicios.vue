@@ -707,6 +707,7 @@
       :servicio="servicioVincularRangos"
       :rangos="rangos"
       :vinculos-iniciales="vinculosIniciales"
+      :formulas-iniciales="formulasIniciales"
       :loading="loading"
       @save="guardarVinculoRangos"
     />
@@ -809,6 +810,7 @@ export default {
       dialogVincularRangos: false,
       servicioVincularRangos: null,
       vinculosIniciales: [],
+      formulasIniciales: [],
       servicioForm: {
         id: null,
         area_id: null,
@@ -1059,10 +1061,15 @@ export default {
     async abrirVincularRangos (row) {
       this.servicioVincularRangos = row
       this.vinculosIniciales = []
+      this.formulasIniciales = []
       this.loading = true
       try {
-        const { data } = await this.$axios.get(`servicios/${row.id}/rangos`)
-        this.vinculosIniciales = data
+        const [rangosRes, formulasRes] = await Promise.all([
+          this.$axios.get(`servicios/${row.id}/rangos`),
+          this.$axios.get(`servicios/${row.id}/formulas`)
+        ])
+        this.vinculosIniciales = rangosRes.data
+        this.formulasIniciales = formulasRes.data
       } catch (e) {
         console.error(e)
       } finally {
@@ -1070,12 +1077,15 @@ export default {
       }
       this.dialogVincularRangos = true
     },
-    async guardarVinculoRangos (rangos) {
+    async guardarVinculoRangos ({ rangos, formulas }) {
       if (!this.servicioVincularRangos?.id) return
       this.loading = true
       try {
-        await this.$axios.post(`servicios/${this.servicioVincularRangos.id}/rangos`, { rangos })
-        this.$q.notify({ type: 'positive', message: 'Rangos vinculados correctamente' })
+        await Promise.all([
+          this.$axios.post(`servicios/${this.servicioVincularRangos.id}/rangos`, { rangos }),
+          this.$axios.post(`servicios/${this.servicioVincularRangos.id}/formulas`, { formulas })
+        ])
+        this.$q.notify({ type: 'positive', message: 'Rangos y fórmulas guardados correctamente' })
         this.dialogVincularRangos = false
         this.loadServicios()
       } catch (e) {

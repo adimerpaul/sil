@@ -232,6 +232,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/servicios/{id}/rangos', [\App\Http\Controllers\ServicioController::class, 'getRangos']);
     Route::post('/servicios/{id}/rangos', [\App\Http\Controllers\ServicioController::class, 'syncRangos']);
 
+    // Fórmulas derivadas de una prestación
+    Route::get('/servicios/{id}/formulas', [\App\Http\Controllers\ServicioController::class, 'getFormulas']);
+    Route::post('/servicios/{id}/formulas', [\App\Http\Controllers\ServicioController::class, 'syncFormulas']);
+
     Route::get('reportes/almacen-unidad/unidades', [ReporteUnidadController::class, 'unidades']);
     Route::get('reportes/almacen-unidad/personas', [ReporteUnidadController::class, 'personas']);
     Route::get('reportes/almacen-unidad', [ReporteUnidadController::class, 'index']);

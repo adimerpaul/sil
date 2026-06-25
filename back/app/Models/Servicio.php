@@ -59,6 +59,11 @@ class Servicio extends Model implements AuditableContract
         )->withTimestamps();
     }
 
+    public function formulas()
+    {
+        return $this->hasMany(ServicioFormula::class)->orderBy('orden');
+    }
+
     public function rangos()
     {
         return $this->belongsToMany(

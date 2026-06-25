@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Servicio;
+use App\Models\ServicioFormula;
 use Illuminate\Http\Request;
 
 class ServicioController extends Controller
@@ -104,6 +105,39 @@ class ServicioController extends Controller
         $servicio->rangos()->sync($sync);
 
         return response()->json($servicio->load('rangos'));
+    }
+
+    public function getFormulas($id)
+    {
+        $servicio = Servicio::findOrFail($id);
+        return response()->json($servicio->formulas);
+    }
+
+    public function syncFormulas(Request $request, $id)
+    {
+        $servicio = Servicio::findOrFail($id);
+
+        $data = $request->validate([
+            'formulas'                    => 'array',
+            'formulas.*.label'            => 'nullable|string|max:255',
+            'formulas.*.nombre_variable'  => 'required|string|max:100',
+            'formulas.*.formula'          => 'required|string',
+            'formulas.*.unidad'           => 'nullable|string|max:50',
+        ]);
+
+        $servicio->formulas()->delete();
+
+        foreach ($data['formulas'] ?? [] as $idx => $f) {
+            $servicio->formulas()->create([
+                'label'           => $f['label'] ?? null,
+                'nombre_variable' => $f['nombre_variable'],
+                'formula'         => $f['formula'],
+                'unidad'          => $f['unidad'] ?? null,
+                'orden'           => $idx + 1,
+            ]);
+        }
+
+        return response()->json($servicio->formulas);
     }
 
     public function syncTiposMuestra(Request $request, $id)
