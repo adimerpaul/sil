@@ -76,7 +76,7 @@ class ServicioController extends Controller
     public function getRangos($id)
     {
         $servicio = Servicio::with(['rangos' => function ($q) {
-            $q->orderBy('area_rangos.id');
+            $q->orderByPivot('orden')->orderBy('area_rangos.id');
         }])->findOrFail($id);
 
         return response()->json($servicio->rangos);
@@ -90,11 +90,15 @@ class ServicioController extends Controller
             'rangos'                  => 'array',
             'rangos.*.area_rango_id'  => 'required|integer|exists:area_rangos,id',
             'rangos.*.nombre_variable'=> 'nullable|string|max:100',
+            'rangos.*.orden'          => 'nullable|integer|min:0',
         ]);
 
         $sync = [];
-        foreach ($data['rangos'] ?? [] as $item) {
-            $sync[$item['area_rango_id']] = ['nombre_variable' => $item['nombre_variable'] ?? null];
+        foreach ($data['rangos'] ?? [] as $idx => $item) {
+            $sync[$item['area_rango_id']] = [
+                'nombre_variable' => $item['nombre_variable'] ?? null,
+                'orden'           => $item['orden'] ?? $idx + 1,
+            ];
         }
 
         $servicio->rangos()->sync($sync);

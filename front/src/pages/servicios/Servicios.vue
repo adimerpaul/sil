@@ -691,83 +691,14 @@
     </q-dialog>
 
     <!-- DIALOG VINCULAR RANGOS -->
-    <q-dialog v-model="dialogVincularRangos" maximized>
-      <q-card>
-        <q-card-section class="row items-center q-pa-sm bg-deep-purple text-white">
-          <q-icon name="bar_chart" class="q-mr-sm" />
-          <div class="text-subtitle1">Vincular rangos de referencia</div>
-          <q-space />
-          <q-btn icon="close" flat round dense v-close-popup color="white" />
-        </q-card-section>
-
-        <q-separator />
-
-        <q-card-section class="q-pa-sm">
-          <div class="text-body2 text-weight-medium q-mb-xs">
-            {{ servicioVincularRangos?.nombre || '' }}
-          </div>
-          <div class="text-caption text-grey-7 q-mb-sm">
-            Selecciona los rangos que pertenecen a esta prestación y asigna un nombre de variable a cada uno.
-          </div>
-
-          <q-input
-            v-model="searchRangoVincular"
-            dense outlined clearable
-            label="Buscar rango..."
-            class="q-mb-sm"
-            style="max-width: 400px"
-          >
-            <template #append><q-icon name="search" /></template>
-          </q-input>
-
-          <q-table
-            dense flat bordered
-            :rows="filteredRangosVincular"
-            :columns="columnsVincularRangos"
-            row-key="id"
-            :rows-per-page-options="[0]"
-            style="max-height: calc(100vh - 260px)"
-            virtual-scroll
-          >
-            <template #body-cell-seleccionado="props">
-              <q-td :props="props">
-                <q-checkbox
-                  :model-value="!!rangosVinculados[props.row.id]"
-                  @update:model-value="toggleRangoVinculo(props.row, $event)"
-                />
-              </q-td>
-            </template>
-
-            <template #body-cell-nombre_variable="props">
-              <q-td :props="props">
-                <q-input
-                  v-if="rangosVinculados[props.row.id]"
-                  v-model="rangosVinculados[props.row.id].nombre_variable"
-                  dense outlined
-                  placeholder="ej. tsh_valor"
-                  style="min-width: 160px"
-                  @click.stop
-                />
-                <span v-else class="text-grey-5">—</span>
-              </q-td>
-            </template>
-          </q-table>
-        </q-card-section>
-
-        <q-separator />
-
-        <q-card-section class="row justify-end q-pa-sm">
-          <q-btn flat label="Cancelar" v-close-popup :loading="loading" class="q-mr-sm" />
-          <q-btn
-            color="deep-purple"
-            icon="save"
-            label="Guardar vinculación"
-            :loading="loading"
-            @click="guardarVinculoRangos"
-          />
-        </q-card-section>
-      </q-card>
-    </q-dialog>
+    <VincularRangosDialog
+      v-model="dialogVincularRangos"
+      :servicio="servicioVincularRangos"
+      :rangos="rangos"
+      :vinculos-iniciales="vinculosIniciales"
+      :loading="loading"
+      @save="guardarVinculoRangos"
+    />
 
     <q-dialog v-model="dialogVincularServicio">
       <q-card style="min-width: 420px; max-width: 620px;">
@@ -828,8 +759,11 @@
 </template>
 
 <script>
+import VincularRangosDialog from 'components/VincularRangosDialog.vue'
+
 export default {
   name: 'ServiciosConfigPage',
+  components: { VincularRangosDialog },
   data () {
     return {
       loading: false,
@@ -863,17 +797,7 @@ export default {
       // VINCULAR RANGOS
       dialogVincularRangos: false,
       servicioVincularRangos: null,
-      rangosVinculados: {},       // { area_rango_id: { nombre_variable } }
-      searchRangoVincular: '',
-      columnsVincularRangos: [
-        { name: 'seleccionado', label: '', align: 'center' },
-        { name: 'perfil', label: 'Perfil', field: 'perfil', align: 'left' },
-        { name: 'rango_nombre', label: 'Nombre', field: r => r.rango_nombre || r.analito || '', align: 'left' },
-        { name: 'metodo', label: 'Método', field: 'metodo', align: 'left' },
-        { name: 'interpretacion', label: 'Referencia', field: 'interpretacion', align: 'left' },
-        { name: 'unidad', label: 'Unidad', field: 'unidad', align: 'left' },
-        { name: 'nombre_variable', label: 'Nombre de variable', align: 'left' }
-      ],
+      vinculosIniciales: [],
       servicioForm: {
         id: null,
         area_id: null,
@@ -1011,15 +935,6 @@ export default {
       }
       return list
     },
-    filteredRangosVincular () {
-      const t = (this.searchRangoVincular || '').toLowerCase()
-      if (!t) return this.rangos
-      return this.rangos.filter(r =>
-        (r.rango_nombre || '').toLowerCase().includes(t) ||
-        (r.perfil || '').toLowerCase().includes(t) ||
-        (r.metodo || '').toLowerCase().includes(t)
-      )
-    }
   },
   mounted () {
     this.loadAreas()
@@ -1130,14 +1045,11 @@ export default {
     },
     async abrirVincularRangos (row) {
       this.servicioVincularRangos = row
-      this.searchRangoVincular = ''
-      this.rangosVinculados = {}
+      this.vinculosIniciales = []
       this.loading = true
       try {
         const { data } = await this.$axios.get(`servicios/${row.id}/rangos`)
-        data.forEach(r => {
-          this.rangosVinculados[r.id] = { nombre_variable: r.pivot?.nombre_variable || '' }
-        })
+        this.vinculosIniciales = data
       } catch (e) {
         console.error(e)
       } finally {
@@ -1145,22 +1057,9 @@ export default {
       }
       this.dialogVincularRangos = true
     },
-    toggleRangoVinculo (rango, checked) {
-      if (checked) {
-        this.rangosVinculados = { ...this.rangosVinculados, [rango.id]: { nombre_variable: '' } }
-      } else {
-        const copia = { ...this.rangosVinculados }
-        delete copia[rango.id]
-        this.rangosVinculados = copia
-      }
-    },
-    async guardarVinculoRangos () {
+    async guardarVinculoRangos (rangos) {
       if (!this.servicioVincularRangos?.id) return
       this.loading = true
-      const rangos = Object.entries(this.rangosVinculados).map(([id, v]) => ({
-        area_rango_id: parseInt(id),
-        nombre_variable: v.nombre_variable || null
-      }))
       try {
         await this.$axios.post(`servicios/${this.servicioVincularRangos.id}/rangos`, { rangos })
         this.$q.notify({ type: 'positive', message: 'Rangos vinculados correctamente' })
