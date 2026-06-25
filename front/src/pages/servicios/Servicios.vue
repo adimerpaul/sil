@@ -197,33 +197,44 @@
                   </template>
 
                   <template #body-cell-nombre="props">
-                    <q-td :props="props">
+                    <q-td :props="props" style="max-width: 260px; white-space: normal; word-break: break-word">
+                      <span class="text-caption">{{ props.row.nombre }}</span>
                       <div
-                        style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
-                      >
-                        {{ props.row.nombre }}
-                      </div>
-                      <div
+                        v-if="props.row.descripcion"
                         class="text-caption text-grey"
-                        v-html="props.row.descripcion || ''"
+                        v-html="props.row.descripcion"
                       />
                     </q-td>
                   </template>
 
-                  <template #body-cell-tipos_muestra="props">
-                    <q-td :props="props">
-                      <div v-if="props.row.tipos_muestra && props.row.tipos_muestra.length" class="q-gutter-xs">
-                        <q-chip
-                          v-for="tipo in props.row.tipos_muestra"
-                          :key="tipo.id"
-                          dense
-                          color="blue-1"
-                          text-color="primary"
-                        >
-                          {{ tipo.tipo_muestra }}
-                        </q-chip>
+                  <template #body-cell-subarea="props">
+                    <q-td :props="props" style="max-width: 90px">
+                      <div
+                        style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 86px; cursor: default"
+                        class="text-caption"
+                      >
+                        {{ props.row.subarea || '—' }}
+                        <q-tooltip v-if="props.row.subarea" anchor="top middle" self="bottom middle">
+                          {{ props.row.subarea }}
+                        </q-tooltip>
                       </div>
-                      <span v-else class="text-caption text-grey-7">Sin vincular</span>
+                    </q-td>
+                  </template>
+
+                  <template #body-cell-tipos_muestra="props">
+                    <q-td :props="props" style="max-width: 100px">
+                      <template v-if="props.row.tipos_muestra && props.row.tipos_muestra.length">
+                        <div
+                          style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 96px; cursor: default"
+                          class="text-caption"
+                        >
+                          {{ props.row.tipos_muestra.map(t => t.tipo_muestra).join(', ') }}
+                          <q-tooltip anchor="top middle" self="bottom middle">
+                            {{ props.row.tipos_muestra.map(t => t.tipo_muestra).join(', ') }}
+                          </q-tooltip>
+                        </div>
+                      </template>
+                      <span v-else class="text-caption text-grey-7">—</span>
                     </q-td>
                   </template>
 
@@ -810,30 +821,32 @@ export default {
       },
 
       columnsServicios: [
-        { name: 'actions', label: 'Acciones', align: 'center' },
-        { name: 'codigo', label: 'Código', field: 'codigo', align: 'left' },
+        { name: 'actions', label: '', align: 'center', style: 'width: 44px' },
+        { name: 'codigo', label: 'Cód.', field: 'codigo', align: 'left', style: 'width: 54px' },
         { name: 'nombre', label: 'Nombre', field: 'nombre', align: 'left' },
-        { name: 'metodo', label: 'Método', field: 'metodo', align: 'left' },
-        { name: 'subarea', label: 'Subárea', field: 'subarea', align: 'left' },
+        { name: 'metodo', label: 'Método', field: 'metodo', align: 'left', style: 'width: 90px' },
+        { name: 'subarea', label: 'Subárea', field: 'subarea', align: 'left', style: 'width: 90px' },
         {
           name: 'precio',
           label: 'Precio',
           field: 'precio',
           align: 'right',
+          style: 'width: 80px',
           format: v => `Bs. ${Number(v || 0).toFixed(2)}`
         },
-        { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
         {
           name: 'tipos_muestra',
-          label: 'Tipos de muestra',
+          label: 'Muestra',
           field: row => row.tipos_muestra || [],
-          align: 'left'
+          align: 'left',
+          style: 'width: 100px'
         },
         {
           name: 'rangos_count',
           label: 'Rangos',
           field: row => row.rangos_count || 0,
-          align: 'center'
+          align: 'center',
+          style: 'width: 72px'
         }
       ],
 
