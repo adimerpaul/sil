@@ -257,13 +257,14 @@ export default {
 
         let expr = f.formula
 
-        // Reemplazar cada variable por su valor numérico
+        // Solo reemplazar variables que aparecen en esta fórmula
         let todosPresentes = true
         for (const [varName, rangoId] of Object.entries(varMap)) {
           if (varName === f.nombre_variable) continue
+          const regex = new RegExp('\\b' + varName + '\\b', 'g')
+          if (!regex.test(f.formula)) continue   // variable no usada en esta fórmula → ignorar
           const val = parseFloat(this.valores[rangoId])
           if (isNaN(val)) {
-            // Si falta algún operando la fórmula no puede calcularse
             todosPresentes = false
             break
           }
