@@ -32,9 +32,10 @@ class InmunologiaAnaliticaController extends Controller
 
         $servicioIds = $serviciosSolicitud->keys();
 
-        $prestaciones = Servicio::with(['rangos' => function ($q) {
-            $q->orderBy('area_rangos.id');
-        }])
+        $prestaciones = Servicio::with([
+            'rangos' => fn ($q) => $q->orderBy('servicio_rangos.orden')->orderBy('area_rangos.id'),
+            'formulas',
+        ])
             ->whereIn('id', $servicioIds)
             ->orderBy('codigo')
             ->get();
@@ -63,6 +64,7 @@ class InmunologiaAnaliticaController extends Controller
                     'marca'           => $rango->marca,
                     'perfil'          => $rango->perfil,
                     'nombre_variable' => $rango->pivot->nombre_variable,
+                    'orden'           => $rango->pivot->orden,
                     'resultado'       => $resultado ? [
                         'id'          => $resultado->id,
                         'valor_final' => $resultado->valor_final,
@@ -77,6 +79,11 @@ class InmunologiaAnaliticaController extends Controller
                 'metodo'        => $servicio->metodo,
                 'subarea'       => $servicio->subarea,
                 'rangos'        => $rangos,
+                'formulas'      => $servicio->formulas->map(fn ($f) => [
+                    'nombre_variable' => $f->nombre_variable,
+                    'formula'         => $f->formula,
+                    'label'           => $f->label,
+                ]),
                 'realizado'     => $ss->realizado ?? 'PENDIENTE',
                 'realizado_por' => $ss->realizado_por ?? null,
             ];
@@ -167,9 +174,9 @@ class InmunologiaAnaliticaController extends Controller
 
         $servicioIds = $serviciosSolicitud->keys();
 
-        $prestaciones = Servicio::with(['rangos' => function ($q) {
-            $q->orderBy('area_rangos.id');
-        }])
+        $prestaciones = Servicio::with([
+            'rangos' => fn ($q) => $q->orderBy('servicio_rangos.orden')->orderBy('area_rangos.id'),
+        ])
             ->whereIn('id', $servicioIds)
             ->orderBy('codigo')
             ->get();
