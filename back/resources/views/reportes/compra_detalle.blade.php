@@ -190,15 +190,15 @@
         <td class="cell">{{ $fechaCompra ? $fechaCompra->format('d/m/Y') : '-' }}</td>
     </tr>
     <tr>
-        <td class="cell label">Categoria</td>
+        <td class="cell label">CAT. PRG.</td>
         <td class="cell">{{ strtoupper($compra->categoria_programatica ?: 'NINGUNO') }}</td>
         <td class="cell label">Proveedor</td>
         <td class="cell uppercase">{{ $proveedor }}</td>
     </tr>
     <tr>
-        <td class="cell label">Orden compra</td>
+        <td class="cell label">{{ $compra->motivo_registro}}</td>
         <td class="cell">{{ $compra->numero ?: $compra->id }}</td>
-        <td class="cell label">Fecha O.C.</td>
+        <td class="cell label">Fecha {{ $compra->estado }}</td>
         <td class="cell">{{ $fechaCompra ? $fechaCompra->format('d-m-y') : '-' }}</td>
     </tr>
 {{--    <tr>--}}
@@ -212,16 +212,25 @@
     <tr>
         <td class="cell label">Carnet / NIT</td>
         <td class="cell">{{ $carnetNit }}</td>
-        <td class="cell label">Registrado por</td>
+        <td class="cell label">
+{{--            Registrado por--}}
+        </td>
         <td class="cell">
 {{--            {{ optional($compra->user)->name ?: '-' }}--}}
         </td>
     </tr>
     <tr>
-        <td class="cell label">Estado</td>
-        <td class="cell">{{ $compra->estado }}</td>
+        <td class="cell label">
+{{--            Estado--}}
+        </td>
+        <td class="cell">
+{{--            {{ $compra->estado }}--}}
+        </td>
         <td class="cell label">Tipo registro</td>
-        <td class="cell">{{ $compra->tipo_registro }}</td>
+        <td class="cell">
+{{--            {{ $compra->tipo_registro }}--}}
+            INGRESO
+        </td>
     </tr>
 </table>
 
@@ -236,8 +245,8 @@
             <th style="width:35%;">Descripcion</th>
             <th style="width:9%;">Precio unit.</th>
             <th style="width:9%;">Total Bs.</th>
-            <th style="width:6%;">Lote</th>
-            <th style="width:6%;">Vence</th>
+{{--            <th style="width:6%;">Lote</th>--}}
+{{--            <th style="width:6%;">Vence</th>--}}
         </tr>
     </thead>
     <tbody>
@@ -253,8 +262,8 @@
                 </td>
                 <td class="right">{{ number_format((float) $det->precio, 2, ',', '.') }}</td>
                 <td class="right">{{ number_format((float) $det->total, 2, ',', '.') }}</td>
-                <td class="center small">{{ $det->lote ?: '-' }}</td>
-                <td class="center small">{{ $det->fecha_vencimiento ? \Carbon\Carbon::parse($det->fecha_vencimiento)->format('d/m/y') : '-' }}</td>
+{{--                <td class="center small">{{ $det->lote ?: '-' }}</td>--}}
+{{--                <td class="center small">{{ $det->fecha_vencimiento ? \Carbon\Carbon::parse($det->fecha_vencimiento)->format('d/m/y') : '-' }}</td>--}}
             </tr>
         @empty
             <tr>
