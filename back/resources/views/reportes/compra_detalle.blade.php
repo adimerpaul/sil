@@ -146,6 +146,14 @@
     $proveedor = optional($compra->proveedor)->nombre ?? $compra->nombre ?? 'SIN PROVEEDOR';
     $carnetNit = optional($compra->proveedor)->carnet ?? $compra->carnet ?? '-';
     $fechaCompra = $compra->fecha_hora ? \Carbon\Carbon::parse($compra->fecha_hora) : null;
+    $metodoOrden = $compra->metodo_orden ?: 'ORDEN DE COMPRA';
+    $fechaOrdenLabels = [
+        'ORDEN DE COMPRA' => 'Fecha Ord.Comp.',
+        'ORDEN DE SERVICIO' => 'Fecha Ord.Serv.',
+        'CONTRATO' => 'Fecha Cto.',
+    ];
+    $fechaOrdenLabel = $fechaOrdenLabels[$metodoOrden] ?? 'Fecha Ord.Comp.';
+    $fechaOrden = $compra->fecha_orden ? \Carbon\Carbon::parse($compra->fecha_orden) : null;
     $compraUser = $compra->user;
     $firmaCompraPath = $compraUser && $compraUser->mostrar_firma && $compraUser->firma ? public_path('images/'.$compraUser->firma) : null;
     $selloCompraPath = $compraUser && $compraUser->mostrar_sello && $compraUser->sello ? public_path('images/'.$compraUser->sello) : null;
@@ -196,10 +204,10 @@
         <td class="cell uppercase">{{ $proveedor }}</td>
     </tr>
     <tr>
-        <td class="cell label">{{ $compra->motivo_registro}}</td>
-        <td class="cell">{{ $compra->numero ?: $compra->id }}</td>
-        <td class="cell label">Fecha {{ $compra->estado }}</td>
-        <td class="cell">{{ $fechaCompra ? $fechaCompra->format('d-m-y') : '-' }}</td>
+        <td class="cell label">{{ $metodoOrden }}</td>
+        <td class="cell">{{ $compra->orden_de_compra ?: '-' }}</td>
+        <td class="cell label">{{ $fechaOrdenLabel }}</td>
+        <td class="cell">{{ $fechaOrden ? $fechaOrden->format('d-m-y') : '-' }}</td>
     </tr>
 {{--    <tr>--}}
 {{--        <td class="cell label">Unidad solicitante</td>--}}
@@ -212,25 +220,8 @@
     <tr>
         <td class="cell label">Carnet / NIT</td>
         <td class="cell">{{ $carnetNit }}</td>
-        <td class="cell label">
-{{--            Registrado por--}}
-        </td>
-        <td class="cell">
-{{--            {{ optional($compra->user)->name ?: '-' }}--}}
-        </td>
-    </tr>
-    <tr>
-        <td class="cell label">
-{{--            Estado--}}
-        </td>
-        <td class="cell">
-{{--            {{ $compra->estado }}--}}
-        </td>
         <td class="cell label">Tipo registro</td>
-        <td class="cell">
-{{--            {{ $compra->tipo_registro }}--}}
-            INGRESO
-        </td>
+        <td class="cell">INGRESO</td>
     </tr>
 </table>
 
