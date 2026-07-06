@@ -28,11 +28,18 @@ class ServicioController extends Controller
         return Servicio::with(['area', 'tiposMuestra.area'])->findOrFail($id);
     }
 
+    public function nextCodigo()
+    {
+        $max = Servicio::max('codigo');
+
+        return response()->json(['codigo' => ($max ?? 0) + 1]);
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([
             'area_id' => 'required|exists:areas,id',
-            'codigo' => 'nullable|integer',
+            'codigo' => 'nullable|integer|unique:servicios,codigo',
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'metodo' => 'nullable|string|max:255',
@@ -52,7 +59,7 @@ class ServicioController extends Controller
 
         $data = $request->validate([
             'area_id' => 'sometimes|required|exists:areas,id',
-            'codigo' => 'nullable|integer',
+            'codigo' => ['nullable', 'integer', \Illuminate\Validation\Rule::unique('servicios', 'codigo')->ignore($servicio->id)],
             'nombre' => 'sometimes|required|string|max:255',
             'descripcion' => 'nullable|string',
             'metodo' => 'nullable|string|max:255',

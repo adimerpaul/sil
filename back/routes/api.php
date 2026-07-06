@@ -136,6 +136,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource('areas', AreaController::class);
 //    areasCreateSolicitud
     Route::get('areasCreateSolicitud', [AreaController::class, 'areasCreateSolicitud']);
+    Route::get('servicios/next-codigo', [ServicioController::class, 'nextCodigo']);
     Route::apiResource('servicios', ServicioController::class);
     Route::post('servicios/{id}/tipos-muestra', [ServicioController::class, 'syncTiposMuestra']);
 
