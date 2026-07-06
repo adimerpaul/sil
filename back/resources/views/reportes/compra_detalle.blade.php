@@ -178,6 +178,10 @@
                     <td class="bold uppercase center">H / Ruta</td>
                     <td class="center">{{ $compra->hoja_de_ruta ?: '-' }}</td>
                 </tr>
+                <tr>
+                    <td class="bold uppercase center">Cód. Interno</td>
+                    <td class="center">{{ $compra->codigo_interno ?: '-' }}</td>
+                </tr>
             </table>
         </td>
     </tr>
