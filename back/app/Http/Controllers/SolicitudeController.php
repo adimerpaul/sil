@@ -1575,6 +1575,7 @@ class SolicitudeController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('paciente_nombre', 'like', "%$s%")
+                  ->orWhere('codigo', 'like', "%$s%")
                   ->orWhere('codigo_solicitud', 'like', "%$s%")
                   ->orWhere('nro_registro', 'like', "%$s%")
                   ->orWhere('doctor_nombre', 'like', "%$s%");
@@ -1779,6 +1780,13 @@ class SolicitudeController extends Controller
         $this->syncServicios($solicitud, $request->input('servicios', []));
 //        solitud uupte
         $solicitud->update($data);
+
+        // mantener sincronizado el campo denormalizado usado por el buscador
+        $codigoSolicitud = ($solicitud->nro_registro ?? '') . ($solicitud->codigo ?? '');
+        if ($solicitud->codigo_solicitud !== $codigoSolicitud) {
+            $solicitud->codigo_solicitud = $codigoSolicitud;
+            $solicitud->save();
+        }
 
         return response()->json($solicitud->load(['paciente', 'doctor', 'servicios.tiposMuestra', 'consentimiento', 'unidadSolicitante']));
     }
