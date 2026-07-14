@@ -183,6 +183,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('reportes/solicitudes-dashboard/list',  [SolicitudeController::class, 'dashboardList']);
     Route::get('reportes/solicitudes-dashboard/excel', [SolicitudeController::class, 'dashboardExcel']);
 
+    Route::get('/datos-hematologia', [\App\Http\Controllers\DatoHematologiaController::class, 'index']);
+    Route::put('/datos-hematologia/{id}', [\App\Http\Controllers\DatoHematologiaController::class, 'update']);
+
+    Route::get('/agrupaciones', [\App\Http\Controllers\AgrupacionController::class, 'index']);
+    Route::post('/agrupaciones', [\App\Http\Controllers\AgrupacionController::class, 'store']);
+    Route::put('/agrupaciones/{id}', [\App\Http\Controllers\AgrupacionController::class, 'update']);
+    Route::delete('/agrupaciones/{id}', [\App\Http\Controllers\AgrupacionController::class, 'destroy']);
+
     Route::get('/hematologia/solicitud/{id}', [\App\Http\Controllers\HematologiaController::class, 'showBySolicitude']);
     Route::post('/hematologia/solicitud/{id}', [\App\Http\Controllers\HematologiaController::class, 'upsert']);
     Route::delete('/hematologia/solicitud/{id}', [\App\Http\Controllers\HematologiaController::class, 'destroyBySolicitude']);

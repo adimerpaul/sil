@@ -25,6 +25,10 @@ class SolicitudCatalogoController extends Controller
                 }),
             'unidades_solicitantes' => UnidadSolicitante::orderBy('nombre')->get(),
             'areas' => $this->areasParaCrearSolicitud($request),
+            'agrupaciones' => \App\Models\Agrupacion::with('prestaciones:id')
+                ->where('activo', true)
+                ->orderBy('orden')
+                ->get(),
             'codigos_sugeridos' => [
                 'SI' => $this->siguienteCodigoSugerido('SI', $request),
                 'NO' => $this->siguienteCodigoSugerido('NO', $request),
