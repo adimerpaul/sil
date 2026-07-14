@@ -911,15 +911,27 @@
             <div class="col-12 col-sm-6">
               <q-select
                 v-model="doctor.establecimiento_id"
-                :options="establecimientos"
+                :options="establecimientosDoctor"
                 option-label="nombre"
                 option-value="id"
                 emit-value
                 map-options
+                use-input
+                clearable
+                input-debounce="150"
+                @filter="filterEstablecimientosDoctor"
                 label="Establecimiento de salud"
                 dense outlined
-              />
-              <!--                <pre>{{establecimientos}}</pre>-->
+              >
+                <template #option="scope">
+                  <q-item v-bind="scope.itemProps">
+                    <q-item-section>
+                      <q-item-label>{{ scope.opt.nombre }}</q-item-label>
+                      <q-item-label caption>{{ scope.opt.tipo }} • {{ scope.opt.nivel }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
             </div>
 <!--            <div class="col-12 col-sm-6">-->
 <!--              <q-select-->
@@ -1177,6 +1189,7 @@ export default {
       establecimientosPrivados: [],
       establecimientosPrivadosAll: [],
       establecimientosAll: [],
+      establecimientosDoctor: [],
       searchCi: '',
       serviciosFilter: '',
       serviciosAreaId: null,
@@ -1319,6 +1332,7 @@ export default {
       const establecimientos = data.establecimientos || []
       this.establecimientos = establecimientos
       this.establecimientosAll = establecimientos
+      this.establecimientosDoctor = establecimientos
       this.establecimientosPublicos = establecimientos.filter(e => e.tipo === 'PUBLICO')
       this.establecimientosPublicosAll = establecimientos.filter(e => e.tipo === 'PUBLICO')
       this.establecimientosPrivados = establecimientos.filter(e => e.tipo === 'PRIVADO')
@@ -1584,6 +1598,23 @@ export default {
       }
     },
 
+    filterEstablecimientosDoctor (val, update) {
+      update(() => {
+        const text = (val || '').toLowerCase().trim()
+        if (!text) {
+          this.establecimientosDoctor = this.establecimientosAll
+          return
+        }
+        this.establecimientosDoctor = this.establecimientosAll
+          .filter(e => {
+            const nombre = String(e.nombre || '').toLowerCase()
+            const tipo = String(e.tipo || '').toLowerCase()
+            const nivel = String(e.nivel || '').toLowerCase()
+            return nombre.includes(text) || tipo.includes(text) || nivel.includes(text)
+          })
+          .slice(0, 50)
+      })
+    },
     toggleAgrupacion (agrupacion) {
       const ids = (agrupacion.prestaciones || []).map(p => p.id)
       this.areas.forEach(area => {

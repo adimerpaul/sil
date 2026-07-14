@@ -40,7 +40,14 @@ class PacienteController extends Controller
         $perPage = (int) $request->get('per_page', 20);
         $search = $request->get('search');
 
-        $query = Paciente::orderBy('id', 'desc');
+        $query = Paciente::query()
+            ->select('pacientes.*')
+            ->addSelect(['codigos_solicitudes' => Solicitude::selectRaw("GROUP_CONCAT(DISTINCT codigo_solicitud ORDER BY id DESC SEPARATOR ', ')")
+                ->whereColumn('paciente_id', 'pacientes.id')
+                ->whereNotNull('codigo_solicitud')
+                ->where('codigo_solicitud', '!=', ''),
+            ])
+            ->orderBy('id', 'desc');
 
         if ($search) {
             $search = trim($search);

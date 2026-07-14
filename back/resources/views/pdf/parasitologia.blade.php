@@ -52,7 +52,7 @@
 
             {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud, 'fecha_solicitud'=>$p->created_at])->render() !!}
 
-            <div class="section center" style="margin-top:20px; font-weight:700; font-size:12px;">
+            <div class="section center" style="margin-top:20px; font-weight:700; font-size:15px;">
                 PARASITOLOGÍA
             </div>
 
