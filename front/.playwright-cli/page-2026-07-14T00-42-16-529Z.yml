@@ -1,0 +1,40 @@
+- generic [ref=e1]:
+  - main [ref=e5]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - img [ref=e10]:
+          - img [ref=e13]
+        - generic [ref=e14]: Hospital General · San Juan de Dios
+      - separator [ref=e15]
+      - generic [ref=e17]:
+        - generic [ref=e18]: Iniciar sesión
+        - generic [ref=e19]: Accede al panel usando tus credenciales.
+        - generic [ref=e20]: Nombre de usuario
+        - generic [ref=e23]:
+          - generic [ref=e25]: account_circle
+          - textbox [ref=e27]:
+            - /placeholder: Nombre de usuario
+            - text: admin
+        - generic [ref=e29]: Contraseña
+        - generic [ref=e32]:
+          - generic [ref=e34]: lock
+          - textbox [ref=e36]:
+            - /placeholder: Contraseña
+            - text: admin123Admin
+          - generic [ref=e38] [cursor=pointer]: visibility_off
+        - button "Iniciar sesión" [ref=e40] [cursor=pointer]:
+          - generic [ref=e42]: Iniciar sesión
+      - generic [ref=e43]:
+        - separator [ref=e44]
+        - generic [ref=e45]:
+          - text: ¿Eres usuario nuevo?
+          - button "Regístrate" [ref=e46] [cursor=pointer]:
+            - generic [ref=e48]: Regístrate
+        - generic [ref=e49]: © 2026 San Juan de Dios. Todos los derechos reservados.
+  - alert [ref=e50]:
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - img [ref=e53]: error
+        - generic [ref=e54]: Usuario o contraseña incorrectos
+      - button [ref=e57] [cursor=pointer]:
+        - img [ref=e59]: close

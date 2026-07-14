@@ -1,0 +1,173 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - toolbar [ref=e5]:
+      - button "Menu" [ref=e6] [cursor=pointer]:
+        - img [ref=e8]: keyboard_double_arrow_left
+      - generic [ref=e10]:
+        - text: Dashboard de Gestión
+        - status [ref=e246]:
+          - generic [ref=e247]: AREA ADMINISTRATIVA
+        - status [ref=e248]:
+          - generic [ref=e249]:
+            - generic [ref=e250]: apartment
+            - text: INFRAESTRUCTURA Y MANTENIMIENTO BLOQUE CENTRAL - COREA
+      - button "Expandir" [ref=e12] [cursor=pointer]:
+        - generic [ref=e13]:
+          - generic [ref=e14]:
+            - img [ref=e251]:
+              - img [ref=e254]
+            - generic [ref=e18]:
+              - generic [ref=e255]: ADIMER
+              - generic [ref=e256]: Administrador
+          - generic [ref=e20]: expand_more
+  - complementary [ref=e21]:
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - img [ref=e30]:
+          - img [ref=e33]
+        - generic [ref=e38]:
+          - text: Hospital General
+          - text: San Juan de Dios
+      - generic [ref=e39]: Módulos
+      - list [ref=e40]:
+        - generic [ref=e42]:
+          - button "Colapsar" [expanded] [ref=e43] [cursor=pointer]:
+            - generic [ref=e45]: local_hospital
+            - generic [ref=e47]: Hospital
+            - status [ref=e49]: "8"
+            - generic [ref=e51]: arrow_drop_down
+          - list [ref=e53]:
+            - listitem [ref=e54] [cursor=pointer]:
+              - generic [ref=e56]: dashboard
+              - generic [ref=e58]: Resumen
+            - listitem [ref=e59] [cursor=pointer]:
+              - generic [ref=e61]: people
+              - generic [ref=e63]: Usuarios
+            - listitem [ref=e64] [cursor=pointer]:
+              - generic [ref=e66]: schedule
+              - generic [ref=e68]: Tiempo de registro
+            - listitem [ref=e69] [cursor=pointer]:
+              - generic [ref=e71]: folder_shared
+              - generic [ref=e73]: Pacientes
+            - listitem [ref=e74] [cursor=pointer]:
+              - generic [ref=e76]: medical_services
+              - generic [ref=e78]: Doctores
+            - listitem [ref=e79] [cursor=pointer]:
+              - generic [ref=e81]: domain_add
+              - generic [ref=e83]: Establecimientos
+            - listitem [ref=e84] [cursor=pointer]:
+              - generic [ref=e86]: room_service
+              - generic [ref=e88]: Prestaciones
+            - listitem [ref=e89] [cursor=pointer]:
+              - generic [ref=e91]: assignment_turned_in
+              - generic [ref=e93]: Consentimientos
+          - separator [ref=e94]
+          - separator [ref=e95]
+        - generic [ref=e97]:
+          - button "Colapsar" [expanded] [ref=e98] [cursor=pointer]:
+            - generic [ref=e100]: science
+            - generic [ref=e102]: Laboratorio SIL
+            - status [ref=e104]: "9"
+            - generic [ref=e106]: arrow_drop_down
+          - list [ref=e108]:
+            - listitem [ref=e109] [cursor=pointer]:
+              - generic [ref=e111]: request_page
+              - generic [ref=e113]: Admisión
+            - listitem [ref=e114] [cursor=pointer]:
+              - generic [ref=e116]: inventory_2
+              - generic [ref=e118]: Recojo de Resultados
+            - listitem [ref=e119] [cursor=pointer]:
+              - generic [ref=e121]: assignment_turned_in
+              - generic [ref=e123]: Entrega de Resultados
+            - listitem [ref=e124] [cursor=pointer]:
+              - generic [ref=e126]: science
+              - generic [ref=e128]: Preanalítica
+            - listitem [ref=e129] [cursor=pointer]:
+              - generic [ref=e131]: analytics
+              - generic [ref=e133]: Estados preanalítica
+            - listitem [ref=e134] [cursor=pointer]:
+              - generic [ref=e136]: biotech
+              - generic [ref=e138]: Analítica
+            - listitem [ref=e139] [cursor=pointer]:
+              - generic [ref=e141]: settings
+              - generic [ref=e143]: Configuración Hematología
+            - listitem [ref=e144] [cursor=pointer]:
+              - generic [ref=e146]: library_add_check
+              - generic [ref=e148]: Agrupaciones
+            - listitem [ref=e149] [cursor=pointer]:
+              - generic [ref=e151]: description
+              - generic [ref=e153]: Formularios
+          - separator [ref=e154]
+          - separator [ref=e155]
+        - generic [ref=e157]:
+          - button "Expandir" [ref=e158] [cursor=pointer]:
+            - generic [ref=e160]: warehouse
+            - generic [ref=e162]: Almacén SIA
+            - status [ref=e164]: "15"
+            - generic [ref=e166]: arrow_drop_down
+          - separator [ref=e167]
+          - separator [ref=e168]
+        - generic [ref=e170]:
+          - button "Expandir" [ref=e171] [cursor=pointer]:
+            - generic [ref=e173]: insert_chart
+            - generic [ref=e175]: Reportes
+            - status [ref=e177]: "3"
+            - generic [ref=e179]: arrow_drop_down
+          - separator [ref=e180]
+          - separator [ref=e181]
+      - generic [ref=e182]:
+        - generic [ref=e183]: SIL v2.3.8
+        - generic [ref=e184]: © 2026 Hospital General San Juan de Dios
+      - listitem [ref=e185] [cursor=pointer]:
+        - generic [ref=e187]: logout
+        - generic [ref=e189]: Salir
+  - main [ref=e193]:
+    - generic [ref=e194]:
+      - generic [ref=e195]:
+        - generic [ref=e200]:
+          - generic: Desde
+          - textbox "Desde" [ref=e201]: 2026-07-01
+        - generic [ref=e206]:
+          - generic: Hasta
+          - textbox "Hasta" [ref=e207]: 2026-07-31
+        - generic [ref=e211]:
+          - generic [ref=e213]: search
+          - generic [ref=e214]:
+            - generic: Buscar por código, paciente o CI
+            - textbox "Buscar por código, paciente o CI" [ref=e215]: "1623"
+          - button "Borrar" [ref=e217] [cursor=pointer]: cancel
+        - button "Buscar" [ref=e219] [cursor=pointer]:
+          - generic [ref=e257]:
+            - img [ref=e258]: search
+            - generic [ref=e259]: Buscar
+      - generic [ref=e224]:
+        - generic [ref=e225]: "Estado:"
+        - generic [ref=e226] [cursor=pointer]:
+          - generic [ref=e227]: list
+          - generic [ref=e228]: Todos
+        - generic [ref=e229] [cursor=pointer]:
+          - generic [ref=e230]: hourglass_empty
+          - generic [ref=e231]: Pendiente entrega
+        - generic [active] [ref=e232] [cursor=pointer]:
+          - generic [ref=e233]: check_circle
+          - generic [ref=e234]: Entregados
+        - checkbox "Seleccionar todos" [ref=e236] [cursor=pointer]:
+          - img [ref=e239]
+          - generic [ref=e241]: Seleccionar todos
+    - table [ref=e9144]:
+      - rowgroup [ref=e9145]:
+        - row "Área Códigos" [ref=e9146]:
+          - columnheader "Área" [ref=e9147]
+          - columnheader "Códigos" [ref=e9148]
+      - rowgroup [ref=e9149]:
+        - row "HEMATOLOGÍA (Area 2) 1623 · Dra. Patricia Lucero Condarco Chugar 18:36" [ref=e9150]:
+          - cell "HEMATOLOGÍA (Area 2)" [ref=e9151]
+          - cell "1623 · Dra. Patricia Lucero Condarco Chugar 18:36" [ref=e9152]:
+            - generic [ref=e9154]:
+              - generic [ref=e9155]: check_circle
+              - generic [ref=e9156]: "1623"
+              - generic [ref=e9157]:
+                - text: · Dra. Patricia Lucero Condarco Chugar
+                - generic [ref=e9158]: schedule
+                - text: 18:36
+    - generic [ref=e245]: "Total: 1"
