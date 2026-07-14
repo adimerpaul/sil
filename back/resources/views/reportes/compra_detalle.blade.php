@@ -178,10 +178,6 @@
                     <td class="bold uppercase center">H / Ruta</td>
                     <td class="center">{{ $compra->hoja_de_ruta ?: '-' }}</td>
                 </tr>
-                <tr>
-                    <td class="bold uppercase center">Cód. Interno</td>
-                    <td class="center">{{ $compra->codigo_interno ?: '-' }}</td>
-                </tr>
             </table>
         </td>
     </tr>
@@ -219,7 +215,9 @@
 {{--    </tr>--}}
     <tr>
         <td class="cell label">Unidad solicitante</td>
-        <td class="cell uppercase" colspan="3">{{ optional($compra->unidad)->nombre ?: '-' }}</td>
+        <td class="cell uppercase">{{ optional($compra->unidad)->nombre ?: '-' }}</td>
+        <td class="cell label">C&oacute;d. Interno</td>
+        <td class="cell">{{ $compra->codigo_interno ?: '-' }}</td>
     </tr>
     <tr>
         <td class="cell label">Carnet / NIT</td>
