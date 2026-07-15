@@ -21,7 +21,7 @@
 
       <q-card-section class="row items-center q-col-gutter-xs">
         <div class="col-12 col-sm-4">
-          <q-input dense outlined v-model="search" clearable label="Buscar por código, paciente o CI">
+          <q-input dense outlined v-model="search" clearable label="Buscar por código, paciente o CI" @keyup.enter="getSolicitudes">
             <template #prepend><q-icon name="search" /></template>
           </q-input>
         </div>

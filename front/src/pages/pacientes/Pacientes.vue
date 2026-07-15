@@ -33,7 +33,7 @@
           class="q-mr-sm"
           :loading="loading"
         />
-        <q-input dense outlined v-model="filter" label="Buscar" debounce="500">
+        <q-input dense outlined v-model="filter" label="Buscar por código, nombre o código de solicitud" debounce="500">
           <template #append><q-icon name="search" /></template>
         </q-input>
       </template>
@@ -406,7 +406,7 @@ export default {
       columns: [
         { name: 'actions', label: 'Acciones', align: 'center' },
         { name: 'id', label: 'Código paciente', field: 'id', align: 'left' },
-        { name: 'codigos_solicitudes', label: 'Códigos solicitudes', field: 'codigos_solicitudes', align: 'left' },
+        { name: 'codigos_solicitudes', label: 'Código', field: 'codigos_solicitudes', align: 'left' },
         { name: 'nombre_completo', label: 'Nombre', field: 'nombre_completo' },
         { name: 'ci', label: 'CI', field: 'ci' },
         { name: 'telefono', label: 'Teléfono', field: 'telefono' },

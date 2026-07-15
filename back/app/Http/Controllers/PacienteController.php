@@ -42,10 +42,10 @@ class PacienteController extends Controller
 
         $query = Paciente::query()
             ->select('pacientes.*')
-            ->addSelect(['codigos_solicitudes' => Solicitude::selectRaw("GROUP_CONCAT(DISTINCT codigo_solicitud ORDER BY id DESC SEPARATOR ', ')")
+            ->addSelect(['codigos_solicitudes' => Solicitude::selectRaw("GROUP_CONCAT(DISTINCT CONCAT(codigo, ' · ', DATE_FORMAT(fecha_creacion, '%d/%m/%Y')) ORDER BY id DESC SEPARATOR ', ')")
                 ->whereColumn('paciente_id', 'pacientes.id')
-                ->whereNotNull('codigo_solicitud')
-                ->where('codigo_solicitud', '!=', ''),
+                ->whereNotNull('codigo')
+                ->where('codigo', '!=', ''),
             ])
             ->orderBy('id', 'desc');
 
@@ -53,13 +53,21 @@ class PacienteController extends Controller
             $search = trim($search);
             $query->where(function ($q) use ($search) {
                 $q->where('nombre_completo', 'like', "%{$search}%")
-                    ->orWhere('ci', 'like', "%{$search}%")
-                    ->orWhere('telefono', 'like', "%{$search}%")
                     ->orWhere('codigo', 'like', "%{$search}%")
-                    ->orWhereHas('solicitudes', function ($s) use ($search) {
-                        $s->where('codigo_solicitud', 'like', "%{$search}%")
-                            ->orWhere('codigo', 'like', "%{$search}%")
-                            ->orWhere('nro_registro', 'like', "%{$search}%");
+                    ->orWhereExists(function ($sub) use ($search) {
+                        $sub->selectRaw(1)
+                            ->from('solicitudes')
+                            ->whereColumn('solicitudes.paciente_id', 'pacientes.id')
+                            ->whereNull('solicitudes.deleted_at')
+                            ->where(function ($s) use ($search) {
+                                // Numérico: código de solicitud exacto (LIKE sobre la
+                                // concatenación nro_registro+codigo da falsos positivos)
+                                if (ctype_digit($search)) {
+                                    $s->where('solicitudes.codigo', $search);
+                                } else {
+                                    $s->where('solicitudes.codigo_solicitud', 'like', "%{$search}%");
+                                }
+                            });
                     });
             });
         }

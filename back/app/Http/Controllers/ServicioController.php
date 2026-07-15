@@ -99,6 +99,7 @@ class ServicioController extends Controller
             'rangos.*.area_rango_id'  => 'required|integer|exists:area_rangos,id',
             'rangos.*.nombre_variable'=> 'nullable|string|max:100',
             'rangos.*.orden'          => 'nullable|integer|min:0',
+            'rangos.*.visible'        => 'nullable|boolean',
         ]);
 
         $sync = [];
@@ -106,6 +107,7 @@ class ServicioController extends Controller
             $sync[$item['area_rango_id']] = [
                 'nombre_variable' => $item['nombre_variable'] ?? null,
                 'orden'           => $item['orden'] ?? $idx + 1,
+                'visible'         => array_key_exists('visible', $item) ? (bool) $item['visible'] : true,
             ];
         }
 

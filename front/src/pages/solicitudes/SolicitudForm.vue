@@ -28,7 +28,48 @@
                 outlined
                 clearable
                 @update:model-value="onCodigoManualChange"
-              />
+              >
+                <template v-slot:after>
+                  <q-btn
+                    v-if="puedeGenerarCodigo"
+                    round
+                    dense
+                    color="primary"
+                    icon="pin"
+                    :loading="loadingCodigo"
+                    @click="generarCodigoCorrelativo"
+                  >
+                    <q-tooltip>Colocar próxima numeración del mes</q-tooltip>
+                  </q-btn>
+                </template>
+              </q-input>
+
+              <q-dialog v-model="dialogNumeracion">
+                <q-card style="min-width: 320px">
+                  <q-card-section class="row items-center q-pb-none">
+                    <div class="text-subtitle1">Numeración del mes</div>
+                    <q-space />
+                    <q-btn icon="close" flat round dense v-close-popup />
+                  </q-card-section>
+                  <q-card-section>
+                    <q-input
+                      v-model.number="numeracionManual"
+                      type="number"
+                      min="1"
+                      dense
+                      outlined
+                      autofocus
+                      label="Numeración"
+                      :hint="`Siguiente sugerido: ${numeracionSugerida ?? '-'}`"
+                      @keyup.enter="aplicarNumeracion"
+                    />
+                  </q-card-section>
+                  <q-card-actions align="right">
+                    <q-btn flat label="Cancelar" no-caps v-close-popup />
+                    <q-btn color="primary" label="Aplicar" no-caps @click="aplicarNumeracion" />
+                  </q-card-actions>
+                </q-card>
+              </q-dialog>
             </div>
             <div class="col-12 col-sm-4">
               <q-input
@@ -1182,6 +1223,10 @@ export default {
       },
       codigoEditadoManual: false,
       nroRegistroEditadoManual: false,
+      loadingCodigo: false,
+      dialogNumeracion: false,
+      numeracionManual: null,
+      numeracionSugerida: null,
       areas: [],
       establecimientos: [],
       establecimientosPublicos: [],
@@ -1247,6 +1292,9 @@ export default {
   computed: {
     isAdmin () {
       return this.$store?.user?.role === 'Administrador'
+    },
+    puedeGenerarCodigo () {
+      return this.isAdmin || (this.$store?.permissions || []).includes('Generar código solicitud')
     },
     edadadmY () {
       if (!this.solicitud.paciente_fecha_nac) return ''
@@ -1534,6 +1582,31 @@ export default {
       if (this.codigoEditadoManual || this.solicitud.id) return
       const sugerido = this.codigosSugeridos[this.solicitud.tipo_atencion]
       this.solicitud.codigo = sugerido ?? ''
+    },
+    generarCodigoCorrelativo () {
+      this.loadingCodigo = true
+      this.$axios.get('solicitudes-siguiente-codigo', {
+        params: { tipo_atencion: this.solicitud.tipo_atencion || 'SI' }
+      })
+        .then(res => {
+          this.numeracionSugerida = res.data.numero
+          this.numeracionManual = res.data.numero
+          this.dialogNumeracion = true
+        })
+        .catch(e => {
+          this.$alert?.error?.(e.response?.data?.message || 'No se pudo obtener la numeración')
+        })
+        .finally(() => { this.loadingCodigo = false })
+    },
+    aplicarNumeracion () {
+      const numero = parseInt(this.numeracionManual, 10)
+      if (isNaN(numero) || numero < 1) {
+        this.$alert?.error?.('Ingrese una numeración válida')
+        return
+      }
+      this.solicitud.codigo = String(numero)
+      this.codigoEditadoManual = true
+      this.dialogNumeracion = false
     },
     aplicarNroRegistroSugerido () {
       if (this.nroRegistroEditadoManual || this.solicitud.id) return

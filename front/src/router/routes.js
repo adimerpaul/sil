@@ -225,6 +225,12 @@ const routes = [
         meta: {requiresAuth: true, perm: 'Configuración hematología'}
       },
       {
+        path: '/configuracion/quimica-sanguinea',
+        name: 'configuracion-quimica-sanguinea',
+        component: () => import('pages/configuracion/ConfiguracionQuimicaSanguinea.vue'),
+        meta: {requiresAuth: true, perm: 'Configuración química sanguínea'}
+      },
+      {
         path: '/configuracion/agrupaciones',
         name: 'configuracion-agrupaciones',
         component: () => import('pages/configuracion/ConfiguracionAgrupaciones.vue'),

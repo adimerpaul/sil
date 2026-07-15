@@ -81,6 +81,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('solicitudes/export/pdf',   [SolicitudeController::class, 'indexPdf']);
     Route::apiResource('solicitudes', SolicitudeController::class);
     Route::get('solicitudes-create-catalogos', [SolicitudCatalogoController::class, 'create']);
+    Route::get('solicitudes-siguiente-codigo', [SolicitudCatalogoController::class, 'siguienteCodigo']);
 
     Route::get('establecimientos/export/excel', [EstablecimientoController::class, 'exportarExcel']);
     Route::get('establecimientos/export/pdf',   [EstablecimientoController::class, 'exportarPdf']);
@@ -185,6 +186,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/datos-hematologia', [\App\Http\Controllers\DatoHematologiaController::class, 'index']);
     Route::put('/datos-hematologia/{id}', [\App\Http\Controllers\DatoHematologiaController::class, 'update']);
+
+    Route::get('/datos-quimica-sanguinea', [\App\Http\Controllers\DatoQuimicaSanguineaController::class, 'index']);
+    Route::put('/datos-quimica-sanguinea/{id}', [\App\Http\Controllers\DatoQuimicaSanguineaController::class, 'update']);
 
     Route::get('/agrupaciones', [\App\Http\Controllers\AgrupacionController::class, 'index']);
     Route::post('/agrupaciones', [\App\Http\Controllers\AgrupacionController::class, 'store']);

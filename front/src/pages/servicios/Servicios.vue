@@ -686,6 +686,7 @@
       :formulas-iniciales="formulasIniciales"
       :loading="loading"
       @save="guardarVinculoRangos"
+      @rango-creado="onRangoCreado"
     />
 
     <q-dialog v-model="dialogVincularServicio">
@@ -1084,6 +1085,9 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+    onRangoCreado (rango) {
+      this.rangos.push(rango)
     },
     abrirVincularServicio (row) {
       this.servicioVincular = row

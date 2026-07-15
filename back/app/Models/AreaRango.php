@@ -53,6 +53,6 @@ class AreaRango extends Model implements AuditableContract
             'servicio_rangos',
             'area_rango_id',
             'servicio_id'
-        )->withPivot('nombre_variable', 'orden')->withTimestamps();
+        )->withPivot('nombre_variable', 'orden', 'visible')->withTimestamps();
     }
 }
