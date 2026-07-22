@@ -212,13 +212,17 @@ class ReporteResumenDetalleController extends Controller
             return ['rows' => [], 'total' => null];
         }
 
-        $entAntesQty = $this->compraAggregateBySubpartida('ENTRADA', null, $desde, 'cd.cantidad');
-        $entAntesVal = $this->compraAggregateBySubpartida('ENTRADA', null, $desde, 'cd.total');
+        $inicialId = $this->inventarioInicialCompraId();
+        $iniQty = $this->inicialBySubpartida($inicialId, 'cd.cantidad');
+        $iniVal = $this->inicialBySubpartida($inicialId, 'cd.total');
+
+        $entAntesQty = $this->compraAggregateBySubpartida('ENTRADA', null, $desde, 'cd.cantidad', $inicialId);
+        $entAntesVal = $this->compraAggregateBySubpartida('ENTRADA', null, $desde, 'cd.total', $inicialId);
         $salAntesQty = $this->salidasBySubpartida(null, $desde, 'cantidad', 'cd.cantidad');
         $salAntesVal = $this->salidasBySubpartida(null, $desde, 'total', 'cd.total');
 
-        $entQty = $this->compraAggregateBySubpartida('ENTRADA', $desde, $hasta, 'cd.cantidad');
-        $entVal = $this->compraAggregateBySubpartida('ENTRADA', $desde, $hasta, 'cd.total');
+        $entQty = $this->compraAggregateBySubpartida('ENTRADA', $desde, $hasta, 'cd.cantidad', $inicialId);
+        $entVal = $this->compraAggregateBySubpartida('ENTRADA', $desde, $hasta, 'cd.total', $inicialId);
         $salQty = $this->salidasBySubpartida($desde, $hasta, 'cantidad', 'cd.cantidad');
         $salVal = $this->salidasBySubpartida($desde, $hasta, 'total', 'cd.total');
 
@@ -228,8 +232,8 @@ class ReporteResumenDetalleController extends Controller
         foreach ($subpartidas as $sp) {
             $sid = $sp->subpartida_id;
 
-            $csi = ($entAntesQty[$sid] ?? 0) - ($salAntesQty[$sid] ?? 0);
-            $vsi = ($entAntesVal[$sid] ?? 0) - ($salAntesVal[$sid] ?? 0);
+            $csi = ($iniQty[$sid] ?? 0) + ($entAntesQty[$sid] ?? 0) - ($salAntesQty[$sid] ?? 0);
+            $vsi = ($iniVal[$sid] ?? 0) + ($entAntesVal[$sid] ?? 0) - ($salAntesVal[$sid] ?? 0);
             $ce = $entQty[$sid] ?? 0;
             $ve = $entVal[$sid] ?? 0;
             $cs = $salQty[$sid] ?? 0;
@@ -300,13 +304,17 @@ class ReporteResumenDetalleController extends Controller
 
         $ids = $items->pluck('id')->toArray();
 
-        $entAntesQty = $this->entradasQty($ids, null, $desde);
-        $entAntesVal = $this->entradasVal($ids, null, $desde);
+        $inicialId = $this->inventarioInicialCompraId();
+        $iniQty = $this->inicialByItem($ids, $inicialId, 'cd.cantidad');
+        $iniVal = $this->inicialByItem($ids, $inicialId, 'cd.total');
+
+        $entAntesQty = $this->entradasQty($ids, null, $desde, $inicialId);
+        $entAntesVal = $this->entradasVal($ids, null, $desde, $inicialId);
         $salAntesQty = $this->salidasQty($ids, null, $desde);
         $salAntesVal = $this->salidasVal($ids, null, $desde);
 
-        $entQty = $this->entradasQty($ids, $desde, $hasta);
-        $entVal = $this->entradasVal($ids, $desde, $hasta);
+        $entQty = $this->entradasQty($ids, $desde, $hasta, $inicialId);
+        $entVal = $this->entradasVal($ids, $desde, $hasta, $inicialId);
         $salQty = $this->salidasQty($ids, $desde, $hasta);
         $salVal = $this->salidasVal($ids, $desde, $hasta);
 
@@ -316,8 +324,8 @@ class ReporteResumenDetalleController extends Controller
         foreach ($items as $item) {
             $id = $item->id;
 
-            $csi = ($entAntesQty[$id] ?? 0) - ($salAntesQty[$id] ?? 0);
-            $vsi = ($entAntesVal[$id] ?? 0) - ($salAntesVal[$id] ?? 0);
+            $csi = ($iniQty[$id] ?? 0) + ($entAntesQty[$id] ?? 0) - ($salAntesQty[$id] ?? 0);
+            $vsi = ($iniVal[$id] ?? 0) + ($entAntesVal[$id] ?? 0) - ($salAntesVal[$id] ?? 0);
             $ce = $entQty[$id] ?? 0;
             $ve = $entVal[$id] ?? 0;
             $cs = $salQty[$id] ?? 0;
@@ -350,16 +358,67 @@ class ReporteResumenDetalleController extends Controller
         return ['rows' => $rows, 'total' => $total, 'page' => $page, 'per_page' => $perPage];
     }
 
-    // ─── helpers de queries: por ítem ─────────────────────────────────────────
+    // ─── helpers de queries: inventario inicial ──────────────────────────────
 
-    private function entradasQty(array $ids, ?string $desde, ?string $hasta): array
+    /**
+     * La primera compra ENTRADA registrada es la carga de inventario inicial:
+     * siempre forma parte del saldo inicial sin importar su fecha, y se excluye
+     * de las entradas para no contarla dos veces.
+     */
+    private function inventarioInicialCompraId(): ?int
     {
-        return $this->compraAggregate($ids, 'ENTRADA', $desde, $hasta, 'cd.cantidad');
+        return DB::table('compras')
+            ->where('tipo_registro', 'ENTRADA')
+            ->where('estado', 'ACTIVO')
+            ->whereNull('deleted_at')
+            ->min('id');
     }
 
-    private function entradasVal(array $ids, ?string $desde, ?string $hasta): array
+    private function inicialByItem(array $ids, ?int $compraId, string $col): array
     {
-        return $this->compraAggregate($ids, 'ENTRADA', $desde, $hasta, 'cd.total');
+        if (! $compraId) {
+            return [];
+        }
+
+        return DB::table('compra_detalles as cd')
+            ->where('cd.compra_id', $compraId)
+            ->whereIn('cd.producto_id', $ids)
+            ->whereNull('cd.deleted_at')
+            ->groupBy('cd.producto_id')
+            ->select('cd.producto_id', DB::raw("SUM({$col}) as total"))
+            ->pluck('total', 'producto_id')
+            ->map(fn ($v) => (float) $v)
+            ->toArray();
+    }
+
+    private function inicialBySubpartida(?int $compraId, string $col): array
+    {
+        if (! $compraId) {
+            return [];
+        }
+
+        return DB::table('compra_detalles as cd')
+            ->join('almacen_items as ai', 'cd.producto_id', '=', 'ai.id')
+            ->where('cd.compra_id', $compraId)
+            ->whereNull('cd.deleted_at')
+            ->whereNull('ai.deleted_at')
+            ->groupBy('ai.subpartida_id')
+            ->select('ai.subpartida_id', DB::raw("SUM({$col}) as total"))
+            ->pluck('total', 'subpartida_id')
+            ->map(fn ($v) => (float) $v)
+            ->toArray();
+    }
+
+    // ─── helpers de queries: por ítem ─────────────────────────────────────────
+
+    private function entradasQty(array $ids, ?string $desde, ?string $hasta, ?int $excludeCompraId = null): array
+    {
+        return $this->compraAggregate($ids, 'ENTRADA', $desde, $hasta, 'cd.cantidad', $excludeCompraId);
+    }
+
+    private function entradasVal(array $ids, ?string $desde, ?string $hasta, ?int $excludeCompraId = null): array
+    {
+        return $this->compraAggregate($ids, 'ENTRADA', $desde, $hasta, 'cd.total', $excludeCompraId);
     }
 
     private function salidasQty(array $ids, ?string $desde, ?string $hasta): array
@@ -378,7 +437,7 @@ class ReporteResumenDetalleController extends Controller
         return $this->mergeSum($despacho, $directas);
     }
 
-    private function compraAggregate(array $ids, string $tipo, ?string $desde, ?string $hasta, string $col): array
+    private function compraAggregate(array $ids, string $tipo, ?string $desde, ?string $hasta, string $col, ?int $excludeCompraId = null): array
     {
         $q = DB::table('compra_detalles as cd')
             ->join('compras as c', 'cd.compra_id', '=', 'c.id')
@@ -386,7 +445,8 @@ class ReporteResumenDetalleController extends Controller
             ->where('c.tipo_registro', $tipo)
             ->where('c.estado', 'ACTIVO')
             ->whereNull('cd.deleted_at')
-            ->whereNull('c.deleted_at');
+            ->whereNull('c.deleted_at')
+            ->when($excludeCompraId, fn ($q) => $q->where('cd.compra_id', '!=', $excludeCompraId));
 
         if ($desde && $hasta) {
             $q->whereBetween('c.fecha_hora', [$desde, $hasta]);
@@ -432,7 +492,7 @@ class ReporteResumenDetalleController extends Controller
         return $this->mergeSum($despacho, $directas);
     }
 
-    private function compraAggregateBySubpartida(string $tipo, ?string $desde, ?string $hasta, string $col): array
+    private function compraAggregateBySubpartida(string $tipo, ?string $desde, ?string $hasta, string $col, ?int $excludeCompraId = null): array
     {
         $q = DB::table('compra_detalles as cd')
             ->join('compras as c', 'cd.compra_id', '=', 'c.id')
@@ -441,7 +501,8 @@ class ReporteResumenDetalleController extends Controller
             ->where('c.estado', 'ACTIVO')
             ->whereNull('cd.deleted_at')
             ->whereNull('c.deleted_at')
-            ->whereNull('ai.deleted_at');
+            ->whereNull('ai.deleted_at')
+            ->when($excludeCompraId, fn ($q) => $q->where('cd.compra_id', '!=', $excludeCompraId));
 
         if ($desde && $hasta) {
             $q->whereBetween('c.fecha_hora', [$desde, $hasta]);
