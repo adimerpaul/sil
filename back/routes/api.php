@@ -106,6 +106,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('almacen-items/{id}/imagen', [AlmacenItemController::class, 'updateImagen']);
     Route::get('almacen/productos-por-vencer', [ProductoPorVencerController::class, 'index']);
     Route::get('almacen/productos-vencidos', [ProductoVencidoController::class, 'index']);
+    Route::get('compras/export/excel', [CompraController::class, 'reportExcel']);
+    Route::get('compras/{id}/excel', [CompraController::class, 'printExcel']);
     Route::get('compras/{id}/pdf', [CompraController::class, 'printPdf']);
     Route::apiResource('compras', CompraController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
     Route::get('pedidos/limite-mensual', [PedidoController::class, 'limiteMensual']);
