@@ -788,8 +788,8 @@
 "
                 />
               </td>
-              <td>11 – 15</td>
-              <td>seg</td>
+              <td>{{ rangoTexto('Tiempo de protrombina') || '11 – 15' }}</td>
+              <td>{{ rangoUnidad('Tiempo de protrombina') || 'seg' }}</td>
             </tr>
 
             <tr v-if="canVariable('actividad_protrombina')">

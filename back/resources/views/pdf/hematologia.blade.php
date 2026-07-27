@@ -447,8 +447,8 @@
                             ? number_format($hematologia->tiempo_protrombina, 1)
                             : '' }}
                     </td>
-                    <td class="center">11 – 15</td>
-                    <td class="center">seg</td>
+                    <td class="center">{{ $rangoTexto('Tiempo de protrombina') ?: '11 – 15' }}</td>
+                    <td class="center">{{ $rangoUnidad('Tiempo de protrombina') ?: 'seg' }}</td>
                 </tr>
                 <tr>
                     <td>Actividad de protrombina</td>
