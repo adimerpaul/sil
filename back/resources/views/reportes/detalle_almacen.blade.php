@@ -5,15 +5,15 @@
 <title>DGCF-R1.06 Detalle de Almacenes</title>
 <style>
 @page { size: A4 landscape; margin: 12px 16px; }
-body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 7.5px; color: #172033; line-height: 1.2; }
+body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 6.5px; color: #172033; line-height: 1.05; }
 .hosp { text-align: center; font-size: 11px; font-weight: bold; text-transform: uppercase; color: #0f5ea8; }
 .titulo { text-align: center; font-size: 9.5px; font-weight: bold; text-transform: uppercase; margin: 1px 0; }
 .subtitulo { text-align: center; font-size: 7.5px; color: #475569; margin-bottom: 5px; }
 table { width: 100%; border-collapse: collapse; }
-th { background: #0f5ea8; color: #fff; padding: 3px 3px; text-align: center; font-size: 7px; border: 1px solid #0a4a8a; }
+th { background: #0f5ea8; color: #fff; padding: 2px; text-align: center; font-size: 6.3px; border: 1px solid #0a4a8a; }
 th.group-cant { background: #1a73c4; }
 th.group-val  { background: #156a3c; }
-td { border: 1px solid #b8d0ea; padding: 2px 3px; vertical-align: middle; font-size: 7px; }
+td { border: 1px solid #b8d0ea; padding: 1px 2px; vertical-align: middle; font-size: 6.2px; }
 tr:nth-child(even) td { background: #f5f9ff; }
 .num { text-align: right; }
 .center { text-align: center; }
@@ -43,9 +43,10 @@ tr:nth-child(even) td { background: #f5f9ff; }
   <thead>
     <tr>
       <th rowspan="2" style="width:3%;">Nº</th>
-      <th rowspan="2" style="text-align:left; width:30%;">Descripción (Item)</th>
-      <th rowspan="2" style="width:8%;">Unidad<br>de medida</th>
-      <th rowspan="2" style="width:8%;">Precio<br>Unitario</th>
+      <th rowspan="2" style="width:7%;">Partida<br>presupuestaria</th>
+      <th rowspan="2" style="text-align:left; width:28%;">Descripción (Item)</th>
+      <th rowspan="2" style="width:6%;">Unidad<br>de medida</th>
+      <th rowspan="2" style="width:7%;">Precio<br>Unitario</th>
       <th class="group-cant" colspan="4">Cantidad</th>
       <th class="group-val"  colspan="4">Valores</th>
     </tr>
@@ -64,6 +65,7 @@ tr:nth-child(even) td { background: #f5f9ff; }
     @foreach($rows as $row)
     <tr>
       <td class="center">{{ $row['nro'] }}</td>
+      <td class="center">{{ $row['subpartida_codigo'] }}</td>
       <td>{{ $row['descripcion'] }}</td>
       <td class="center">{{ $row['unidad'] }}</td>
       <td class="num">{{ number_format($row['precio_unitario'], 2, ',', '.') }}</td>

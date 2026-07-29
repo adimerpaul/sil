@@ -15,11 +15,21 @@ class AlmacenItem extends Model
         'nombre',
         'unidad_medida',
         'precio_unitario',
+        'precio_unitario_inicial',
+        'saldo_inicial',
+        'entradas_inicial',
+        'salidas_inicial',
+        'saldo_final_inicial',
         'imagen',
     ];
 
     protected $casts = [
         'precio_unitario' => 'decimal:4',
+        'precio_unitario_inicial' => 'decimal:4',
+        'saldo_inicial' => 'integer',
+        'entradas_inicial' => 'integer',
+        'salidas_inicial' => 'integer',
+        'saldo_final_inicial' => 'integer',
     ];
 
     protected $hidden = [

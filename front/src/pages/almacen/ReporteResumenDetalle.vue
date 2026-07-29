@@ -1,5 +1,5 @@
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="q-pa-xs reporte-almacen-page">
     <!-- Header -->
     <div class="row items-center q-mb-md q-col-gutter-sm">
       <div class="col">
@@ -119,16 +119,39 @@
           :rows="detalleRows"
           :columns="detalleCols"
           dense flat bordered
+          class="reporte-detalle-table"
+          table-class="reporte-detalle-grid"
+          separator="cell"
           row-key="id"
           v-model:pagination="detallePagination"
           :rows-per-page-options="[50, 100, 200, 500, 1000]"
           :loading="loading || loadingDetalle"
           @request="onRequestDetalle"
         >
-          <template v-slot:header-cell-check="props">
-            <q-th :props="props">
-              <q-checkbox dense :model-value="todosDetalleMarcados" @update:model-value="marcarTodoDetalle"/>
-            </q-th>
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th rowspan="2" auto-width>
+                <q-checkbox dense size="xs" :model-value="todosDetalleMarcados" @update:model-value="marcarTodoDetalle"/>
+              </q-th>
+              <q-th rowspan="2" auto-width></q-th>
+              <q-th rowspan="2">Nº</q-th>
+              <q-th rowspan="2">Partida<br>presupuestaria</q-th>
+              <q-th rowspan="2" class="text-left">Descripción (Item)</q-th>
+              <q-th rowspan="2">Unidad<br>de medida</q-th>
+              <q-th rowspan="2">Precio<br>unitario</q-th>
+              <q-th colspan="4">Cantidad</q-th>
+              <q-th colspan="4" class="reporte-valores-header">Valores</q-th>
+            </q-tr>
+            <q-tr :props="props">
+              <q-th>Saldo inicial</q-th>
+              <q-th>Entradas</q-th>
+              <q-th>Salidas</q-th>
+              <q-th>Saldo final</q-th>
+              <q-th class="reporte-valores-header">Saldo inicial</q-th>
+              <q-th class="reporte-valores-header">Entradas</q-th>
+              <q-th class="reporte-valores-header">Salidas</q-th>
+              <q-th class="reporte-valores-header">Saldo final</q-th>
+            </q-tr>
           </template>
           <template v-slot:body-cell-check="props">
             <q-td :props="props" class="text-center">
@@ -225,7 +248,7 @@ export default {
 
       detalleRows: [],
       detalleExcluidos: new Set(),
-      detallePagination: { page: 1, rowsPerPage: 50, rowsNumber: 0 },
+      detallePagination: { page: 1, rowsPerPage: 100, rowsNumber: 0 },
 
       resumenCols: [
         { name: 'check',       label: '',         field: 'check',       align: 'center', style: 'width:34px' },
@@ -248,18 +271,19 @@ export default {
         { name: 'check',            label: '',               field: 'check',            align: 'center', style: 'width:34px' },
         { name: 'acciones',         label: '',               field: 'acciones',         align: 'center', style: 'width:40px' },
         { name: 'nro',              label: 'Nº',             field: 'nro',              align: 'center', style: 'width:40px' },
+        { name: 'subpartida_codigo', label: 'Partida',       field: 'subpartida_codigo', align: 'center', style: 'width:72px' },
         { name: 'descripcion',      label: 'Descripción',    field: 'descripcion',      align: 'left',
-          style: 'max-width:180px; white-space:normal; word-break:break-word; line-height:1.1;' },
-        { name: 'unidad',           label: 'Unidad',         field: 'unidad',           align: 'center', style: 'width:70px' },
-        { name: 'precio_unitario',  label: 'P. Unit.',       field: 'precio_unitario',  align: 'right',  format: v => this.fmtBs(v), style: 'width:90px' },
-        { name: 'cant_saldo_ini',   label: 'Cant. S. Ini.',  field: 'cant_saldo_ini',   align: 'right',  format: v => this.fmt(v),   style: 'width:80px' },
-        { name: 'cant_entradas',    label: 'Cant. Ent.',     field: 'cant_entradas',    align: 'right',  format: v => this.fmt(v),   style: 'width:75px' },
-        { name: 'cant_salidas',     label: 'Cant. Sal.',     field: 'cant_salidas',     align: 'right',  format: v => this.fmt(v),   style: 'width:75px' },
-        { name: 'cant_saldo_final', label: 'Cant. S. Final', field: 'cant_saldo_final', align: 'right',  format: v => this.fmt(v),   style: 'width:85px' },
-        { name: 'val_saldo_ini',    label: 'Val. S. Ini.',   field: 'val_saldo_ini',    align: 'right',  format: v => this.fmtBs(v), style: 'width:95px' },
-        { name: 'val_entradas',     label: 'Val. Ent.',      field: 'val_entradas',     align: 'right',  format: v => this.fmtBs(v), style: 'width:90px' },
-        { name: 'val_salidas',      label: 'Val. Sal.',      field: 'val_salidas',      align: 'right',  format: v => this.fmtBs(v), style: 'width:90px' },
-        { name: 'val_saldo_final',  label: 'Val. S. Final',  field: 'val_saldo_final',  align: 'right',  format: v => this.fmtBs(v), style: 'width:95px' },
+          style: 'width:360px; max-width:360px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;' },
+        { name: 'unidad',           label: 'Unidad',         field: 'unidad',           align: 'center', style: 'width:62px' },
+        { name: 'precio_unitario',  label: 'P. Unit.',       field: 'precio_unitario',  align: 'right',  format: v => this.fmtBs(v), style: 'width:68px' },
+        { name: 'cant_saldo_ini',   label: 'Cant. S. Ini.',  field: 'cant_saldo_ini',   align: 'right',  format: v => this.fmt(v),   style: 'width:62px' },
+        { name: 'cant_entradas',    label: 'Cant. Ent.',     field: 'cant_entradas',    align: 'right',  format: v => this.fmt(v),   style: 'width:58px' },
+        { name: 'cant_salidas',     label: 'Cant. Sal.',     field: 'cant_salidas',     align: 'right',  format: v => this.fmt(v),   style: 'width:58px' },
+        { name: 'cant_saldo_final', label: 'Cant. S. Final', field: 'cant_saldo_final', align: 'right',  format: v => this.fmt(v),   style: 'width:62px' },
+        { name: 'val_saldo_ini',    label: 'Val. S. Ini.',   field: 'val_saldo_ini',    align: 'right',  format: v => this.fmtBs(v), style: 'width:72px' },
+        { name: 'val_entradas',     label: 'Val. Ent.',      field: 'val_entradas',     align: 'right',  format: v => this.fmtBs(v), style: 'width:68px' },
+        { name: 'val_salidas',      label: 'Val. Sal.',      field: 'val_salidas',      align: 'right',  format: v => this.fmtBs(v), style: 'width:68px' },
+        { name: 'val_saldo_final',  label: 'Val. S. Final',  field: 'val_saldo_final',  align: 'right',  format: v => this.fmtBs(v), style: 'width:72px' },
       ],
 
       movimientosCols: [
@@ -474,3 +498,74 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.reporte-almacen-page :deep(.q-tab-panel) {
+  padding: 0;
+}
+
+.reporte-detalle-table {
+  font-size: 10px;
+}
+
+.reporte-detalle-table :deep(.q-table__middle) {
+  max-height: calc(100vh - 225px);
+}
+
+.reporte-detalle-table :deep(table) {
+  min-width: 1420px;
+  table-layout: fixed;
+}
+
+.reporte-detalle-table :deep(thead tr th) {
+  position: sticky;
+  z-index: 2;
+  background: #1976d2;
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.05;
+  padding: 2px 3px;
+  height: 25px;
+  white-space: normal;
+}
+
+.reporte-detalle-table :deep(thead tr:first-child th) {
+  top: 0;
+}
+
+.reporte-detalle-table :deep(thead tr:nth-child(2) th) {
+  top: 25px;
+}
+
+.reporte-detalle-table :deep(th.reporte-valores-header) {
+  background: #2e7d32;
+}
+
+.reporte-detalle-table :deep(tbody td) {
+  font-size: 10px;
+  line-height: 1;
+  height: 19px;
+  padding: 1px 3px;
+  white-space: nowrap;
+}
+
+.reporte-detalle-table :deep(tbody tr:nth-child(even)) {
+  background: #f5f9ff;
+}
+
+.reporte-detalle-table :deep(.q-checkbox__inner) {
+  font-size: 24px;
+}
+
+.reporte-detalle-table :deep(.q-btn--round) {
+  min-width: 22px;
+  min-height: 22px;
+}
+
+.reporte-detalle-table :deep(.q-table__bottom) {
+  min-height: 34px;
+  padding: 2px 8px;
+  font-size: 11px;
+}
+</style>

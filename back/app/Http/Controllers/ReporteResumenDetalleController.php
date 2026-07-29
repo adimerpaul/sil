@@ -269,9 +269,6 @@ class ReporteResumenDetalleController extends Controller
      */
     private function buildDetalle(Request $request, array $meta, ?int $page, ?int $perPage, ?int $subpartidaId = null): array
     {
-        $desde = $meta['desde_dt'];
-        $hasta = $meta['hasta_dt'];
-
         $excludeIds = array_values(array_filter((array) $request->input('exclude_ids', [])));
         $search = trim((string) $request->input('q', ''));
 
@@ -288,6 +285,8 @@ class ReporteResumenDetalleController extends Controller
         $query->orderBy('p.codigo')->orderBy('sp.codigo')->orderBy('ai.nombre')
             ->select(
                 'ai.id', 'ai.nombre', 'ai.unidad_medida', 'ai.precio_unitario',
+                'ai.precio_unitario_inicial', 'ai.saldo_inicial',
+                'ai.entradas_inicial', 'ai.salidas_inicial', 'ai.saldo_final_inicial',
                 'sp.id as subpartida_id', 'sp.codigo as subpartida_codigo', 'sp.nombre as subpartida_nombre',
                 'p.id as partida_id', 'p.codigo as partida_codigo', 'p.nombre as partida_nombre'
             );
@@ -302,41 +301,23 @@ class ReporteResumenDetalleController extends Controller
             return ['rows' => [], 'total' => $total, 'page' => $page, 'per_page' => $perPage];
         }
 
-        $ids = $items->pluck('id')->toArray();
-
-        $inicialId = $this->inventarioInicialCompraId();
-        $iniQty = $this->inicialByItem($ids, $inicialId, 'cd.cantidad');
-        $iniVal = $this->inicialByItem($ids, $inicialId, 'cd.total');
-
-        $entAntesQty = $this->entradasQty($ids, null, $desde, $inicialId);
-        $entAntesVal = $this->entradasVal($ids, null, $desde, $inicialId);
-        $salAntesQty = $this->salidasQty($ids, null, $desde);
-        $salAntesVal = $this->salidasVal($ids, null, $desde);
-
-        $entQty = $this->entradasQty($ids, $desde, $hasta, $inicialId);
-        $entVal = $this->entradasVal($ids, $desde, $hasta, $inicialId);
-        $salQty = $this->salidasQty($ids, $desde, $hasta);
-        $salVal = $this->salidasVal($ids, $desde, $hasta);
-
         $nro = $page !== null ? ($page - 1) * $perPage : 0;
         $rows = [];
 
         foreach ($items as $item) {
-            $id = $item->id;
-
-            $csi = ($iniQty[$id] ?? 0) + ($entAntesQty[$id] ?? 0) - ($salAntesQty[$id] ?? 0);
-            $vsi = ($iniVal[$id] ?? 0) + ($entAntesVal[$id] ?? 0) - ($salAntesVal[$id] ?? 0);
-            $ce = $entQty[$id] ?? 0;
-            $ve = $entVal[$id] ?? 0;
-            $cs = $salQty[$id] ?? 0;
-            $vs = $salVal[$id] ?? 0;
+            $precioInicial = (float) $item->precio_unitario_inicial;
+            $csi = (float) $item->saldo_inicial;
+            $ce = (float) $item->entradas_inicial;
+            $cs = (float) $item->salidas_inicial;
+            $csf = (float) $item->saldo_final_inicial;
 
             $rows[] = [
                 'nro' => ++$nro,
                 'id' => $item->id,
                 'descripcion' => $item->nombre,
                 'unidad' => $item->unidad_medida ?? '',
-                'precio_unitario' => (float) $item->precio_unitario,
+                'precio_unitario' => $precioInicial,
+                'precio_unitario_actual' => (float) $item->precio_unitario,
                 'subpartida_id' => $item->subpartida_id,
                 'subpartida_codigo' => $item->subpartida_codigo,
                 'subpartida_nombre' => $item->subpartida_nombre,
@@ -347,11 +328,11 @@ class ReporteResumenDetalleController extends Controller
                 'cant_saldo_ini' => $csi,
                 'cant_entradas' => $ce,
                 'cant_salidas' => $cs,
-                'cant_saldo_final' => $csi + $ce - $cs,
-                'val_saldo_ini' => round($vsi, 2),
-                'val_entradas' => round($ve, 2),
-                'val_salidas' => round($vs, 2),
-                'val_saldo_final' => round($vsi + $ve - $vs, 2),
+                'cant_saldo_final' => $csf,
+                'val_saldo_ini' => round($csi * $precioInicial, 2),
+                'val_entradas' => round($ce * $precioInicial, 2),
+                'val_salidas' => round($cs * $precioInicial, 2),
+                'val_saldo_final' => round($csf * $precioInicial, 2),
             ];
         }
 

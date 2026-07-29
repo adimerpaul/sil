@@ -39,7 +39,7 @@ class DetalleAlmacenExport implements FromArray, WithColumnWidths, WithEvents, W
 
         $data = [
             // Row 1
-            ['DGCF-R1.06', '', '', '', '', '', '', '', '', '', '', 'Versión 01'],
+            ['DGCF-R1.06', '', '', '', '', '', '', '', '', '', '', '', 'Versión 01'],
             // Row 2
             ['HOSPITAL GENERAL SAN JUAN DE DIOS ORURO'],
             // Row 3
@@ -49,11 +49,11 @@ class DetalleAlmacenExport implements FromArray, WithColumnWidths, WithEvents, W
             // Row 5
             ['(Expresado en Bolivianos)'],
             // Row 6 — main headers (Cantidad spans E-H, Valores spans I-L)
-            ['Nº', 'Descripción (Item)', 'Unidad de medida', 'Precio Unitario',
+            ['Nº', 'Partida presupuestaria', 'Descripción (Item)', 'Unidad de medida', 'Precio Unitario',
                 'Cantidad', '', '', '',
                 'Valores', '', '', ''],
             // Row 7 — sub-headers
-            ['', '', '', '',
+            ['', '', '', '', '',
                 'Saldo Inicial', 'Entradas', 'Salidas', 'Saldo Final',
                 'Saldo Inicial', 'Entradas', 'Salidas', 'Saldo Final'],
         ];
@@ -64,25 +64,25 @@ class DetalleAlmacenExport implements FromArray, WithColumnWidths, WithEvents, W
             $r = $dataStart + $i;
             $data[] = [
                 $row['nro'],
+                $row['subpartida_codigo'],
                 $row['descripcion'],
                 $row['unidad'],
                 $row['precio_unitario'],
                 $row['cant_saldo_ini'],
                 $row['cant_entradas'],
                 $row['cant_salidas'],
-                "=E{$r}+F{$r}-G{$r}",
+                $row['cant_saldo_final'],
                 $row['val_saldo_ini'],
                 $row['val_entradas'],
                 $row['val_salidas'],
-                "=I{$r}+J{$r}-K{$r}",
+                $row['val_saldo_final'],
             ];
         }
 
         if ($this->rows) {
             $dataEnd = $dataStart + count($this->rows) - 1;
             $data[] = [
-                '', 'TOTAL', '', '',
-                "=SUM(E{$dataStart}:E{$dataEnd})",
+                '', '', 'TOTAL', '', '',
                 "=SUM(F{$dataStart}:F{$dataEnd})",
                 "=SUM(G{$dataStart}:G{$dataEnd})",
                 "=SUM(H{$dataStart}:H{$dataEnd})",
@@ -90,9 +90,10 @@ class DetalleAlmacenExport implements FromArray, WithColumnWidths, WithEvents, W
                 "=SUM(J{$dataStart}:J{$dataEnd})",
                 "=SUM(K{$dataStart}:K{$dataEnd})",
                 "=SUM(L{$dataStart}:L{$dataEnd})",
+                "=SUM(M{$dataStart}:M{$dataEnd})",
             ];
         } else {
-            $data[] = ['', 'TOTAL', '', '', 0, 0, 0, 0, 0, 0, 0, 0];
+            $data[] = ['', '', 'TOTAL', '', '', 0, 0, 0, 0, 0, 0, 0, 0];
         }
 
         return $data;
@@ -106,9 +107,9 @@ class DetalleAlmacenExport implements FromArray, WithColumnWidths, WithEvents, W
     public function columnWidths(): array
     {
         return [
-            'A' => 5, 'B' => 45, 'C' => 12, 'D' => 14,
-            'E' => 14, 'F' => 13, 'G' => 13, 'H' => 14,
-            'I' => 16, 'J' => 15, 'K' => 15, 'L' => 16,
+            'A' => 5, 'B' => 16, 'C' => 65, 'D' => 12, 'E' => 13,
+            'F' => 12, 'G' => 11, 'H' => 10, 'I' => 12,
+            'J' => 15, 'K' => 14, 'L' => 14, 'M' => 15,
         ];
     }
 
@@ -131,15 +132,15 @@ class DetalleAlmacenExport implements FromArray, WithColumnWidths, WithEvents, W
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                foreach (['A2:L2', 'A3:L3', 'A4:L4', 'A5:L5'] as $range) {
+                foreach (['A2:M2', 'A3:M3', 'A4:M4', 'A5:M5'] as $range) {
                     $sheet->mergeCells($range);
                 }
 
                 // Group headers span row 6
-                $sheet->mergeCells('E6:H6');
-                $sheet->mergeCells('I6:L6');
+                $sheet->mergeCells('F6:I6');
+                $sheet->mergeCells('J6:M6');
                 // Fixed columns (A-D) span rows 6-7
-                foreach (['A', 'B', 'C', 'D'] as $col) {
+                foreach (['A', 'B', 'C', 'D', 'E'] as $col) {
                     $sheet->mergeCells("{$col}6:{$col}7");
                 }
 
@@ -152,57 +153,57 @@ class DetalleAlmacenExport implements FromArray, WithColumnWidths, WithEvents, W
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN,
                         'color' => ['rgb' => '0A4A8A']]],
                 ];
-                $sheet->getStyle('A6:L7')->applyFromArray($headerStyle);
+                $sheet->getStyle('A6:M7')->applyFromArray($headerStyle);
                 $sheet->getRowDimension(6)->setRowHeight(22);
                 $sheet->getRowDimension(7)->setRowHeight(22);
 
                 // Group color overrides
-                $sheet->getStyle('E6:H7')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('1A73C4');
-                $sheet->getStyle('I6:L7')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('156A3C');
+                $sheet->getStyle('F6:I7')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('1A73C4');
+                $sheet->getStyle('J6:M7')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('156A3C');
 
                 $dataStart = self::DATA_START;
                 $dataEnd = $dataStart + count($this->rows) - 1;
                 $totalRow = $dataEnd + 1;
 
                 if ($dataEnd >= $dataStart) {
-                    $sheet->getStyle("A{$dataStart}:L{$dataEnd}")->applyFromArray([
+                    $sheet->getStyle("A{$dataStart}:M{$dataEnd}")->applyFromArray([
                         'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN,
                             'color' => ['rgb' => 'B8D0EA']]],
                         'font' => ['size' => 8],
                     ]);
                     for ($r = $dataStart; $r <= $dataEnd; $r++) {
                         if ($r % 2 === 0) {
-                            $sheet->getStyle("A{$r}:L{$r}")->getFill()
+                            $sheet->getStyle("A{$r}:M{$r}")->getFill()
                                 ->setFillType(Fill::FILL_SOLID)->getStartColor()->setRGB('F5F9FF');
                         }
                     }
-                    $sheet->getStyle("D{$dataStart}:L{$dataEnd}")->getNumberFormat()
+                    $sheet->getStyle("E{$dataStart}:M{$dataEnd}")->getNumberFormat()
                         ->setFormatCode('#,##0.00');
                 }
 
                 // Totals row: label (A-D), quantity blue (E-H), values yellow (I-L)
-                $sheet->getStyle("A{$totalRow}:D{$totalRow}")->applyFromArray([
+                $sheet->getStyle("A{$totalRow}:E{$totalRow}")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN,
                         'color' => ['rgb' => '0A4A8A']]],
                 ]);
-                $sheet->getStyle("E{$totalRow}:H{$totalRow}")->applyFromArray([
+                $sheet->getStyle("F{$totalRow}:I{$totalRow}")->applyFromArray([
                     'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF'], 'size' => 10],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '0F5EA8']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN,
                         'color' => ['rgb' => '0A4A8A']]],
                 ]);
-                $sheet->getStyle("E{$totalRow}:H{$totalRow}")->getNumberFormat()->setFormatCode('#,##0.00');
-                $sheet->getStyle("I{$totalRow}:L{$totalRow}")->applyFromArray([
+                $sheet->getStyle("F{$totalRow}:I{$totalRow}")->getNumberFormat()->setFormatCode('#,##0.00');
+                $sheet->getStyle("J{$totalRow}:M{$totalRow}")->applyFromArray([
                     'font' => ['bold' => true, 'color' => ['rgb' => '000000'], 'size' => 11],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FFD700']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_MEDIUM,
                         'color' => ['rgb' => 'B8860B']]],
                 ]);
-                $sheet->getStyle("I{$totalRow}:L{$totalRow}")->getNumberFormat()->setFormatCode('#,##0.00');
+                $sheet->getStyle("J{$totalRow}:M{$totalRow}")->getNumberFormat()->setFormatCode('#,##0.00');
                 $sheet->getRowDimension($totalRow)->setRowHeight(18);
             },
         ];
