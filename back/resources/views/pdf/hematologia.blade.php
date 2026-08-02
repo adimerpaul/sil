@@ -140,32 +140,57 @@
     };
 
     /* =========================
+       HELPERS: VISIBILIDAD POR CONFIGURACIÓN (datos_hematologia)
+       Mismo criterio que la captura en el front:
+       - Sin dato configurado o sin prestaciones asignadas => siempre visible.
+       - Con prestaciones asignadas => visible solo si la solicitud incluye alguna.
+       - Dato inactivo => nunca visible.
+       ========================= */
+    $datosConfig = collect($datos ?? []);
+    $servicioIdsSolicitud = collect($solicitud->servicios ?? [])->pluck('id')->all();
+
+    $canVariable = function($variable) use ($datosConfig, $servicioIdsSolicitud) {
+        $dato = $datosConfig->firstWhere('variable', $variable);
+        if (!$dato) return true;
+        if (!$dato->activo) return false;
+
+        $ids = collect($dato->prestaciones ?? [])->pluck('id')->all();
+        if (!count($ids)) return true;
+
+        return count(array_intersect($ids, $servicioIdsSolicitud)) > 0;
+    };
+
+    $canAny = function($variables) use ($canVariable) {
+        foreach ((array) $variables as $v) {
+            if ($canVariable($v)) return true;
+        }
+        return false;
+    };
+
+    /* =========================
        FLAGS DE SECCIÓN
        ========================= */
-    $showHemograma = true;
-        // ✅ aquí YA NO pongo "|| true" para que se oculte si no está el servicio
-
-    $showIndices = $canServicios(['ÍNDICES HEMATIMÉTRICOS', 'HEMOGRAMA COMPLETO+ PLAQUETAS']);
-    $showDiferencial = $canServicios('HEMOGRAMA COMPLETO+ PLAQUETAS');
-
-    $showCoagulograma = $canServicios([
-        'COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)',
-        'TIEMPO DE PROTROMBINA (TP)',
-        'TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)',
-        'FIBRINÓGENO',
-        'ERITROSEDIMENTACIÓN (VSG- VES)'
+    $showHemograma = $canAny(['globulos_rojos','globulos_blancos','plaquetas','hemoglobina','hematocrito']);
+    $showIndices = $canAny(['vcm','hbcm','chcm']);
+    $showDiferencial = $canAny([
+        'basofilos_porcentaje','eosinofilos_porcentaje','cayados_porcentaje',
+        'segmentados_porcentaje','linfocitos_porcentaje','monocitos_porcentaje',
+        'blastos_porcentaje','metamielocitos_porcentaje','eritroblastos_porcentaje'
     ]);
-
-    $showOtros = $canServicios(['RECUENTO DE RETICULOCITOS']);
-    $showFrotis = $canServicios('FROTIS SANGUÍNEO/LEUCOGRAMA');
+    $showCoagulograma = $canAny([
+        'tiempo_protrombina','actividad_protrombina','inr','ves','aptt','fibrinogeno','dimeros_d'
+    ]);
+    $showOtros = $canAny(['ipr2','rc','ipr']);
+    $showFrotis = $canAny(['serie_roja','serie_blanca','serie_plaqueta']);
+    $showGrupo = $canAny(['grupo_sanguineo','factor_rh']);
 
     /* =========================
        RENDER 1 COPIA (para duplicar)
        ========================= */
     $renderHalf = function() use (
         $solicitud, $hematologia, $rangos, $qrSvgBase64,
-        $canServicios, $outOfRange, $rangoTexto, $rangoUnidad,
-        $showHemograma, $showIndices, $showDiferencial, $showCoagulograma, $showOtros, $showFrotis
+        $canServicios, $canVariable, $canAny, $outOfRange, $rangoTexto, $rangoUnidad,
+        $showHemograma, $showIndices, $showDiferencial, $showCoagulograma, $showOtros, $showFrotis, $showGrupo
     ){
         ob_start();
 @endphp
@@ -201,16 +226,11 @@
             </thead>
             <tbody>
             @php
-//                $rowGR = $canServicios(['HEMOGRAMA COMPLETO+ PLAQUETAS','MORFOLOGÍA DE GLÓBULOS ROJOS']);
-//                $rowGB = $canServicios('HEMOGRAMA COMPLETO+ PLAQUETAS');
-//                $rowPL = $canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','HEMOGRAMA COMPLETO+ PLAQUETAS','RECUENTO DE PLAQUETAS']);
-//                $rowHB = $canServicios(['HEMOGRAMA COMPLETO+ PLAQUETAS','HEMATOCRITO Y HEMOGLOBINA']);
-//                $rowHT = $canServicios(['HEMOGRAMA COMPLETO+ PLAQUETAS','HEMATOCRITO Y HEMOGLOBINA']);
-            $rowGR = true;
-            $rowGB = true;
-            $rowPL = true;
-            $rowHB = true;
-            $rowHT = true;
+            $rowGR = $canVariable('globulos_rojos');
+            $rowGB = $canVariable('globulos_blancos');
+            $rowPL = $canVariable('plaquetas');
+            $rowHB = $canVariable('hemoglobina');
+            $rowHT = $canVariable('hematocrito');
             @endphp
 
             @if($rowGR)
@@ -281,6 +301,7 @@
             </tr>
             </thead>
             <tbody>
+            @if($canVariable('vcm'))
             <tr>
                 <td>VCM</td>
                 <td class="center {{ $outOfRange('V.C.M.', $hematologia->vcm ?? null) ? 'out-range' : '' }}">
@@ -290,6 +311,8 @@
                 <td class="center">{{ $rangoTexto('V.C.M.') }}</td>
                 <td class="center">{{ $rangoUnidad('V.C.M.') }}</td>
             </tr>
+            @endif
+            @if($canVariable('hbcm'))
             <tr>
                 <td>HBCM</td>
                 <td class="center {{ $outOfRange('Hb.C.M.', $hematologia->hbcm ?? null) ? 'out-range' : '' }}">
@@ -299,6 +322,8 @@
                 <td class="center">{{ $rangoTexto('Hb.C.M.') }}</td>
                 <td class="center">{{ $rangoUnidad('Hb.C.M.') }}</td>
             </tr>
+            @endif
+            @if($canVariable('chcm'))
             <tr>
                 <td>CHCM</td>
                 <td class="center {{ $outOfRange('CHCM', $hematologia->chcm ?? null) ? 'out-range' : '' }}">
@@ -308,6 +333,7 @@
                 <td class="center">{{ $rangoTexto('CHCM') }}</td>
                 <td class="center">{{ $rangoUnidad('CHCM') }}</td>
             </tr>
+            @endif
             </tbody>
         </table>
     @endif
@@ -325,6 +351,7 @@
             </tr>
             </thead>
             <tbody>
+            @if($canVariable('basofilos_porcentaje'))
             <tr>
                 <td>Basófilos</td>
                 <td class="center">
@@ -335,6 +362,8 @@
                 <td class="center">{{ $rangoTexto('Basofilos') }}</td>
                 <td class="center">{{ $rangoTexto('Basilos (Absoluto)') }}</td>
             </tr>
+            @endif
+            @if($canVariable('eosinofilos_porcentaje'))
             <tr>
                 <td>Eosinófilos</td>
                 <td class="center">
@@ -345,6 +374,8 @@
                 <td class="center">{{ $rangoTexto('Eosinofilos') }}</td>
                 <td class="center">{{ $rangoTexto('Eosinofilos (Absoluto)') }}</td>
             </tr>
+            @endif
+            @if($canVariable('cayados_porcentaje'))
             <tr>
                 <td>Cayados</td>
                 <td class="center">
@@ -355,6 +386,8 @@
                 <td class="center">{{ $rangoTexto('Cayados') }}</td>
                 <td class="center">{{ $rangoTexto('Cayados (Absoluto)') }}</td>
             </tr>
+            @endif
+            @if($canVariable('segmentados_porcentaje'))
             <tr>
                 <td>Segmentados</td>
                 <td class="center">
@@ -365,6 +398,8 @@
                 <td class="center">{{ $rangoTexto('Segmentados') }}</td>
                 <td class="center">{{ $rangoTexto('Segmentados (Absoluto)') }}</td>
             </tr>
+            @endif
+            @if($canVariable('linfocitos_porcentaje'))
             <tr>
                 <td>Linfocitos</td>
                 <td class="center">
@@ -375,6 +410,8 @@
                 <td class="center">{{ $rangoTexto('Linfocitos') }}</td>
                 <td class="center">{{ $rangoTexto('Linfocitos (Absoluto)') }}</td>
             </tr>
+            @endif
+            @if($canVariable('monocitos_porcentaje'))
             <tr>
                 <td>Monocitos</td>
                 <td class="center">
@@ -384,6 +421,40 @@
                 <td class="center">{{ $rangoTexto('Monocitos') }}</td>
                 <td class="center">{{ $rangoTexto('Monocitos (Absoluto)') }}</td>
             </tr>
+            @endif
+            @if($canVariable('blastos_porcentaje'))
+            <tr>
+                <td>Blastos</td>
+                <td class="center">
+                    {{ $hematologia->blastos_porcentaje !== null ? $hematologia->blastos_porcentaje+0 : '' }}
+                </td>
+                <td class="center">{{ $hematologia->blastos_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoTexto('BLASTOS') }}</td>
+                <td class="center"></td>
+            </tr>
+            @endif
+            @if($canVariable('metamielocitos_porcentaje'))
+            <tr>
+                <td>Metamielocitos</td>
+                <td class="center">
+                    {{ $hematologia->metamielocitos_porcentaje !== null ? $hematologia->metamielocitos_porcentaje+0 : '' }}
+                </td>
+                <td class="center">{{ $hematologia->metamielocitos_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoTexto('METAMIELOCITO') }}</td>
+                <td class="center"></td>
+            </tr>
+            @endif
+            @if($canVariable('eritroblastos_porcentaje'))
+            <tr>
+                <td>Eritroblastos</td>
+                <td class="center">
+                    {{ $hematologia->eritroblastos_porcentaje !== null ? $hematologia->eritroblastos_porcentaje+0 : '' }}
+                </td>
+                <td class="center">{{ $hematologia->eritroblastos_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoTexto('ERITROBLASTOS') }}</td>
+                <td class="center"></td>
+            </tr>
+            @endif
             @php
                 $totalDif = collect([
                     $hematologia->basofilos_porcentaje,
@@ -439,7 +510,7 @@
             </tr>
             </thead>
             <tbody>
-            @if($canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO DE PROTROMBINA (TP)']))
+            @if($canVariable('tiempo_protrombina'))
                 <tr>
                     <td>Tiempo de protrombina (TP)</td>
                     <td class="center">
@@ -450,6 +521,8 @@
                     <td class="center">{{ $rangoTexto('Tiempo de protrombina') ?: '11 – 15' }}</td>
                     <td class="center">{{ $rangoUnidad('Tiempo de protrombina') ?: 'seg' }}</td>
                 </tr>
+            @endif
+            @if($canVariable('actividad_protrombina'))
                 <tr>
                     <td>Actividad de protrombina</td>
                     <td class="center">
@@ -460,6 +533,8 @@
                     <td class="center">70 – 100</td>
                     <td class="center">%</td>
                 </tr>
+            @endif
+            @if($canVariable('inr'))
                 <tr>
                     <td>INR</td>
                     <td class="center">{{ $hematologia->inr ?? '' }}</td>
@@ -467,7 +542,7 @@
                     <td class="center">-</td>
                 </tr>
             @endif
-            @if($canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)']))
+            @if($canVariable('aptt'))
                 <tr>
                     <td>APTT</td>
                     <td class="center">
@@ -479,7 +554,7 @@
                     <td class="center">seg</td>
                 </tr>
             @endif
-            @if($canServicios('ERITROSEDIMENTACIÓN (VSG- VES)'))
+            @if($canVariable('ves'))
                 <tr>
                     <td>V.S.G.</td>
                     <td class="center">
@@ -491,7 +566,7 @@
                     <td class="center">mm/h</td>
                 </tr>
             @endif
-            @if($canServicios('FIBRINÓGENO'))
+            @if($canVariable('fibrinogeno'))
                 <tr>
                     <td>Fibrinógeno</td>
                     <td class="center {{ $outOfRange('FIBRINOGENO', $hematologia->fibrinogeno ?? null) ? 'out-range' : '' }}">
@@ -500,6 +575,8 @@
                     <td class="center">{{ $rangoTexto('FIBRINOGENO') ?: '200 - 400' }}</td>
                     <td class="center">{{ $rangoUnidad('FIBRINOGENO') ?: 'mg/dl' }}</td>
                 </tr>
+            @endif
+            @if($canVariable('dimeros_d'))
                 <tr>
                     <td>Dímeros D</td>
                     <td class="center {{ $outOfRange('Dimeros D', $hematologia->dimeros_d ?? null) ? 'out-range' : '' }}">
@@ -528,7 +605,7 @@
             </tr>
             </thead>
             <tbody>
-            @if($canServicios('RECUENTO DE RETICULOCITOS'))
+            @if($canVariable('ipr2'))
                 <tr>
                     <td>Reticulocitos</td>
                     <td class="center {{ $outOfRange('Reticulocitos', $hematologia->ipr2 ?? null) ? 'out-range' : '' }}">
@@ -537,6 +614,8 @@
                     <td class="center">{{ $rangoTexto('Reticulocitos') }}</td>
                     <td class="center">{{ $rangoUnidad('Reticulocitos') }}</td>
                 </tr>
+            @endif
+            @if($canVariable('rc'))
                 <tr>
                     <td>IRC</td>
                     <td class="center">
@@ -545,6 +624,8 @@
                     <td class="center">{{ $rangoTexto('RC') }}</td>
                     <td class="center">{{ $rangoUnidad('RC') }}</td>
                 </tr>
+            @endif
+            @if($canVariable('ipr'))
                 <tr>
                     <td>IPR</td>
                     <td class="center {{ $outOfRange('IPR', $hematologia->ipr ?? null) ? 'out-range' : '' }}">
@@ -559,32 +640,53 @@
     @endif
 
     @if($showFrotis)
+        @php
+            $colsFrotis = collect(['serie_roja','serie_blanca','serie_plaqueta'])
+                ->filter(fn($v) => $canVariable($v))->count();
+            $anchoFrotis = $colsFrotis ? round(100 / $colsFrotis, 2) : 100;
+        @endphp
         <div class="section-title">FROTIS DE SANGRE PERIFERICA</div>
         <table>
             <thead>
             <tr>
-                <th style="width:33%;">SERIE ROJA</th>
-                <th style="width:33%;">SERIE BLANCA</th>
-                <th style="width:34%;">SERIE PLAQUETARIA</th>
+                @if($canVariable('serie_roja'))
+                    <th style="width:{{ $anchoFrotis }}%;">SERIE ROJA</th>
+                @endif
+                @if($canVariable('serie_blanca'))
+                    <th style="width:{{ $anchoFrotis }}%;">SERIE BLANCA</th>
+                @endif
+                @if($canVariable('serie_plaqueta'))
+                    <th style="width:{{ $anchoFrotis }}%;">SERIE PLAQUETARIA</th>
+                @endif
             </tr>
             </thead>
             <tbody>
             <tr>
-                <td style="height:60px; vertical-align: top; font-size: 9px; padding:4px;">{!! nl2br(e($hematologia->serie_roja ?? '')) !!}</td>
-                <td style="height:60px; vertical-align: top; font-size: 9px; padding:4px;">{!! nl2br(e($hematologia->serie_blanca ?? '')) !!}</td>
-                <td style="height:60px; vertical-align: top; font-size: 9px; padding:4px;">{!! nl2br(e($hematologia->serie_plaqueta ?? '')) !!}</td>
+                @if($canVariable('serie_roja'))
+                    <td style="height:60px; vertical-align: top; font-size: 9px; padding:4px;">{!! nl2br(e($hematologia->serie_roja ?? '')) !!}</td>
+                @endif
+                @if($canVariable('serie_blanca'))
+                    <td style="height:60px; vertical-align: top; font-size: 9px; padding:4px;">{!! nl2br(e($hematologia->serie_blanca ?? '')) !!}</td>
+                @endif
+                @if($canVariable('serie_plaqueta'))
+                    <td style="height:60px; vertical-align: top; font-size: 9px; padding:4px;">{!! nl2br(e($hematologia->serie_plaqueta ?? '')) !!}</td>
+                @endif
             </tr>
             </tbody>
         </table>
     @endif
 
-    @if($canServicios('GRUPO SANGUÍNEO Y FACTOR'))
+    @if($showGrupo)
         <div class="section-title">Grupo sanguíneo</div>
         <table>
             <tbody>
             <tr>
-                <td><b>GRUPO SANGUÍNEO :</b> {{ $hematologia->grupo_sanguineo ?? '' }}</td>
-                <td><b>Rh:</b> {{ $hematologia->factor_rh ?? '' }}</td>
+                @if($canVariable('grupo_sanguineo'))
+                    <td><b>GRUPO SANGUÍNEO :</b> {{ $hematologia->grupo_sanguineo ?? '' }}</td>
+                @endif
+                @if($canVariable('factor_rh'))
+                    <td><b>Rh:</b> {{ $hematologia->factor_rh ?? '' }}</td>
+                @endif
             </tr>
             </tbody>
         </table>

@@ -111,7 +111,17 @@
                   </td>
                   <td class="text-grey-7">{{ rango.metodo || '—' }}</td>
                   <td>
+                    <!-- Dato de lista: se selecciona, no se escribe -->
+                    <q-select
+                      v-if="rango.opciones && rango.opciones.length"
+                      v-model="valores[rango.id]"
+                      :options="rango.opciones"
+                      dense outlined options-dense clearable
+                      class="imn-select"
+                      @update:model-value="recalcularFormulas(prest, rango.id)"
+                    />
                     <input
+                      v-else
                       v-model="valores[rango.id]"
                       class="imn-input"
                       :class="{ 'imn-input--calculado': esFormula(prest, rango) }"
@@ -407,6 +417,16 @@ export default {
 .imn-input:focus {
   border-color: #7c3aed;
   box-shadow: 0 0 0 2px #ede9fe;
+}
+.imn-select :deep(.q-field__control) {
+  min-height: 26px;
+  height: 26px;
+  font-size: 12px;
+}
+.imn-select :deep(.q-field__native),
+.imn-select :deep(.q-field__marginal) {
+  min-height: 26px;
+  padding: 0;
 }
 .imn-input--calculado {
   background: #f0fdfa;

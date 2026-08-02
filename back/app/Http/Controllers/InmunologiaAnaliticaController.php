@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Servicio;
-use App\Models\Solicitude;
 use App\Models\ServicioSolicitude;
+use App\Models\Solicitude;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +14,18 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class InmunologiaAnaliticaController extends Controller
 {
     private const AREA_ID = 6;
+
+    /** Las opciones seleccionables del pivot se guardan como JSON */
+    private static function opcionesPivot($valor): array
+    {
+        if (is_array($valor)) {
+            return array_values($valor);
+        }
+
+        $decodificado = json_decode($valor ?? '[]', true);
+
+        return is_array($decodificado) ? array_values($decodificado) : [];
+    }
 
     /**
      * GET /inmunologia-analitica/solicitud/{id}
@@ -52,35 +64,37 @@ class InmunologiaAnaliticaController extends Controller
             $ss = $serviciosSolicitud->get($servicio->id);
             $rangos = $servicio->rangos->map(function ($rango) use ($resultados) {
                 $resultado = $resultados->get($rango->id);
+
                 return [
-                    'id'                   => $rango->id,
-                    'rango_nombre'         => $rango->rango_nombre,
-                    'unidad'               => $rango->unidad,
-                    'interpretacion'       => $rango->interpretacion,
-                    'rango_descripcion'    => $rango->rango_descripcion,
-                    'rango_minimo'         => $rango->rango_minimo,
-                    'rango_maximo'         => $rango->rango_maximo,
-                    'rango_2_descripcion'  => $rango->rango_2_descripcion,
-                    'rango_2_minimo'       => $rango->rango_2_minimo,
-                    'rango_2_maximo'       => $rango->rango_2_maximo,
-                    'rango_3_descripcion'  => $rango->rango_3_descripcion,
-                    'rango_3_minimo'       => $rango->rango_3_minimo,
-                    'rango_3_maximo'       => $rango->rango_3_maximo,
-                    'rango_4_descripcion'  => $rango->rango_4_descripcion,
-                    'rango_4_minimo'       => $rango->rango_4_minimo,
-                    'rango_4_maximo'       => $rango->rango_4_maximo,
-                    'rango_5_descripcion'  => $rango->rango_5_descripcion,
-                    'rango_5_minimo'       => $rango->rango_5_minimo,
-                    'rango_5_maximo'       => $rango->rango_5_maximo,
-                    'metodo'               => $rango->metodo,
-                    'muestra'              => $rango->muestra,
-                    'marca'                => $rango->marca,
-                    'perfil'               => $rango->perfil,
-                    'nombre_variable'      => $rango->pivot->nombre_variable,
-                    'orden'                => $rango->pivot->orden,
-                    'visible'              => (bool) $rango->pivot->visible,
-                    'resultado'            => $resultado ? [
-                        'id'          => $resultado->id,
+                    'id' => $rango->id,
+                    'rango_nombre' => $rango->rango_nombre,
+                    'unidad' => $rango->unidad,
+                    'interpretacion' => $rango->interpretacion,
+                    'rango_descripcion' => $rango->rango_descripcion,
+                    'rango_minimo' => $rango->rango_minimo,
+                    'rango_maximo' => $rango->rango_maximo,
+                    'rango_2_descripcion' => $rango->rango_2_descripcion,
+                    'rango_2_minimo' => $rango->rango_2_minimo,
+                    'rango_2_maximo' => $rango->rango_2_maximo,
+                    'rango_3_descripcion' => $rango->rango_3_descripcion,
+                    'rango_3_minimo' => $rango->rango_3_minimo,
+                    'rango_3_maximo' => $rango->rango_3_maximo,
+                    'rango_4_descripcion' => $rango->rango_4_descripcion,
+                    'rango_4_minimo' => $rango->rango_4_minimo,
+                    'rango_4_maximo' => $rango->rango_4_maximo,
+                    'rango_5_descripcion' => $rango->rango_5_descripcion,
+                    'rango_5_minimo' => $rango->rango_5_minimo,
+                    'rango_5_maximo' => $rango->rango_5_maximo,
+                    'metodo' => $rango->metodo,
+                    'muestra' => $rango->muestra,
+                    'marca' => $rango->marca,
+                    'perfil' => $rango->perfil,
+                    'nombre_variable' => $rango->pivot->nombre_variable,
+                    'opciones' => self::opcionesPivot($rango->pivot->opciones),
+                    'orden' => $rango->pivot->orden,
+                    'visible' => (bool) $rango->pivot->visible,
+                    'resultado' => $resultado ? [
+                        'id' => $resultado->id,
                         'valor_final' => $resultado->valor_final,
                         'observacion' => $resultado->observacion,
                     ] : null,
@@ -88,32 +102,32 @@ class InmunologiaAnaliticaController extends Controller
             });
 
             return [
-                'servicio_id'   => $servicio->id,
-                'nombre'        => $servicio->nombre,
-                'metodo'        => $servicio->metodo,
-                'subarea'       => $servicio->subarea,
-                'rangos'        => $rangos,
-                'formulas'      => $servicio->formulas->map(fn ($f) => [
+                'servicio_id' => $servicio->id,
+                'nombre' => $servicio->nombre,
+                'metodo' => $servicio->metodo,
+                'subarea' => $servicio->subarea,
+                'rangos' => $rangos,
+                'formulas' => $servicio->formulas->map(fn ($f) => [
                     'nombre_variable' => $f->nombre_variable,
-                    'formula'         => $f->formula,
-                    'label'           => $f->label,
+                    'formula' => $f->formula,
+                    'label' => $f->label,
                 ]),
-                'realizado'     => $ss->realizado ?? 'PENDIENTE',
+                'realizado' => $ss->realizado ?? 'PENDIENTE',
                 'realizado_por' => $ss->realizado_por ?? null,
             ];
         });
 
         return response()->json([
-            'solicitud'    => [
-                'id'                             => $solicitud->id,
-                'codigo'                         => $solicitud->codigo,
-                'inmunologia_analitica_codigo'   => $solicitud->inmunologia_analitica_codigo,
-                'paciente_nombre'                => $solicitud->paciente_nombre,
-                'paciente_edad'                  => $solicitud->paciente_edad,
-                'paciente_genero'                => $solicitud->paciente_genero,
-                'doctor_nombre'                  => $solicitud->doctor_nombre,
-                'fecha_solicitud'                => $solicitud->fecha_solicitud,
-                'estado'                         => $solicitud->estado,
+            'solicitud' => [
+                'id' => $solicitud->id,
+                'codigo' => $solicitud->codigo,
+                'inmunologia_analitica_codigo' => $solicitud->inmunologia_analitica_codigo,
+                'paciente_nombre' => $solicitud->paciente_nombre,
+                'paciente_edad' => $solicitud->paciente_edad,
+                'paciente_genero' => $solicitud->paciente_genero,
+                'doctor_nombre' => $solicitud->doctor_nombre,
+                'fecha_solicitud' => $solicitud->fecha_solicitud,
+                'estado' => $solicitud->estado,
             ],
             'prestaciones' => $prestacionesConResultados,
         ]);
@@ -128,10 +142,10 @@ class InmunologiaAnaliticaController extends Controller
         $solicitud = Solicitude::findOrFail($solicitudId);
 
         $data = $request->validate([
-            'resultados'                => 'required|array',
-            'resultados.*.area_rango_id'=> 'required|integer|exists:area_rangos,id',
-            'resultados.*.valor_final'  => 'nullable|string|max:255',
-            'resultados.*.observacion'  => 'nullable|string',
+            'resultados' => 'required|array',
+            'resultados.*.area_rango_id' => 'required|integer|exists:area_rangos,id',
+            'resultados.*.valor_final' => 'nullable|string|max:255',
+            'resultados.*.observacion' => 'nullable|string',
         ]);
 
         $now = now();
@@ -141,13 +155,13 @@ class InmunologiaAnaliticaController extends Controller
                 [
                     'solicitude_id' => $solicitudId,
                     'area_rango_id' => $item['area_rango_id'],
-                    'area_id'       => self::AREA_ID,
+                    'area_id' => self::AREA_ID,
                 ],
                 [
                     'valor_final' => $item['valor_final'] ?? null,
                     'observacion' => $item['observacion'] ?? null,
-                    'updated_at'  => $now,
-                    'created_at'  => $now,
+                    'updated_at' => $now,
+                    'created_at' => $now,
                 ]
             );
         }
@@ -155,7 +169,7 @@ class InmunologiaAnaliticaController extends Controller
         ServicioSolicitude::where('solicitude_id', $solicitudId)
             ->where('area_id', self::AREA_ID)
             ->update([
-                'realizado'     => 'REALIZADO',
+                'realizado' => 'REALIZADO',
                 'realizado_por' => auth()->user()->name ?? null,
             ]);
 
@@ -167,7 +181,7 @@ class InmunologiaAnaliticaController extends Controller
 
         return response()->json([
             'message' => 'Resultados guardados',
-            'codigo'  => $solicitud->inmunologia_analitica_codigo,
+            'codigo' => $solicitud->inmunologia_analitica_codigo,
         ]);
     }
 
@@ -208,27 +222,28 @@ class InmunologiaAnaliticaController extends Controller
                 ->filter(fn ($rango) => (bool) $rango->pivot->visible)
                 ->values()
                 ->map(function ($rango) use ($resultados) {
-                $resultado = $resultados->get($rango->id);
-                return (object)[
-                    'id'             => $rango->id,
-                    'rango_nombre'   => $rango->rango_nombre,
-                    'unidad'         => $rango->unidad,
-                    'interpretacion' => $rango->interpretacion,
-                    'rango_minimo'   => $rango->rango_minimo,
-                    'rango_maximo'   => $rango->rango_maximo,
-                    'metodo'         => $rango->metodo,
-                    'valor_final'    => $resultado->valor_final ?? null,
-                ];
-            });
+                    $resultado = $resultados->get($rango->id);
 
-            return (object)[
-                'nombre'        => $servicio->nombre,
-                'metodo'        => $servicio->metodo,
-                'subarea'       => $servicio->subarea,
-                'rangos'        => $rangos,
+                    return (object) [
+                        'id' => $rango->id,
+                        'rango_nombre' => $rango->rango_nombre,
+                        'unidad' => $rango->unidad,
+                        'interpretacion' => $rango->interpretacion,
+                        'rango_minimo' => $rango->rango_minimo,
+                        'rango_maximo' => $rango->rango_maximo,
+                        'metodo' => $rango->metodo,
+                        'valor_final' => $resultado->valor_final ?? null,
+                    ];
+                });
+
+            return (object) [
+                'nombre' => $servicio->nombre,
+                'metodo' => $servicio->metodo,
+                'subarea' => $servicio->subarea,
+                'rangos' => $rangos,
                 'realizado_por' => $ss->realizado_por ?? null,
             ];
-        })->filter(fn($p) => $p->rangos->isNotEmpty())->values();
+        })->filter(fn ($p) => $p->rangos->isNotEmpty())->values();
 
         $url = url("/api/inmunologia-analitica/resultado/{$codigo}/pdf");
         $qrSvgBase64 = base64_encode(
@@ -236,11 +251,11 @@ class InmunologiaAnaliticaController extends Controller
         );
 
         $pdf = Pdf::loadView('pdf.inmunologia_analitica', [
-            'solicitud'    => $solicitud,
+            'solicitud' => $solicitud,
             'prestaciones' => $prestacionesData,
-            'qrSvgBase64'  => $qrSvgBase64,
+            'qrSvgBase64' => $qrSvgBase64,
         ])->setPaper('letter');
 
-        return $pdf->stream('INMUNOLOGIA_' . $solicitud->codigo . '.pdf');
+        return $pdf->stream('INMUNOLOGIA_'.$solicitud->codigo.'.pdf');
     }
 }

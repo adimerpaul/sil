@@ -82,7 +82,8 @@
               <th>Método</th>
               <th style="max-width:160px">Referencia</th>
               <th style="min-width:160px">Variable</th>
-              <th style="width:28px"></th>
+              <th style="width:110px">Lista de valores</th>
+              <th style="width:62px"></th>
             </tr>
           </thead>
           <tbody>
@@ -113,10 +114,48 @@
                 </div>
               </td>
               <td>
-                <input v-model="item.nombre_variable" class="vr-input" placeholder="ej. glucosa_valor" @click.stop />
+                <input
+                  v-if="editandoVarIdx === idx"
+                  ref="varInputRef"
+                  v-model="varTemp"
+                  class="vr-input"
+                  placeholder="ej. glucosa_valor"
+                  @click.stop
+                  @keyup.enter="confirmarVariable(idx)"
+                  @keyup.esc="cancelarVariable"
+                />
+                <code v-else-if="item.nombre_variable" class="text-deep-purple">{{ item.nombre_variable }}</code>
+                <span v-else class="text-grey-5">—</span>
               </td>
               <td class="tc">
-                <q-btn dense flat round icon="close" color="negative" size="10px" @click="quitarRango(idx)" />
+                <q-btn
+                  dense flat no-caps size="10px"
+                  :color="item.opciones && item.opciones.length ? 'deep-purple' : 'grey-6'"
+                  :icon="item.opciones && item.opciones.length ? 'list' : 'add'"
+                  :label="item.opciones && item.opciones.length ? `${item.opciones.length} valores` : 'Definir'"
+                  @click="abrirOpciones(idx)"
+                >
+                  <q-tooltip v-if="item.opciones && item.opciones.length">
+                    {{ item.opciones.join(' · ') }}
+                  </q-tooltip>
+                  <q-tooltip v-else>Escritura libre — clic para definir una lista</q-tooltip>
+                </q-btn>
+              </td>
+              <td class="tc" style="white-space:nowrap">
+                <template v-if="editandoVarIdx === idx">
+                  <q-btn dense flat round icon="check" color="positive" size="10px"
+                    @click="confirmarVariable(idx)" />
+                  <q-btn dense flat round icon="close" color="grey" size="10px"
+                    @click="cancelarVariable" />
+                </template>
+                <template v-else>
+                  <q-btn dense flat round icon="edit" color="grey-7" size="10px" @click="editarVariable(idx)">
+                    <q-tooltip>Editar variable</q-tooltip>
+                  </q-btn>
+                  <q-btn dense flat round icon="delete" color="negative" size="10px" @click="quitarRango(idx)">
+                    <q-tooltip>Quitar rango</q-tooltip>
+                  </q-btn>
+                </template>
               </td>
             </tr>
           </tbody>
@@ -196,7 +235,7 @@
                 </template>
                 <template v-else>
                   <q-btn dense flat round icon="edit" color="grey-7" size="10px" @click="editarFormula(idx)" />
-                  <q-btn dense flat round icon="delete" color="negative" size="10px" @click="formulas.splice(idx,1)" />
+                  <q-btn dense flat round icon="delete" color="negative" size="10px" @click="eliminarFormula(idx)" />
                 </template>
               </td>
             </tr>
@@ -268,8 +307,69 @@
       <q-card-section class="row justify-end q-pa-sm" style="flex-shrink:0">
         <q-btn flat no-caps label="Cancelar" :loading="loading" class="q-mr-sm"
           @click="$emit('update:modelValue', false)" />
-        <q-btn color="deep-purple" icon="save" no-caps label="Guardar" :loading="loading" @click="guardar" />
+        <q-btn color="deep-purple" icon="save" no-caps label="Guardar" :loading="loading" @click="guardar()" />
       </q-card-section>
+
+      <!-- DIALOG LISTA DE VALORES -->
+      <q-dialog v-model="dialogOpciones">
+        <q-card style="min-width: 380px; max-width: 480px">
+          <q-card-section class="row items-center q-pa-sm bg-deep-purple text-white">
+            <q-icon name="list" class="q-mr-sm" />
+            <div class="text-subtitle2">Lista de valores</div>
+            <q-space />
+            <q-btn icon="close" flat round dense color="white" v-close-popup />
+          </q-card-section>
+
+          <q-card-section class="q-pa-sm">
+            <div class="text-caption text-grey-7 q-mb-sm">
+              Si defines valores, en la analítica este dato se elige de una lista en vez de escribirse.
+              Déjala vacía para permitir escritura libre.
+            </div>
+
+            <div class="row items-center no-wrap q-mb-sm">
+              <q-input
+                v-model="opcionNueva"
+                label="Nuevo valor"
+                dense outlined class="col" autofocus
+                @keyup.enter="agregarOpcion"
+              />
+              <q-btn
+                round dense color="deep-purple" icon="add" size="sm" class="q-ml-sm"
+                :disable="!opcionNueva || !opcionNueva.trim()"
+                @click="agregarOpcion"
+              />
+            </div>
+
+            <q-list v-if="opcionesTemp.length" dense bordered separator class="rounded-borders">
+              <q-item v-for="(op, i) in opcionesTemp" :key="i" dense>
+                <q-item-section avatar style="min-width:26px">
+                  <span class="text-caption text-grey-6">{{ i + 1 }}</span>
+                </q-item-section>
+                <q-item-section>
+                  <input v-model="opcionesTemp[i]" class="vr-input" />
+                </q-item-section>
+                <q-item-section side>
+                  <div class="row no-wrap">
+                    <q-btn dense flat round icon="keyboard_arrow_up" size="10px" color="grey-7"
+                      :disable="i === 0" @click="moverOpcion(i, -1)" />
+                    <q-btn dense flat round icon="keyboard_arrow_down" size="10px" color="grey-7"
+                      :disable="i === opcionesTemp.length - 1" @click="moverOpcion(i, 1)" />
+                    <q-btn dense flat round icon="delete" size="10px" color="negative"
+                      @click="opcionesTemp.splice(i, 1)" />
+                  </div>
+                </q-item-section>
+              </q-item>
+            </q-list>
+            <div v-else class="vr-empty">Sin valores — el dato se escribirá libremente.</div>
+          </q-card-section>
+
+          <q-separator />
+          <q-card-section class="row justify-end q-pa-sm">
+            <q-btn flat no-caps label="Cancelar" class="q-mr-sm" v-close-popup />
+            <q-btn color="deep-purple" icon="check" no-caps label="Aplicar" @click="aplicarOpciones" />
+          </q-card-section>
+        </q-card>
+      </q-dialog>
 
       <!-- DIALOG CREAR RANGO RÁPIDO -->
       <q-dialog v-model="dialogNuevoRango">
@@ -347,6 +447,12 @@ export default {
       opcionesFiltradas: [],
       dragFromIndex: null,
       dragOverIndex: null,
+      editandoVarIdx: null,
+      varTemp: '',
+      dialogOpciones: false,
+      opcionesIdx: null,
+      opcionesTemp: [],
+      opcionNueva: '',
 
       dialogNuevoRango: false,
       creandoRango: false,
@@ -395,6 +501,7 @@ export default {
           interpretacion: r.interpretacion || '',
           unidad: r.unidad || '',
           nombre_variable: r.pivot?.nombre_variable || '',
+          opciones: this.parsearOpciones(r.pivot?.opciones),
           orden: r.pivot?.orden ?? idx + 1,
           visible: r.pivot?.visible === undefined || r.pivot?.visible === null
             ? true
@@ -407,6 +514,12 @@ export default {
       this.rangoParaAgregar = null
       this.dragFromIndex = null
       this.dragOverIndex = null
+      this.editandoVarIdx = null
+      this.varTemp = ''
+      this.dialogOpciones = false
+      this.opcionesIdx = null
+      this.opcionesTemp = []
+      this.opcionNueva = ''
       this.agregando = false
       this.editandoIdx = null
       this.opcionesFiltradas = this.disponibles()
@@ -443,7 +556,8 @@ export default {
         metodo: rango.metodo || '',
         interpretacion: rango.interpretacion || '',
         unidad: rango.unidad || '',
-        nombre_variable: this.toVariable(nombre),
+        nombre_variable: this.variableUnica(nombre),
+        opciones: [],
         orden: this.lista.length + 1,
         visible: true
       })
@@ -453,7 +567,96 @@ export default {
 
     quitarRango (idx) {
       this.lista.splice(idx, 1)
+      if (this.editandoVarIdx === idx) this.cancelarVariable()
+      else if (this.editandoVarIdx > idx) this.editandoVarIdx--
       this.opcionesFiltradas = this.disponibles()
+      this.autoGuardar()
+    },
+
+    // ── LISTA DE VALORES ──
+    parsearOpciones (valor) {
+      if (Array.isArray(valor)) return valor.filter(v => v !== null && v !== '')
+      if (typeof valor === 'string' && valor.trim()) {
+        try {
+          const arr = JSON.parse(valor)
+          return Array.isArray(arr) ? arr : []
+        } catch { return [] }
+      }
+      return []
+    },
+
+    abrirOpciones (idx) {
+      this.opcionesIdx = idx
+      this.opcionesTemp = [...(this.lista[idx].opciones || [])]
+      this.opcionNueva = ''
+      this.dialogOpciones = true
+    },
+
+    agregarOpcion () {
+      const val = (this.opcionNueva || '').trim()
+      if (!val) return
+      if (this.opcionesTemp.some(op => op.trim().toLowerCase() === val.toLowerCase())) {
+        this.$q.notify({ type: 'warning', message: 'Ese valor ya está en la lista' })
+        return
+      }
+      this.opcionesTemp.push(val)
+      this.opcionNueva = ''
+    },
+
+    moverOpcion (i, delta) {
+      const destino = i + delta
+      if (destino < 0 || destino >= this.opcionesTemp.length) return
+      const [op] = this.opcionesTemp.splice(i, 1)
+      this.opcionesTemp.splice(destino, 0, op)
+    },
+
+    aplicarOpciones () {
+      if (this.opcionesIdx === null) return
+      const limpias = this.opcionesTemp.map(op => (op || '').trim()).filter(op => op)
+      this.lista[this.opcionesIdx].opciones = limpias
+      this.dialogOpciones = false
+      this.opcionesIdx = null
+      this.opcionesTemp = []
+      this.autoGuardar()
+    },
+
+    editarVariable (idx) {
+      this.editandoVarIdx = idx
+      this.varTemp = this.lista[idx].nombre_variable || ''
+      this.$nextTick(() => {
+        const el = Array.isArray(this.$refs.varInputRef) ? this.$refs.varInputRef[0] : this.$refs.varInputRef
+        if (el) { el.focus(); el.select() }
+      })
+    },
+
+    cancelarVariable () {
+      this.editandoVarIdx = null
+      this.varTemp = ''
+    },
+
+    confirmarVariable (idx) {
+      const anterior = this.lista[idx].nombre_variable || ''
+      const nuevo = this.varTemp?.trim()
+        ? this.variableUnica(this.varTemp, idx)
+        : ''
+      this.lista[idx].nombre_variable = nuevo
+      if (anterior && nuevo !== anterior) this.renombrarEnFormulas(anterior, nuevo)
+      if (nuevo && this.toVariable(this.varTemp) !== nuevo) {
+        this.$q.notify({
+          type: 'warning',
+          message: `El nombre ya estaba en uso, se guardó como "${nuevo}"`
+        })
+      }
+      this.cancelarVariable()
+    },
+
+    // Propaga el renombrado de una variable a las fórmulas que la usan
+    renombrarEnFormulas (anterior, nuevo) {
+      const re = new RegExp('\\b' + anterior.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g')
+      this.formulas = this.formulas.map(f => ({
+        nombre_variable: f.nombre_variable === anterior ? nuevo : f.nombre_variable,
+        formula: nuevo ? (f.formula || '').replace(re, nuevo) : f.formula
+      }))
     },
 
     onDragStart (idx) { this.dragFromIndex = idx },
@@ -508,6 +711,23 @@ export default {
         .normalize('NFD').replace(/[̀-ͯ]/g, '')
         .replace(/[^a-z0-9]+/g, '_')
         .replace(/^_+|_+$/g, '')
+    },
+
+    // Devuelve un nombre de variable que no choque con los ya usados:
+    // si "glucosa" existe, entrega "glucosa1", luego "glucosa2", etc.
+    variableUnica (nombre, ignorarIdx = -1) {
+      const base = this.toVariable(nombre) || 'variable'
+      const usados = new Set(
+        this.lista
+          .filter((_, i) => i !== ignorarIdx)
+          .map(r => r.nombre_variable)
+          .filter(v => v && v.trim())
+      )
+
+      if (!usados.has(base)) return base
+      let n = 1
+      while (usados.has(base + n)) n++
+      return base + n
     },
 
     // ── FÓRMULAS ──
@@ -587,6 +807,13 @@ export default {
       this.resetFormula()
     },
 
+    eliminarFormula (idx) {
+      this.formulas.splice(idx, 1)
+      if (this.editandoIdx === idx) this.editandoIdx = null
+      else if (this.editandoIdx > idx) this.editandoIdx--
+      this.autoGuardar()
+    },
+
     confirmarEdicion (idx) {
       if (this.formulaError || !this.formulaForm.formula || !this.formulaForm.nombre_variable) return
       this.formulas.splice(idx, 1, { ...this.formulaForm })
@@ -595,15 +822,25 @@ export default {
     },
 
     // ── GUARDAR ──
-    guardar () {
+    construirPayload (cerrar) {
       const rangos = this.lista.map((item, idx) => ({
         area_rango_id: item.id,
         nombre_variable: item.nombre_variable || null,
+        opciones: item.opciones || [],
         orden: idx + 1,
         visible: item.visible !== false
       }))
       const formulas = this.formulas.map((f, idx) => ({ ...f, label: '', unidad: '', orden: idx + 1 }))
-      this.$emit('save', { rangos, formulas })
+      return { rangos, formulas, cerrar }
+    },
+
+    // Persiste de inmediato (al eliminar) sin cerrar el dialog
+    autoGuardar () {
+      this.$emit('save', this.construirPayload(false))
+    },
+
+    guardar () {
+      this.$emit('save', this.construirPayload(true))
     }
   }
 }

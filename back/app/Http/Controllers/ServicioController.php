@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Servicio;
-use App\Models\ServicioFormula;
 use Illuminate\Http\Request;
 
 class ServicioController extends Controller
@@ -87,7 +86,23 @@ class ServicioController extends Controller
             $q->orderByPivot('orden')->orderBy('area_rangos.id');
         }])->findOrFail($id);
 
+        // El pivot guarda las opciones como JSON; se entregan ya decodificadas
+        $servicio->rangos->each(function ($rango) {
+            $rango->pivot->opciones = $this->decodificarOpciones($rango->pivot->opciones);
+        });
+
         return response()->json($servicio->rangos);
+    }
+
+    private function decodificarOpciones($valor): array
+    {
+        if (is_array($valor)) {
+            return array_values($valor);
+        }
+
+        $decodificado = json_decode($valor ?? '[]', true);
+
+        return is_array($decodificado) ? array_values($decodificado) : [];
     }
 
     public function syncRangos(Request $request, $id)
@@ -95,19 +110,27 @@ class ServicioController extends Controller
         $servicio = Servicio::findOrFail($id);
 
         $data = $request->validate([
-            'rangos'                  => 'array',
-            'rangos.*.area_rango_id'  => 'required|integer|exists:area_rangos,id',
-            'rangos.*.nombre_variable'=> 'nullable|string|max:100',
-            'rangos.*.orden'          => 'nullable|integer|min:0',
-            'rangos.*.visible'        => 'nullable|boolean',
+            'rangos' => 'array',
+            'rangos.*.area_rango_id' => 'required|integer|exists:area_rangos,id',
+            'rangos.*.nombre_variable' => 'nullable|string|max:100',
+            'rangos.*.opciones' => 'nullable|array',
+            'rangos.*.opciones.*' => 'string|max:255',
+            'rangos.*.orden' => 'nullable|integer|min:0',
+            'rangos.*.visible' => 'nullable|boolean',
         ]);
 
         $sync = [];
         foreach ($data['rangos'] ?? [] as $idx => $item) {
+            $opciones = array_values(array_filter(
+                array_map('trim', $item['opciones'] ?? []),
+                fn ($op) => $op !== ''
+            ));
+
             $sync[$item['area_rango_id']] = [
                 'nombre_variable' => $item['nombre_variable'] ?? null,
-                'orden'           => $item['orden'] ?? $idx + 1,
-                'visible'         => array_key_exists('visible', $item) ? (bool) $item['visible'] : true,
+                'opciones' => $opciones ? json_encode($opciones, JSON_UNESCAPED_UNICODE) : null,
+                'orden' => $item['orden'] ?? $idx + 1,
+                'visible' => array_key_exists('visible', $item) ? (bool) $item['visible'] : true,
             ];
         }
 
@@ -119,6 +142,7 @@ class ServicioController extends Controller
     public function getFormulas($id)
     {
         $servicio = Servicio::findOrFail($id);
+
         return response()->json($servicio->formulas);
     }
 
@@ -127,22 +151,22 @@ class ServicioController extends Controller
         $servicio = Servicio::findOrFail($id);
 
         $data = $request->validate([
-            'formulas'                    => 'array',
-            'formulas.*.label'            => 'nullable|string|max:255',
-            'formulas.*.nombre_variable'  => 'required|string|max:100',
-            'formulas.*.formula'          => 'required|string',
-            'formulas.*.unidad'           => 'nullable|string|max:50',
+            'formulas' => 'array',
+            'formulas.*.label' => 'nullable|string|max:255',
+            'formulas.*.nombre_variable' => 'required|string|max:100',
+            'formulas.*.formula' => 'required|string',
+            'formulas.*.unidad' => 'nullable|string|max:50',
         ]);
 
         $servicio->formulas()->delete();
 
         foreach ($data['formulas'] ?? [] as $idx => $f) {
             $servicio->formulas()->create([
-                'label'           => $f['label'] ?? null,
+                'label' => $f['label'] ?? null,
                 'nombre_variable' => $f['nombre_variable'],
-                'formula'         => $f['formula'],
-                'unidad'          => $f['unidad'] ?? null,
-                'orden'           => $idx + 1,
+                'formula' => $f['formula'],
+                'unidad' => $f['unidad'] ?? null,
+                'orden' => $idx + 1,
             ]);
         }
 
@@ -169,7 +193,7 @@ class ServicioController extends Controller
 
         if ($invalidArea) {
             return response()->json([
-                'message' => 'Solo puede vincular tipos de muestra del mismo área del servicio.'
+                'message' => 'Solo puede vincular tipos de muestra del mismo área del servicio.',
             ], 422);
         }
 

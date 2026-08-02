@@ -60,6 +60,7 @@
 @php
     function inmuno_out_of_range($valor, $min, $max) {
         if ($valor === null || $valor === '') return false;
+        if (!is_numeric($valor)) return false; // valores de lista (texto) no se comparan
         $num = floatval($valor);
         if ($min !== null && $num < floatval($min)) return true;
         if ($max !== null && $num > floatval($max)) return true;

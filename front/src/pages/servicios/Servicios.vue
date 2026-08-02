@@ -1068,7 +1068,7 @@ export default {
       }
       this.dialogVincularRangos = true
     },
-    async guardarVinculoRangos ({ rangos, formulas }) {
+    async guardarVinculoRangos ({ rangos, formulas, cerrar = true }) {
       if (!this.servicioVincularRangos?.id) return
       this.loading = true
       try {
@@ -1076,9 +1076,13 @@ export default {
           this.$axios.post(`servicios/${this.servicioVincularRangos.id}/rangos`, { rangos }),
           this.$axios.post(`servicios/${this.servicioVincularRangos.id}/formulas`, { formulas })
         ])
-        this.$q.notify({ type: 'positive', message: 'Rangos y fórmulas guardados correctamente' })
-        this.dialogVincularRangos = false
-        this.loadServicios()
+        if (cerrar) {
+          this.$q.notify({ type: 'positive', message: 'Rangos y fórmulas guardados correctamente' })
+          this.dialogVincularRangos = false
+          this.loadServicios()
+        } else {
+          this.$q.notify({ type: 'positive', message: 'Cambio guardado', timeout: 800, position: 'top-right' })
+        }
       } catch (e) {
         const msg = e.response?.data?.message || e.message
         this.$q.notify({ type: 'negative', message: 'Error: ' + msg })

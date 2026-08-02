@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable as AuditableTrait;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
 class Servicio extends Model implements AuditableContract
 {
-    use SoftDeletes, AuditableTrait;
+    use AuditableTrait, SoftDeletes;
 
     protected $fillable = [
         'area_id',
@@ -19,7 +19,7 @@ class Servicio extends Model implements AuditableContract
         'precio',
         'estado',
         'subarea',
-        'descripcion'
+        'descripcion',
     ];
 
     protected $hidden = [
@@ -30,6 +30,7 @@ class Servicio extends Model implements AuditableContract
     {
         return $this->belongsTo(Area::class);
     }
+
     public function establecimientos()
     {
         return $this->belongsToMany(
@@ -39,6 +40,7 @@ class Servicio extends Model implements AuditableContract
             'establecimiento_id'
         )->withTimestamps();
     }
+
     public function solicitudes()
     {
         return $this->belongsToMany(
@@ -71,6 +73,6 @@ class Servicio extends Model implements AuditableContract
             'servicio_rangos',
             'servicio_id',
             'area_rango_id'
-        )->withPivot('nombre_variable', 'orden', 'visible')->withTimestamps()->orderByPivot('orden');
+        )->withPivot('nombre_variable', 'opciones', 'orden', 'visible')->withTimestamps()->orderByPivot('orden');
     }
 }

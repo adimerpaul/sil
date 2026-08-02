@@ -2,29 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PerfilImpresion;
-use App\Models\ServicioSolicitude;
-use App\Models\SolicitudeFormulario;
-use Barryvdh\DomPDF\Facade\Pdf;
-
-use App\Models\ResultadoLaboratorio;
-use App\Models\QuimicaSanguinea;
-use App\Models\Servicio;
-use App\Models\Solicitude;
-use App\Models\Paciente;
 use App\Models\Doctor;
-use App\Models\SolitudePreAnalitica;
+use App\Models\Paciente;
+use App\Models\PerfilImpresion;
+use App\Models\QuimicaSanguinea;
+use App\Models\ResultadoLaboratorio;
+use App\Models\Servicio;
+use App\Models\ServicioSolicitude;
+use App\Models\Solicitude;
+use App\Models\SolicitudeFormulario;
 use App\Models\SolicitudePreAnaliticaComentario;
 use App\Models\SolicitudePropiedad;
-
+use App\Models\SolitudePreAnalitica;
+use App\Models\UnidadSolicitante;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use App\Models\UnidadSolicitante;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class SolicitudeController extends Controller
 {
@@ -75,11 +73,12 @@ class SolicitudeController extends Controller
         return app(\App\Http\Controllers\QuimicaSanguineaController::class)->pdfBySolicitude($quimica->code);
     }
 
-    function actualizarCodigo(Request $request, $id){
+    public function actualizarCodigo(Request $request, $id)
+    {
         //    this.$axios.post(`solicitudes/${this.consentimiento.id}/actualizar-codigo`, {
-//        codigo: this.consentimiento.codigo,
-//        nro_registro: this.consentimiento.nro_registro
-//      })
+        //        codigo: this.consentimiento.codigo,
+        //        nro_registro: this.consentimiento.nro_registro
+        //      })
         $solicitud = Solicitude::findOrFail($id);
         if ($request->filled('codigo')) {
             $solicitud->codigo = $request->input('codigo');
@@ -87,7 +86,7 @@ class SolicitudeController extends Controller
         if ($request->filled('nro_registro')) {
             $solicitud->nro_registro = $request->input('nro_registro');
         }
-        $solicitud->codigo_solicitud = ($solicitud->nro_registro ?? '') . ($solicitud->codigo ?? '');
+        $solicitud->codigo_solicitud = ($solicitud->nro_registro ?? '').($solicitud->codigo ?? '');
         $solicitud->save();
 
         if ($request->filled('codigo') && is_numeric($solicitud->codigo)) {
@@ -100,13 +99,14 @@ class SolicitudeController extends Controller
 
         return response()->json($solicitud->fresh());
     }
+
     public function pdfPreanalitica(Request $request)
     {
-        $fecha  = $request->query('fecha');          // YYYY-MM-DD
+        $fecha = $request->query('fecha');          // YYYY-MM-DD
         $filter = $request->query('filter', '');
 
         // si no mandan fecha, usa hoy
-        if (!$fecha) {
+        if (! $fecha) {
             $fecha = now()->toDateString();
         }
 
@@ -117,11 +117,11 @@ class SolicitudeController extends Controller
             'userPreanalitica',
         ])
             ->whereDate('fecha_creacion', $fecha)
-            ->whereIn('estado', ['ATENDIENDO','MUESTRA RECHAZADA','ENVIADO_ANALITICA','ANALIZADO','MUESTRA NO TOMADA'])
+            ->whereIn('estado', ['ATENDIENDO', 'MUESTRA RECHAZADA', 'ENVIADO_ANALITICA', 'ANALIZADO', 'MUESTRA NO TOMADA'])
             ->orderByRaw("FIELD(estado, 'ATENDIENDO', 'ENVIADO_ANALITICA', 'ANALIZADO', 'MUESTRA RECHAZADA', 'MUESTRA NO TOMADA') ASC")
             ->orderBy('id', 'desc');
 
-        if (!empty($filter)) {
+        if (! empty($filter)) {
             $query->where(function ($q) use ($filter) {
                 $q->where('paciente_nombre', 'like', "%$filter%")
                     ->orWhereHas('paciente', function ($q2) use ($filter) {
@@ -144,12 +144,13 @@ class SolicitudeController extends Controller
 
         return $pdf->stream("solicitudes_preanalitica_{$fecha}.pdf");
     }
-    function marcarMuestraNoTomada(Request $request, $id)
+
+    public function marcarMuestraNoTomada(Request $request, $id)
     {
         $solicitud = Solicitude::findOrFail($id);
-//        $solicitud->muestra_rechazada = 'Si';
+        //        $solicitud->muestra_rechazada = 'Si';
         $solicitud->motivo_rechazo = $request->input('motivo_rechazo', 'No especificado');
-//        $solicitud->fecha_rechazo_muestra = now();
+        //        $solicitud->fecha_rechazo_muestra = now();
         $solicitud->user_preanalitica_id = $request->user() ? $request->user()->id : null;
         $solicitud->estado = 'MUESTRA NO TOMADA';
         $solicitud->fecha_envio_analitica = now();
@@ -157,28 +158,35 @@ class SolicitudeController extends Controller
 
         return response()->json($solicitud->fresh());
     }
+
     public function reporteSolicitudesServicios(Request $request)
     {
         $dateFrom = $request->get('date_from');
-        $dateTo   = $request->get('date_to');
-        $userId   = $request->get('user_id');
-        $group    = $request->get('group', 'day');
+        $dateTo = $request->get('date_to');
+        $userId = $request->get('user_id');
+        $group = $request->get('group', 'day');
 
         // servicio_id puede venir como: servicio_id=3 o servicio_id[]=3&servicio_id[]=5
         $servicioIds = $request->get('servicio_id', null);
-        if ($servicioIds !== null && !is_array($servicioIds)) {
+        if ($servicioIds !== null && ! is_array($servicioIds)) {
             $servicioIds = [$servicioIds];
         }
-        $servicioIds = array_values(array_filter((array)$servicioIds, fn($x) => $x !== null && $x !== ''));
-        $servicioIds = !empty($servicioIds) ? array_map('intval', $servicioIds) : [];
+        $servicioIds = array_values(array_filter((array) $servicioIds, fn ($x) => $x !== null && $x !== ''));
+        $servicioIds = ! empty($servicioIds) ? array_map('intval', $servicioIds) : [];
 
         // ---- query base: solicitudes (soft delete)
         $solQuery = DB::table('solicitudes as s')
             ->whereNull('s.deleted_at');
 
-        if ($dateFrom) $solQuery->whereDate('s.fecha_creacion', '>=', $dateFrom);
-        if ($dateTo)   $solQuery->whereDate('s.fecha_creacion', '<=', $dateTo);
-        if ($userId)   $solQuery->where('s.user_id', $userId);
+        if ($dateFrom) {
+            $solQuery->whereDate('s.fecha_creacion', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $solQuery->whereDate('s.fecha_creacion', '<=', $dateTo);
+        }
+        if ($userId) {
+            $solQuery->where('s.user_id', $userId);
+        }
 
         // ---- base pivot servicio_solicitudes (soft delete pivot + solicitudes + servicios)
         $ssQuery = DB::table('servicio_solicitudes as ss')
@@ -188,13 +196,21 @@ class SolicitudeController extends Controller
             ->whereNull('ss.deleted_at')
             ->whereNull('se.deleted_at');
 
-        if ($dateFrom) $ssQuery->whereDate('s.fecha_creacion', '>=', $dateFrom);
-        if ($dateTo)   $ssQuery->whereDate('s.fecha_creacion', '<=', $dateTo);
-        if ($userId)   $ssQuery->where('s.user_id', $userId);
-        if (!empty($servicioIds)) $ssQuery->whereIn('ss.servicio_id', $servicioIds);
+        if ($dateFrom) {
+            $ssQuery->whereDate('s.fecha_creacion', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $ssQuery->whereDate('s.fecha_creacion', '<=', $dateTo);
+        }
+        if ($userId) {
+            $ssQuery->where('s.user_id', $userId);
+        }
+        if (! empty($servicioIds)) {
+            $ssQuery->whereIn('ss.servicio_id', $servicioIds);
+        }
 
         // ---- KPIs
-        $totalSolicitudes  = (clone $solQuery)->count();
+        $totalSolicitudes = (clone $solQuery)->count();
         $totalPrestaciones = (clone $ssQuery)->count();
 
         $promedioPrestaciones = $totalSolicitudes > 0
@@ -203,14 +219,14 @@ class SolicitudeController extends Controller
 
         // ---- expresiones de agrupación
         if ($group === 'month') {
-            $keyExpr   = "DATE_FORMAT(s.fecha_creacion, '%Y-%m')";
+            $keyExpr = "DATE_FORMAT(s.fecha_creacion, '%Y-%m')";
             $labelExpr = "DATE_FORMAT(s.fecha_creacion, '%Y-%m')";
         } elseif ($group === 'week') {
-            $keyExpr   = "YEARWEEK(s.fecha_creacion, 1)";
+            $keyExpr = 'YEARWEEK(s.fecha_creacion, 1)';
             $labelExpr = "CONCAT(YEAR(s.fecha_creacion), '-W', LPAD(WEEK(s.fecha_creacion, 1), 2, '0'))";
         } else { // day
-            $keyExpr   = "DATE(s.fecha_creacion)";
-            $labelExpr = "DATE(s.fecha_creacion)";
+            $keyExpr = 'DATE(s.fecha_creacion)';
+            $labelExpr = 'DATE(s.fecha_creacion)';
         }
 
         // ---- SERIE: solicitudes vs prestaciones (FIX ONLY_FULL_GROUP_BY)
@@ -220,14 +236,14 @@ class SolicitudeController extends Controller
                     ->whereNull('ss.deleted_at');
             })
             ->whereNull('s.deleted_at')
-            ->when($dateFrom, fn($q) => $q->whereDate('s.fecha_creacion', '>=', $dateFrom))
-            ->when($dateTo,   fn($q) => $q->whereDate('s.fecha_creacion', '<=', $dateTo))
-            ->when($userId,   fn($q) => $q->where('s.user_id', $userId))
-            ->when(!empty($servicioIds), fn($q) => $q->whereIn('ss.servicio_id', $servicioIds))
+            ->when($dateFrom, fn ($q) => $q->whereDate('s.fecha_creacion', '>=', $dateFrom))
+            ->when($dateTo, fn ($q) => $q->whereDate('s.fecha_creacion', '<=', $dateTo))
+            ->when($userId, fn ($q) => $q->where('s.user_id', $userId))
+            ->when(! empty($servicioIds), fn ($q) => $q->whereIn('ss.servicio_id', $servicioIds))
             ->selectRaw("$keyExpr as group_key")
             ->selectRaw("$labelExpr as label")
-            ->selectRaw("COUNT(DISTINCT s.id) as solicitudes")
-            ->selectRaw("COUNT(ss.id) as prestaciones")
+            ->selectRaw('COUNT(DISTINCT s.id) as solicitudes')
+            ->selectRaw('COUNT(ss.id) as prestaciones')
             ->groupBy('group_key', 'label')
             ->orderBy('group_key', 'asc')
             ->get();
@@ -241,10 +257,10 @@ class SolicitudeController extends Controller
             })
             ->whereNull('u.deleted_at')
             ->whereNull('s.deleted_at')
-            ->when($dateFrom, fn($q) => $q->whereDate('s.fecha_creacion', '>=', $dateFrom))
-            ->when($dateTo, fn($q) => $q->whereDate('s.fecha_creacion', '<=', $dateTo))
-            ->when($userId, fn($q) => $q->where('u.id', $userId))
-            ->when(!empty($servicioIds), fn($q) => $q->whereIn('ss.servicio_id', $servicioIds))
+            ->when($dateFrom, fn ($q) => $q->whereDate('s.fecha_creacion', '>=', $dateFrom))
+            ->when($dateTo, fn ($q) => $q->whereDate('s.fecha_creacion', '<=', $dateTo))
+            ->when($userId, fn ($q) => $q->where('u.id', $userId))
+            ->when(! empty($servicioIds), fn ($q) => $q->whereIn('ss.servicio_id', $servicioIds))
             ->groupBy('u.id', 'u.name', 'u.username')
             ->select(
                 'u.id as user_id',
@@ -263,10 +279,10 @@ class SolicitudeController extends Controller
             ->whereNull('s.deleted_at')
             ->whereNull('ss.deleted_at')
             ->whereNull('se.deleted_at')
-            ->when($dateFrom, fn($q) => $q->whereDate('s.fecha_creacion', '>=', $dateFrom))
-            ->when($dateTo, fn($q) => $q->whereDate('s.fecha_creacion', '<=', $dateTo))
-            ->when($userId, fn($q) => $q->where('s.user_id', $userId))
-            ->when(!empty($servicioIds), fn($q) => $q->whereIn('ss.servicio_id', $servicioIds))
+            ->when($dateFrom, fn ($q) => $q->whereDate('s.fecha_creacion', '>=', $dateFrom))
+            ->when($dateTo, fn ($q) => $q->whereDate('s.fecha_creacion', '<=', $dateTo))
+            ->when($userId, fn ($q) => $q->where('s.user_id', $userId))
+            ->when(! empty($servicioIds), fn ($q) => $q->whereIn('ss.servicio_id', $servicioIds))
             ->groupBy('se.id', 'se.nombre')
             ->select(
                 'se.id as prestacion_id',
@@ -282,10 +298,10 @@ class SolicitudeController extends Controller
         $ultimas = DB::table('solicitudes as s')
             ->leftJoin('users as u', 'u.id', '=', 's.user_id')
             ->whereNull('s.deleted_at')
-            ->when($dateFrom, fn($q) => $q->whereDate('s.fecha_creacion', '>=', $dateFrom))
-            ->when($dateTo, fn($q) => $q->whereDate('s.fecha_creacion', '<=', $dateTo))
-            ->when($userId, fn($q) => $q->where('s.user_id', $userId))
-            ->when(!empty($servicioIds), function ($q) use ($servicioIds) {
+            ->when($dateFrom, fn ($q) => $q->whereDate('s.fecha_creacion', '>=', $dateFrom))
+            ->when($dateTo, fn ($q) => $q->whereDate('s.fecha_creacion', '<=', $dateTo))
+            ->when($userId, fn ($q) => $q->where('s.user_id', $userId))
+            ->when(! empty($servicioIds), function ($q) use ($servicioIds) {
                 $q->whereExists(function ($sub) use ($servicioIds) {
                     $sub->select(DB::raw(1))
                         ->from('servicio_solicitudes as ssf')
@@ -329,19 +345,21 @@ class SolicitudeController extends Controller
         ]);
     }
 
-    function muestrasRechazadas(){
+    public function muestrasRechazadas()
+    {
         $solicitudes = Solicitude::with([
             'paciente',
             'doctor',
             'servicios.area.areaTipoMuestras',
             'userPreanalitica',
-            'user'
+            'user',
         ])->where('muestra_rechazada', 'Si')
             ->orderBy('id', 'desc')
             ->get();
 
         return response()->json($solicitudes);
     }
+
     public function dashboard(Request $request)
     {
         $dateFrom = $request->get('date_from');
@@ -556,15 +574,21 @@ class SolicitudeController extends Controller
     private function solicitudesDashboardQuery(Request $request)
     {
         $dateFrom = $request->get('date_from', now()->toDateString());
-        $dateTo   = $request->get('date_to',   now()->toDateString());
+        $dateTo = $request->get('date_to', now()->toDateString());
 
         $q = Solicitude::query()->whereNull('solicitudes.deleted_at');
 
-        if ($dateFrom) $q->whereDate('solicitudes.fecha_creacion', '>=', $dateFrom);
-        if ($dateTo)   $q->whereDate('solicitudes.fecha_creacion', '<=', $dateTo);
+        if ($dateFrom) {
+            $q->whereDate('solicitudes.fecha_creacion', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $q->whereDate('solicitudes.fecha_creacion', '<=', $dateTo);
+        }
 
         // Filtros adicionales opcionales
-        if ($request->filled('estado'))       $q->where('solicitudes.estado', $request->get('estado'));
+        if ($request->filled('estado')) {
+            $q->where('solicitudes.estado', $request->get('estado'));
+        }
         if ($request->filled('area_id')) {
             $areaId = $request->get('area_id');
             $q->whereExists(function ($sub) use ($areaId) {
@@ -655,30 +679,41 @@ class SolicitudeController extends Controller
                     ->whereNotNull('rl.valor_final')
                     ->whereNull('rl.deleted_at');
 
+                // valor_final es texto: solo los valores numéricos se comparan con el rango
+                $esNumerico = "rl.valor_final REGEXP '^[+-]?[0-9]+(\\\\.[0-9]+)?$'";
+                $valorNum = 'CAST(rl.valor_final AS DECIMAL(20,6))';
+
                 if ($filtroValor === 'alto') {
                     $sub->whereNotNull('ar.rango_maximo')
-                        ->whereRaw('rl.valor_final > ar.rango_maximo');
+                        ->whereRaw($esNumerico)
+                        ->whereRaw("$valorNum > ar.rango_maximo");
                 } elseif ($filtroValor === 'bajo') {
                     $sub->whereNotNull('ar.rango_minimo')
-                        ->whereRaw('rl.valor_final < ar.rango_minimo');
+                        ->whereRaw($esNumerico)
+                        ->whereRaw("$valorNum < ar.rango_minimo");
                 } elseif ($filtroValor === 'fuera_rango') {
-                    $sub->whereRaw('(
-                        (ar.rango_maximo IS NOT NULL AND rl.valor_final > ar.rango_maximo)
+                    $sub->whereRaw($esNumerico)
+                        ->whereRaw("(
+                        (ar.rango_maximo IS NOT NULL AND $valorNum > ar.rango_maximo)
                         OR
-                        (ar.rango_minimo IS NOT NULL AND rl.valor_final < ar.rango_minimo)
-                    )');
+                        (ar.rango_minimo IS NOT NULL AND $valorNum < ar.rango_minimo)
+                    )");
                 }
             });
         }
-        if ($request->filled('tipo_atencion')) $q->where('solicitudes.tipo_atencion', $request->get('tipo_atencion'));
-        if ($request->filled('establecimiento_id')) $q->where('solicitudes.establecimiento_id', $request->get('establecimiento_id'));
+        if ($request->filled('tipo_atencion')) {
+            $q->where('solicitudes.tipo_atencion', $request->get('tipo_atencion'));
+        }
+        if ($request->filled('establecimiento_id')) {
+            $q->where('solicitudes.establecimiento_id', $request->get('establecimiento_id'));
+        }
         if ($request->filled('search')) {
             $s = $request->get('search');
             $q->where(function ($w) use ($s) {
                 $w->where('solicitudes.paciente_nombre', 'like', "%{$s}%")
-                  ->orWhere('solicitudes.codigo_solicitud', 'like', "%{$s}%")
-                  ->orWhere('solicitudes.nro_registro', 'like', "%{$s}%")
-                  ->orWhere('solicitudes.doctor_nombre', 'like', "%{$s}%");
+                    ->orWhere('solicitudes.codigo_solicitud', 'like', "%{$s}%")
+                    ->orWhere('solicitudes.nro_registro', 'like', "%{$s}%")
+                    ->orWhere('solicitudes.doctor_nombre', 'like', "%{$s}%");
             });
         }
 
@@ -724,9 +759,9 @@ class SolicitudeController extends Controller
         $rows = $this->solicitudesDashboardQuery($request)->get();
 
         $dateFrom = $request->get('date_from', now()->toDateString());
-        $dateTo   = $request->get('date_to',   now()->toDateString());
+        $dateTo = $request->get('date_to', now()->toDateString());
 
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Solicitudes');
 
@@ -734,8 +769,8 @@ class SolicitudeController extends Controller
         $sheet->mergeCells('A1:T1');
         $sheet->setCellValue('A1', "REPORTE DE SOLICITUDES  |  {$dateFrom} — {$dateTo}");
         $sheet->getStyle('A1')->applyFromArray([
-            'font'      => ['bold' => true, 'size' => 13, 'color' => ['argb' => 'FFFFFFFF']],
-            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1565C0']],
+            'font' => ['bold' => true, 'size' => 13, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1565C0']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
         $sheet->getRowDimension(1)->setRowHeight(24);
@@ -755,8 +790,8 @@ class SolicitudeController extends Controller
         }
         $lastCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(count($headers));
         $sheet->getStyle("A2:{$lastCol}2")->applyFromArray([
-            'font'      => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
-            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1976D2']],
+            'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1976D2']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
         ]);
         $sheet->freezePane('A3');
@@ -765,15 +800,15 @@ class SolicitudeController extends Controller
         $row = 3;
         foreach ($rows as $r) {
             $fecha = $r->fecha_creacion ? substr($r->fecha_creacion, 0, 10) : '';
-            $sheet->setCellValueByColumnAndRow(1,  $row, $r->id);
-            $sheet->setCellValueByColumnAndRow(2,  $row, $r->nro_registro);
-            $sheet->setCellValueByColumnAndRow(3,  $row, $r->codigo_solicitud);
-            $sheet->setCellValueByColumnAndRow(4,  $row, $r->paciente_codigo);
-            $sheet->setCellValueByColumnAndRow(5,  $row, $r->paciente_nombre);
-            $sheet->setCellValueByColumnAndRow(6,  $row, $r->paciente_edad);
-            $sheet->setCellValueByColumnAndRow(7,  $row, $r->doctor_nombre);
-            $sheet->setCellValueByColumnAndRow(8,  $row, $r->tipo_atencion);
-            $sheet->setCellValueByColumnAndRow(9,  $row, $r->areas);
+            $sheet->setCellValueByColumnAndRow(1, $row, $r->id);
+            $sheet->setCellValueByColumnAndRow(2, $row, $r->nro_registro);
+            $sheet->setCellValueByColumnAndRow(3, $row, $r->codigo_solicitud);
+            $sheet->setCellValueByColumnAndRow(4, $row, $r->paciente_codigo);
+            $sheet->setCellValueByColumnAndRow(5, $row, $r->paciente_nombre);
+            $sheet->setCellValueByColumnAndRow(6, $row, $r->paciente_edad);
+            $sheet->setCellValueByColumnAndRow(7, $row, $r->doctor_nombre);
+            $sheet->setCellValueByColumnAndRow(8, $row, $r->tipo_atencion);
+            $sheet->setCellValueByColumnAndRow(9, $row, $r->areas);
             $sheet->setCellValueByColumnAndRow(10, $row, $r->pruebas);
             $sheet->setCellValueByColumnAndRow(11, $row, (int) $r->cant_servicios);
             $sheet->setCellValueByColumnAndRow(12, $row, (int) $r->cant_realizados);
@@ -806,12 +841,12 @@ class SolicitudeController extends Controller
         return response()->download($path, $filename)->deleteFileAfterSend(true);
     }
 
-    function solicitudesAnalitica(Request $request)
+    public function solicitudesAnalitica(Request $request)
     {
         $filter = $request->input('filter', '');
         $codigo = $request->input('codigo', '');
-        $from   = $request->input('from', now()->startOfMonth()->toDateString());
-        $to     = $request->input('to',   now()->endOfMonth()->toDateString());
+        $from = $request->input('from', now()->startOfMonth()->toDateString());
+        $to = $request->input('to', now()->endOfMonth()->toDateString());
         $perPage = (int) $request->input('per_page', 25);
         $perPage = max(1, min($perPage, 100));
 
@@ -825,8 +860,8 @@ class SolicitudeController extends Controller
             'panelRespiratorio',
             'panelSexual',
             'cultivoAntibiograma',
-            ])
-            ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO','ANALIZADO','MUESTRA RECHAZADA']);
+        ])
+            ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO', 'ANALIZADO', 'MUESTRA RECHAZADA']);
 
         $user = $request->user();
 
@@ -846,7 +881,7 @@ class SolicitudeController extends Controller
             });
         }
 
-        if (!empty($filter)) {
+        if (! empty($filter)) {
             $query->where(function ($q) use ($filter) {
                 $q->where('paciente_nombre', 'like', "%$filter%")
                     ->orWhereHas('paciente', function ($q2) use ($filter) {
@@ -857,16 +892,16 @@ class SolicitudeController extends Controller
             });
         }
 
-        if (!empty($codigo)) {
+        if (! empty($codigo)) {
             $query->where(function ($q) use ($codigo) {
                 $q->where('codigo', 'like', "%$codigo%");
             });
         }
 
-        if (!empty($from)) {
+        if (! empty($from)) {
             $query->whereDate('fecha_creacion', '>=', $from);
         }
-        if (!empty($to)) {
+        if (! empty($to)) {
             $query->whereDate('fecha_creacion', '<=', $to);
         }
 
@@ -876,12 +911,12 @@ class SolicitudeController extends Controller
     public function paraPresentacion(Request $request)
     {
         $fecha = $request->input('fecha', now()->toDateString());
-        $user  = $request->user();
+        $user = $request->user();
 
         $query = \App\Models\ServicioSolicitude::with(['solicitud', 'area'])
             ->whereHas('solicitud', function ($q) use ($fecha) {
                 $q->whereDate('fecha_creacion', $fecha)
-                  ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO', 'ANALIZADO']);
+                    ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO', 'ANALIZADO']);
             })
             ->where('realizado', '!=', 'PENDIENTE')
             ->whereNull('deleted_at');
@@ -913,11 +948,11 @@ class SolicitudeController extends Controller
                 ->each(function ($r) use (&$presentaciones) {
                     $sid = $r->solicitude_id;
                     if (
-                        !isset($presentaciones[$sid]) ||
+                        ! isset($presentaciones[$sid]) ||
                         $r->fecha_presentacion > $presentaciones[$sid]['fecha_presentacion']
                     ) {
                         $presentaciones[$sid] = [
-                            'user_presentacion'  => $r->userPresentacion?->name,
+                            'user_presentacion' => $r->userPresentacion?->name,
                             'fecha_presentacion' => $r->fecha_presentacion?->format('d/m/Y H:i'),
                         ];
                     }
@@ -936,7 +971,9 @@ class SolicitudeController extends Controller
         $analisisIds = [];
         $areaIdsPresentes = $servicios->pluck('area_id')->unique()->toArray();
         foreach ($areaIdsPresentes as $areaId) {
-            if (!isset($areaModelMap[$areaId])) continue;
+            if (! isset($areaModelMap[$areaId])) {
+                continue;
+            }
             $modelClass = $areaModelMap[$areaId];
             $modelClass::whereIn('solicitude_id', $solicitudeIds)
                 ->get(['id', 'solicitude_id'])
@@ -954,7 +991,7 @@ class SolicitudeController extends Controller
             $modelClass::whereIn('solicitude_id', $solicitudeIds)
                 ->get(['id', 'solicitude_id'])
                 ->each(function ($r) use (&$analisisIds) {
-                    if (!isset($analisisIds[7][$r->solicitude_id])) {
+                    if (! isset($analisisIds[7][$r->solicitude_id])) {
                         $analisisIds[7][$r->solicitude_id] = $r->id;
                     }
                 });
@@ -965,22 +1002,23 @@ class SolicitudeController extends Controller
             $porSolicitud = $items->groupBy('solicitude_id')->map(function ($ss) use ($presentaciones, $analisisIds, $areaId) {
                 $sol = $ss->first()->solicitud;
                 $pres = $presentaciones[$sol->id] ?? null;
+
                 return [
-                    'solicitud_id'       => $sol->id,
-                    'analisis_id'        => $analisisIds[$areaId][$sol->id] ?? null,
-                    'paciente_nombre'    => $sol->paciente_nombre,
-                    'nro_registro'       => $sol->nro_registro,
-                    'user_presentacion'  => $pres['user_presentacion'] ?? null,
+                    'solicitud_id' => $sol->id,
+                    'analisis_id' => $analisisIds[$areaId][$sol->id] ?? null,
+                    'paciente_nombre' => $sol->paciente_nombre,
+                    'nro_registro' => $sol->nro_registro,
+                    'user_presentacion' => $pres['user_presentacion'] ?? null,
                     'fecha_presentacion' => $pres['fecha_presentacion'] ?? null,
-                    'servicios'          => $ss->map(fn ($s) => [
-                        'id'     => $s->id,
+                    'servicios' => $ss->map(fn ($s) => [
+                        'id' => $s->id,
                         'nombre' => $s->nombre,
                     ])->values(),
                 ];
             })->values();
 
             return [
-                'area_id'     => $areaId,
+                'area_id' => $areaId,
                 'area_nombre' => $items->first()->area?->name ?? 'Sin área',
                 'solicitudes' => $porSolicitud,
             ];
@@ -992,8 +1030,8 @@ class SolicitudeController extends Controller
     public function registrarPresentacion(Request $request)
     {
         $solicitudeIds = $request->input('solicitude_ids', []);
-        $user          = $request->user();
-        $campos        = ['user_presentacion_id' => $user->id, 'fecha_presentacion' => now()];
+        $user = $request->user();
+        $campos = ['user_presentacion_id' => $user->id, 'fecha_presentacion' => now()];
 
         foreach ([
             \App\Models\Hematologia::class,
@@ -1013,13 +1051,13 @@ class SolicitudeController extends Controller
 
     public function pdfPresentacion(Request $request)
     {
-        $fecha  = $request->input('fecha', now()->toDateString());
+        $fecha = $request->input('fecha', now()->toDateString());
         $areaId = $request->input('area_id');
 
         $query = \App\Models\ServicioSolicitude::with(['solicitud', 'area'])
             ->whereHas('solicitud', function ($q) use ($fecha) {
                 $q->whereDate('fecha_creacion', $fecha)
-                  ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO', 'ANALIZADO']);
+                    ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO', 'ANALIZADO']);
             })
             ->where('realizado', '!=', 'PENDIENTE')
             ->whereNull('deleted_at');
@@ -1040,7 +1078,9 @@ class SolicitudeController extends Controller
         ];
         $analisisIds = [];
         foreach ($servicios->pluck('area_id')->unique()->toArray() as $aid) {
-            if (!isset($areaModelMap[$aid])) continue;
+            if (! isset($areaModelMap[$aid])) {
+                continue;
+            }
             $areaModelMap[$aid]::whereIn('solicitude_id', $solicitudeIds)
                 ->get(['id', 'solicitude_id'])
                 ->each(function ($r) use (&$analisisIds, $aid) {
@@ -1050,7 +1090,7 @@ class SolicitudeController extends Controller
         foreach ([\App\Models\PanelRespiratorio::class, \App\Models\PanelSexual::class, \App\Models\PapilomaHumano::class] as $m) {
             $m::whereIn('solicitude_id', $solicitudeIds)->get(['id', 'solicitude_id'])
                 ->each(function ($r) use (&$analisisIds) {
-                    if (!isset($analisisIds[7][$r->solicitude_id])) {
+                    if (! isset($analisisIds[7][$r->solicitude_id])) {
                         $analisisIds[7][$r->solicitude_id] = $r->id;
                     }
                 });
@@ -1060,20 +1100,21 @@ class SolicitudeController extends Controller
             $areaId = $items->first()->area_id;
             $solicitudes = $items->groupBy('solicitude_id')->map(function ($ss) use ($analisisIds, $areaId) {
                 $sol = $ss->first()->solicitud;
+
                 return [
-                    'solicitud_id'    => $sol->id,
-                    'analisis_id'     => $analisisIds[$areaId][$sol->id] ?? null,
+                    'solicitud_id' => $sol->id,
+                    'analisis_id' => $analisisIds[$areaId][$sol->id] ?? null,
                     'paciente_nombre' => $sol->paciente_nombre,
-                    'nro_registro'    => $sol->nro_registro,
-                    'servicios'       => $ss->map(fn ($s) => [
-                        'id'     => $s->id,
+                    'nro_registro' => $sol->nro_registro,
+                    'servicios' => $ss->map(fn ($s) => [
+                        'id' => $s->id,
                         'nombre' => $s->nombre,
                     ])->values(),
                 ];
             })->values();
 
             return [
-                'area_id'     => $areaId,
+                'area_id' => $areaId,
                 'area_nombre' => $items->first()->area?->name ?? 'Sin área',
                 'solicitudes' => $solicitudes,
             ];
@@ -1099,7 +1140,7 @@ class SolicitudeController extends Controller
 
         $pdf = $this->buildPdfFromSolicitud($solicitud);
 
-        return $pdf->stream('LAB_' . $solicitud->nro_registro . '.pdf');
+        return $pdf->stream('LAB_'.$solicitud->nro_registro.'.pdf');
     }
 
     public function imprimirAnalitica($id)
@@ -1110,12 +1151,12 @@ class SolicitudeController extends Controller
             'resultados',
             'servicios.area',
             'servicios.tiposMuestra',
-            'userAnalitica'
+            'userAnalitica',
         ])->findOrFail($id);
 
         $pdf = $this->buildPdfFromSolicitud($solicitud);
 
-        return $pdf->stream('LAB_' . $solicitud->nro_registro . '.pdf');
+        return $pdf->stream('LAB_'.$solicitud->nro_registro.'.pdf');
     }
 
     protected function buildPdfFromSolicitud(Solicitude $solicitud)
@@ -1165,12 +1206,12 @@ class SolicitudeController extends Controller
         }
 
         $paciente = Paciente::find($solicitud->paciente_id);
-//        $nombreCompleto = $paciente ? $paciente->nombre_completo : 'Desconocido';
-//        $nombreCompleto = $solicitud->paciente_nombre ?? ($paciente ? $paciente->nombre_completo : 'Desconocido');
-//        $nro_registro = $this->nroRegistro($nombreCompleto, $paciente->fecha_nac ?? null);
-//
-//        $solicitud->codigo = $this->generarCodigoPorTipoYMes($solicitud);
-//        $solicitud->nro_registro = $nro_registro;
+        //        $nombreCompleto = $paciente ? $paciente->nombre_completo : 'Desconocido';
+        //        $nombreCompleto = $solicitud->paciente_nombre ?? ($paciente ? $paciente->nombre_completo : 'Desconocido');
+        //        $nro_registro = $this->nroRegistro($nombreCompleto, $paciente->fecha_nac ?? null);
+        //
+        //        $solicitud->codigo = $this->generarCodigoPorTipoYMes($solicitud);
+        //        $solicitud->nro_registro = $nro_registro;
         $solicitud->estado = 'ATENDIENDO';
         $solicitud->fecha_pre_analitica = now();
         $solicitud->user_preanalitica_id = $request->user() ? $request->user()->id : null;
@@ -1200,7 +1241,7 @@ class SolicitudeController extends Controller
         $timestamp = strtotime($fechaBase);
 
         $anio = date('Y', $timestamp);
-        $mes  = date('m', $timestamp);
+        $mes = date('m', $timestamp);
 
         $establecimientoId = $solicitud->establecimiento_origen_id
             ?? ($solicitud->user && $solicitud->user->establecimiento ? $solicitud->user->establecimiento->id : null);
@@ -1222,7 +1263,7 @@ class SolicitudeController extends Controller
 
         $ultimoCodigo = $q->max('codigo');
 
-        return $ultimoCodigo ? ((int)$ultimoCodigo + 1) : 1;
+        return $ultimoCodigo ? ((int) $ultimoCodigo + 1) : 1;
     }
 
     public function guardarPreAnalitica(Request $request, $id)
@@ -1230,10 +1271,9 @@ class SolicitudeController extends Controller
         $solicitud = Solicitude::findOrFail($id);
         $area_tipo_muestras = $request->input('area_tipo_muestras', []);
 
-//        $urlSocket = env('URL_SOCKET_IO', null);
-//        //return response()->json(['message' => 'URL_SOCKET_IO no está configurada', 'url' => $urlSocket], 500);
-//        $response = Http::get($urlSocket . '/silSolicitud');
-
+        //        $urlSocket = env('URL_SOCKET_IO', null);
+        //        //return response()->json(['message' => 'URL_SOCKET_IO no está configurada', 'url' => $urlSocket], 500);
+        //        $response = Http::get($urlSocket . '/silSolicitud');
 
         foreach ($area_tipo_muestras as $area) {
             if (isset($area['area_tipo_muestras']) && is_array($area['area_tipo_muestras'])) {
@@ -1244,16 +1284,16 @@ class SolicitudeController extends Controller
                         ->first();
 
                     if ($existing) {
-                        $existing->selected = !empty($tipoMuestra['selected']);
+                        $existing->selected = ! empty($tipoMuestra['selected']);
                         $existing->save();
                     } else {
                         $findArea = \App\Models\AreaTipoMuestra::find($idTipo);
-                        $SolitudePreAnalitica = new SolitudePreAnalitica();
+                        $SolitudePreAnalitica = new SolitudePreAnalitica;
                         $SolitudePreAnalitica->solicitude_id = $solicitud->id;
                         $SolitudePreAnalitica->area_tipo_muestra_id = $idTipo;
                         $SolitudePreAnalitica->estado = 'Pendiente';
                         $SolitudePreAnalitica->nombre = $findArea ? $findArea->tipo_muestra : '';
-                        $SolitudePreAnalitica->selected = !empty($tipoMuestra['selected']) ? true : false;
+                        $SolitudePreAnalitica->selected = ! empty($tipoMuestra['selected']) ? true : false;
                         $SolitudePreAnalitica->save();
                     }
                 }
@@ -1267,8 +1307,8 @@ class SolicitudeController extends Controller
         if (in_array($solicitud->estado, ['CREADO', 'ATENDIENDO'], true)) {
             $solicitud->estado = 'ENVIADO_ANALITICA';
         }
-//        'muestra_rechazada',
-//        'muestra_observacion',
+        //        'muestra_rechazada',
+        //        'muestra_observacion',
         $solicitud->muestra_rechazada = 'No';
         $solicitud->muestra_observacion = null;
         $solicitud->user_preanalitica_id = $request->user() ? $request->user()->id : null;
@@ -1279,6 +1319,7 @@ class SolicitudeController extends Controller
             'area_tipo_muestras' => $solicitud->load('preAnaliticaComentarios.user'),
         ]);
     }
+
     public function storePreAnaliticaComentario(Request $request, $id)
     {
         $solicitud = Solicitude::findOrFail($id);
@@ -1295,6 +1336,7 @@ class SolicitudeController extends Controller
 
         return response()->json($comentario, 201);
     }
+
     public function destroyPreAnaliticaComentario(Request $request, $id, $comentarioId)
     {
         $comentario = SolicitudePreAnaliticaComentario::where('solicitude_id', $id)
@@ -1302,22 +1344,23 @@ class SolicitudeController extends Controller
 
         if ((int) $comentario->user_id !== (int) $request->user()->id) {
             return response()->json([
-                'message' => 'Solo puede eliminar sus propios comentarios.'
+                'message' => 'Solo puede eliminar sus propios comentarios.',
             ], 403);
         }
 
         $comentario->delete();
 
         return response()->json([
-            'message' => 'Comentario eliminado correctamente.'
+            'message' => 'Comentario eliminado correctamente.',
         ]);
     }
+
     public function solicitudesAreaPreanaliticaEstado(Request $request)
     {
-        $from    = $request->query('from') ?: now()->startOfMonth()->toDateString();
-        $to      = $request->query('to')   ?: now()->endOfMonth()->toDateString();
-        $filter  = trim((string) $request->query('filter', ''));
-        $codigo  = trim((string) $request->query('codigo', ''));
+        $from = $request->query('from') ?: now()->startOfMonth()->toDateString();
+        $to = $request->query('to') ?: now()->endOfMonth()->toDateString();
+        $filter = trim((string) $request->query('filter', ''));
+        $codigo = trim((string) $request->query('codigo', ''));
         $perPage = (int) $request->query('per_page', 10);
         $perPage = max(1, min($perPage, 300));
 
@@ -1334,19 +1377,18 @@ class SolicitudeController extends Controller
         ])
             ->whereDate('fecha_creacion', '>=', $from)
             ->whereDate('fecha_creacion', '<=', $to)
-            ->whereIn('estado', ['ATENDIENDO','MUESTRA RECHAZADA','ENVIADO_ANALITICA','ANALIZADO','MUESTRA NO TOMADA']);
-
+            ->whereIn('estado', ['ATENDIENDO', 'MUESTRA RECHAZADA', 'ENVIADO_ANALITICA', 'ANALIZADO', 'MUESTRA NO TOMADA']);
 
         $query->orderByRaw("FIELD(estado, 'ATENDIENDO', 'ENVIADO_ANALITICA', 'ANALIZADO', 'MUESTRA RECHAZADA', 'MUESTRA NO TOMADA') ASC");
 
-        if (!empty($filter)) {
+        if (! empty($filter)) {
             $query->whereHas('paciente', function ($q) use ($filter) {
                 $q->where('nombre_completo', 'like', "%$filter%")
                     ->orWhere('ci', 'like', "%$filter%");
             });
         }
 
-        if (!empty($codigo)) {
+        if (! empty($codigo)) {
             $query->where(function ($q) use ($codigo) {
                 $q->where('codigo', 'like', "%$codigo%");
             });
@@ -1360,10 +1402,10 @@ class SolicitudeController extends Controller
 
     public function solicitudesAreaPreanalitica(Request $request)
     {
-        $filter  = $request->input('filter', '');
-        $codigo  = $request->input('codigo', '');
-        $from    = $request->input('from', now()->startOfMonth()->toDateString());
-        $to      = $request->input('to',   now()->endOfMonth()->toDateString());
+        $filter = $request->input('filter', '');
+        $codigo = $request->input('codigo', '');
+        $from = $request->input('from', now()->startOfMonth()->toDateString());
+        $to = $request->input('to', now()->endOfMonth()->toDateString());
 
         $query = Solicitude::with([
             'paciente',
@@ -1379,16 +1421,16 @@ class SolicitudeController extends Controller
         ])
             ->whereDate('fecha_creacion', '>=', $from)
             ->whereDate('fecha_creacion', '<=', $to)
-            ->whereIn('estado', ['CREADO', 'ATENDIENDO','MUESTRA RECHAZADA']);
+            ->whereIn('estado', ['CREADO', 'ATENDIENDO', 'MUESTRA RECHAZADA']);
 
-        if (!empty($filter)) {
+        if (! empty($filter)) {
             $query->whereHas('paciente', function ($q) use ($filter) {
                 $q->where('nombre_completo', 'like', "%$filter%")
                     ->orWhere('ci', 'like', "%$filter%");
             });
         }
 
-        if (!empty($codigo)) {
+        if (! empty($codigo)) {
             $query->where(function ($q) use ($codigo) {
                 $q->where('codigo', 'like', "%$codigo%");
             });
@@ -1400,9 +1442,9 @@ class SolicitudeController extends Controller
         return response()->json($solicitudes);
     }
 
-    function nroRegistro($nombreCompleto, $fechaNac)
+    public function nroRegistro($nombreCompleto, $fechaNac)
     {
-        $nombreCompleto = trim((string)$nombreCompleto);
+        $nombreCompleto = trim((string) $nombreCompleto);
 
         if ($nombreCompleto === '' || empty($fechaNac)) {
             return null;
@@ -1425,8 +1467,8 @@ class SolicitudeController extends Controller
         }
 
         $iniciales =
-            mb_substr($nombre, 0, 1, 'UTF-8') .
-            mb_substr($apPat, 0, 1, 'UTF-8') .
+            mb_substr($nombre, 0, 1, 'UTF-8').
+            mb_substr($apPat, 0, 1, 'UTF-8').
             mb_substr($apMat, 0, 1, 'UTF-8');
 
         $timestamp = strtotime($fechaNac);
@@ -1436,7 +1478,7 @@ class SolicitudeController extends Controller
 
         $fechaFormateada = date('dmy', $timestamp);
 
-        return $iniciales . $fechaFormateada;
+        return $iniciales.$fechaFormateada;
     }
 
     // ── Exportar lista de solicitudes a Excel ────────────────────────────────
@@ -1457,11 +1499,11 @@ class SolicitudeController extends Controller
             $query->where('tipo_atencion', $request->tipo_atencion);
         }
 
-        $rows    = $query->orderBy('id', 'desc')->get();
-        $from    = $request->get('from', now()->toDateString());
-        $to      = $request->get('to',   now()->toDateString());
+        $rows = $query->orderBy('id', 'desc')->get();
+        $from = $request->get('from', now()->toDateString());
+        $to = $request->get('to', now()->toDateString());
 
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Solicitudes');
 
@@ -1469,8 +1511,8 @@ class SolicitudeController extends Controller
         $sheet->mergeCells('A1:K1');
         $sheet->setCellValue('A1', "LISTADO DE SOLICITUDES  |  {$from} — {$to}");
         $sheet->getStyle('A1')->applyFromArray([
-            'font'      => ['bold' => true, 'size' => 13, 'color' => ['argb' => 'FFFFFFFF']],
-            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1565C0']],
+            'font' => ['bold' => true, 'size' => 13, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1565C0']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
         ]);
         $sheet->getRowDimension(1)->setRowHeight(26);
@@ -1485,8 +1527,8 @@ class SolicitudeController extends Controller
             $sheet->setCellValueByColumnAndRow($i + 1, 2, $h);
         }
         $sheet->getStyle("A2:{$lastCol}2")->applyFromArray([
-            'font'      => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
-            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1976D2']],
+            'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1976D2']],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
         ]);
         $sheet->getRowDimension(2)->setRowHeight(18);
@@ -1496,19 +1538,19 @@ class SolicitudeController extends Controller
         $rowNum = 3;
         $n = 1;
         foreach ($rows as $r) {
-            $fecha    = $r->fecha_creacion ? substr($r->fecha_creacion, 0, 10) : '';
+            $fecha = $r->fecha_creacion ? substr($r->fecha_creacion, 0, 10) : '';
             $servicios = $r->servicios->pluck('nombre')->implode(', ');
-            $bgColor  = ($rowNum % 2 === 0) ? 'FFF0F4FF' : 'FFFFFFFF';
+            $bgColor = ($rowNum % 2 === 0) ? 'FFF0F4FF' : 'FFFFFFFF';
 
-            $sheet->setCellValueByColumnAndRow(1,  $rowNum, $n++);
-            $sheet->setCellValueByColumnAndRow(2,  $rowNum, $r->nro_registro ?? '');
-            $sheet->setCellValueByColumnAndRow(3,  $rowNum, $r->codigo_solicitud ?? $r->codigo ?? '');
-            $sheet->setCellValueByColumnAndRow(4,  $rowNum, $fecha);
-            $sheet->setCellValueByColumnAndRow(5,  $rowNum, $r->paciente_nombre ?? '');
-            $sheet->setCellValueByColumnAndRow(6,  $rowNum, $r->doctor_nombre ?? '');
-            $sheet->setCellValueByColumnAndRow(7,  $rowNum, $r->tipo_atencion ?? '');
-            $sheet->setCellValueByColumnAndRow(8,  $rowNum, $servicios);
-            $sheet->setCellValueByColumnAndRow(9,  $rowNum, $r->estado ?? '');
+            $sheet->setCellValueByColumnAndRow(1, $rowNum, $n++);
+            $sheet->setCellValueByColumnAndRow(2, $rowNum, $r->nro_registro ?? '');
+            $sheet->setCellValueByColumnAndRow(3, $rowNum, $r->codigo_solicitud ?? $r->codigo ?? '');
+            $sheet->setCellValueByColumnAndRow(4, $rowNum, $fecha);
+            $sheet->setCellValueByColumnAndRow(5, $rowNum, $r->paciente_nombre ?? '');
+            $sheet->setCellValueByColumnAndRow(6, $rowNum, $r->doctor_nombre ?? '');
+            $sheet->setCellValueByColumnAndRow(7, $rowNum, $r->tipo_atencion ?? '');
+            $sheet->setCellValueByColumnAndRow(8, $rowNum, $servicios);
+            $sheet->setCellValueByColumnAndRow(9, $rowNum, $r->estado ?? '');
             $sheet->setCellValueByColumnAndRow(10, $rowNum, $r->muestra_rechazada ? 'RECHAZADA' : '');
             $sheet->setCellValueByColumnAndRow(11, $rowNum, $r->muestra_observacion ?? '');
 
@@ -1557,10 +1599,10 @@ class SolicitudeController extends Controller
             $query->where('tipo_atencion', $request->tipo_atencion);
         }
 
-        $rows      = $query->orderBy('id', 'desc')->get();
-        $from      = $request->get('from', now()->toDateString());
-        $to        = $request->get('to',   now()->toDateString());
-        $generado  = now();
+        $rows = $query->orderBy('id', 'desc')->get();
+        $from = $request->get('from', now()->toDateString());
+        $to = $request->get('to', now()->toDateString());
+        $generado = now();
 
         $pdf = Pdf::loadView('reportes.solicitudes_lista', compact('rows', 'from', 'to', 'generado'))
             ->setPaper('letter', 'landscape');
@@ -1594,10 +1636,10 @@ class SolicitudeController extends Controller
             $s = $request->search;
             $query->where(function ($q) use ($s) {
                 $q->where('paciente_nombre', 'like', "%$s%")
-                  ->orWhere('codigo', 'like', "%$s%")
-                  ->orWhere('codigo_solicitud', 'like', "%$s%")
-                  ->orWhere('nro_registro', 'like', "%$s%")
-                  ->orWhere('doctor_nombre', 'like', "%$s%");
+                    ->orWhere('codigo', 'like', "%$s%")
+                    ->orWhere('codigo_solicitud', 'like', "%$s%")
+                    ->orWhere('nro_registro', 'like', "%$s%")
+                    ->orWhere('doctor_nombre', 'like', "%$s%");
             });
         }
 
@@ -1614,7 +1656,7 @@ class SolicitudeController extends Controller
     public function store(Request $request)
     {
         $servicios = $request->input('servicios', []);
-        if (empty($servicios) || !is_array($servicios)) {
+        if (empty($servicios) || ! is_array($servicios)) {
             return response()->json(['message' => 'Debe seleccionar al menos un servicio'], 422);
         }
 
@@ -1626,13 +1668,13 @@ class SolicitudeController extends Controller
 
         $this->resolverUnidadSolicitante($data, $request);
 
-//        error_log('establecimiento_salud: ' . $request->establecimiento_salud);
+        //        error_log('establecimiento_salud: ' . $request->establecimiento_salud);
         $establecimientoSalud = \App\Models\Establecimiento::where('nombre', $request->establecimiento_salud)->first();
-//        error_log('EstablecimientoSalud: ' . json_encode($establecimientoSalud));
+        //        error_log('EstablecimientoSalud: ' . json_encode($establecimientoSalud));
         if ($establecimientoSalud) {
-//            error_log('entro');
+            //            error_log('entro');
             $data['establecimiento_id'] = $establecimientoSalud->id;
-        }else{
+        } else {
             error_log('no entro');
         }
 
@@ -1657,7 +1699,6 @@ class SolicitudeController extends Controller
             }
         }
 
-
         $solicitud = Solicitude::create($data);
         $nombreCompleto = $solicitud->paciente_nombre ?? ($paciente ? $paciente->nombre_completo : 'Desconocido');
         $nro_registro = $this->nroRegistro($nombreCompleto, $paciente->fecha_nac ?? null);
@@ -1668,7 +1709,7 @@ class SolicitudeController extends Controller
         $solicitud->nro_registro = $request->filled('nro_registro')
             ? $request->input('nro_registro')
             : $nro_registro;
-        $solicitud->codigo_solicitud = ($solicitud->nro_registro ?? '') . ($solicitud->codigo ?? '');
+        $solicitud->codigo_solicitud = ($solicitud->nro_registro ?? '').($solicitud->codigo ?? '');
         $solicitud->save();
 
         // La secuencia mensual continúa desde el código usado (manual o generado)
@@ -1680,11 +1721,11 @@ class SolicitudeController extends Controller
             );
         }
 
-//        $this->syncServicios($solicitud, $request->input('servicios', []));
+        //        $this->syncServicios($solicitud, $request->input('servicios', []));
         $servicios = $request->input('servicios', []);
         foreach ($servicios as $servicio) {
-//            $servicioSolicitud = Servicio::find($servicio['id']);
-            $newServicioSolicitud = new ServicioSolicitude();
+            //            $servicioSolicitud = Servicio::find($servicio['id']);
+            $newServicioSolicitud = new ServicioSolicitude;
             $newServicioSolicitud->solicitude_id = $solicitud->id;
             $newServicioSolicitud->servicio_id = $servicio['id'];
             $newServicioSolicitud->area_id = $servicio['area_id'];
@@ -1692,10 +1733,10 @@ class SolicitudeController extends Controller
             $newServicioSolicitud->nombre = $servicio['nombre'] ?? '';
             $newServicioSolicitud->save();
         }
-//        $urlSocket = env('URL_SOCKET_IO', null);
-        $urlSocket ='https://saventura.tuprogam.com/';
-//        //return response()->json(['message' => 'URL_SOCKET_IO no está configurada', 'url' => $urlSocket], 500);
-        $response = Http::get($urlSocket . '/silSolicitud');
+        //        $urlSocket = env('URL_SOCKET_IO', null);
+        $urlSocket = 'https://saventura.tuprogam.com/';
+        //        //return response()->json(['message' => 'URL_SOCKET_IO no está configurada', 'url' => $urlSocket], 500);
+        $response = Http::get($urlSocket.'/silSolicitud');
 
         return response()->json($solicitud->load(['paciente', 'doctor', 'servicios.tiposMuestra', 'consentimiento']), 201);
     }
@@ -1720,6 +1761,7 @@ class SolicitudeController extends Controller
                 'sem_gest' => $data['paciente_sem_gest'] ?? null,
             ]);
             $data['paciente_id'] = $p->id;
+
             return $p;
         }
 
@@ -1759,20 +1801,21 @@ class SolicitudeController extends Controller
         }
 
         $data['paciente_id'] = $p->id;
+
         return $p;
     }
 
     public function update(Request $request, $id)
     {
         $solicitud = Solicitude::findOrFail($id);
-//        if (!empty($solicitud->codigo)) {
-//            return response()->json(['message' => 'No se puede modificar una solicitud que ya tiene código asignado'], 422);
-//        }
+        //        if (!empty($solicitud->codigo)) {
+        //            return response()->json(['message' => 'No se puede modificar una solicitud que ya tiene código asignado'], 422);
+        //        }
         $data = $request->all();
         $this->resolverUnidadSolicitante($data, $request);
 
         $ci = $request->paciente_ci;
-        if (!empty($ci)) {
+        if (! empty($ci)) {
             $paciente = $this->pacienteUpsert($ci, $data);
             if ($paciente) {
                 $data['paciente_id'] = $paciente->id;
@@ -1792,11 +1835,11 @@ class SolicitudeController extends Controller
         }
 
         $servicios = $request->input('servicios', []);
-//        delted servicos antguos
+        //        delted servicos antguos
         ServicioSolicitude::where('solicitude_id', $solicitud->id)->delete();
         foreach ($servicios as $servicio) {
-//            $servicioSolicitud = Servicio::find($servicio['id']);
-            $newServicioSolicitud = new ServicioSolicitude();
+            //            $servicioSolicitud = Servicio::find($servicio['id']);
+            $newServicioSolicitud = new ServicioSolicitude;
             $newServicioSolicitud->solicitude_id = $solicitud->id;
             $newServicioSolicitud->servicio_id = $servicio['id'];
             $newServicioSolicitud->area_id = $servicio['area_id'];
@@ -1806,11 +1849,11 @@ class SolicitudeController extends Controller
         }
 
         $this->syncServicios($solicitud, $request->input('servicios', []));
-//        solitud uupte
+        //        solitud uupte
         $solicitud->update($data);
 
         // mantener sincronizado el campo denormalizado usado por el buscador
-        $codigoSolicitud = ($solicitud->nro_registro ?? '') . ($solicitud->codigo ?? '');
+        $codigoSolicitud = ($solicitud->nro_registro ?? '').($solicitud->codigo ?? '');
         if ($solicitud->codigo_solicitud !== $codigoSolicitud) {
             $solicitud->codigo_solicitud = $codigoSolicitud;
             $solicitud->save();
@@ -1829,6 +1872,7 @@ class SolicitudeController extends Controller
             if ($unidad) {
                 $data['unidad_solicitante_id'] = $unidad->id;
                 $data['sala'] = $unidad->nombre;
+
                 return;
             }
         }
@@ -1838,6 +1882,7 @@ class SolicitudeController extends Controller
         if ($sala === '') {
             $data['unidad_solicitante_id'] = null;
             $data['sala'] = null;
+
             return;
         }
 
@@ -1851,7 +1896,7 @@ class SolicitudeController extends Controller
         $pivotData = [];
 
         foreach ($servicios as $serv) {
-            if (!isset($serv['id'])) {
+            if (! isset($serv['id'])) {
                 continue;
             }
             $pivotData[$serv['id']] = [
@@ -1886,7 +1931,7 @@ class SolicitudeController extends Controller
         ])
             ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO']);
 
-        if (!empty($filter)) {
+        if (! empty($filter)) {
             $query->where(function ($q) use ($filter) {
                 $q->where('paciente_nombre', 'like', "%$filter%")
                     ->orWhereHas('paciente', function ($q2) use ($filter) {
@@ -1914,7 +1959,7 @@ class SolicitudeController extends Controller
             'preAnaliticaMuestras.areaTipoMuestra.area',
             'propiedades',
             'userPreanalitica',
-            'solicitudeFormularios'
+            'solicitudeFormularios',
         ])->findOrFail($id);
 
         return response()->json($solicitud);
@@ -1933,11 +1978,11 @@ class SolicitudeController extends Controller
             }
         }
 
-        if (!is_numeric($value)) {
+        if (! is_numeric($value)) {
             return null;
         }
 
-        return (float)$value;
+        return (float) $value;
     }
 
     public function guardarAnalitica(Request $request, $id)
@@ -1945,11 +1990,11 @@ class SolicitudeController extends Controller
         $solicitud = Solicitude::findOrFail($id);
         $resultados = $request->input('resultados', []);
         $propiedadesArea = $request->input('propiedades_area', []); // <-- NUEVO
-//        formularios: this.solicitud.solicitude_formularios || []
+        //        formularios: this.solicitud.solicitude_formularios || []
         $fomularios = $request->input('formularios', []);
 
         DB::transaction(function () use ($solicitud, $resultados, $propiedadesArea, $fomularios) {
-//            SolicitudeFormulario deletes
+            //            SolicitudeFormulario deletes
             SolicitudeFormulario::where('solicitude_id', $solicitud->id)->delete();
             foreach ($fomularios as $formularioData) {
                 $solicitudeFormulario = SolicitudeFormulario::updateOrCreate(
@@ -1966,18 +2011,18 @@ class SolicitudeController extends Controller
             }
 
             foreach ($resultados as $areaId => $rangos) {
-                if (!is_array($rangos)) {
+                if (! is_array($rangos)) {
                     continue;
                 }
 
-                $areaId = (int)$areaId;
+                $areaId = (int) $areaId;
 
                 foreach ($rangos as $rangoId => $payload) {
-                    if (!is_array($payload)) {
+                    if (! is_array($payload)) {
                         continue;
                     }
 
-                    $rangoId = (int)$rangoId;
+                    $rangoId = (int) $rangoId;
 
                     // Área 1: Hematología (auto / manual)
                     if ($areaId === 1) {
@@ -1988,6 +2033,7 @@ class SolicitudeController extends Controller
                             ResultadoLaboratorio::where('solicitude_id', $solicitud->id)
                                 ->where('area_rango_id', $rangoId)
                                 ->delete();
+
                             continue;
                         }
 
@@ -2027,6 +2073,7 @@ class SolicitudeController extends Controller
                             ResultadoLaboratorio::where('solicitude_id', $solicitud->id)
                                 ->where('area_rango_id', $rangoId)
                                 ->delete();
+
                             continue;
                         }
 
@@ -2078,14 +2125,14 @@ class SolicitudeController extends Controller
     protected function guardarPropiedadesArea(Solicitude $solicitud, array $propiedadesArea): void
     {
         foreach ($propiedadesArea as $areaId => $campos) {
-            if (!is_array($campos)) {
+            if (! is_array($campos)) {
                 continue;
             }
 
-            $areaId = (int)$areaId;
+            $areaId = (int) $areaId;
 
             foreach ($campos as $campo => $valor) {
-                $campo = trim((string)$campo);
+                $campo = trim((string) $campo);
                 if ($campo === '') {
                     continue;
                 }
@@ -2095,6 +2142,7 @@ class SolicitudeController extends Controller
                         ->where('area_id', $areaId)
                         ->where('campo', $campo)
                         ->delete();
+
                     continue;
                 }
 
@@ -2105,7 +2153,7 @@ class SolicitudeController extends Controller
                         'campo' => $campo,
                     ],
                     [
-                        'valor' => (string)$valor,
+                        'valor' => (string) $valor,
                     ]
                 );
             }

@@ -236,6 +236,11 @@ class HematologiaController extends Controller
             $rangos = $areaHemato->rangos()->orderBy('id')->get();
         }
 
+        // 4.1) configuración de variables visibles por prestación (datos_hematologia)
+        $datos = \App\Models\DatoHematologia::with('prestaciones:id,nombre')
+            ->orderBy('orden')
+            ->get();
+
         // 5) QR apuntando al mismo PDF
         $url = url("/api/hematologia/solicitud/{$code}/pdf");
         $qrSvgBase64 = base64_encode(
@@ -248,6 +253,7 @@ class HematologiaController extends Controller
             'solicitud'   => $solicitud,
             'hematologia' => $hematologia,
             'rangos'      => $rangos,
+            'datos'       => $datos,
             'qrSvgBase64' => $qrSvgBase64,
             'qrUrl'       => $url,
         ])->setPaper('legal');
