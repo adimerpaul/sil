@@ -4,19 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableTrait;
+use OwenIt\Auditing\Contracts\Auditable;
+
 class ResultadoLaboratorio extends Model implements Auditable
 {
-    use SoftDeletes, AuditableTrait;
+    use AuditableTrait, SoftDeletes;
 
     protected $fillable = [
         'solicitude_id',
         'area_id',
         'area_rango_id',
         'valor_final',
+        'visible',
         'unidad',
-        //'name',
+        // 'name',
         'metodo_final',
         'valor_automatizado',
         'valor_manual',

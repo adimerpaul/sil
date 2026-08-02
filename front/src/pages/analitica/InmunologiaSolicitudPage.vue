@@ -85,6 +85,9 @@
                   <th>Unidad</th>
                   <th style="max-width:220px">Rango de referencia</th>
                   <th style="width:80px">Estado</th>
+                  <th style="width:44px" class="tc" title="Se muestra en el PDF de resultados">
+                    <q-icon name="print" size="14px" />
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -165,6 +168,13 @@
                       </span>
                     </div>
                   </td>
+                  <td class="tc">
+                    <q-checkbox v-model="visibles[rango.id]" dense size="xs" color="primary">
+                      <q-tooltip>
+                        {{ visibles[rango.id] ? 'Se imprime en el PDF' : 'Oculto en el PDF' }}
+                      </q-tooltip>
+                    </q-checkbox>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -190,6 +200,7 @@ export default {
       solicitud: null,
       prestaciones: [],
       valores: {},
+      visibles: {},               // ids que se imprimen en el PDF de esta solicitud
       manualOverrides: new Set()  // ids de campos calculados editados manualmente
     }
   },
@@ -207,11 +218,13 @@ export default {
         this.prestaciones = data.prestaciones.filter(p => p.rangos.length > 0)
 
         this.valores = {}
+        this.visibles = {}
         this.manualOverrides = new Set()
         this.prestaciones.forEach(prest => {
           prest.rangos.forEach(rango => {
             const valorGuardado = rango.resultado?.valor_final ?? ''
             this.valores[rango.id] = valorGuardado
+            this.visibles[rango.id] = rango.visible !== false
             // Si es campo de fórmula y tiene valor guardado → fue editado manualmente
             if (valorGuardado !== '' && valorGuardado !== null && this.esFormula(prest, rango)) {
               this.manualOverrides.add(rango.id)
@@ -350,7 +363,8 @@ export default {
           .filter(([, val]) => val !== null && val !== undefined)
           .map(([rangoId, val]) => ({
             area_rango_id: parseInt(rangoId),
-            valor_final: String(val ?? '')
+            valor_final: String(val ?? ''),
+            visible: this.visibles[rangoId] !== false
           }))
 
         await this.$axios.post(

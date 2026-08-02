@@ -343,11 +343,12 @@
         <table>
             <thead>
             <tr>
-                <th style="width:30%;">CÉLULA</th>
-                <th style="width:14%;" class="center">%</th>
-                <th style="width:18%;" class="center">ABS</th>
-                <th style="width:18%;" class="center">RANGO %</th>
-                <th style="width:20%;" class="center">RANGO ABS</th>
+                <th style="width:24%;">CÉLULA</th>
+                <th style="width:12%;" class="center">%</th>
+                <th style="width:14%;" class="center">ABS</th>
+                <th style="width:16%;" class="center">UNIDAD</th>
+                <th style="width:16%;" class="center">RANGO %</th>
+                <th style="width:18%;" class="center">RANGO ABS</th>
             </tr>
             </thead>
             <tbody>
@@ -359,6 +360,7 @@
                     {{ $hematologia->basofilos_porcentaje !== null ? $hematologia->basofilos_porcentaje+0 : '' }}
                 </td>
                 <td class="center">{{ $hematologia->basofilos_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoUnidad('Basofilos') }}</td>
                 <td class="center">{{ $rangoTexto('Basofilos') }}</td>
                 <td class="center">{{ $rangoTexto('Basilos (Absoluto)') }}</td>
             </tr>
@@ -371,6 +373,7 @@
                     {{ $hematologia->eosinofilos_porcentaje !== null ? $hematologia->eosinofilos_porcentaje+0 : '' }}
                 </td>
                 <td class="center">{{ $hematologia->eosinofilos_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoUnidad('Eosinofilos') }}</td>
                 <td class="center">{{ $rangoTexto('Eosinofilos') }}</td>
                 <td class="center">{{ $rangoTexto('Eosinofilos (Absoluto)') }}</td>
             </tr>
@@ -383,6 +386,7 @@
                     {{ $hematologia->cayados_porcentaje !== null ? $hematologia->cayados_porcentaje+0 : '' }}
                 </td>
                 <td class="center">{{ $hematologia->cayados_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoUnidad('Cayados') }}</td>
                 <td class="center">{{ $rangoTexto('Cayados') }}</td>
                 <td class="center">{{ $rangoTexto('Cayados (Absoluto)') }}</td>
             </tr>
@@ -395,6 +399,7 @@
                     {{ $hematologia->segmentados_porcentaje !== null ? $hematologia->segmentados_porcentaje+0 : '' }}
                 </td>
                 <td class="center">{{ $hematologia->segmentados_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoUnidad('Segmentados') }}</td>
                 <td class="center">{{ $rangoTexto('Segmentados') }}</td>
                 <td class="center">{{ $rangoTexto('Segmentados (Absoluto)') }}</td>
             </tr>
@@ -407,6 +412,7 @@
                     {{ $hematologia->linfocitos_porcentaje !== null ? $hematologia->linfocitos_porcentaje+0 : '' }}
                 </td>
                 <td class="center">{{ $hematologia->linfocitos_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoUnidad('Linfocitos') }}</td>
                 <td class="center">{{ $rangoTexto('Linfocitos') }}</td>
                 <td class="center">{{ $rangoTexto('Linfocitos (Absoluto)') }}</td>
             </tr>
@@ -418,6 +424,7 @@
                     {{ $hematologia->monocitos_porcentaje !== null ? $hematologia->monocitos_porcentaje+0 : '' }}
                 </td>
                 <td class="center">{{ $hematologia->monocitos_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoUnidad('Monocitos') }}</td>
                 <td class="center">{{ $rangoTexto('Monocitos') }}</td>
                 <td class="center">{{ $rangoTexto('Monocitos (Absoluto)') }}</td>
             </tr>
@@ -429,6 +436,7 @@
                     {{ $hematologia->blastos_porcentaje !== null ? $hematologia->blastos_porcentaje+0 : '' }}
                 </td>
                 <td class="center">{{ $hematologia->blastos_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoUnidad('BLASTOS') }}</td>
                 <td class="center">{{ $rangoTexto('BLASTOS') }}</td>
                 <td class="center"></td>
             </tr>
@@ -440,6 +448,7 @@
                     {{ $hematologia->metamielocitos_porcentaje !== null ? $hematologia->metamielocitos_porcentaje+0 : '' }}
                 </td>
                 <td class="center">{{ $hematologia->metamielocitos_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoUnidad('METAMIELOCITO') }}</td>
                 <td class="center">{{ $rangoTexto('METAMIELOCITO') }}</td>
                 <td class="center"></td>
             </tr>
@@ -451,6 +460,7 @@
                     {{ $hematologia->eritroblastos_porcentaje !== null ? $hematologia->eritroblastos_porcentaje+0 : '' }}
                 </td>
                 <td class="center">{{ $hematologia->eritroblastos_absoluto ?? '' }}</td>
+                <td class="center">{{ $rangoUnidad('ERITROBLASTOS') }}</td>
                 <td class="center">{{ $rangoTexto('ERITROBLASTOS') }}</td>
                 <td class="center"></td>
             </tr>
@@ -487,7 +497,7 @@
                 <td class="center" style="font-weight:700; background:#f2f2f2;">
                     {{ $totalAbs > 0 ? number_format($totalAbs, 2) : '' }}
                 </td>
-                <td colspan="2"></td>
+                <td colspan="3"></td>
             </tr>
             </tbody>
         </table>

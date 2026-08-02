@@ -15,6 +15,19 @@ class InmunologiaAnaliticaController extends Controller
 {
     private const AREA_ID = 6;
 
+    /**
+     * Visibilidad efectiva de un rango en el PDF: manda lo decidido en la
+     * solicitud y, si no se decidió nada, el valor por defecto del servicio.
+     */
+    private static function visibleEfectivo($resultado, $rango): bool
+    {
+        if ($resultado && $resultado->visible !== null) {
+            return (bool) $resultado->visible;
+        }
+
+        return (bool) $rango->pivot->visible;
+    }
+
     /** Las opciones seleccionables del pivot se guardan como JSON */
     private static function opcionesPivot($valor): array
     {
@@ -92,7 +105,9 @@ class InmunologiaAnaliticaController extends Controller
                     'nombre_variable' => $rango->pivot->nombre_variable,
                     'opciones' => self::opcionesPivot($rango->pivot->opciones),
                     'orden' => $rango->pivot->orden,
-                    'visible' => (bool) $rango->pivot->visible,
+                    // visible = lo que se imprimirá para ESTA solicitud (editable en la analítica)
+                    'visible' => self::visibleEfectivo($resultado, $rango),
+                    'visible_servicio' => (bool) $rango->pivot->visible,
                     'resultado' => $resultado ? [
                         'id' => $resultado->id,
                         'valor_final' => $resultado->valor_final,
@@ -145,6 +160,7 @@ class InmunologiaAnaliticaController extends Controller
             'resultados' => 'required|array',
             'resultados.*.area_rango_id' => 'required|integer|exists:area_rangos,id',
             'resultados.*.valor_final' => 'nullable|string|max:255',
+            'resultados.*.visible' => 'nullable|boolean',
             'resultados.*.observacion' => 'nullable|string',
         ]);
 
@@ -159,6 +175,9 @@ class InmunologiaAnaliticaController extends Controller
                 ],
                 [
                     'valor_final' => $item['valor_final'] ?? null,
+                    'visible' => array_key_exists('visible', $item) && $item['visible'] !== null
+                        ? (bool) $item['visible']
+                        : null,
                     'observacion' => $item['observacion'] ?? null,
                     'updated_at' => $now,
                     'created_at' => $now,
@@ -219,7 +238,7 @@ class InmunologiaAnaliticaController extends Controller
         $prestacionesData = $prestaciones->map(function ($servicio) use ($resultados, $serviciosSolicitud) {
             $ss = $serviciosSolicitud->get($servicio->id);
             $rangos = $servicio->rangos
-                ->filter(fn ($rango) => (bool) $rango->pivot->visible)
+                ->filter(fn ($rango) => self::visibleEfectivo($resultados->get($rango->id), $rango))
                 ->values()
                 ->map(function ($rango) use ($resultados) {
                     $resultado = $resultados->get($rango->id);
