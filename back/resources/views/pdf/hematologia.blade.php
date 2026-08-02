@@ -212,7 +212,7 @@
         <div class="section-title">
             Hemograma
             <div class="center muted small" style="margin-top:1px;">
-                Equipo: {{ $hematologia->hemograma_metodo?? '-' }} · Método: {{ $hematologia->hemograma_equipo ?? '—' }}
+                Método: {{ $hematologia->hemograma_metodo ?: '—' }} · Equipo: {{ $hematologia->hemograma_equipo ?: '—' }}
             </div>
         </div>
         <table>
@@ -497,7 +497,7 @@
         <div class="section-title">
             Coagulograma
             <div class="center muted small" style="margin-top:1px;">
-                Equipo: {{ $hematologia->coagulograma_metodo?? '-' }} · Método: {{ $hematologia->coagulograma_equipo ?? '—' }}
+                Método: {{ $hematologia->coagulograma_metodo ?: '—' }} · Equipo: {{ $hematologia->coagulograma_equipo ?: '—' }}
             </div>
         </div>
         <table>
@@ -518,8 +518,8 @@
                             ? number_format($hematologia->tiempo_protrombina, 1)
                             : '' }}
                     </td>
-                    <td class="center">{{ $rangoTexto('Tiempo de protrombina') ?: '11 – 15' }}</td>
-                    <td class="center">{{ $rangoUnidad('Tiempo de protrombina') ?: 'seg' }}</td>
+                    <td class="center">{{ $rangoTexto('Tiempo de protrombina') }}</td>
+                    <td class="center">{{ $rangoUnidad('Tiempo de protrombina') }}</td>
                 </tr>
             @endif
             @if($canVariable('actividad_protrombina'))
@@ -530,16 +530,16 @@
                             ? number_format($hematologia->actividad_protrombina, 2)
                             : '' }}
                     </td>
-                    <td class="center">70 – 100</td>
-                    <td class="center">%</td>
+                    <td class="center">{{ $rangoTexto('Actividad de protrombina') }}</td>
+                    <td class="center">{{ $rangoUnidad('Actividad de protrombina') }}</td>
                 </tr>
             @endif
             @if($canVariable('inr'))
                 <tr>
                     <td>INR</td>
                     <td class="center">{{ $hematologia->inr ?? '' }}</td>
-                    <td class="center">0.8 – 1.2</td>
-                    <td class="center">-</td>
+                    <td class="center">{{ $rangoTexto('INR') }}</td>
+                    <td class="center">{{ $rangoUnidad('INR') }}</td>
                 </tr>
             @endif
             @if($canVariable('aptt'))
@@ -550,8 +550,8 @@
                             ? number_format($hematologia->aptt, 1)
                             : '' }}
                     </td>
-                    <td class="center">24 – 35</td>
-                    <td class="center">seg</td>
+                    <td class="center">{{ $rangoTexto('APTT') }}</td>
+                    <td class="center">{{ $rangoUnidad('APTT') }}</td>
                 </tr>
             @endif
             @if($canVariable('ves'))
@@ -562,8 +562,8 @@
                             ? number_format($hematologia->ves, 1)
                             : '' }}
                     </td>
-                    <td class="center">0 – 20</td>
-                    <td class="center">mm/h</td>
+                    <td class="center">{{ $rangoTexto('VES') }}</td>
+                    <td class="center">{{ $rangoUnidad('VES') }}</td>
                 </tr>
             @endif
             @if($canVariable('fibrinogeno'))
@@ -572,8 +572,8 @@
                     <td class="center {{ $outOfRange('FIBRINOGENO', $hematologia->fibrinogeno ?? null) ? 'out-range' : '' }}">
                         {{ $hematologia->fibrinogeno !== null ? number_format($hematologia->fibrinogeno, 0) : '' }}
                     </td>
-                    <td class="center">{{ $rangoTexto('FIBRINOGENO') ?: '200 - 400' }}</td>
-                    <td class="center">{{ $rangoUnidad('FIBRINOGENO') ?: 'mg/dl' }}</td>
+                    <td class="center">{{ $rangoTexto('FIBRINOGENO') }}</td>
+                    <td class="center">{{ $rangoUnidad('FIBRINOGENO') }}</td>
                 </tr>
             @endif
             @if($canVariable('dimeros_d'))
@@ -582,8 +582,8 @@
                     <td class="center {{ $outOfRange('Dimeros D', $hematologia->dimeros_d ?? null) ? 'out-range' : '' }}">
                         {{ isset($hematologia->dimeros_d) ? number_format($hematologia->dimeros_d, 2) : '' }}
                     </td>
-                    <td class="center">{{ $rangoTexto('Dimeros D') ?: '0 - 0.40' }}</td>
-                    <td class="center">{{ $rangoUnidad('Dimeros D') ?: 'ug/ml' }}</td>
+                    <td class="center">{{ $rangoTexto('Dimeros D') }}</td>
+                    <td class="center">{{ $rangoUnidad('Dimeros D') }}</td>
                 </tr>
             @endif
 {{--            @if($canServicios(['COAGULOGRAMA (TP,RECUENTO DE PLAQUETAS, APTT)','TIEMPO PARCIAL DE TROMBOPLASTINA ACTIVADA (APTT)']))--}}

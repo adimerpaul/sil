@@ -192,6 +192,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/datos-hematologia', [\App\Http\Controllers\DatoHematologiaController::class, 'index']);
     Route::put('/datos-hematologia/{id}', [\App\Http\Controllers\DatoHematologiaController::class, 'update']);
 
+    Route::get('/hematologia-opciones', [\App\Http\Controllers\HematologiaOpcionController::class, 'index']);
+    Route::post('/hematologia-opciones', [\App\Http\Controllers\HematologiaOpcionController::class, 'store']);
+    Route::put('/hematologia-opciones/{id}', [\App\Http\Controllers\HematologiaOpcionController::class, 'update']);
+    Route::delete('/hematologia-opciones/{id}', [\App\Http\Controllers\HematologiaOpcionController::class, 'destroy']);
+
     Route::get('/datos-quimica-sanguinea', [\App\Http\Controllers\DatoQuimicaSanguineaController::class, 'index']);
     Route::put('/datos-quimica-sanguinea/{id}', [\App\Http\Controllers\DatoQuimicaSanguineaController::class, 'update']);
 

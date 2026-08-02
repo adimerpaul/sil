@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Area;
 use App\Models\Hematologia;
 use App\Models\ResultadoLaboratorio;
 use App\Models\ServicioSolicitude;
 use App\Models\Solicitude;
-use App\Models\Area;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Barryvdh\DomPDF\Facade\Pdf;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class HematologiaController extends Controller
@@ -25,7 +25,7 @@ class HematologiaController extends Controller
             'paciente',
             'doctor',
             'servicios.area',
-//            'servicios'
+            //            'servicios'
         ])->findOrFail($solicitudeId);
 
         $hematologia = Hematologia::firstOrNew([
@@ -36,7 +36,7 @@ class HematologiaController extends Controller
         $areaHemato = Area::where('title', 'HEMATOLOGÍA')
             ->orWhere('title', 'Hematología')
             ->first();
-//        error_log('Área Hematología: ' . ($areaHemato ? $areaHemato->id : 'No encontrada'));
+        //        error_log('Área Hematología: ' . ($areaHemato ? $areaHemato->id : 'No encontrada'));
 
         $rangos = [];
         if ($areaHemato) {
@@ -52,10 +52,10 @@ class HematologiaController extends Controller
             ->get();
 
         return response()->json([
-            'solicitud'   => $solicitud,
+            'solicitud' => $solicitud,
             'hematologia' => $hematologia,
-            'rangos'      => $rangos,
-            'datos'       => $datos,
+            'rangos' => $rangos,
+            'datos' => $datos,
         ]);
     }
 
@@ -80,19 +80,18 @@ class HematologiaController extends Controller
             ->where('area_id', $areaIdHemato)
             ->update(['realizado' => 'REALIZADO', 'realizado_por' => auth()->user()->name ?? null]);
 
-
         $soliditude = Solicitude::find($solicitudeId);
         $soliditude->estado = 'ANALIZADO';
         $soliditude->fecha_finalizacion = now();
-//        $soliditude->user_analitica_id = $request->user()->id;
+        //        $soliditude->user_analitica_id = $request->user()->id;
 
-//        error_log('Muestra rechazada: ' . $request->muestra_rechazada);
+        //        error_log('Muestra rechazada: ' . $request->muestra_rechazada);
         if ($request->muestra_rechazada === 'Si') {
             $soliditude->muestra_rechazada = 'Si';
             $soliditude->estado = 'MUESTRA RECHAZADA';
             $soliditude->muestra_observacion = $request->muestra_observacion;
 
-            $solicitudRechazada = new \App\Models\SolicitudRechazada();
+            $solicitudRechazada = new \App\Models\SolicitudRechazada;
             $solicitudRechazada->solicitude_id = $solicitudeId;
             $solicitudRechazada->motivo = $request->muestra_observacion;
             $solicitudRechazada->fecha_hora = now();
@@ -112,53 +111,54 @@ class HematologiaController extends Controller
      * Clave: rango_nombre en minúsculas sin tildes.
      */
     private const COLUMNA_MAP = [
-        'globulos rojos'                  => 'globulos_rojos',
-        'globulos blancos (leucocitos)'   => 'globulos_blancos',
-        'globulos blancos'                => 'globulos_blancos',
-        'leucocitos totales'              => 'leucocitos_totales',
-        'plaquetas'                       => 'plaquetas',
-        'hemoglobina'                     => 'hemoglobina',
-        'hematocrito'                     => 'hematocrito',
-        'v.c.m.'                          => 'vcm',
-        'vcm'                             => 'vcm',
-        'hb.c.m.'                         => 'hbcm',
-        'hbcm'                            => 'hbcm',
-        'chcm'                            => 'chcm',
-        'basofilos'                       => 'basofilos_porcentaje',
-        'basilos (absoluto)'              => 'basofilos_absoluto',
-        'basofilos (absoluto)'            => 'basofilos_absoluto',
-        'eosinofilos'                     => 'eosinofilos_porcentaje',
-        'eosinofilos (absoluto)'          => 'eosinofilos_absoluto',
-        'cayados'                         => 'cayados_porcentaje',
-        'cayados (absoluto)'              => 'cayados_absoluto',
-        'segmentados'                     => 'segmentados_porcentaje',
-        'segmentados (absoluto)'          => 'segmentados_absoluto',
-        'linfocitos'                      => 'linfocitos_porcentaje',
-        'linfocitos (absoluto)'           => 'linfocitos_absoluto',
-        'monocitos'                       => 'monocitos_porcentaje',
-        'monocitos (absoluto)'            => 'monocitos_absoluto',
-        'blastos'                         => 'blastos_porcentaje',
-        'metamielocito'                   => 'metamielocitos_porcentaje',
-        'eritroblastos'                   => 'eritroblastos_porcentaje',
-        'fibrinogeno'                     => 'fibrinogeno',
-        'dimeros d'                       => 'dimeros_d',
-        'reticulocitos'                   => 'ipr2',
-        'ipr'                             => 'ipr',
-        'rc'                              => 'rc',
-        'tiempo protrombina'              => 'tiempo_protrombina',
-        'actividad protrombina'           => 'actividad_protrombina',
-        'actividad de protrombina'        => 'actividad_protrombina',
-        'inr'                             => 'inr',
-        'aptt'                            => 'aptt',
-        'ves'                             => 'ves',
+        'globulos rojos' => 'globulos_rojos',
+        'globulos blancos (leucocitos)' => 'globulos_blancos',
+        'globulos blancos' => 'globulos_blancos',
+        'leucocitos totales' => 'leucocitos_totales',
+        'plaquetas' => 'plaquetas',
+        'hemoglobina' => 'hemoglobina',
+        'hematocrito' => 'hematocrito',
+        'v.c.m.' => 'vcm',
+        'vcm' => 'vcm',
+        'hb.c.m.' => 'hbcm',
+        'hbcm' => 'hbcm',
+        'chcm' => 'chcm',
+        'basofilos' => 'basofilos_porcentaje',
+        'basilos (absoluto)' => 'basofilos_absoluto',
+        'basofilos (absoluto)' => 'basofilos_absoluto',
+        'eosinofilos' => 'eosinofilos_porcentaje',
+        'eosinofilos (absoluto)' => 'eosinofilos_absoluto',
+        'cayados' => 'cayados_porcentaje',
+        'cayados (absoluto)' => 'cayados_absoluto',
+        'segmentados' => 'segmentados_porcentaje',
+        'segmentados (absoluto)' => 'segmentados_absoluto',
+        'linfocitos' => 'linfocitos_porcentaje',
+        'linfocitos (absoluto)' => 'linfocitos_absoluto',
+        'monocitos' => 'monocitos_porcentaje',
+        'monocitos (absoluto)' => 'monocitos_absoluto',
+        'blastos' => 'blastos_porcentaje',
+        'metamielocito' => 'metamielocitos_porcentaje',
+        'eritroblastos' => 'eritroblastos_porcentaje',
+        'fibrinogeno' => 'fibrinogeno',
+        'dimeros d' => 'dimeros_d',
+        'reticulocitos' => 'ipr2',
+        'ipr' => 'ipr',
+        'rc' => 'rc',
+        'tiempo protrombina' => 'tiempo_protrombina',
+        'actividad protrombina' => 'actividad_protrombina',
+        'actividad de protrombina' => 'actividad_protrombina',
+        'inr' => 'inr',
+        'aptt' => 'aptt',
+        'ves' => 'ves',
     ];
 
     private function normalizeRango(string $s): string
     {
         $map = [
-            'á'=>'a','é'=>'e','í'=>'i','ó'=>'o','ú'=>'u','ü'=>'u','ñ'=>'n',
-            'Á'=>'A','É'=>'E','Í'=>'I','Ó'=>'O','Ú'=>'U','Ü'=>'U','Ñ'=>'N',
+            'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u', 'ü' => 'u', 'ñ' => 'n',
+            'Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ü' => 'U', 'Ñ' => 'N',
         ];
+
         return trim(mb_strtolower(strtr($s, $map)));
     }
 
@@ -173,9 +173,9 @@ class HematologiaController extends Controller
             ->get();
 
         foreach ($rangos as $rango) {
-            $key    = $this->normalizeRango($rango->rango_nombre);
+            $key = $this->normalizeRango($rango->rango_nombre);
             $column = self::COLUMNA_MAP[$key] ?? null;
-            if (!$column) {
+            if (! $column) {
                 continue;
             }
             $valor = $hemato->$column;
@@ -186,10 +186,10 @@ class HematologiaController extends Controller
             ResultadoLaboratorio::withTrashed()->updateOrCreate(
                 ['solicitude_id' => $solicitudeId, 'area_rango_id' => $rango->id],
                 [
-                    'area_id'     => $areaId,
+                    'area_id' => $areaId,
                     'valor_final' => (float) $valor,
-                    'unidad'      => $rango->unidad,
-                    'deleted_at'  => null,
+                    'unidad' => $rango->unidad,
+                    'deleted_at' => null,
                 ]
             );
         }
@@ -205,11 +205,12 @@ class HematologiaController extends Controller
 
         return response()->json(['message' => 'Hematología eliminada']);
     }
+
     public function pdfBySolicitude($code)
     {
         // 1) buscar solicitud por code en hematología
         $solicitudeId = Hematologia::where('code', $code)->value('solicitude_id');
-        if (!$solicitudeId) {
+        if (! $solicitudeId) {
             abort(404, 'No se encontró la solicitud para ese código.');
         }
 
@@ -246,19 +247,20 @@ class HematologiaController extends Controller
         $qrSvgBase64 = base64_encode(
             QrCode::format('svg')->size(110)->margin(1)->generate($url)
         );
-//        return $solicitud->preAnaliticaMuestras;
+        //        return $solicitud->preAnaliticaMuestras;
 
         // 6) generar PDF
         $pdf = Pdf::loadView('pdf.hematologia', [
-            'solicitud'   => $solicitud,
+            'solicitud' => $solicitud,
             'hematologia' => $hematologia,
-            'rangos'      => $rangos,
-            'datos'       => $datos,
+            'rangos' => $rangos,
+            'datos' => $datos,
             'qrSvgBase64' => $qrSvgBase64,
-            'qrUrl'       => $url,
+            'qrUrl' => $url,
         ])->setPaper('legal');
 
         $nro = $solicitud->nro_registro ?? $solicitud->id;
+
         return $pdf->stream('HEMATOLOGIA_'.$nro.'.pdf');
     }
 }

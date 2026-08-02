@@ -132,18 +132,32 @@
                   v-model="form.hemograma_metodo"
                   dense
                   outlined
+                  clearable
                   label="Método"
-                  :options="['Automática', 'SemiAutomática', 'Manual']"
-                />
+                  :options="opciones('HEMOGRAMA', 'METODO', form.hemograma_metodo)"
+                >
+                  <template v-slot:append>
+                    <q-btn flat round dense icon="settings" size="sm" @click.stop="abrirOpciones('HEMOGRAMA', 'METODO')">
+                      <q-tooltip>Administrar métodos</q-tooltip>
+                    </q-btn>
+                  </template>
+                </q-select>
               </div>
               <div class="col-12 col-md-3">
                 <q-select
                   v-model="form.hemograma_equipo"
                   dense
                   outlined
+                  clearable
                   label="Equipo"
-                  :options="['Mindray BC 5130', 'Mindray BC 3000 Plus', 'Otro']"
-                />
+                  :options="opciones('HEMOGRAMA', 'EQUIPO', form.hemograma_equipo)"
+                >
+                  <template v-slot:append>
+                    <q-btn flat round dense icon="settings" size="sm" @click.stop="abrirOpciones('HEMOGRAMA', 'EQUIPO')">
+                      <q-tooltip>Administrar equipos</q-tooltip>
+                    </q-btn>
+                  </template>
+                </q-select>
               </div>
             </div>
 <!--            methodo equipo-->
@@ -747,20 +761,34 @@
                   v-model="form.coagulograma_metodo"
                   dense
                   outlined
+                  clearable
                   label="Método"
-                  :options="['Automática', 'SemiAutomática', 'Manual']"
-                />
+                  :options="opciones('COAGULOGRAMA', 'METODO', form.coagulograma_metodo)"
+                >
+                  <template v-slot:append>
+                    <q-btn flat round dense icon="settings" size="sm" @click.stop="abrirOpciones('COAGULOGRAMA', 'METODO')">
+                      <q-tooltip>Administrar métodos</q-tooltip>
+                    </q-btn>
+                  </template>
+                </q-select>
               </div>
               <div class="col-12 col-md-3">
                 <q-select
                   v-model="form.coagulograma_equipo"
                   dense
                   outlined
+                  clearable
                   label="Equipo"
-                  :options="['Mindray BC 3510','Coatro', 'Otro']"
-                />
-                <!--                Moundray c-3510-->
+                  :options="opciones('COAGULOGRAMA', 'EQUIPO', form.coagulograma_equipo)"
+                >
+                  <template v-slot:append>
+                    <q-btn flat round dense icon="settings" size="sm" @click.stop="abrirOpciones('COAGULOGRAMA', 'EQUIPO')">
+                      <q-tooltip>Administrar equipos</q-tooltip>
+                    </q-btn>
+                  </template>
+                </q-select>
               </div>
+                <!--                Moundray c-3510-->
             </div>
             <!--            methodo equipo-->
           </div>
@@ -788,8 +816,8 @@
 "
                 />
               </td>
-              <td>{{ rangoTexto('Tiempo de protrombina') || '11 – 15' }}</td>
-              <td>{{ rangoUnidad('Tiempo de protrombina') || 'seg' }}</td>
+              <td>{{ rangoTexto('Tiempo de protrombina') }}</td>
+              <td>{{ rangoUnidad('Tiempo de protrombina') }}</td>
             </tr>
 
             <tr v-if="canVariable('actividad_protrombina')">
@@ -797,8 +825,8 @@
               <td>
                 <q-input v-model.number="form.actividad_protrombina" dense outlined type="number" step="0.01" input-class="text-right" />
               </td>
-              <td>70 – 100</td>
-              <td>%</td>
+              <td>{{ rangoTexto('Actividad de protrombina') }}</td>
+              <td>{{ rangoUnidad('Actividad de protrombina') }}</td>
             </tr>
 
             <tr v-if="canVariable('inr')">
@@ -806,8 +834,8 @@
               <td>
                 <q-input v-model.number="form.inr" dense outlined type="number" step="0.01" input-class="text-right" />
               </td>
-              <td>0.8 – 1.2</td>
-              <td>-</td>
+              <td>{{ rangoTexto('INR') }}</td>
+              <td>{{ rangoUnidad('INR') }}</td>
             </tr>
 
             <tr v-if="canVariable('ves')">
@@ -815,8 +843,8 @@
               <td>
                 <q-input v-model.number="form.ves" dense outlined type="number" step="0.1" input-class="text-right" />
               </td>
-              <td>&lt; 20</td>
-              <td>mm/h</td>
+              <td>{{ rangoTexto('VES') }}</td>
+              <td>{{ rangoUnidad('VES') }}</td>
             </tr>
 
             <tr v-if="canVariable('aptt')">
@@ -824,8 +852,8 @@
               <td>
                 <q-input v-model.number="form.aptt" dense outlined type="number" step="0.1" input-class="text-right" />
               </td>
-              <td>24 – 35</td>
-              <td>seg</td>
+              <td>{{ rangoTexto('APTT') }}</td>
+              <td>{{ rangoUnidad('APTT') }}</td>
             </tr>
 
             <tr v-if="canVariable('fibrinogeno')">
@@ -835,8 +863,8 @@
                          :input-class="['text-right', isOutOfRange('FIBRINOGENO', form.fibrinogeno) ? 'text-negative text-weight-bold' : '']"
                 />
               </td>
-              <td>{{ rangoTexto('FIBRINOGENO') || '200 - 400 mg/dl' }}</td>
-              <td>{{ rangoUnidad('FIBRINOGENO') || 'mg/dl' }}</td>
+              <td>{{ rangoTexto('FIBRINOGENO') }}</td>
+              <td>{{ rangoUnidad('FIBRINOGENO') }}</td>
             </tr>
 
             <tr v-if="canVariable('dimeros_d')">
@@ -846,8 +874,8 @@
                          :input-class="['text-right', isOutOfRange('Dimeros D', form.dimeros_d) ? 'text-negative text-weight-bold' : '']"
                 />
               </td>
-              <td>{{ rangoTexto('Dimeros D') || '0 - 0.40 ug/ml' }}</td>
-              <td>{{ rangoUnidad('Dimeros D') || 'ug/ml' }}</td>
+              <td>{{ rangoTexto('Dimeros D') }}</td>
+              <td>{{ rangoUnidad('Dimeros D') }}</td>
             </tr>
 
 <!--            <tr v-if="canServicios('RECUENTO DE RETICULOCITOS')">-->
@@ -1139,16 +1167,24 @@
         <q-spinner size="42px"/>
       </q-inner-loading>
     </q-card>
+
+    <HematologiaOpcionesDialog
+      v-model="dialogOpciones"
+      :seccion="opcionSeccion"
+      :tipo="opcionTipo"
+      @saved="loadOpciones"
+    />
   </q-page>
 </template>
 
 <script>
 import moment from "moment";
 import InfoServicio from "components/InfoServicio.vue";
+import HematologiaOpcionesDialog from "components/HematologiaOpcionesDialog.vue";
 
 export default {
   name: 'HematologiaPage',
-  components: {InfoServicio},
+  components: {InfoServicio, HematologiaOpcionesDialog},
   data () {
     return {
       solicitudId: this.$route.params.id,
@@ -1230,6 +1266,10 @@ export default {
       formLoaded: false,
       rangos: [],
       datos: [],
+      opcionesLista: [],
+      dialogOpciones: false,
+      opcionSeccion: 'HEMOGRAMA',
+      opcionTipo: 'METODO',
       form: {
         globulos_rojos: null,
         globulos_blancos: null,
@@ -1340,6 +1380,7 @@ export default {
   },
   mounted () {
     this.load()
+    this.loadOpciones()
     // tiempos sacar de tablaTP
     this.tiempos = this.tablaTP.map(item => item.segundos)
   },
@@ -1419,6 +1460,33 @@ export default {
     },
     canAny (variables) {
       return (variables || []).some(v => this.canVariable(v))
+    },
+
+    // ========= métodos / equipos administrables (hematologia_opciones) =========
+    // Se listan solo los activos, más el valor ya guardado en la solicitud
+    // para no perderlo si la opción fue desactivada después.
+    opciones (seccion, tipo, valorActual) {
+      const nombres = (this.opcionesLista || [])
+        .filter(o => o.seccion === seccion && o.tipo === tipo && o.activo)
+        .map(o => o.nombre)
+
+      if (valorActual && !nombres.includes(valorActual)) nombres.unshift(valorActual)
+      return nombres
+    },
+    abrirOpciones (seccion, tipo) {
+      this.opcionSeccion = seccion
+      this.opcionTipo = tipo
+      this.dialogOpciones = true
+    },
+    async loadOpciones () {
+      try {
+        const { data } = await this.$axios.get('hematologia-opciones')
+        this.opcionesLista = (data.opciones || []).map(o => ({ ...o, activo: Boolean(o.activo) }))
+      } catch (e) {
+        const msg = e.response?.data?.message || e.message
+        if (this.$alert && this.$alert.error) this.$alert.error('Error al cargar métodos y equipos: ' + msg)
+        else console.error(msg)
+      }
     },
 
     // ========= api =========
