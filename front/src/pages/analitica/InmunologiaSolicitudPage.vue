@@ -141,7 +141,9 @@
                         :key="si"
                         style="font-size:11px; white-space:nowrap"
                       >
-                        <span v-if="sr.descripcion" class="text-grey-7">{{ sr.descripcion }}: </span>
+                        <span v-if="sr.descripcion" class="text-grey-7">
+                          {{ sr.descripcion }}{{ sr.minimo !== null || sr.maximo !== null ? ': ' : '' }}
+                        </span>
                         <span>
                           {{ sr.minimo !== null ? sr.minimo : '' }}
                           {{ sr.minimo !== null && sr.maximo !== null ? ' – ' : '' }}

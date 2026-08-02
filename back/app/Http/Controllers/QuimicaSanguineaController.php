@@ -2,46 +2,48 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Area;
 use App\Models\QuimicaSanguinea;
 use App\Models\ServicioSolicitude;
 use App\Models\Solicitude;
-use App\Models\Area;
-use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class QuimicaSanguineaController extends Controller
 {
-    function pdfCitoQuimicoBySolicitude($code)
+    public function pdfCitoQuimicoBySolicitude($code)
     {
         $solicitudeId = QuimicaSanguinea::where('code', $code)->value('solicitude_id');
 
         $solicitud = Solicitude::with(['paciente', 'doctor', 'servicios.area'])->findOrFail($solicitudeId);
-        $quimica   = QuimicaSanguinea::where('solicitude_id', $solicitudeId)->first();
+        $quimica = QuimicaSanguinea::where('solicitude_id', $solicitudeId)->first();
 
-        if (!$quimica) {
-            $quimica = new QuimicaSanguinea();
+        if (! $quimica) {
+            $quimica = new QuimicaSanguinea;
             $quimica->solicitude_id = $solicitudeId;
         }
         $url = url("/api/quimica-sanguinea/solicitud/{$code}/pdf/citoquimico");
         $qrSvgBase64 = base64_encode(QrCode::format('svg')->size(110)->margin(1)->generate($url));
         $pdf = Pdf::loadView('pdf.quimica_sanguinea_citoquimico', [
-            'solicitud'     => $solicitud,
-            'quimica'       => $quimica,
-            'qrSvgBase64'   => $qrSvgBase64,
-            'url'           => $url,
+            'solicitud' => $solicitud,
+            'quimica' => $quimica,
+            'qrSvgBase64' => $qrSvgBase64,
+            'url' => $url,
         ])->setPaper('letter');
+
         return $pdf->stream('CITOQUIMICO_'.$solicitud->nro_registro.'.pdf');
     }
-    function pdfToleranciaBySolicitude($code)
+
+    public function pdfToleranciaBySolicitude($code)
     {
         $solicitudeId = QuimicaSanguinea::where('code', $code)->value('solicitude_id');
 
         $solicitud = Solicitude::with(['paciente', 'doctor', 'servicios.area'])->findOrFail($solicitudeId);
-        $quimica   = QuimicaSanguinea::where('solicitude_id', $solicitudeId)->first();
+        $quimica = QuimicaSanguinea::where('solicitude_id', $solicitudeId)->first();
 
-        if (!$quimica) {
-            $quimica = new QuimicaSanguinea();
+        if (! $quimica) {
+            $quimica = new QuimicaSanguinea;
             $quimica->solicitude_id = $solicitudeId;
         }
 
@@ -55,40 +57,46 @@ class QuimicaSanguineaController extends Controller
         $qrSvgBase64 = base64_encode(QrCode::format('svg')->size(110)->margin(1)->generate($url));
 
         $pdf = Pdf::loadView('pdf.quimica_sanguinea_tolerancia', [
-            'solicitud'     => $solicitud,
-            'quimica'       => $quimica,
-            'qrSvgBase64'   => $qrSvgBase64,
-            'url'           => $url,
-            'series'        => $series,
-            'chartBase64'   => $chartBase64,
+            'solicitud' => $solicitud,
+            'quimica' => $quimica,
+            'qrSvgBase64' => $qrSvgBase64,
+            'url' => $url,
+            'series' => $series,
+            'chartBase64' => $chartBase64,
         ])->setPaper('letter');
 
         return $pdf->stream('TOLERANCIA_'.$solicitud->nro_registro.'.pdf');
     }
+
     private function buildToleranciaSeries($quimica): array
     {
         $series = [];
 
-        for ($i=1; $i<=5; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $v = $quimica->{"tolerancia_glucosa_{$i}h"} ?? null;
             $h = $quimica->{"tolerancia_hora_{$i}h"} ?? null;
 
             // Si está vacío, se salta (no grafica)
-            if ($v === null || $v === '') continue;
+            if ($v === null || $v === '') {
+                continue;
+            }
 
             $series[] = [
-                'toma'  => $i,                 // 1..5
+                'toma' => $i,                 // 1..5
                 'valor' => (float) $v,          // mg/dl
-                'hora'  => $h ? substr($h, 0, 5) : null,  // "HH:MM"
+                'hora' => $h ? substr($h, 0, 5) : null,  // "HH:MM"
             ];
         }
 
         return $series;
     }
+
     private function renderToleranciaChartBase64(array $series): ?string
     {
         // Si no hay datos, no hay gráfica
-        if (count($series) === 0) return null;
+        if (count($series) === 0) {
+            return null;
+        }
 
         // Tamaño de imagen (ajusta a tu gusto)
         $w = 820;
@@ -97,10 +105,10 @@ class QuimicaSanguineaController extends Controller
         $img = imagecreatetruecolor($w, $h);
 
         // Colores
-        $white = imagecolorallocate($img, 255,255,255);
-        $black = imagecolorallocate($img, 0,0,0);
-        $gray  = imagecolorallocate($img, 120,120,120);
-        $blue  = imagecolorallocate($img, 40,90,200);
+        $white = imagecolorallocate($img, 255, 255, 255);
+        $black = imagecolorallocate($img, 0, 0, 0);
+        $gray = imagecolorallocate($img, 120, 120, 120);
+        $blue = imagecolorallocate($img, 40, 90, 200);
 
         imagefill($img, 0, 0, $white);
 
@@ -115,7 +123,7 @@ class QuimicaSanguineaController extends Controller
         $ph = $h - $mt - $mb;
 
         // Min/Max valores
-        $vals = array_map(fn($p)=>$p['valor'], $series);
+        $vals = array_map(fn ($p) => $p['valor'], $series);
         $minV = min($vals);
         $maxV = max($vals);
 
@@ -130,12 +138,12 @@ class QuimicaSanguineaController extends Controller
 
         // Grilla horizontal (4 líneas)
         $gridLines = 4;
-        for ($g=1; $g<=$gridLines; $g++) {
-            $y = (int)($mt + $ph - ($ph * $g / ($gridLines+1)));
+        for ($g = 1; $g <= $gridLines; $g++) {
+            $y = (int) ($mt + $ph - ($ph * $g / ($gridLines + 1)));
             imageline($img, $ml, $y, $ml + $pw, $y, $gray);
 
-            $valTick = $minV + (($maxV - $minV) * $g / ($gridLines+1));
-            imagestring($img, 2, 5, $y-7, number_format($valTick, 0), $gray);
+            $valTick = $minV + (($maxV - $minV) * $g / ($gridLines + 1));
+            imagestring($img, 2, 5, $y - 7, number_format($valTick, 0), $gray);
         }
 
         // X: posiciones equidistantes según cantidad de puntos
@@ -144,15 +152,15 @@ class QuimicaSanguineaController extends Controller
 
         $points = [];
         foreach ($series as $idx => $p) {
-            $x = (int)($ml + ($idx * $stepX));
+            $x = (int) ($ml + ($idx * $stepX));
             // map Y (valor alto arriba)
-            $y = (int)($mt + $ph - (($p['valor'] - $minV) / ($maxV - $minV) * $ph));
+            $y = (int) ($mt + $ph - (($p['valor'] - $minV) / ($maxV - $minV) * $ph));
             $points[] = [$x, $y, $p];
         }
 
         // Línea
-        for ($i=0; $i<count($points)-1; $i++) {
-            imageline($img, $points[$i][0], $points[$i][1], $points[$i+1][0], $points[$i+1][1], $blue);
+        for ($i = 0; $i < count($points) - 1; $i++) {
+            imageline($img, $points[$i][0], $points[$i][1], $points[$i + 1][0], $points[$i + 1][1], $blue);
         }
 
         // Puntos + labels + eje X (1..n)
@@ -163,7 +171,7 @@ class QuimicaSanguineaController extends Controller
             imagestring($img, 3, $x - 15, $y - 22, number_format($p['valor'], 1), $black);
 
             // Número de toma en X
-            $xLabel = (string)$p['toma'];
+            $xLabel = (string) $p['toma'];
             imagestring($img, 3, $x - 3, $mt + $ph + 12, $xLabel, $black);
         }
 
@@ -185,8 +193,8 @@ class QuimicaSanguineaController extends Controller
 
         $quimica = QuimicaSanguinea::where('solicitude_id', $solicitudeId)->first();
 
-        if (!$quimica) {
-            $quimica = new QuimicaSanguinea();
+        if (! $quimica) {
+            $quimica = new QuimicaSanguinea;
             $quimica->solicitude_id = $solicitudeId;
         }
 
@@ -198,6 +206,11 @@ class QuimicaSanguineaController extends Controller
         if ($areaQuimica) {
             $rangos = $areaQuimica->rangos()->orderBy('id')->get();
         }
+        // configuración de variables visibles por prestación (datos_quimica_sanguinea)
+        $datos = \App\Models\DatoQuimicaSanguinea::with('prestaciones:id,nombre')
+            ->orderBy('orden')
+            ->get();
+
         $url = url("/api/quimica-sanguinea/solicitud/{$code}/pdf");
         $qrSvgBase64 = base64_encode(
             QrCode::format('svg')->size(110)->margin(1)->generate($url)
@@ -205,11 +218,12 @@ class QuimicaSanguineaController extends Controller
 
         $pdf = Pdf::loadView('pdf.quimica_sanguinea', [
             'solicitud' => $solicitud,
-            'quimica'   => $quimica,
-            'rangos'    => $rangos,
+            'quimica' => $quimica,
+            'rangos' => $rangos,
+            'datos' => $datos,
             'qrSvgBase64' => $qrSvgBase64,
             'url' => $url,
-//            landscape
+            //            landscape
         ])->setPaper('letter');
 
         return $pdf->stream('QUIMICA_'.$solicitud->nro_registro.'.pdf');
@@ -226,7 +240,7 @@ class QuimicaSanguineaController extends Controller
             'doctor',
             'servicios.area',
         ])->findOrFail($solicitudeId);
-//        error_log('Solicitud ID: ' . $solicitudeId);
+        //        error_log('Solicitud ID: ' . $solicitudeId);
 
         $quimica = QuimicaSanguinea::firstOrNew([
             'solicitude_id' => $solicitudeId,
@@ -251,9 +265,9 @@ class QuimicaSanguineaController extends Controller
 
         return response()->json([
             'solicitud' => $solicitud,
-            'quimica'   => $quimica,
-            'rangos'    => $rangos,
-            'datos'     => $datos,
+            'quimica' => $quimica,
+            'rangos' => $rangos,
+            'datos' => $datos,
         ]);
     }
 
@@ -267,9 +281,9 @@ class QuimicaSanguineaController extends Controller
 
         $quimica = QuimicaSanguinea::updateOrCreate(
             [
-                'solicitude_id' => $solicitudeId
+                'solicitude_id' => $solicitudeId,
             ],
-//            $data'user_id' => $request->user()->id
+            //            $data'user_id' => $request->user()->id
             array_merge($data, ['user_id' => $request->user()->id])
         );
         $soliditude = Solicitude::find($solicitudeId);
@@ -286,7 +300,7 @@ class QuimicaSanguineaController extends Controller
             $soliditude->estado = 'MUESTRA RECHAZADA';
             $soliditude->muestra_observacion = $request->muestra_observacion;
 
-            $solicitudRechazada = new \App\Models\SolicitudRechazada();
+            $solicitudRechazada = new \App\Models\SolicitudRechazada;
             $solicitudRechazada->solicitude_id = $solicitudeId;
             $solicitudRechazada->motivo = $request->muestra_observacion;
             $solicitudRechazada->fecha_hora = now();

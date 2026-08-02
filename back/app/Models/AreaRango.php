@@ -2,15 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable as AuditableTrait;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+
 class AreaRango extends Model implements AuditableContract
 {
-    use SoftDeletes, AuditableTrait;
-
+    use AuditableTrait, SoftDeletes;
 
     protected $fillable = [
         'area_id',
@@ -30,6 +29,7 @@ class AreaRango extends Model implements AuditableContract
         'rango_8_descripcion', 'rango_8_minimo', 'rango_8_maximo',
         'unidad',
         'interpretacion',
+        'interpretacion_resultado',
         'muestra',
         'marca',
         'perfil',
@@ -41,6 +41,7 @@ class AreaRango extends Model implements AuditableContract
     {
         return $this->belongsTo(Area::class);
     }
+
     public function resultados()
     {
         return $this->hasMany(ResultadoLaboratorio::class);

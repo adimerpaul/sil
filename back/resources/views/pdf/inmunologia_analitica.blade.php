@@ -43,6 +43,15 @@
         .w-rango   { width: 26%; }
         .w-met     { width: 14%; }
         .out-range { color: #c10015; font-weight: 700; }
+        .rango-linea { display: block; line-height: 1.25; }
+
+        /* anchos cuando la tabla lleva columna de interpretación */
+        .wi-analito { width: 26%; }
+        .wi-res     { width: 11%; }
+        .wi-unid    { width: 9%; }
+        .wi-rango   { width: 21%; }
+        .wi-interp  { width: 22%; }
+        .wi-met     { width: 11%; }
 
         .section-title {
             font-size: 9px;
@@ -67,14 +76,53 @@
         return false;
     }
 
-    function inmuno_rango_texto($rango) {
-        if ($rango->interpretacion) return $rango->interpretacion;
-        if ($rango->rango_minimo !== null && $rango->rango_maximo !== null) {
-            return $rango->rango_minimo . ' - ' . $rango->rango_maximo;
+    // Parte un texto libre en líneas, descartando las vacías
+    function inmuno_lineas_texto($texto) {
+        if ($texto === null || trim($texto) === '') return [];
+
+        return array_values(array_filter(
+            array_map('trim', preg_split('/\r\n|\r|\n/', $texto)),
+            fn ($linea) => $linea !== ''
+        ));
+    }
+
+    // Cada sub-rango (y cada línea de la referencia) va en su propia línea
+    function inmuno_rango_lineas($rango) {
+        $defs = [
+            ['rango_descripcion',   'rango_minimo',   'rango_maximo'],
+            ['rango_2_descripcion', 'rango_2_minimo', 'rango_2_maximo'],
+            ['rango_3_descripcion', 'rango_3_minimo', 'rango_3_maximo'],
+            ['rango_4_descripcion', 'rango_4_minimo', 'rango_4_maximo'],
+            ['rango_5_descripcion', 'rango_5_minimo', 'rango_5_maximo'],
+        ];
+
+        $lineas = [];
+        foreach ($defs as [$campoDesc, $campoMin, $campoMax]) {
+            $desc = $rango->$campoDesc ?? null;
+            $min  = $rango->$campoMin ?? null;
+            $max  = $rango->$campoMax ?? null;
+
+            if (($desc === null || $desc === '') && $min === null && $max === null) continue;
+
+            if ($min !== null && $max !== null)  $valor = $min . ' - ' . $max;
+            elseif ($min !== null)               $valor = '≥ ' . $min;
+            elseif ($max !== null)               $valor = '≤ ' . $max;
+            else                                 $valor = '';
+
+            // Sin límites solo se imprime la descripción (sin los dos puntos)
+            if ($desc && $valor !== '')  $lineas[] = $desc . ': ' . $valor;
+            elseif ($desc)               $lineas[] = $desc;
+            elseif ($valor !== '')       $lineas[] = $valor;
         }
-        if ($rango->rango_minimo !== null) return '≥ ' . $rango->rango_minimo;
-        if ($rango->rango_maximo !== null) return '≤ ' . $rango->rango_maximo;
-        return '';
+
+        if ($rango->interpretacion) {
+            foreach (preg_split('/\r\n|\r|\n/', $rango->interpretacion) as $linea) {
+                $linea = trim($linea);
+                if ($linea !== '') $lineas[] = $linea;
+            }
+        }
+
+        return $lineas;
     }
 
     $realizadoPor = collect($prestaciones)->map(fn($p) => $p->realizado_por)->filter()->first();
@@ -90,20 +138,33 @@
 
             <div class="center bold" style="font-size:12px; margin: 5px 0 2px;">INMUNOLOGÍA</div>
 
+            <div class="center small muted" style="margin-bottom: 3px;">
+                Pre-analítica (toma de muestra):
+                {{ ($fechaPreAnalitica ?? null) ? $fechaPreAnalitica->format('d/m/Y H:i') : '---' }}
+            </div>
+
             @foreach($prestaciones as $prest)
                 <div class="section-title">{{ $prest->nombre }}
                     @if($prest->metodo) <span class="muted" style="font-weight:400;">({{ $prest->metodo }})</span>@endif
                     @if($prest->subarea) <span class="muted" style="font-weight:400;">— {{ $prest->subarea }}</span>@endif
                 </div>
 
+                @php
+                    // La columna de interpretación solo aparece si algún rango la tiene
+                    $conInterp = collect($prest->rangos)->contains(fn ($r) => !empty($r->interpretacion_resultado));
+                @endphp
+
                 <table class="tbl">
                     <thead>
                         <tr>
-                            <th class="w-analito">Analito / Condición</th>
-                            <th class="w-res center">Resultado</th>
-                            <th class="w-unid center">Unidad</th>
-                            <th class="w-rango">Rango de referencia</th>
-                            <th class="w-met center">Método</th>
+                            <th class="{{ $conInterp ? 'wi-analito' : 'w-analito' }}">Analito / Condición</th>
+                            <th class="center {{ $conInterp ? 'wi-res' : 'w-res' }}">Resultado</th>
+                            <th class="center {{ $conInterp ? 'wi-unid' : 'w-unid' }}">Unidad</th>
+                            <th class="{{ $conInterp ? 'wi-rango' : 'w-rango' }}">Rango de referencia</th>
+                            @if($conInterp)
+                                <th class="wi-interp">Interpretación</th>
+                            @endif
+                            <th class="center {{ $conInterp ? 'wi-met' : 'w-met' }}">Método</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -113,7 +174,22 @@
                                 <td>{{ $rango->rango_nombre }}</td>
                                 <td class="center {{ $outRange ? 'out-range' : '' }}">{{ $rango->valor_final ?? '' }}</td>
                                 <td class="center">{{ $rango->unidad ?? '' }}</td>
-                                <td>{{ inmuno_rango_texto($rango) }}</td>
+                                <td>
+                                    @forelse(inmuno_rango_lineas($rango) as $linea)
+                                        <div class="rango-linea">{{ $linea }}</div>
+                                    @empty
+                                        &nbsp;
+                                    @endforelse
+                                </td>
+                                @if($conInterp)
+                                    <td>
+                                        @forelse(inmuno_lineas_texto($rango->interpretacion_resultado) as $linea)
+                                            <div class="rango-linea">{{ $linea }}</div>
+                                        @empty
+                                            &nbsp;
+                                        @endforelse
+                                    </td>
+                                @endif
                                 <td class="center">{{ $rango->metodo ?? $prest->metodo ?? '' }}</td>
                             </tr>
                         @endforeach

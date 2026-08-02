@@ -6,6 +6,7 @@ use App\Models\Servicio;
 use App\Models\ServicioSolicitude;
 use App\Models\Solicitude;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -248,10 +249,24 @@ class InmunologiaAnaliticaController extends Controller
                         'rango_nombre' => $rango->rango_nombre,
                         'unidad' => $rango->unidad,
                         'interpretacion' => $rango->interpretacion,
+                        'rango_descripcion' => $rango->rango_descripcion,
                         'rango_minimo' => $rango->rango_minimo,
                         'rango_maximo' => $rango->rango_maximo,
+                        'rango_2_descripcion' => $rango->rango_2_descripcion,
+                        'rango_2_minimo' => $rango->rango_2_minimo,
+                        'rango_2_maximo' => $rango->rango_2_maximo,
+                        'rango_3_descripcion' => $rango->rango_3_descripcion,
+                        'rango_3_minimo' => $rango->rango_3_minimo,
+                        'rango_3_maximo' => $rango->rango_3_maximo,
+                        'rango_4_descripcion' => $rango->rango_4_descripcion,
+                        'rango_4_minimo' => $rango->rango_4_minimo,
+                        'rango_4_maximo' => $rango->rango_4_maximo,
+                        'rango_5_descripcion' => $rango->rango_5_descripcion,
+                        'rango_5_minimo' => $rango->rango_5_minimo,
+                        'rango_5_maximo' => $rango->rango_5_maximo,
                         'metodo' => $rango->metodo,
                         'valor_final' => $resultado->valor_final ?? null,
+                        'interpretacion_resultado' => $rango->interpretacion_resultado,
                     ];
                 });
 
@@ -264,6 +279,15 @@ class InmunologiaAnaliticaController extends Controller
             ];
         })->filter(fn ($p) => $p->rangos->isNotEmpty())->values();
 
+        // Fecha/hora de pre-analítica; si la solicitud no la tiene, se usa la
+        // primera muestra registrada en la pre-analítica
+        $fechaPre = $solicitud->fecha_pre_analitica ?: DB::table('solitude_pre_analiticas')
+            ->where('solicitude_id', $solicitudId)
+            ->whereNull('deleted_at')
+            ->min('created_at');
+
+        $fechaPreAnalitica = $fechaPre ? Carbon::parse($fechaPre) : null;
+
         $url = url("/api/inmunologia-analitica/resultado/{$codigo}/pdf");
         $qrSvgBase64 = base64_encode(
             QrCode::format('svg')->size(110)->margin(1)->generate($url)
@@ -273,6 +297,7 @@ class InmunologiaAnaliticaController extends Controller
             'solicitud' => $solicitud,
             'prestaciones' => $prestacionesData,
             'qrSvgBase64' => $qrSvgBase64,
+            'fechaPreAnalitica' => $fechaPreAnalitica,
         ])->setPaper('letter');
 
         return $pdf->stream('INMUNOLOGIA_'.$solicitud->codigo.'.pdf');

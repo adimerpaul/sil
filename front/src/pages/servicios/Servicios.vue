@@ -579,6 +579,15 @@
               <div class="col-12">
                 <q-input v-model="rangoForm.interpretacion" label="Referencia (texto libre)" dense outlined />
               </div>
+              <div class="col-12">
+                <q-input
+                  v-model="rangoForm.interpretacion_resultado"
+                  label="Interpretación"
+                  hint="Si tiene texto, se imprime bajo el resultado en el PDF"
+                  type="textarea" rows="3"
+                  dense outlined
+                />
+              </div>
             </div>
 
             <!-- Sub-rangos de referencia -->
@@ -852,6 +861,7 @@ export default {
         rango_8_descripcion: '', rango_8_minimo: null, rango_8_maximo: null,
         unidad: '',
         interpretacion: '',
+        interpretacion_resultado: '',
         muestra: '',
         marca: '',
         perfil: ''
@@ -1171,6 +1181,7 @@ export default {
         rango_8_descripcion: '', rango_8_minimo: null, rango_8_maximo: null,
         unidad: '',
         interpretacion: '',
+        interpretacion_resultado: '',
         muestra: '',
         marca: '',
         perfil: ''
