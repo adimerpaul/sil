@@ -105,10 +105,10 @@ class DespachoController extends Controller
                 'nombre' => $d->producto?->nombre,
                 'unidad' => $d->producto?->unidad_medida,
                 'imagen' => $d->producto?->imagen,
-                'cantidad_pedida' => (int) $d->cantidad,
-                'cantidad' => (int) $d->cantidad,
+                'cantidad_pedida' => (float) $d->cantidad,
+                'cantidad' => (float) $d->cantidad,
                 'precio_unitario' => (float) $d->precio_unitario,
-                'stock_disponible' => (int) ($stocks[$d->producto_id] ?? 0),
+                'stock_disponible' => (float) ($stocks[$d->producto_id] ?? 0),
             ];
         });
 
@@ -198,7 +198,7 @@ class DespachoController extends Controller
             ]);
 
             foreach ($data['items'] as $idx => $item) {
-                $cantidad = (int) $item['cantidad'];
+                $cantidad = (float) $item['cantidad'];
                 $precioVenta = (float) ($item['precio_unitario'] ?? 0);
                 $itemId = $item['almacen_item_id'] ?? null;
                 $unidad = $item['unidad'] ?? null;
@@ -240,17 +240,17 @@ class DespachoController extends Controller
                 // Una fila por lote PEPS en despacho_detalle_reales (precio de compra, para contabilidad)
                 foreach ($asignaciones as $asignacion) {
                     \App\Models\DespachoDetalleReal::create([
-                        'despacho_id'        => $despacho->id,
+                        'despacho_id' => $despacho->id,
                         'despacho_detalle_id' => $detalle->id,
-                        'almacen_item_id'    => $itemId,
-                        'compra_detalle_id'  => $asignacion['compra_detalle_id'],
-                        'item'               => $idx + 1,
-                        'unidad'             => $unidad,
-                        'cantidad'           => $asignacion['cantidad'],
-                        'precio_unitario'    => $asignacion['precio'],
-                        'total'              => round((float) $asignacion['precio'] * $asignacion['cantidad'], 2),
-                        'lote'               => $asignacion['lote'],
-                        'fecha_vencimiento'  => $asignacion['fecha_vencimiento'],
+                        'almacen_item_id' => $itemId,
+                        'compra_detalle_id' => $asignacion['compra_detalle_id'],
+                        'item' => $idx + 1,
+                        'unidad' => $unidad,
+                        'cantidad' => $asignacion['cantidad'],
+                        'precio_unitario' => $asignacion['precio'],
+                        'total' => round((float) $asignacion['precio'] * $asignacion['cantidad'], 2),
+                        'lote' => $asignacion['lote'],
+                        'fecha_vencimiento' => $asignacion['fecha_vencimiento'],
                     ]);
                 }
             }
@@ -273,7 +273,7 @@ class DespachoController extends Controller
 
         $despacho->update([
             'unidad_id' => $unidad->id,
-            'servicio'  => $unidad->nombre,
+            'servicio' => $unidad->nombre,
         ]);
 
         return response()->json($despacho->load([
@@ -302,7 +302,7 @@ class DespachoController extends Controller
                         DB::table('compra_detalles')
                             ->where('id', $real->compra_detalle_id)
                             ->update([
-                                'cantidad_venta' => DB::raw('GREATEST(COALESCE(cantidad_venta, 0) - '.(int) $real->cantidad.', 0)'),
+                                'cantidad_venta' => DB::raw('GREATEST(COALESCE(cantidad_venta, 0) - '.sprintf('%.4F', (float) $real->cantidad).', 0)'),
                             ]);
                         $real->delete();
                     }
@@ -311,7 +311,7 @@ class DespachoController extends Controller
                     DB::table('compra_detalles')
                         ->where('id', $detalle->compra_detalle_id)
                         ->update([
-                            'cantidad_venta' => DB::raw('GREATEST(COALESCE(cantidad_venta, 0) - '.(int) $detalle->cantidad.', 0)'),
+                            'cantidad_venta' => DB::raw('GREATEST(COALESCE(cantidad_venta, 0) - '.sprintf('%.4F', (float) $detalle->cantidad).', 0)'),
                         ]);
                 }
             }
@@ -381,14 +381,17 @@ class DespachoController extends Controller
 
         $result = [];
         foreach ($itemIds as $id) {
-            $result[$id] = (int) ($compras[$id] ?? 0) - (int) ($despachos[$id] ?? 0);
+            $result[$id] = round((float) ($compras[$id] ?? 0) - (float) ($despachos[$id] ?? 0), 4);
         }
 
         return $result;
     }
 
-    private function asignarPeps(int $itemId, int $cantidad): array
+    private function asignarPeps(int $itemId, float $cantidad): array
     {
+        // Las cantidades son decimales (kg, litros…), así que se compara con
+        // una tolerancia acorde a los 4 decimales que guarda la base
+        $epsilon = 0.00005;
         $pendiente = $cantidad;
         $asignaciones = [];
 
@@ -416,35 +419,35 @@ class DespachoController extends Controller
             ->get();
 
         foreach ($lotes as $lote) {
-            if ($pendiente <= 0) {
+            if ($pendiente <= $epsilon) {
                 break;
             }
 
-            $disponible = (int) $lote->cantidad - (int) $lote->cantidad_venta;
-            if ($disponible <= 0) {
+            $disponible = (float) $lote->cantidad - (float) $lote->cantidad_venta;
+            if ($disponible <= $epsilon) {
                 continue;
             }
 
-            $salida = min($pendiente, $disponible);
+            $salida = round(min($pendiente, $disponible), 4);
 
             DB::table('compra_detalles')
                 ->where('id', $lote->id)
                 ->update([
-                    'cantidad_venta' => DB::raw('COALESCE(cantidad_venta, 0) + '.$salida),
+                    'cantidad_venta' => DB::raw('COALESCE(cantidad_venta, 0) + '.sprintf('%.4F', $salida)),
                 ]);
 
             $asignaciones[] = [
                 'compra_detalle_id' => $lote->id,
-                'cantidad'          => $salida,
-                'precio'            => (float) ($lote->precio ?? 0),
-                'lote'              => $lote->lote,
+                'cantidad' => $salida,
+                'precio' => (float) ($lote->precio ?? 0),
+                'lote' => $lote->lote,
                 'fecha_vencimiento' => $lote->fecha_vencimiento,
             ];
 
             $pendiente -= $salida;
         }
 
-        if ($pendiente > 0) {
+        if ($pendiente > $epsilon) {
             abort(response()->json(['message' => 'Stock insuficiente al aplicar PEPS'], 422));
         }
 

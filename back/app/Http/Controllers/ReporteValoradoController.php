@@ -70,8 +70,8 @@ class ReporteValoradoController extends Controller
     public function excel(Request $request)
     {
         $productoId = $request->input('producto_id');
-        $dateFrom   = $request->input('date_from');
-        $dateTo     = $request->input('date_to');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
 
         $productos = $productoId
             ? AlmacenItem::where('id', $productoId)->get()
@@ -85,7 +85,7 @@ class ReporteValoradoController extends Controller
             }
         }
 
-        $filename = 'reporte_valorado_' . now()->format('Ymd_His') . '.xlsx';
+        $filename = 'reporte_valorado_'.now()->format('Ymd_His').'.xlsx';
 
         return Excel::download(
             new ReporteValoradoExport($cards, $dateFrom, $dateTo),
@@ -106,7 +106,7 @@ class ReporteValoradoController extends Controller
                 'tipo' => 'ENTRADA',
                 'fecha' => $det->compra->fecha_hora,
                 'concepto' => $det->compra->motivo_registro ?? 'COMPRA',
-                'cantidad' => (int) $det->cantidad,
+                'cantidad' => (float) $det->cantidad,
                 'precio_unitario' => (float) $det->precio,
                 'total' => (float) $det->total,
             ]);
@@ -121,7 +121,7 @@ class ReporteValoradoController extends Controller
                 'tipo' => 'SALIDA',
                 'fecha' => $real->despacho->fecha_entrega,
                 'concepto' => 'DESPACHO #'.$real->despacho_id,
-                'cantidad' => (int) $real->cantidad,
+                'cantidad' => (float) $real->cantidad,
                 'precio_unitario' => (float) $real->precio_unitario,
                 'total' => (float) $real->total,
             ]);
@@ -130,7 +130,7 @@ class ReporteValoradoController extends Controller
             ->sortBy('fecha')
             ->values();
 
-        $saldoCantidad = 0;
+        $saldoCantidad = 0.0;
         $saldoTotal = 0.0;
 
         $rows = $movimientos->map(function ($mov) use (&$saldoCantidad, &$saldoTotal) {
@@ -141,6 +141,7 @@ class ReporteValoradoController extends Controller
                 $saldoCantidad -= $mov['cantidad'];
                 $saldoTotal -= $mov['total'];
             }
+            $saldoCantidad = round($saldoCantidad, 4);
             $mov['saldo_cantidad'] = $saldoCantidad;
             $mov['saldo_total'] = round($saldoTotal, 2);
             $mov['saldo_precio_unitario'] = $saldoCantidad > 0 ? round($saldoTotal / $saldoCantidad, 4) : 0;
