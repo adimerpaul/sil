@@ -15,13 +15,20 @@ class EntregaResultadoController extends Controller
         $to = $request->get('to', Carbon::now()->endOfMonth()->toDateString());
         $search = trim((string) $request->get('search', ''));
         $estado = $request->get('estado', '');
-        $perPage = min((int) $request->get('per_page', 9999), 9999);
-        $page = max((int) $request->get('page', 1), 1);
 
-        $query = Solicitude::with([
-            'servicios' => fn ($q) => $q->with('area'),
-            'entregaResultados.user',
-        ])
+        // Solo se seleccionan las columnas que realmente usa la vista.
+        // El modelo Solicitude tiene ~70 columnas (copias de paciente/doctor);
+        // devolverlas todas hacía que la respuesta pesara >1MB sin necesidad.
+        $rows = Solicitude::query()
+            ->select('solicitudes.id', 'solicitudes.codigo')
+            ->with([
+                // solo el área de cada servicio
+                'servicios' => fn ($q) => $q->select('servicios.id', 'servicios.area_id')
+                    ->with('area:id,name'),
+                // solo lo que se muestra de la entrega
+                'entregaResultados' => fn ($q) => $q->select('id', 'solicitude_id', 'area', 'hora_entrega', 'user_id')
+                    ->with('user:id,name'),
+            ])
             ->whereDate('fecha_solicitud', '>=', $from)
             ->whereDate('fecha_solicitud', '<=', $to)
             ->whereHas('servicioSolicitudes', fn ($q) => $q->where('realizado', 'REALIZADO'))
@@ -51,17 +58,29 @@ class EntregaResultadoController extends Controller
               )
         )'))
             ->orderByDesc('fecha_solicitud')
-            ->orderByDesc('id');
+            ->orderByDesc('id')
+            ->get()
+            // Se arma un DTO mínimo: la vista solo necesita el código, las áreas
+            // distintas de la solicitud y, por entrega, el área/hora/usuario.
+            ->map(fn (Solicitude $s) => [
+                'id' => $s->id,
+                'codigo' => $s->codigo,
+                'areas' => $s->servicios
+                    ->map(fn ($sv) => $sv->area?->name ?? 'Sin área')
+                    ->unique()
+                    ->values(),
+                'entrega_resultados' => $s->entregaResultados->map(fn ($e) => [
+                    'area' => $e->area,
+                    'hora_entrega' => $e->hora_entrega,
+                    'user' => ['name' => $e->user?->name],
+                ]),
+            ]);
 
-        $total = $query->count();
-        $rows = $query->skip(($page - 1) * $perPage)->take($perPage)->get();
-
+        // Sin paginación: el filtro por rango de fechas ya acota los datos.
         return response()->json([
             'rows' => $rows,
             'pagination' => [
-                'total' => $total,
-                'page' => $page,
-                'per_page' => $perPage,
+                'total' => $rows->count(),
             ],
         ]);
     }

@@ -144,7 +144,7 @@ export default {
     areaGroups () {
       const map = new Map()
       this.rows.forEach(row => {
-        const areas = [...new Set(row.servicios.map(s => s.area?.name || 'Sin área'))]
+        const areas = [...new Set(row.areas || [])]
         areas.forEach(areaName => {
           // el estado se filtra por área: entregar un área no debe ocultar las otras
           const entregado = (row.entrega_resultados || []).some(e => e.area === areaName)
