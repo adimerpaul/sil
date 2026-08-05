@@ -847,20 +847,33 @@ class SolicitudeController extends Controller
         $codigo = $request->input('codigo', '');
         $from = $request->input('from', now()->startOfMonth()->toDateString());
         $to = $request->input('to', now()->endOfMonth()->toDateString());
-        $perPage = (int) $request->input('per_page', 25);
+        $perPage = (int) $request->input('per_page', 5);
         $perPage = max(1, min($perPage, 100));
 
-        $query = Solicitude::with([
-            'paciente', 'doctor', 'servicios.area', 'servicios.tiposMuestra', 'resultados',
-            'hematologia',
-            'quimicaSanguinea',
-            'uroanalisis',
-            'parasitologia',
-            'papilomaHumano',
-            'panelRespiratorio',
-            'panelSexual',
-            'cultivoAntibiograma',
-        ])
+        // La lista solo muestra unas pocas columnas de la solicitud y, de cada
+        // tabla de laboratorio, únicamente `code` (para saber si hay resultado).
+        // Antes se cargaban las 8 tablas completas (química tiene 117 columnas)
+        // más paciente/doctor/tiposMuestra/resultados que la vista no usa.
+        $query = Solicitude::query()
+            ->select([
+                'id', 'codigo', 'estado', 'motivo_rechazo', 'fecha_envio_analitica',
+                'paciente_nombre', 'paciente_ci', 'paciente_telefono',
+                'doctor_nombre', 'doctor_telefono',
+                'establecimiento_salud', 'inmunologia_analitica_codigo',
+            ])
+            ->with([
+                'servicios' => fn ($q) => $q
+                    ->select('servicios.id', 'servicios.area_id', 'servicios.nombre', 'servicios.precio')
+                    ->with('area:id,name'),
+                'hematologia:id,solicitude_id,code',
+                'quimicaSanguinea:id,solicitude_id,code',
+                'uroanalisis:id,solicitude_id,code',
+                'parasitologia:id,solicitude_id,code',
+                'papilomaHumano:id,solicitude_id,code',
+                'panelRespiratorio:id,solicitude_id,code',
+                'panelSexual:id,solicitude_id,code',
+                'cultivoAntibiograma:id,solicitude_id,code',
+            ])
             ->whereIn('estado', ['ENVIADO_ANALITICA', 'ANALITICA_ATENDIENDO', 'FINALIZADO', 'ANALIZADO', 'MUESTRA RECHAZADA']);
 
         $user = $request->user();

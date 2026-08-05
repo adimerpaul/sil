@@ -427,7 +427,7 @@
             <div class="col-auto row items-center q-gutter-sm">
               <q-select
                 v-model="rowsPerPage"
-                :options="[10, 25, 50, 100]"
+                :options="[5, 10, 25, 50]"
                 dense outlined options-dense
                 style="width:85px"
                 label="Filas"
@@ -537,7 +537,7 @@ export default {
       loading: false,
       filter: '',
       page: 1,
-      rowsPerPage: 25,
+      rowsPerPage: 5,
       dialogPresentacion: false,
       loadingPresentacion: false,
       gruposPresentacion: [],
