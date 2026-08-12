@@ -16,8 +16,8 @@ uses(RefreshDatabase::class);
 
 it('lista productos vencidos con existencia', function () {
     $user = User::factory()->create();
-    Permission::firstOrCreate(['name' => 'Módulo inventario']);
-    $user->givePermissionTo('Módulo inventario');
+    Permission::firstOrCreate(['name' => 'Módulo productos vencidos']);
+    $user->givePermissionTo('Módulo productos vencidos');
 
     Sanctum::actingAs($user);
 

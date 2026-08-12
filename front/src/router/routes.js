@@ -100,17 +100,17 @@ const routes = [
       {
         path: '/almacen/productos-por-vencer',
         component: () => import('pages/almacen/ProductosPorVencer.vue'),
-        meta: {requiresAuth: true, perm: 'Módulo inventario'}
+        meta: {requiresAuth: true, perm: 'Módulo productos por vencer'}
       },
       {
         path: '/almacen/productos-vencidos',
         component: () => import('pages/almacen/ProductosVencidos.vue'),
-        meta: {requiresAuth: true, perm: 'Módulo inventario'}
+        meta: {requiresAuth: true, perm: 'Módulo productos vencidos'}
       },
       {
         path: '/almacen/proveedores',
         component: () => import('pages/almacen/Proveedores.vue'),
-        meta: {requiresAuth: true, perm: 'Módulo inventario'}
+        meta: {requiresAuth: true, perm: 'Módulo proveedores'}
       },
       {
         path: '/almacen/compras/nueva',

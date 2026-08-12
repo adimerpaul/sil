@@ -10,7 +10,7 @@ class ProductoVencidoController extends Controller
 {
     public function index(Request $request)
     {
-        if (auth()->check() && method_exists(auth()->user(), 'can') && !auth()->user()->can('Módulo inventario')) {
+        if (auth()->check() && method_exists(auth()->user(), 'can') && ! auth()->user()->can('Módulo productos vencidos')) {
             abort(403, 'No autorizado para ver productos vencidos');
         }
 
@@ -73,4 +73,3 @@ class ProductoVencidoController extends Controller
         return response()->json($response);
     }
 }
-

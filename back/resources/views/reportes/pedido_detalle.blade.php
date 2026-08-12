@@ -292,7 +292,7 @@
         <td>
             <div class="line"></div>
             <div class="sign-title">Resp. de almacen</div>
-            <div class="sign-name">Juan Mario Rocha Arispe</div>
+            <div class="sign-name">Gabriel Rolque Lovera</div>
         </td>
 {{--        <td>--}}
 {{--            <div class="line"></div>--}}
@@ -301,7 +301,7 @@
 {{--        </td>--}}
         <td>
             <div class="line"></div>
-            <div class="sign-title">Administrador</div>
+            <div class="sign-title">V°B° Administrador</div>
             <div class="sign-name">Hospital General</div>
         </td>
     </tr>

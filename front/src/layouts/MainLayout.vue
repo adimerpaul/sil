@@ -280,9 +280,9 @@ const menuSections = [
     defaultOpened: false,
     links: [
       { title: 'Inventario', icon: 'inventory', link: '/almacen/inventario', can: 'Módulo inventario' },
-      { title: 'Productos por vencer', icon: 'hourglass_bottom', link: '/almacen/productos-por-vencer', can: 'Módulo inventario' },
-      { title: 'Productos vencidos', icon: 'warning', link: '/almacen/productos-vencidos', can: 'Módulo inventario' },
-      { title: 'Proveedores', icon: 'local_shipping', link: '/almacen/proveedores', can: 'Módulo inventario' },
+      { title: 'Productos por vencer', icon: 'hourglass_bottom', link: '/almacen/productos-por-vencer', can: 'Módulo productos por vencer' },
+      { title: 'Productos vencidos', icon: 'warning', link: '/almacen/productos-vencidos', can: 'Módulo productos vencidos' },
+      { title: 'Proveedores', icon: 'local_shipping', link: '/almacen/proveedores', can: 'Módulo proveedores' },
       { title: 'Compras nuevas', icon: 'add_shopping_cart', link: '/almacen/compras/nueva', can: ['Modulo compras', 'Módulo movimiento'] },
       { title: 'Compras detalle', icon: 'receipt_long', link: '/almacen/compras', can: ['Modulo detalle compras', 'Módulo movimiento'] },
       { title: 'Pedidos nuevos', icon: 'post_add', link: '/pedidos/nuevo', can: 'Crear Pedidos' },

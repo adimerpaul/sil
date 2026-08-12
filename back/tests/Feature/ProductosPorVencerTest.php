@@ -16,8 +16,8 @@ uses(RefreshDatabase::class);
 
 it('lista productos por vencer con datos de compra y existencia', function () {
     $user = User::factory()->create();
-    Permission::firstOrCreate(['name' => 'Módulo inventario']);
-    $user->givePermissionTo('Módulo inventario');
+    Permission::firstOrCreate(['name' => 'Módulo productos por vencer']);
+    $user->givePermissionTo('Módulo productos por vencer');
 
     Sanctum::actingAs($user);
 

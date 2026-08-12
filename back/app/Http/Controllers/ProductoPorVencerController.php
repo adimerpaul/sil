@@ -11,7 +11,7 @@ class ProductoPorVencerController extends Controller
 {
     public function index(Request $request)
     {
-        if (auth()->check() && method_exists(auth()->user(), 'can') && !auth()->user()->can('Módulo inventario')) {
+        if (auth()->check() && method_exists(auth()->user(), 'can') && ! auth()->user()->can('Módulo productos por vencer')) {
             abort(403, 'No autorizado para ver productos por vencer');
         }
 
@@ -49,7 +49,7 @@ class ProductoPorVencerController extends Controller
             ->whereRaw('(COALESCE(compra_detalles.cantidad, 0) - COALESCE(compra_detalles.cantidad_venta, 0)) > 0')
             ->whereDate('fecha_vencimiento', '<=', $to->toDateString());
 
-        if (!$request->boolean('include_expired')) {
+        if (! $request->boolean('include_expired')) {
             $query->whereDate('fecha_vencimiento', '>=', $from->toDateString());
         }
 
