@@ -54,15 +54,22 @@
           </div>
         </div>
 
-        <!-- Una sección por prestación -->
+        <!-- Prestaciones agrupadas por sub-área -->
         <div v-else>
-          <div v-for="prest in prestaciones" :key="prest.servicio_id" class="q-mb-md">
+          <div v-for="grupo in gruposSubarea" :key="grupo.clave || 'sin-subarea'" class="q-mb-md">
+            <!-- Cabecera sub-área -->
+            <div class="imn-subarea q-mb-sm">
+              <q-icon name="category" size="16px" class="q-mr-xs" />
+              <span>{{ grupo.subarea || 'Otros' }}</span>
+              <q-badge class="q-ml-sm" color="primary" outline>{{ grupo.prestaciones.length }}</q-badge>
+            </div>
+
+            <div v-for="prest in grupo.prestaciones" :key="prest.servicio_id" class="q-mb-md">
             <!-- Cabecera prestación -->
             <div class="row items-center q-mb-xs">
               <q-icon name="biotech" color="primary" class="q-mr-xs" />
               <span class="text-subtitle2 text-weight-bold">{{ prest.nombre }}</span>
               <q-chip v-if="prest.metodo" dense class="q-ml-sm" color="grey-3">{{ prest.metodo }}</q-chip>
-              <q-chip v-if="prest.subarea" dense class="q-ml-xs" color="blue-1" text-color="primary">{{ prest.subarea }}</q-chip>
               <q-space />
               <template v-if="prest.realizado === 'REALIZADO'">
                 <q-icon name="check_circle" color="green" size="18px" class="q-mr-xs" />
@@ -184,6 +191,7 @@
             <div v-else class="text-caption text-grey-6 q-pl-md q-mb-sm">
               Sin rangos vinculados.
             </div>
+            </div>
           </div>
         </div>
       </q-card-section>
@@ -204,6 +212,29 @@ export default {
       valores: {},
       visibles: {},               // ids que se imprimen en el PDF de esta solicitud
       manualOverrides: new Set()  // ids de campos calculados editados manualmente
+    }
+  },
+
+  computed: {
+    // El backend ya devuelve las prestaciones ordenadas por subárea; aquí solo
+    // se agrupan respetando ese orden para titular cada bloque.
+    gruposSubarea () {
+      // en la BD conviven variantes ("HORMONAS" / "Hormonas"), se comparan normalizadas
+      const clave = s => (s || '').trim().replace(/\s+/g, ' ').toUpperCase()
+      const grupos = []
+      this.prestaciones.forEach(prest => {
+        const ultimo = grupos[grupos.length - 1]
+        if (ultimo && ultimo.clave === clave(prest.subarea)) {
+          ultimo.prestaciones.push(prest)
+        } else {
+          grupos.push({
+            clave: clave(prest.subarea),
+            subarea: (prest.subarea || '').trim(),
+            prestaciones: [prest]
+          })
+        }
+      })
+      return grupos
     }
   },
 
@@ -396,6 +427,19 @@ export default {
 </script>
 
 <style scoped>
+.imn-subarea {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #1f2937;
+  background: #eef2f7;
+  border-left: 4px solid #1976d2;
+  border-radius: 4px;
+  padding: 5px 8px;
+}
 .imn-table {
   width: 100%;
   border-collapse: collapse;

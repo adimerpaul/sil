@@ -125,6 +125,21 @@
               </div>
               <div class="col-12"></div>
               <div class="col-12 col-md-3">
+                <q-input
+                  v-model="form.fecha_muestreo"
+                  dense
+                  outlined
+                  clearable
+                  type="date"
+                  label="Fecha de muestreo"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="event"/>
+                  </template>
+                </q-input>
+              </div>
+              <div class="col-12"></div>
+              <div class="col-12 col-md-3">
                 Hemograma
               </div>
               <div class="col-12 col-md-3">
@@ -1271,6 +1286,8 @@ export default {
       opcionSeccion: 'HEMOGRAMA',
       opcionTipo: 'METODO',
       form: {
+        fecha_muestreo: null,
+
         globulos_rojos: null,
         globulos_blancos: null,
         plaquetas: null,

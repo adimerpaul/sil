@@ -136,7 +136,7 @@
                         @if($q->citoquimico_proteinas_totales !== null && $q->citoquimico_proteinas_totales !== '')
                             <tr>
                                 <td>Proteínas totales</td>
-                                <td class="center">{{ $fmt($q->citoquimico_proteinas_totales, 'U/L') }}</td>
+                                <td class="center">{{ $fmt($q->citoquimico_proteinas_totales, 'mg/dL') }}</td>
                             </tr>
                         @endif
                         @if($q->citoquimico_densidad !== null && $q->citoquimico_densidad !== '')
@@ -212,13 +212,16 @@
                 </div>
             </div>
 
-            @if(!empty($q->observaciones))
+            @php
+                $obs = $q->citoquimico_observaciones ?: $q->observaciones;
+            @endphp
+            @if(!empty($obs))
                 <div class="block">
                     <div class="title">Observaciones</div>
                     <div class="body">
                         <table class="tbl">
                             <tr>
-                                <td>{{ $q->observaciones }}</td>
+                                <td>{{ $obs }}</td>
                             </tr>
                         </table>
                     </div>

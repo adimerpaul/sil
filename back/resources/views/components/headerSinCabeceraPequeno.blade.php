@@ -114,4 +114,12 @@
         <td colspan="2"><span class="label">FECHA DE RESULTADO:</span></td>
         <td colspan="2"><div class="clip">{{ $fecha_solicitud ?? '-' }}</div></td>
     </tr>
+
+    {{-- solo los reportes que la envían (hematología) muestran esta fila --}}
+    @if (! empty($fecha_muestreo))
+        <tr>
+            <td colspan="2"><span class="label">FECHA DE MUESTREO:</span></td>
+            <td colspan="6"><div class="clip">{{ $fecha_muestreo }}</div></td>
+        </tr>
+    @endif
 </table>

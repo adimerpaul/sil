@@ -68,6 +68,11 @@ class HematologiaController extends Controller
         $data['solicitude_id'] = $solicitudeId;
         $user = $request->user();
 
+        // el input date del front manda '' cuando se limpia
+        if (array_key_exists('fecha_muestreo', $data) && $data['fecha_muestreo'] === '') {
+            $data['fecha_muestreo'] = null;
+        }
+
         $hematologia = Hematologia::updateOrCreate(
             [
                 'solicitude_id' => $solicitudeId,

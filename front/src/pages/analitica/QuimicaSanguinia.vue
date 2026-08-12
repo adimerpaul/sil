@@ -1023,7 +1023,7 @@
 <!--          MONONUCLEARES: 32 %-->
           <!-- citoquimico -->
           <div
-            v-if="canAny(['tipo_de_muestra','citoquimico_cantidad','citoquimico_color','citoquimico_aspecto','citoquimico_ph','citoquimico_densidad','citoquimico_glucosa','citoquimico_proteinas_totales','citoquimico_ldh','citoquimico_globulos_blancos','citoquimico_polimorfonucleares','citoquimico_mononucleares','citoquimico_observaciones'])"
+            v-if="canAny(['tipo_de_muestra','citoquimico_cantidad','citoquimico_color','citoquimico_aspecto','citoquimico_ph','citoquimico_densidad','citoquimico_glucosa','citoquimico_proteinas_totales','citoquimico_albumina','citoquimico_ldh','citoquimico_globulos_blancos','citoquimico_polimorfonucleares','citoquimico_mononucleares','citoquimico_observaciones'])"
           >
             <div class="row items-center q-col-gutter-sm q-mb-xs">
               <div class="col-auto section-title">Citoquímico</div>
@@ -1154,6 +1154,15 @@
                 </td>
                 <td>{{ rangoTexto('Proteínas totales') }}</td>
                 <td>{{ rangoUnidad('Proteínas totales') }}</td>
+              </tr>
+              <tr v-if="canVariable('citoquimico_albumina')">
+                <td>Albúmina</td>
+                <td>
+                  <q-input v-model.number="form.citoquimico_albumina" dense outlined type="number" step="0.01"
+                           :input-class="inputRangeClass('Albúmina', form.citoquimico_albumina)" />
+                </td>
+                <td>{{ rangoTexto('Albúmina') }}</td>
+                <td>{{ rangoUnidad('Albúmina') }}</td>
               </tr>
 <!--              densidad-->
               <tr v-if="canVariable('citoquimico_ldh')">
@@ -1396,6 +1405,7 @@ export default {
         reaccion_widal_b: '',
         reaccion_widal_b_valor: '',
         tipo_de_muestra: '',
+        citoquimico_albumina: null,
         citoquimico_observaciones: '',
         gasometria_tipo: '',
         gasometria_muestra_estado: '',

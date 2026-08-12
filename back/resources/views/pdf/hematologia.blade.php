@@ -197,7 +197,13 @@
 
 <div class="block">
 {{--    @include('components.header', ['solicitud' => $solicitud])--}}
-    {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud, 'fecha_solicitud'=>$hematologia->created_at])->render() !!}
+    {!! view('components.headerSinCabeceraPequeno', [
+        'solicitud' => $solicitud,
+        'fecha_solicitud' => $hematologia->created_at,
+        'fecha_muestreo' => $hematologia?->fecha_muestreo
+            ? \Carbon\Carbon::parse($hematologia->fecha_muestreo)->format('d/m/Y')
+            : null,
+    ])->render() !!}
 
 
     <div class="center" style="margin-top:20px; font-weight:700; font-size:12px;">

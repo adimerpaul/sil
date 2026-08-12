@@ -896,7 +896,12 @@
                                         @if($canVariable('test_embarazo'))
                                             <tr>
                                                 <td>Test embarazo</td>
-                                                <td class="center">{{ val($q,'test_embarazo') }}</td>
+                                                <td class="center">
+                                                    {{ val($q,'test_embarazo') }}
+                                                    @if(val($q,'test_embarazo_fum'))
+                                                        <br><small>F.U.M.: {{ \Carbon\Carbon::parse(val($q,'test_embarazo_fum'))->format('d/m/Y') }}</small>
+                                                    @endif
+                                                </td>
                                                 <td class="center">{{ rangoTexto('Test de embarazo',$rangosMap) }}</td>
                                                 <td class="center">{{ rangoUnidad('Test de embarazo',$rangosMap) }}</td>
                                             </tr>

@@ -63,6 +63,8 @@ class InmunologiaAnaliticaController extends Controller
             'formulas',
         ])
             ->whereIn('id', $servicioIds)
+            ->orderByRaw('subarea IS NULL OR subarea = ""')
+            ->orderBy('subarea')
             ->orderBy('codigo')
             ->get();
 
@@ -226,6 +228,8 @@ class InmunologiaAnaliticaController extends Controller
             'rangos' => fn ($q) => $q->orderBy('servicio_rangos.orden')->orderBy('area_rangos.id'),
         ])
             ->whereIn('id', $servicioIds)
+            ->orderByRaw('subarea IS NULL OR subarea = ""')
+            ->orderBy('subarea')
             ->orderBy('codigo')
             ->get();
 

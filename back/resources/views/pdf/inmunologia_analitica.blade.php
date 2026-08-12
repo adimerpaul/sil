@@ -62,6 +62,17 @@
             margin-top: 6px;
         }
 
+        .subarea-title {
+            font-size: 9.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            background: #eef2f7;
+            border-left: 3px solid #333;
+            padding: 2px 4px;
+            margin-top: 7px;
+        }
+
         .hr { border-top: 1.5px solid #111; margin: 3px 0; }
     </style>
 </head>
@@ -143,10 +154,21 @@
                 {{ ($fechaPreAnalitica ?? null) ? $fechaPreAnalitica->format('d/m/Y H:i') : '---' }}
             </div>
 
+            @php
+                // en la BD conviven variantes ("HORMONAS" / "Hormonas"), se comparan normalizadas
+                $claveSubarea = fn ($s) => preg_replace('/\s+/', ' ', mb_strtoupper(trim((string) $s)));
+                $subareaActual = null;
+            @endphp
+
             @foreach($prestaciones as $prest)
+                {{-- las prestaciones vienen ordenadas por subárea: se titula cada vez que cambia --}}
+                @if($claveSubarea($prest->subarea) !== $subareaActual)
+                    @php $subareaActual = $claveSubarea($prest->subarea); @endphp
+                    <div class="subarea-title">{{ $prest->subarea ?: 'OTROS' }}</div>
+                @endif
+
                 <div class="section-title">{{ $prest->nombre }}
                     @if($prest->metodo) <span class="muted" style="font-weight:400;">({{ $prest->metodo }})</span>@endif
-                    @if($prest->subarea) <span class="muted" style="font-weight:400;">— {{ $prest->subarea }}</span>@endif
                 </div>
 
                 @php

@@ -4,16 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
-use OwenIt\Auditing\Auditable as AuditableTrait;
 use Illuminate\Support\Str;
+use OwenIt\Auditing\Auditable as AuditableTrait;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
 class Hematologia extends Model implements AuditableContract
 {
-    use SoftDeletes, AuditableTrait;
+    use AuditableTrait, SoftDeletes;
 
     protected $fillable = [
         'solicitude_id',
+        'fecha_muestreo',
 
         'globulos_rojos',
         'globulos_blancos',
@@ -82,7 +83,7 @@ class Hematologia extends Model implements AuditableContract
     ];
 
     protected $hidden = [
-//        'created_at',
+        //        'created_at',
         'updated_at',
         'deleted_at',
     ];
@@ -91,6 +92,7 @@ class Hematologia extends Model implements AuditableContract
     {
         return $this->belongsTo(Solicitude::class, 'solicitude_id');
     }
+
     protected static function booted()
     {
         static::creating(function ($model) {
@@ -101,11 +103,13 @@ class Hematologia extends Model implements AuditableContract
             }
         });
     }
-    function user()
+
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
-    function userPresentacion()
+
+    public function userPresentacion()
     {
         return $this->belongsTo(User::class, 'user_presentacion_id');
     }
