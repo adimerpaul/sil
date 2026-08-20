@@ -146,6 +146,10 @@ class InmunologiaAnaliticaController extends Controller
                 'doctor_nombre' => $solicitud->doctor_nombre,
                 'fecha_solicitud' => $solicitud->fecha_solicitud,
                 'estado' => $solicitud->estado,
+                'inmunologia_fecha_recepcion' => $solicitud->inmunologia_fecha_recepcion
+                    ? substr((string) $solicitud->inmunologia_fecha_recepcion, 0, 10)
+                    : null,
+                'inmunologia_comentario' => $solicitud->inmunologia_comentario,
             ],
             'prestaciones' => $prestacionesConResultados,
         ]);
@@ -160,14 +164,44 @@ class InmunologiaAnaliticaController extends Controller
         $solicitud = Solicitude::findOrFail($solicitudId);
 
         $data = $request->validate([
-            'resultados' => 'required|array',
+            'resultados' => 'present|array',
             'resultados.*.area_rango_id' => 'required|integer|exists:area_rangos,id',
             'resultados.*.valor_final' => 'nullable|string|max:255',
             'resultados.*.visible' => 'nullable|boolean',
             'resultados.*.observacion' => 'nullable|string',
+            'servicios_modificados' => 'present|array',
+            'servicios_modificados.*' => 'integer|distinct|exists:servicios,id',
+            'fecha_recepcion' => 'nullable|date',
+            'comentario' => 'nullable|string',
         ]);
 
         $now = now();
+
+        // Solo se actualizan y firman las prestaciones que este usuario modifico.
+        // Esto evita pisar resultados de otras prestaciones abiertas por otros usuarios.
+        $servicioIds = ServicioSolicitude::where('solicitude_id', $solicitudId)
+            ->where('area_id', self::AREA_ID)
+            ->whereIn('servicio_id', $data['servicios_modificados'])
+            ->pluck('servicio_id');
+
+        abort_if(
+            $servicioIds->count() !== count($data['servicios_modificados']),
+            422,
+            'Una de las prestaciones modificadas no pertenece a esta solicitud.'
+        );
+
+        $rangoIdsPermitidos = DB::table('servicio_rangos')
+            ->whereIn('servicio_id', $servicioIds)
+            ->pluck('area_rango_id')
+            ->unique();
+
+        abort_if(
+            collect($data['resultados'])->contains(
+                fn ($item) => ! $rangoIdsPermitidos->contains($item['area_rango_id'])
+            ),
+            422,
+            'Uno de los resultados no pertenece a las prestaciones modificadas.'
+        );
 
         foreach ($data['resultados'] as $item) {
             DB::table('resultado_laboratorios')->updateOrInsert(
@@ -190,16 +224,22 @@ class InmunologiaAnaliticaController extends Controller
 
         ServicioSolicitude::where('solicitude_id', $solicitudId)
             ->where('area_id', self::AREA_ID)
+            ->whereIn('servicio_id', $servicioIds)
             ->update([
                 'realizado' => 'REALIZADO',
                 'realizado_por' => auth()->user()->name ?? null,
             ]);
 
+        // Fecha de recepción de la muestra y comentario: uno solo para toda la analítica
+        $solicitud->inmunologia_fecha_recepcion = $data['fecha_recepcion'] ?? null;
+        $solicitud->inmunologia_comentario = $data['comentario'] ?? null;
+
         // Generar código único de acceso al PDF si todavía no existe
         if (! $solicitud->inmunologia_analitica_codigo) {
             $solicitud->inmunologia_analitica_codigo = (string) Str::uuid();
-            $solicitud->save();
         }
+
+        $solicitud->save();
 
         return response()->json([
             'message' => 'Resultados guardados',

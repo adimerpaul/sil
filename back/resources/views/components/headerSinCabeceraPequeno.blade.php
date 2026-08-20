@@ -115,11 +115,13 @@
         <td colspan="2"><div class="clip">{{ $fecha_solicitud ?? '-' }}</div></td>
     </tr>
 
-    {{-- solo los reportes que la envían (hematología) muestran esta fila --}}
+    {{-- solo los reportes que la envían (hematología, inmunología) muestran esta fila;
+         el rótulo y el ancho que ocupa se ajustan con fecha_muestreo_label / _span --}}
     @if (! empty($fecha_muestreo))
+        @php $labelSpan = $fecha_muestreo_label_span ?? 2; @endphp
         <tr>
-            <td colspan="2"><span class="label">FECHA DE MUESTREO:</span></td>
-            <td colspan="6"><div class="clip">{{ $fecha_muestreo }}</div></td>
+            <td colspan="{{ $labelSpan }}"><span class="label">{{ $fecha_muestreo_label ?? 'FECHA DE MUESTREO:' }}</span></td>
+            <td colspan="{{ 8 - $labelSpan }}"><div class="clip">{{ $fecha_muestreo }}</div></td>
         </tr>
     @endif
 </table>

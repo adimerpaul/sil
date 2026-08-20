@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable as AuditableTrait;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+
 class ServicioSolicitude extends Model implements AuditableContract
 {
     use AuditableTrait, SoftDeletes;
@@ -17,6 +18,7 @@ class ServicioSolicitude extends Model implements AuditableContract
         'precio',
         'nombre',
         'realizado',
+        'realizado_por',
         'fue_recogido',
         'recogido_por_personal',
         'grado_parentesco',
@@ -33,13 +35,19 @@ class ServicioSolicitude extends Model implements AuditableContract
     protected $hidden = [
         'created_at', 'updated_at', 'deleted_at',
     ];
-    function servicio(){
+
+    public function servicio()
+    {
         return $this->belongsTo(Servicio::class);
     }
-    function solicitud(){
+
+    public function solicitud()
+    {
         return $this->belongsTo(Solicitude::class, 'solicitude_id');
     }
-    function area(){
+
+    public function area()
+    {
         return $this->belongsTo(Area::class);
     }
 }

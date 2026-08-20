@@ -35,6 +35,27 @@
           <span><span class="text-grey-6">Médico: </span><strong>{{ solicitud?.doctor_nombre || 'N/A' }}</strong></span>
           <q-chip square color="primary" text-color="white" dense>N° {{ solicitud?.codigo }}</q-chip>
         </div>
+
+        <!-- Fecha de recepción de la muestra y comentario: uno solo para toda la analítica -->
+        <div v-if="prestaciones.length" class="row q-col-gutter-sm q-px-sm q-mt-xs q-mb-xs">
+          <div class="col-12 col-sm-4">
+            <q-input
+              v-model="fechaRecepcion"
+              type="date"
+              dense outlined clearable stack-label
+              label="Fecha de recepción de la muestra"
+            />
+          </div>
+          <div class="col-12 col-sm-8">
+            <q-input
+              v-model="comentario"
+              type="textarea"
+              dense outlined autogrow stack-label
+              label="Comentario"
+              placeholder="Comentario que se imprimirá en el resultado"
+            />
+          </div>
+        </div>
       </q-card-section>
 
       <q-separator />
@@ -128,7 +149,7 @@
                       :options="rango.opciones"
                       dense outlined options-dense clearable
                       class="imn-select"
-                      @update:model-value="recalcularFormulas(prest, rango.id)"
+                      @update:model-value="actualizarPrestacion(prest, rango.id)"
                     />
                     <input
                       v-else
@@ -136,7 +157,7 @@
                       class="imn-input"
                       :class="{ 'imn-input--calculado': esFormula(prest, rango) }"
                       :placeholder="rango.unidad || ''"
-                      @input="recalcularFormulas(prest, rango.id)"
+                      @input="actualizarPrestacion(prest, rango.id)"
                     />
                   </td>
                   <td class="text-grey-6" style="font-size:11px">{{ rango.unidad || '—' }}</td>
@@ -178,7 +199,11 @@
                     </div>
                   </td>
                   <td class="tc">
-                    <q-checkbox v-model="visibles[rango.id]" dense size="xs" color="primary">
+                    <q-checkbox
+                      v-model="visibles[rango.id]"
+                      dense size="xs" color="primary"
+                      @update:model-value="marcarPrestacionModificada(prest)"
+                    >
                       <q-tooltip>
                         {{ visibles[rango.id] ? 'Se imprime en el PDF' : 'Oculto en el PDF' }}
                       </q-tooltip>
@@ -211,7 +236,10 @@ export default {
       prestaciones: [],
       valores: {},
       visibles: {},               // ids que se imprimen en el PDF de esta solicitud
-      manualOverrides: new Set()  // ids de campos calculados editados manualmente
+      fechaRecepcion: null,       // recepción de la muestra, para toda la analítica (YYYY-MM-DD)
+      comentario: '',             // comentario que se imprime en el resultado
+      manualOverrides: new Set(), // ids de campos calculados editados manualmente
+      prestacionesModificadas: new Set()
     }
   },
 
@@ -250,9 +278,13 @@ export default {
         this.solicitud = data.solicitud
         this.prestaciones = data.prestaciones.filter(p => p.rangos.length > 0)
 
+        this.fechaRecepcion = data.solicitud?.inmunologia_fecha_recepcion || null
+        this.comentario = data.solicitud?.inmunologia_comentario || ''
+
         this.valores = {}
         this.visibles = {}
         this.manualOverrides = new Set()
+        this.prestacionesModificadas = new Set()
         this.prestaciones.forEach(prest => {
           prest.rangos.forEach(rango => {
             const valorGuardado = rango.resultado?.valor_final ?? ''
@@ -293,6 +325,15 @@ export default {
     esFormulaId (prest, rangoId) {
       const rango = prest.rangos.find(r => r.id === rangoId)
       return rango ? this.esFormula(prest, rango) : false
+    },
+
+    marcarPrestacionModificada (prest) {
+      this.prestacionesModificadas.add(prest.servicio_id)
+    },
+
+    actualizarPrestacion (prest, rangoId) {
+      this.marcarPrestacionModificada(prest)
+      this.recalcularFormulas(prest, rangoId)
     },
 
     // Recalcula todos los campos de fórmula de una prestación
@@ -392,17 +433,23 @@ export default {
     async guardar () {
       this.saving = true
       try {
-        const resultados = Object.entries(this.valores)
-          .filter(([, val]) => val !== null && val !== undefined)
-          .map(([rangoId, val]) => ({
-            area_rango_id: parseInt(rangoId),
-            valor_final: String(val ?? ''),
-            visible: this.visibles[rangoId] !== false
-          }))
+        const serviciosModificados = [...this.prestacionesModificadas]
+        const resultados = this.prestaciones
+          .filter(prest => this.prestacionesModificadas.has(prest.servicio_id))
+          .flatMap(prest => prest.rangos.map(rango => ({
+            area_rango_id: rango.id,
+            valor_final: String(this.valores[rango.id] ?? ''),
+            visible: this.visibles[rango.id] !== false
+          })))
 
         await this.$axios.post(
           `/inmunologia-analitica/solicitud/${this.$route.params.id}/resultados`,
-          { resultados }
+          {
+            resultados,
+            servicios_modificados: serviciosModificados,
+            fecha_recepcion: this.fechaRecepcion || null,
+            comentario: this.comentario || null
+          }
         )
         this.$q.notify({ type: 'positive', message: 'Resultados guardados correctamente' })
         await this.load()

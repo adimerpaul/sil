@@ -73,6 +73,13 @@
             margin-top: 7px;
         }
 
+        .comentario {
+            border: 1px solid #111;
+            padding: 3px 4px;
+            margin-top: 7px;
+            font-size: 9px;
+        }
+
         .hr { border-top: 1.5px solid #111; margin: 3px 0; }
     </style>
 </head>
@@ -85,6 +92,16 @@
         if ($min !== null && $num < floatval($min)) return true;
         if ($max !== null && $num > floatval($max)) return true;
         return false;
+    }
+
+    // Los valores cuantitativos de inmunologia se imprimen siempre con 3 decimales.
+    // Los resultados cualitativos (por ejemplo, POSITIVO/NEGATIVO) se conservan.
+    function inmuno_formatear_valor($valor) {
+        if ($valor === null || $valor === '') return '';
+
+        return is_numeric($valor)
+            ? number_format((float) $valor, 3, '.', '')
+            : $valor;
     }
 
     // Parte un texto libre en líneas, descartando las vacías
@@ -115,9 +132,9 @@
 
             if (($desc === null || $desc === '') && $min === null && $max === null) continue;
 
-            if ($min !== null && $max !== null)  $valor = $min . ' - ' . $max;
-            elseif ($min !== null)               $valor = '≥ ' . $min;
-            elseif ($max !== null)               $valor = '≤ ' . $max;
+            if ($min !== null && $max !== null)  $valor = inmuno_formatear_valor($min) . ' - ' . inmuno_formatear_valor($max);
+            elseif ($min !== null)               $valor = '≥ ' . inmuno_formatear_valor($min);
+            elseif ($max !== null)               $valor = '≤ ' . inmuno_formatear_valor($max);
             else                                 $valor = '';
 
             // Sin límites solo se imprime la descripción (sin los dos puntos)
@@ -137,6 +154,12 @@
     }
 
     $realizadoPor = collect($prestaciones)->map(fn($p) => $p->realizado_por)->filter()->first();
+
+    // Fecha de recepción de la muestra y comentario: uno solo para toda la analítica
+    $fechaRecepcion = $solicitud->inmunologia_fecha_recepcion
+        ? \Carbon\Carbon::parse($solicitud->inmunologia_fecha_recepcion)->format('d/m/Y')
+        : null;
+    $comentario = trim((string) ($solicitud->inmunologia_comentario ?? ''));
 @endphp
 
 <table>
@@ -144,7 +167,13 @@
         <td style="vertical-align:top; padding: 0 4px;">
 
             <div style="margin-top:-30px;">
-                {!! view('components.headerSinCabeceraPequeno', ['solicitud' => $solicitud, 'fecha_solicitud' => now()->format('d/m/Y H:i')])->render() !!}
+                {!! view('components.headerSinCabeceraPequeno', [
+                    'solicitud' => $solicitud,
+                    'fecha_solicitud' => now()->format('d/m/Y H:i'),
+                    'fecha_muestreo' => $fechaRecepcion,
+                    'fecha_muestreo_label' => 'FECHA DE RECEPCIÓN DE LA MUESTRA:',
+                    'fecha_muestreo_label_span' => 3,
+                ])->render() !!}
             </div>
 
             <div class="center bold" style="font-size:12px; margin: 5px 0 2px;">INMUNOLOGÍA</div>
@@ -194,7 +223,7 @@
                             @php $outRange = inmuno_out_of_range($rango->valor_final, $rango->rango_minimo, $rango->rango_maximo); @endphp
                             <tr>
                                 <td>{{ $rango->rango_nombre }}</td>
-                                <td class="center {{ $outRange ? 'out-range' : '' }}">{{ $rango->valor_final ?? '' }}</td>
+                                <td class="center {{ $outRange ? 'out-range' : '' }}">{{ inmuno_formatear_valor($rango->valor_final) }}</td>
                                 <td class="center">{{ $rango->unidad ?? '' }}</td>
                                 <td>
                                     @forelse(inmuno_rango_lineas($rango) as $linea)
@@ -218,6 +247,15 @@
                     </tbody>
                 </table>
             @endforeach
+
+            @if($comentario !== '')
+                <div class="comentario">
+                    <span class="bold">COMENTARIO:</span>
+                    @foreach(inmuno_lineas_texto($comentario) as $linea)
+                        <div class="rango-linea">{{ $linea }}</div>
+                    @endforeach
+                </div>
+            @endif
 
             {{-- FIRMAS + QR --}}
             <table class="no-border" style="margin-top: 8px;">

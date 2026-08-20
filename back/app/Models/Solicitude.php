@@ -2,15 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable as AuditableTrait;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 
 class Solicitude extends Model implements AuditableContract
 {
-    use SoftDeletes, AuditableTrait;
+    use AuditableTrait, SoftDeletes;
 
     protected $fillable = [
         // relaciones
@@ -30,6 +29,10 @@ class Solicitude extends Model implements AuditableContract
         'estado',                  // CREADO, ATENDIENDO, FINALIZADO
         'codigo',
         'nro_registro',
+
+        // analítica de inmunología (una sola fecha y comentario por solicitud)
+        'inmunologia_fecha_recepcion',
+        'inmunologia_comentario',
 
         // copia de datos del paciente
         'paciente_nombre',
@@ -75,8 +78,8 @@ class Solicitude extends Model implements AuditableContract
         'muestra_volumen',
         'muestra_identificacion',
         'muestra_equipo',
-//        $table->string('muestra_rechazada')->nullable();
-//$table->string('muestra_observacion')->nullable();
+        //        $table->string('muestra_rechazada')->nullable();
+        // $table->string('muestra_observacion')->nullable();
         'muestra_rechazada',
         'muestra_observacion',
         'numero_factura',
@@ -181,13 +184,17 @@ class Solicitude extends Model implements AuditableContract
     {
         return $this->hasMany(ResultadoLaboratorio::class);
     }
+
     public function propiedades()
     {
         return $this->hasMany(SolicitudePropiedad::class);
     }
-    function solicitudeFormularios(){
+
+    public function solicitudeFormularios()
+    {
         return $this->hasMany(SolicitudeFormulario::class);
     }
+
     public function hematologia()
     {
         return $this->hasOne(Hematologia::class);
@@ -202,31 +209,38 @@ class Solicitude extends Model implements AuditableContract
     {
         return $this->hasOne(Uroanalisis::class);
     }
-    function parasitologia()
+
+    public function parasitologia()
     {
         return $this->hasOne(Parasitologia::class);
     }
+
     public function papilomaHumano()
     {
         return $this->hasOne(PapilomaHumano::class);
     }
+
     public function panelRespiratorio()
     {
         return $this->hasOne(PanelRespiratorio::class);
     }
+
     public function panelSexual()
     {
         return $this->hasOne(PanelSexual::class);
     }
+
     public function cultivoAntibiograma()
     {
         return $this->hasOne(CultivoAntibiograma::class);
     }
+
     public function consentimiento()
     {
         return $this->hasOne(Consentimiento::class, 'solicitude_id');
     }
-//inmunologia
+
+    // inmunologia
     public function solicitudRechazadas()
     {
         return $this->hasMany(SolicitudRechazada::class);
@@ -237,5 +251,4 @@ class Solicitude extends Model implements AuditableContract
         return $this->hasMany(SolicitudePreAnaliticaComentario::class, 'solicitude_id')
             ->orderByDesc('created_at');
     }
-
 }
