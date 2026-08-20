@@ -162,9 +162,9 @@
     $comentario = trim((string) ($solicitud->inmunologia_comentario ?? ''));
 @endphp
 
-<table>
-    <tr>
-        <td style="vertical-align:top; padding: 0 4px;">
+{{-- el cuerpo va suelto, no dentro de una celda: DOMPDF no parte una celda entre
+     páginas y descartaba en silencio todo lo que no entraba en la primera --}}
+<div style="padding: 0 4px;">
 
             <div style="margin-top:-30px;">
                 {!! view('components.headerSinCabeceraPequeno', [
@@ -282,8 +282,6 @@
                 </tr>
             </table>
 
-        </td>
-    </tr>
-</table>
+</div>
 </body>
 </html>
