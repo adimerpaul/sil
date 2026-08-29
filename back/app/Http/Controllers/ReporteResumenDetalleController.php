@@ -301,23 +301,49 @@ class ReporteResumenDetalleController extends Controller
             return ['rows' => [], 'total' => $total, 'page' => $page, 'per_page' => $perPage];
         }
 
+        $ids = $items->pluck('id')->all();
+        $desde = $meta['desde_dt'];
+        $hasta = $meta['hasta_dt'];
+
+        // Mismo criterio que el resumen: la carga de inventario inicial siempre pesa en el
+        // saldo inicial (sin importar su fecha) y se excluye de las entradas del período.
+        $inicialId = $this->inventarioInicialCompraId();
+        $iniQty = $this->inicialByItem($ids, $inicialId, 'cd.cantidad');
+        $iniVal = $this->inicialByItem($ids, $inicialId, 'cd.total');
+
+        $entAntesQty = $this->entradasQty($ids, null, $desde, $inicialId);
+        $entAntesVal = $this->entradasVal($ids, null, $desde, $inicialId);
+        $salAntesQty = $this->salidasQty($ids, null, $desde);
+        $salAntesVal = $this->salidasVal($ids, null, $desde);
+
+        $entQty = $this->entradasQty($ids, $desde, $hasta, $inicialId);
+        $entVal = $this->entradasVal($ids, $desde, $hasta, $inicialId);
+        $salQty = $this->salidasQty($ids, $desde, $hasta);
+        $salVal = $this->salidasVal($ids, $desde, $hasta);
+
         $nro = $page !== null ? ($page - 1) * $perPage : 0;
         $rows = [];
 
         foreach ($items as $item) {
-            $precioInicial = (float) $item->precio_unitario_inicial;
-            $csi = (float) $item->saldo_inicial;
-            $ce = (float) $item->entradas_inicial;
-            $cs = (float) $item->salidas_inicial;
-            $csf = (float) $item->saldo_final_inicial;
+            $id = $item->id;
+
+            $csi = ($iniQty[$id] ?? 0) + ($entAntesQty[$id] ?? 0) - ($salAntesQty[$id] ?? 0);
+            $vsi = ($iniVal[$id] ?? 0) + ($entAntesVal[$id] ?? 0) - ($salAntesVal[$id] ?? 0);
+            $ce = $entQty[$id] ?? 0;
+            $ve = $entVal[$id] ?? 0;
+            $cs = $salQty[$id] ?? 0;
+            $vs = $salVal[$id] ?? 0;
+            $csf = $csi + $ce - $cs;
+            $vsf = $vsi + $ve - $vs;
 
             $rows[] = [
                 'nro' => ++$nro,
                 'id' => $item->id,
                 'descripcion' => $item->nombre,
                 'unidad' => $item->unidad_medida ?? '',
-                'precio_unitario' => $precioInicial,
-                'precio_unitario_actual' => (float) $item->precio_unitario,
+                // Precio de la última compra registrada, que es el que mantiene el inventario
+                'precio_unitario' => (float) $item->precio_unitario,
+                'precio_unitario_inicial' => (float) $item->precio_unitario_inicial,
                 'subpartida_id' => $item->subpartida_id,
                 'subpartida_codigo' => $item->subpartida_codigo,
                 'subpartida_nombre' => $item->subpartida_nombre,
@@ -329,10 +355,11 @@ class ReporteResumenDetalleController extends Controller
                 'cant_entradas' => $ce,
                 'cant_salidas' => $cs,
                 'cant_saldo_final' => $csf,
-                'val_saldo_ini' => round($csi * $precioInicial, 2),
-                'val_entradas' => round($ce * $precioInicial, 2),
-                'val_salidas' => round($cs * $precioInicial, 2),
-                'val_saldo_final' => round($csf * $precioInicial, 2),
+                // Valores del movimiento real (PEPS), no cantidad x precio actual
+                'val_saldo_ini' => round($vsi, 2),
+                'val_entradas' => round($ve, 2),
+                'val_salidas' => round($vs, 2),
+                'val_saldo_final' => round($vsf, 2),
             ];
         }
 

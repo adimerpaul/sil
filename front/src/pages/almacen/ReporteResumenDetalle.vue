@@ -129,28 +129,30 @@
           @request="onRequestDetalle"
         >
           <template v-slot:header="props">
+            <!-- Con table-layout:fixed el ancho de cada columna lo define esta primera fila del
+                 encabezado (no las columnas): Descripción va sin ancho para absorber el sobrante -->
             <q-tr :props="props">
-              <q-th rowspan="2" auto-width>
+              <q-th rowspan="2" style="width:36px">
                 <q-checkbox dense size="xs" :model-value="todosDetalleMarcados" @update:model-value="marcarTodoDetalle"/>
               </q-th>
-              <q-th rowspan="2" auto-width></q-th>
-              <q-th rowspan="2">Nº</q-th>
-              <q-th rowspan="2">Partida<br>presupuestaria</q-th>
+              <q-th rowspan="2" style="width:34px"></q-th>
+              <q-th rowspan="2" style="width:38px">Nº</q-th>
+              <q-th rowspan="2" style="width:70px">Partida<br>presupuestaria</q-th>
               <q-th rowspan="2" class="text-left">Descripción (Item)</q-th>
-              <q-th rowspan="2">Unidad<br>de medida</q-th>
-              <q-th rowspan="2">Precio<br>unitario</q-th>
-              <q-th colspan="4">Cantidad</q-th>
-              <q-th colspan="4" class="reporte-valores-header">Valores</q-th>
+              <q-th rowspan="2" style="width:56px">Unidad<br>de medida</q-th>
+              <q-th rowspan="2" style="width:64px">Precio<br>unitario</q-th>
+              <q-th colspan="4" style="width:232px">Cantidad</q-th>
+              <q-th colspan="4" class="reporte-valores-header" style="width:272px">Valores</q-th>
             </q-tr>
             <q-tr :props="props">
-              <q-th>Saldo inicial</q-th>
-              <q-th>Entradas</q-th>
-              <q-th>Salidas</q-th>
-              <q-th>Saldo final</q-th>
-              <q-th class="reporte-valores-header">Saldo inicial</q-th>
-              <q-th class="reporte-valores-header">Entradas</q-th>
-              <q-th class="reporte-valores-header">Salidas</q-th>
-              <q-th class="reporte-valores-header">Saldo final</q-th>
+              <q-th style="width:58px">Saldo inicial</q-th>
+              <q-th style="width:56px">Entradas</q-th>
+              <q-th style="width:56px">Salidas</q-th>
+              <q-th style="width:62px">Saldo final</q-th>
+              <q-th class="reporte-valores-header" style="width:70px">Saldo inicial</q-th>
+              <q-th class="reporte-valores-header" style="width:66px">Entradas</q-th>
+              <q-th class="reporte-valores-header" style="width:66px">Salidas</q-th>
+              <q-th class="reporte-valores-header" style="width:70px">Saldo final</q-th>
             </q-tr>
           </template>
           <template v-slot:body-cell-check="props">
@@ -513,7 +515,7 @@ export default {
 }
 
 .reporte-detalle-table :deep(table) {
-  min-width: 1420px;
+  min-width: 1060px;
   table-layout: fixed;
 }
 

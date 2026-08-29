@@ -292,7 +292,7 @@
         <td>
             <div class="line"></div>
             <div class="sign-title">Resp. de almacen</div>
-            <div class="sign-name">Gabriel Rolque Lovera</div>
+{{--            <div class="sign-name">Gabriel Rolque Lovera</div>--}}
         </td>
 {{--        <td>--}}
 {{--            <div class="line"></div>--}}
