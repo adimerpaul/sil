@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 // Layout (empty arrays are skipped — do NOT use them):
@@ -131,6 +132,15 @@ class DetalleAlmacenExport implements FromArray, WithColumnWidths, WithEvents, W
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
+
+                // El encabezado (filas 1-7) queda fijo al desplazarse hacia abajo y se
+                // reimprime al inicio de cada página, para no perder de vista qué columna es cuál.
+                $sheet->freezePane('A'.self::DATA_START);
+                $sheet->getPageSetup()
+                    ->setOrientation(PageSetup::ORIENTATION_LANDSCAPE)
+                    ->setFitToWidth(1)
+                    ->setFitToHeight(0)
+                    ->setRowsToRepeatAtTopByStartAndEnd(6, 7);
 
                 foreach (['A2:M2', 'A3:M3', 'A4:M4', 'A5:M5'] as $range) {
                     $sheet->mergeCells($range);

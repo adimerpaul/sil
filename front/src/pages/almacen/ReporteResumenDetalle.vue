@@ -427,8 +427,13 @@ export default {
         const code = tipo === 'resumen' ? 'DGCF-R1.05' : 'DGCF-R1.06'
 
         const body = { desde: this.desde, hasta: this.hasta }
-        if (isResumen) body.exclude_subpartida_ids = [...this.subpartidasExcluidas]
-        else           body.exclude_ids = [...this.detalleExcluidos]
+        if (isResumen) {
+          body.exclude_subpartida_ids = [...this.subpartidasExcluidas]
+        } else {
+          body.exclude_ids = [...this.detalleExcluidos]
+          // El export debe traer lo mismo que se ve en pantalla
+          if (this.filtroDetalle) body.q = this.filtroDetalle
+        }
 
         const res = await this.$axios.post(url, body, { responseType: 'blob' })
         const blob = new Blob([res.data], {
