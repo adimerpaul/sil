@@ -37,21 +37,9 @@
         }
         .tbl td { font-size: 9px; }
 
-        .w-analito { width: 34%; }
-        .w-res     { width: 14%; }
-        .w-unid    { width: 12%; }
-        .w-rango   { width: 26%; }
-        .w-met     { width: 14%; }
+        /* los anchos de columna se calculan en la tabla según las columnas opcionales */
         .out-range { color: #c10015; font-weight: 700; }
         .rango-linea { display: block; line-height: 1.25; }
-
-        /* anchos cuando la tabla lleva columna de interpretación */
-        .wi-analito { width: 26%; }
-        .wi-res     { width: 11%; }
-        .wi-unid    { width: 9%; }
-        .wi-rango   { width: 21%; }
-        .wi-interp  { width: 22%; }
-        .wi-met     { width: 11%; }
 
         .section-title {
             font-size: 9px;
@@ -201,21 +189,35 @@
                 </div>
 
                 @php
-                    // La columna de interpretación solo aparece si algún rango la tiene
+                    // Las columnas de interpretación y muestra solo aparecen si algún rango las tiene
                     $conInterp = collect($prest->rangos)->contains(fn ($r) => !empty($r->interpretacion_resultado));
+                    $conMuestra = collect($prest->rangos)->contains(fn ($r) => !empty($r->muestra));
+                    // anchos (%) según las columnas opcionales presentes; cada juego suma 100
+                    if ($conInterp) {
+                        $w = $conMuestra
+                            ? ['analito' => 22, 'res' => 10, 'unid' => 8, 'muestra' => 10, 'rango' => 19, 'interp' => 20, 'met' => 11]
+                            : ['analito' => 26, 'res' => 11, 'unid' => 9, 'muestra' => 0, 'rango' => 21, 'interp' => 22, 'met' => 11];
+                    } else {
+                        $w = $conMuestra
+                            ? ['analito' => 28, 'res' => 13, 'unid' => 11, 'muestra' => 11, 'rango' => 23, 'interp' => 0, 'met' => 14]
+                            : ['analito' => 34, 'res' => 14, 'unid' => 12, 'muestra' => 0, 'rango' => 26, 'interp' => 0, 'met' => 14];
+                    }
                 @endphp
 
                 <table class="tbl">
                     <thead>
                         <tr>
-                            <th class="{{ $conInterp ? 'wi-analito' : 'w-analito' }}">Analito / Condición</th>
-                            <th class="center {{ $conInterp ? 'wi-res' : 'w-res' }}">Resultado</th>
-                            <th class="center {{ $conInterp ? 'wi-unid' : 'w-unid' }}">Unidad</th>
-                            <th class="{{ $conInterp ? 'wi-rango' : 'w-rango' }}">Rango de referencia</th>
-                            @if($conInterp)
-                                <th class="wi-interp">Interpretación</th>
+                            <th style="width:{{ $w['analito'] }}%">Analito / Condición</th>
+                            <th class="center" style="width:{{ $w['res'] }}%">Resultado</th>
+                            <th class="center" style="width:{{ $w['unid'] }}%">Unidad</th>
+                            @if($conMuestra)
+                                <th class="center" style="width:{{ $w['muestra'] }}%">Muestra</th>
                             @endif
-                            <th class="center {{ $conInterp ? 'wi-met' : 'w-met' }}">Método</th>
+                            <th style="width:{{ $w['rango'] }}%">Rango de referencia</th>
+                            @if($conInterp)
+                                <th style="width:{{ $w['interp'] }}%">Interpretación</th>
+                            @endif
+                            <th class="center" style="width:{{ $w['met'] }}%">Método</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -225,6 +227,9 @@
                                 <td>{{ $rango->rango_nombre }}</td>
                                 <td class="center {{ $outRange ? 'out-range' : '' }}">{{ inmuno_formatear_valor($rango->valor_final) }}</td>
                                 <td class="center">{{ $rango->unidad ?? '' }}</td>
+                                @if($conMuestra)
+                                    <td class="center">{{ $rango->muestra ?? '' }}</td>
+                                @endif
                                 <td>
                                     @forelse(inmuno_rango_lineas($rango) as $linea)
                                         <div class="rango-linea">{{ $linea }}</div>

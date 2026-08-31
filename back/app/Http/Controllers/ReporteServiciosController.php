@@ -6,12 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Worksheet\SheetView;
 
 class ReporteServiciosController extends Controller
 {
@@ -175,7 +177,8 @@ class ReporteServiciosController extends Controller
 
     public function exportExcelMensual(Request $request)
     {
-        ini_set('memory_limit', '256M');
+        ini_set('memory_limit', '1024M');
+        set_time_limit(0);
 
         $dateFrom = $request->get('date_from', date('Y-m-01'));
         $dateTo   = $request->get('date_to',   date('Y-m-t'));
@@ -209,85 +212,150 @@ class ReporteServiciosController extends Controller
         ];
         $mes = $dateFrom ? $meses[(int) date('n', strtotime($dateFrom))] : '';
 
-        // Filas de datos: primera fila = 14, hasta fila 33 (20 filas por hoja)
-        $firstDataRow = 14;
-        $rowsPerSheet = 20;
+        // Filas de datos: primera fila = 14, fila TOTAL del template = 34 (20 filas)
+        $firstDataRow  = 14;
+        $templateTotal = 34;
+        $templateRows  = $templateTotal - $firstDataRow;
 
-        $chunks = $rows->chunk($rowsPerSheet);
+        // Todo va en una sola hoja: se descartan las hojas extra del template
+        // y se insertan tantas filas de datos como registros haya.
+        while ($spreadsheet->getSheetCount() > 1) {
+            $spreadsheet->removeSheetByIndex(1);
+        }
 
-        foreach ($chunks as $sheetIndex => $chunk) {
-            if ($sheetIndex >= $spreadsheet->getSheetCount()) {
-                break; // solo usamos las hojas que trae el template
+        $sheet = $spreadsheet->getSheet(0);
+        $sheet->setCellValue('V9', $mes);
+
+        // El template viene en "Vista previa de salto de página": abrirlo en vista normal
+        $sheet->getSheetView()->setView(SheetView::SHEETVIEW_NORMAL);
+
+        // Columna B (correlativo): el ancho del template corta los números de 3 dígitos
+        $sheet->getColumnDimension('B')->setWidth(5.5);
+
+        $extra = max(0, $rows->count() - $templateRows);
+
+        if ($extra > 0) {
+            // Combinaciones de la fila modelo (D:M, N:Q, R:U, X:Y) para replicarlas
+            $mergesModelo = [];
+            foreach ($sheet->getMergeCells() as $rango) {
+                [$ini, $fin] = explode(':', $rango);
+                [$colIni, $filaIni] = Coordinate::coordinateFromString($ini);
+                [$colFin, $filaFin] = Coordinate::coordinateFromString($fin);
+                if ((int) $filaIni === $firstDataRow && (int) $filaFin === $firstDataRow) {
+                    $mergesModelo[] = [$colIni, $colFin];
+                }
             }
 
-            $sheet = $spreadsheet->getSheet($sheetIndex);
+            $altura    = $sheet->getRowDimension($firstDataRow)->getRowHeight();
+            $ultimaCol = Coordinate::columnIndexFromString($sheet->getHighestDataColumn());
 
-            // Actualizar mes en la celda V9
-            $sheet->setCellValue('V9', $mes);
+            $sheet->insertNewRowBefore($templateTotal, $extra);
 
-            $rowNum = $firstDataRow;
-            foreach ($chunk as $item) {
-                $sero = $serologias->get($item->id);
+            $desde = $templateTotal;
+            $hasta = $templateTotal + $extra - 1;
 
-                // ── Datos del paciente ─────────────────────────────────────
-                $sheet->setCellValue("C{$rowNum}", $item->fecha_solicitud);
-                $sheet->setCellValue("D{$rowNum}", $item->paciente_nombre);
-                $sheet->setCellValue("N{$rowNum}", $item->codigo_solicitud ?? '');
-                $sheet->setCellValue("R{$rowNum}", $item->paciente_ci);
-
-                // Edad en columna V (masculino) o W (femenino)
-                $edad = (int) ($item->paciente_edad ?? 0);
-                if ($item->paciente_genero === 'M') {
-                    $sheet->setCellValue("V{$rowNum}", $edad);
-                } elseif ($item->paciente_genero === 'F') {
-                    $sheet->setCellValue("W{$rowNum}", $edad);
-                }
-
-                // Embarazada → marca X en columna X
-                if ($item->paciente_embarazo) {
-                    $sheet->setCellValue("X{$rowNum}", 'X');
-                }
-
-                // ── Resultados serológicos ─────────────────────────────────
-                if ($sero) {
-                    $reactivo = fn($val) => strtolower(trim((string)($val ?? ''))) === 'reactivo';
-
-                    // VIH 1ª prueba rápida: AE=prueba hecha, AF=reactivo
-                    if ($sero->prueba_rapida_vih !== null) {
-                        $sheet->setCellValue("AE{$rowNum}", 'X');
-                        if ($reactivo($sero->prueba_rapida_vih)) {
-                            $sheet->setCellValue("AF{$rowNum}", 'X');
-                        }
-                    }
-
-                    // Sifilis (RPR o prueba rápida): AM=prueba hecha, AN=reactivo
-                    $sifilisVal = $sero->prueba_rapida_sifilis ?? $sero->rpr;
-                    if ($sifilisVal !== null) {
-                        $sheet->setCellValue("AM{$rowNum}", 'X');
-                        if ($reactivo($sifilisVal)) {
-                            $sheet->setCellValue("AN{$rowNum}", 'X');
-                        }
-                    }
-
-                    // HVB: AQ=prueba hecha, AR=reactivo
-                    if ($sero->prueba_rapida_hepatitis_b !== null) {
-                        $sheet->setCellValue("AQ{$rowNum}", 'X');
-                        if ($reactivo($sero->prueba_rapida_hepatitis_b)) {
-                            $sheet->setCellValue("AR{$rowNum}", 'X');
-                        }
-                    }
-
-                    // HVC: AS=prueba hecha, AT=reactivo
-                    if ($sero->prueba_rapida_hepatitis_c !== null) {
-                        $sheet->setCellValue("AS{$rowNum}", 'X');
-                        if ($reactivo($sero->prueba_rapida_hepatitis_c)) {
-                            $sheet->setCellValue("AT{$rowNum}", 'X');
-                        }
-                    }
-                }
-
-                $rowNum++;
+            // Copiar el formato de la fila modelo columna por columna
+            for ($i = 1; $i <= $ultimaCol; $i++) {
+                $col = Coordinate::stringFromColumnIndex($i);
+                $sheet->duplicateStyle($sheet->getStyle("{$col}{$firstDataRow}"), "{$col}{$desde}:{$col}{$hasta}");
             }
+
+            for ($r = $desde; $r <= $hasta; $r++) {
+                $sheet->getRowDimension($r)->setRowHeight($altura);
+                foreach ($mergesModelo as [$colIni, $colFin]) {
+                    $sheet->mergeCells("{$colIni}{$r}:{$colFin}{$r}");
+                }
+            }
+        }
+
+        $lastDataRow = $firstDataRow + max($rows->count(), $templateRows) - 1;
+        $totalRow    = $lastDataRow + 1;
+
+        // Reajustar los SUM() de la fila TOTAL al nuevo rango de datos
+        foreach ($sheet->getRowIterator($totalRow, $totalRow) as $filaTotal) {
+            $celdas = $filaTotal->getCellIterator();
+            $celdas->setIterateOnlyExistingCells(true);
+            foreach ($celdas as $celda) {
+                $formula = $celda->getValue();
+                if (is_string($formula) && str_starts_with($formula, '=')) {
+                    $celda->setValue(preg_replace(
+                        '/([A-Z]{1,3})'.($templateTotal - 1).'(?![0-9])/',
+                        '${1}'.$lastDataRow,
+                        $formula
+                    ));
+                }
+            }
+        }
+
+        // Área de impresión y repetición del encabezado en cada página impresa
+        $sheet->getPageSetup()->setPrintArea('A1:AU'.($totalRow + 8));
+        $sheet->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1, $firstDataRow - 1);
+
+        $rowNum = $firstDataRow;
+        $nro    = 1;
+        foreach ($rows as $item) {
+            $sero = $serologias->get($item->id);
+
+            // ── Datos del paciente ─────────────────────────────────────────
+            $sheet->setCellValue("B{$rowNum}", $nro);
+            $sheet->setCellValue("C{$rowNum}", $item->fecha_solicitud);
+            $sheet->setCellValue("D{$rowNum}", $item->paciente_nombre);
+            $sheet->setCellValue("N{$rowNum}", $item->codigo_solicitud ?? '');
+            $sheet->setCellValue("R{$rowNum}", $item->paciente_ci);
+
+            // Edad en columna V (masculino) o W (femenino)
+            $edad = (int) ($item->paciente_edad ?? 0);
+            if ($item->paciente_genero === 'M') {
+                $sheet->setCellValue("V{$rowNum}", $edad);
+            } elseif ($item->paciente_genero === 'F') {
+                $sheet->setCellValue("W{$rowNum}", $edad);
+            }
+
+            // Embarazada → marca X en columna X
+            if ($item->paciente_embarazo) {
+                $sheet->setCellValue("X{$rowNum}", 'X');
+            }
+
+            // ── Resultados serológicos ─────────────────────────────────────
+            if ($sero) {
+                $reactivo = fn($val) => strtolower(trim((string)($val ?? ''))) === 'reactivo';
+
+                // VIH 1ª prueba rápida: AE=prueba hecha, AF=reactivo
+                if ($sero->prueba_rapida_vih !== null) {
+                    $sheet->setCellValue("AE{$rowNum}", 'X');
+                    if ($reactivo($sero->prueba_rapida_vih)) {
+                        $sheet->setCellValue("AF{$rowNum}", 'X');
+                    }
+                }
+
+                // Sifilis (RPR o prueba rápida): AM=prueba hecha, AN=reactivo
+                $sifilisVal = $sero->prueba_rapida_sifilis ?? $sero->rpr;
+                if ($sifilisVal !== null) {
+                    $sheet->setCellValue("AM{$rowNum}", 'X');
+                    if ($reactivo($sifilisVal)) {
+                        $sheet->setCellValue("AN{$rowNum}", 'X');
+                    }
+                }
+
+                // HVB: AQ=prueba hecha, AR=reactivo
+                if ($sero->prueba_rapida_hepatitis_b !== null) {
+                    $sheet->setCellValue("AQ{$rowNum}", 'X');
+                    if ($reactivo($sero->prueba_rapida_hepatitis_b)) {
+                        $sheet->setCellValue("AR{$rowNum}", 'X');
+                    }
+                }
+
+                // HVC: AS=prueba hecha, AT=reactivo
+                if ($sero->prueba_rapida_hepatitis_c !== null) {
+                    $sheet->setCellValue("AS{$rowNum}", 'X');
+                    if ($reactivo($sero->prueba_rapida_hepatitis_c)) {
+                        $sheet->setCellValue("AT{$rowNum}", 'X');
+                    }
+                }
+            }
+
+            $rowNum++;
+            $nro++;
         }
 
         $filename = "registro_vih_{$dateFrom}_{$dateTo}.xlsx";

@@ -427,13 +427,15 @@
             <div class="col-auto row items-center q-gutter-sm">
               <q-select
                 v-model="rowsPerPage"
-                :options="[5, 10, 25, 50]"
+                :options="rowsPerPageOptions"
+                emit-value map-options
                 dense outlined options-dense
-                style="width:85px"
+                style="width:100px"
                 label="Filas"
                 @update:model-value="onChangeRowsPerPage"
               />
               <q-pagination
+                v-if="!verTodos"
                 v-model="page"
                 :max="pagesNumber"
                 max-pages="7"
@@ -538,6 +540,13 @@ export default {
       filter: '',
       page: 1,
       rowsPerPage: 5,
+      rowsPerPageOptions: [
+        { label: '5', value: 5 },
+        { label: '10', value: 10 },
+        { label: '25', value: 25 },
+        { label: '50', value: 50 },
+        { label: 'Todos', value: 0 }
+      ],
       dialogPresentacion: false,
       loadingPresentacion: false,
       gruposPresentacion: [],
@@ -548,7 +557,11 @@ export default {
     seleccionadosSolicitudes () {
       return [...new Set(this.seleccionados)]
     },
+    verTodos () {
+      return this.rowsPerPage === 0
+    },
     pagesNumber () {
+      if (this.verTodos) return 1
       return Math.max(1, Math.ceil(this.totalSolicitudes / this.rowsPerPage))
     },
     solicitudesPaginadas () {
@@ -557,6 +570,7 @@ export default {
     paginacionInfo () {
       const total = this.totalSolicitudes
       if (!total) return { desde: 0, hasta: 0 }
+      if (this.verTodos) return { desde: 1, hasta: total }
       const desde = (this.page - 1) * this.rowsPerPage + 1
       const hasta = Math.min(this.page * this.rowsPerPage, total)
       return { desde, hasta }

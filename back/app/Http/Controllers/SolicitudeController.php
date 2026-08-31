@@ -847,8 +847,12 @@ class SolicitudeController extends Controller
         $codigo = $request->input('codigo', '');
         $from = $request->input('from', now()->startOfMonth()->toDateString());
         $to = $request->input('to', now()->endOfMonth()->toDateString());
+        // per_page <= 0 significa "todos": se pagina con el total de filas.
         $perPage = (int) $request->input('per_page', 5);
-        $perPage = max(1, min($perPage, 100));
+        $todos = $perPage <= 0;
+        if (! $todos) {
+            $perPage = min($perPage, 100);
+        }
 
         // La lista solo muestra unas pocas columnas de la solicitud y, de cada
         // tabla de laboratorio, únicamente `code` (para saber si hay resultado).
@@ -916,6 +920,10 @@ class SolicitudeController extends Controller
         }
         if (! empty($to)) {
             $query->whereDate('fecha_creacion', '<=', $to);
+        }
+
+        if ($todos) {
+            $perPage = max(1, (clone $query)->count());
         }
 
         return $query->orderBy('id', 'desc')->paginate($perPage);

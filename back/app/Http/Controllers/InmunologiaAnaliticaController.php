@@ -292,6 +292,7 @@ class InmunologiaAnaliticaController extends Controller
                         'id' => $rango->id,
                         'rango_nombre' => $rango->rango_nombre,
                         'unidad' => $rango->unidad,
+                        'muestra' => $rango->muestra,
                         'interpretacion' => $rango->interpretacion,
                         'rango_descripcion' => $rango->rango_descripcion,
                         'rango_minimo' => $rango->rango_minimo,
