@@ -30,9 +30,11 @@ class Solicitude extends Model implements AuditableContract
         'codigo',
         'nro_registro',
 
-        // analítica de inmunología (una sola fecha y comentario por solicitud)
+        // analítica de inmunología (una sola fecha, comentario, método y equipo por solicitud)
         'inmunologia_fecha_recepcion',
         'inmunologia_comentario',
+        'inmunologia_metodo',
+        'inmunologia_equipo',
 
         // copia de datos del paciente
         'paciente_nombre',

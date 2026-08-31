@@ -68,6 +68,11 @@
             font-size: 9px;
         }
 
+        .metodo-equipo {
+            font-size: 9px;
+            margin-bottom: 4px;
+        }
+
         .hr { border-top: 1.5px solid #111; margin: 3px 0; }
     </style>
 </head>
@@ -82,13 +87,13 @@
         return false;
     }
 
-    // Los valores cuantitativos de inmunologia se imprimen siempre con 3 decimales.
+    // Los valores cuantitativos de inmunologia se imprimen siempre con 2 decimales.
     // Los resultados cualitativos (por ejemplo, POSITIVO/NEGATIVO) se conservan.
     function inmuno_formatear_valor($valor) {
         if ($valor === null || $valor === '') return '';
 
         return is_numeric($valor)
-            ? number_format((float) $valor, 3, '.', '')
+            ? number_format((float) $valor, 2, '.', '')
             : $valor;
     }
 
@@ -148,6 +153,8 @@
         ? \Carbon\Carbon::parse($solicitud->inmunologia_fecha_recepcion)->format('d/m/Y')
         : null;
     $comentario = trim((string) ($solicitud->inmunologia_comentario ?? ''));
+    $metodoAnalitica = trim((string) ($solicitud->inmunologia_metodo ?? ''));
+    $equipoAnalitica = trim((string) ($solicitud->inmunologia_equipo ?? ''));
 @endphp
 
 {{-- el cuerpo va suelto, no dentro de una celda: DOMPDF no parte una celda entre
@@ -170,6 +177,20 @@
                 Pre-analítica (toma de muestra):
                 {{ ($fechaPreAnalitica ?? null) ? $fechaPreAnalitica->format('d/m/Y H:i') : '---' }}
             </div>
+
+            @if($metodoAnalitica !== '' || $equipoAnalitica !== '')
+                <div class="center metodo-equipo">
+                    @if($metodoAnalitica !== '')
+                        <span class="bold">MÉTODO:</span> {{ $metodoAnalitica }}
+                    @endif
+                    @if($metodoAnalitica !== '' && $equipoAnalitica !== '')
+                        &nbsp;&nbsp;|&nbsp;&nbsp;
+                    @endif
+                    @if($equipoAnalitica !== '')
+                        <span class="bold">EQUIPO:</span> {{ $equipoAnalitica }}
+                    @endif
+                </div>
+            @endif
 
             @php
                 // en la BD conviven variantes ("HORMONAS" / "Hormonas"), se comparan normalizadas

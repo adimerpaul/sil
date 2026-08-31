@@ -150,6 +150,8 @@ class InmunologiaAnaliticaController extends Controller
                     ? substr((string) $solicitud->inmunologia_fecha_recepcion, 0, 10)
                     : null,
                 'inmunologia_comentario' => $solicitud->inmunologia_comentario,
+                'inmunologia_metodo' => $solicitud->inmunologia_metodo,
+                'inmunologia_equipo' => $solicitud->inmunologia_equipo,
             ],
             'prestaciones' => $prestacionesConResultados,
         ]);
@@ -173,6 +175,8 @@ class InmunologiaAnaliticaController extends Controller
             'servicios_modificados.*' => 'integer|distinct|exists:servicios,id',
             'fecha_recepcion' => 'nullable|date',
             'comentario' => 'nullable|string',
+            'metodo' => 'nullable|string|max:150',
+            'equipo' => 'nullable|string|max:150',
         ]);
 
         $now = now();
@@ -230,9 +234,11 @@ class InmunologiaAnaliticaController extends Controller
                 'realizado_por' => auth()->user()->name ?? null,
             ]);
 
-        // Fecha de recepción de la muestra y comentario: uno solo para toda la analítica
+        // Fecha de recepción, comentario, método y equipo: uno solo para toda la analítica
         $solicitud->inmunologia_fecha_recepcion = $data['fecha_recepcion'] ?? null;
         $solicitud->inmunologia_comentario = $data['comentario'] ?? null;
+        $solicitud->inmunologia_metodo = $data['metodo'] ?? null;
+        $solicitud->inmunologia_equipo = $data['equipo'] ?? null;
 
         // Generar código único de acceso al PDF si todavía no existe
         if (! $solicitud->inmunologia_analitica_codigo) {

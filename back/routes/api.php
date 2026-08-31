@@ -251,6 +251,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/inmunologia-analitica/solicitud/{id}', [\App\Http\Controllers\InmunologiaAnaliticaController::class, 'show']);
     Route::post('/inmunologia-analitica/solicitud/{id}/resultados', [\App\Http\Controllers\InmunologiaAnaliticaController::class, 'saveResultados']);
 
+    // Catálogo de método/equipo de inmunología (administrable desde la analítica)
+    Route::apiResource('metodo-equipo-inmunologia', \App\Http\Controllers\MetodoEquipoInmunologiaController::class)
+        ->parameters(['metodo-equipo-inmunologia' => 'id']);
+
     // Vincular rangos a una prestación/servicio
     Route::get('/servicios/{id}/rangos', [\App\Http\Controllers\ServicioController::class, 'getRangos']);
     Route::post('/servicios/{id}/rangos', [\App\Http\Controllers\ServicioController::class, 'syncRangos']);

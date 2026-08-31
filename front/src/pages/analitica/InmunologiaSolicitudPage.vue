@@ -55,6 +55,33 @@
               placeholder="Comentario que se imprimirá en el resultado"
             />
           </div>
+
+          <!-- Método y equipo: uno solo para toda la analítica -->
+          <div class="col-12 col-sm-4">
+            <q-select
+              v-model="metodo"
+              :options="metodoOptions"
+              dense outlined clearable stack-label
+              label="Método"
+            />
+          </div>
+          <div class="col-12 col-sm-8">
+            <div class="row items-center no-wrap q-gutter-xs">
+              <q-select
+                v-model="equipo"
+                :options="equipoOptions"
+                dense outlined clearable stack-label
+                class="col"
+                label="Equipo"
+              />
+              <q-btn
+                flat round dense icon="settings" color="grey-7" size="sm"
+                @click="abrirCatalogo"
+              >
+                <q-tooltip>Administrar métodos y equipos</q-tooltip>
+              </q-btn>
+            </div>
+          </div>
         </div>
       </q-card-section>
 
@@ -221,6 +248,79 @@
         </div>
       </q-card-section>
     </q-card>
+
+    <!-- ADMINISTRACIÓN DEL CATÁLOGO MÉTODO / EQUIPO -->
+    <q-dialog v-model="catalogoDialog">
+      <q-card style="min-width:520px;max-width:95vw">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-subtitle1 text-weight-bold">Métodos y equipos de Inmunología</div>
+          <q-space />
+          <q-btn flat round dense icon="close" v-close-popup />
+        </q-card-section>
+
+        <q-card-section class="q-pt-sm">
+          <div class="row q-col-gutter-sm items-center">
+            <div class="col-12 col-sm-4">
+              <q-select
+                v-model="catalogoForm.tipo"
+                :options="['METODO', 'EQUIPO']"
+                dense outlined label="Tipo"
+              />
+            </div>
+            <div class="col-12 col-sm-5">
+              <q-input
+                v-model="catalogoForm.nombre"
+                dense outlined
+                :label="catalogoForm.tipo === 'EQUIPO' ? 'Nombre del equipo' : 'Nombre del método'"
+                @keyup.enter="guardarCatalogo"
+              />
+            </div>
+            <div class="col-12 col-sm-3 text-right">
+              <q-btn
+                dense no-caps color="primary"
+                :icon="catalogoForm.id ? 'save' : 'add'"
+                :label="catalogoForm.id ? 'Actualizar' : 'Agregar'"
+                :loading="catalogoSaving"
+                :disable="!catalogoForm.nombre"
+                @click="guardarCatalogo"
+              />
+            </div>
+          </div>
+          <div v-if="catalogoForm.id" class="text-right q-mt-xs">
+            <q-btn flat dense no-caps size="sm" label="Cancelar edición" @click="resetCatalogoForm" />
+          </div>
+        </q-card-section>
+
+        <q-separator />
+
+        <q-card-section class="q-pa-none">
+          <q-table
+            :rows="catalogo"
+            :columns="catalogoColumns"
+            row-key="id"
+            flat dense
+            :loading="catalogoLoading"
+            :pagination="{ rowsPerPage: 10 }"
+            no-data-label="Sin métodos ni equipos registrados"
+          >
+            <template #body-cell-tipo="props">
+              <q-td :props="props">
+                <q-chip dense square :color="props.row.tipo === 'EQUIPO' ? 'teal-2' : 'indigo-2'">
+                  {{ props.row.tipo }}
+                </q-chip>
+              </q-td>
+            </template>
+
+            <template #body-cell-acciones="props">
+              <q-td :props="props" class="text-right">
+                <q-btn flat round dense size="sm" icon="edit" color="primary" @click="editarCatalogo(props.row)" />
+                <q-btn flat round dense size="sm" icon="delete" color="negative" @click="eliminarCatalogo(props.row)" />
+              </q-td>
+            </template>
+          </q-table>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -238,6 +338,18 @@ export default {
       visibles: {},               // ids que se imprimen en el PDF de esta solicitud
       fechaRecepcion: null,       // recepción de la muestra, para toda la analítica (YYYY-MM-DD)
       comentario: '',             // comentario que se imprime en el resultado
+      metodo: null,               // método usado, para toda la analítica
+      equipo: null,               // equipo usado, para toda la analítica
+      catalogo: [],               // catálogo método/equipo de inmunología
+      catalogoDialog: false,
+      catalogoLoading: false,
+      catalogoSaving: false,
+      catalogoForm: { id: null, tipo: 'METODO', nombre: '' },
+      catalogoColumns: [
+        { name: 'tipo', label: 'Tipo', field: 'tipo', align: 'left', sortable: true },
+        { name: 'nombre', label: 'Nombre', field: 'nombre', align: 'left', sortable: true },
+        { name: 'acciones', label: '', field: 'acciones', align: 'right' }
+      ],
       manualOverrides: new Set(), // ids de campos calculados editados manualmente
       prestacionesModificadas: new Set()
     }
@@ -263,11 +375,21 @@ export default {
         }
       })
       return grupos
+    },
+
+    // Métodos y equipos son listas independientes del mismo catálogo
+    metodoOptions () {
+      return this.catalogo.filter(c => c.tipo === 'METODO').map(c => c.nombre)
+    },
+
+    equipoOptions () {
+      return this.catalogo.filter(c => c.tipo === 'EQUIPO').map(c => c.nombre)
     }
   },
 
   mounted () {
     this.load()
+    this.loadCatalogo()
   },
 
   methods: {
@@ -280,6 +402,8 @@ export default {
 
         this.fechaRecepcion = data.solicitud?.inmunologia_fecha_recepcion || null
         this.comentario = data.solicitud?.inmunologia_comentario || ''
+        this.metodo = data.solicitud?.inmunologia_metodo || null
+        this.equipo = data.solicitud?.inmunologia_equipo || null
 
         this.valores = {}
         this.visibles = {}
@@ -448,7 +572,9 @@ export default {
             resultados,
             servicios_modificados: serviciosModificados,
             fecha_recepcion: this.fechaRecepcion || null,
-            comentario: this.comentario || null
+            comentario: this.comentario || null,
+            metodo: this.metodo || null,
+            equipo: this.equipo || null
           }
         )
         this.$q.notify({ type: 'positive', message: 'Resultados guardados correctamente' })
@@ -459,6 +585,77 @@ export default {
       } finally {
         this.saving = false
       }
+    },
+
+    // ── Catálogo método / equipo de inmunología ─────────────────────────
+    async loadCatalogo () {
+      this.catalogoLoading = true
+      try {
+        const { data } = await this.$axios.get('/metodo-equipo-inmunologia')
+        this.catalogo = data
+      } catch (e) {
+        console.error(e)
+        this.$q.notify({ type: 'negative', message: 'Error al cargar métodos y equipos' })
+      } finally {
+        this.catalogoLoading = false
+      }
+    },
+
+    abrirCatalogo () {
+      this.resetCatalogoForm()
+      this.catalogoDialog = true
+      this.loadCatalogo()
+    },
+
+    resetCatalogoForm () {
+      this.catalogoForm = { id: null, tipo: this.catalogoForm?.tipo || 'METODO', nombre: '' }
+    },
+
+    editarCatalogo (row) {
+      this.catalogoForm = { id: row.id, tipo: row.tipo, nombre: row.nombre }
+    },
+
+    async guardarCatalogo () {
+      if (!this.catalogoForm.nombre) return
+      this.catalogoSaving = true
+      try {
+        const payload = {
+          tipo: this.catalogoForm.tipo,
+          nombre: this.catalogoForm.nombre
+        }
+        if (this.catalogoForm.id) {
+          await this.$axios.put(`/metodo-equipo-inmunologia/${this.catalogoForm.id}`, payload)
+        } else {
+          await this.$axios.post('/metodo-equipo-inmunologia', payload)
+        }
+        this.$q.notify({ type: 'positive', message: 'Registro guardado' })
+        this.resetCatalogoForm()
+        await this.loadCatalogo()
+      } catch (e) {
+        console.error(e)
+        this.$q.notify({ type: 'negative', message: 'Error al guardar el registro' })
+      } finally {
+        this.catalogoSaving = false
+      }
+    },
+
+    eliminarCatalogo (row) {
+      this.$q.dialog({
+        title: 'Eliminar',
+        message: `¿Eliminar el ${row.tipo === 'EQUIPO' ? 'equipo' : 'método'} "${row.nombre}"?`,
+        cancel: true,
+        persistent: true
+      }).onOk(async () => {
+        try {
+          await this.$axios.delete(`/metodo-equipo-inmunologia/${row.id}`)
+          this.$q.notify({ type: 'positive', message: 'Registro eliminado' })
+          if (this.catalogoForm.id === row.id) this.resetCatalogoForm()
+          await this.loadCatalogo()
+        } catch (e) {
+          console.error(e)
+          this.$q.notify({ type: 'negative', message: 'Error al eliminar el registro' })
+        }
+      })
     },
 
     imprimirPdf () {
