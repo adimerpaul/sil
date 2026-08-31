@@ -77,6 +77,9 @@
               <th style="width:36px" class="tc" title="Visible en impresión">
                 <q-icon name="print" size="14px" />
               </th>
+              <th style="width:36px" class="tc" title="Se captura con interpretación (Reactivo, Positivo, ...)">
+                <q-icon name="rule" size="14px" />
+              </th>
               <th>Perfil</th>
               <th>Rango / Analito</th>
               <th>Método</th>
@@ -103,6 +106,15 @@
               <td class="tc">
                 <q-checkbox v-model="item.visible" dense size="xs" color="deep-purple" @click.stop>
                   <q-tooltip>{{ item.visible ? 'Visible en impresión' : 'Oculto en impresión' }}</q-tooltip>
+                </q-checkbox>
+              </td>
+              <td class="tc">
+                <q-checkbox v-model="item.con_interpretacion" dense size="xs" color="teal" @click.stop>
+                  <q-tooltip>
+                    {{ item.con_interpretacion
+                      ? 'Se captura interpretación en la analítica'
+                      : 'Sin interpretación' }}
+                  </q-tooltip>
                 </q-checkbox>
               </td>
               <td class="text-purple-7">{{ item.perfil || '—' }}</td>
@@ -505,7 +517,8 @@ export default {
           orden: r.pivot?.orden ?? idx + 1,
           visible: r.pivot?.visible === undefined || r.pivot?.visible === null
             ? true
-            : Boolean(Number(r.pivot.visible))
+            : Boolean(Number(r.pivot.visible)),
+          con_interpretacion: Boolean(Number(r.pivot?.con_interpretacion ?? 0))
         }))
       this.formulas = this.formulasIniciales.map(f => ({
         nombre_variable: f.nombre_variable,
@@ -559,7 +572,8 @@ export default {
         nombre_variable: this.variableUnica(nombre),
         opciones: [],
         orden: this.lista.length + 1,
-        visible: true
+        visible: true,
+        con_interpretacion: false
       })
       this.$nextTick(() => { this.rangoParaAgregar = null })
       this.opcionesFiltradas = this.disponibles()
@@ -828,7 +842,8 @@ export default {
         nombre_variable: item.nombre_variable || null,
         opciones: item.opciones || [],
         orden: idx + 1,
-        visible: item.visible !== false
+        visible: item.visible !== false,
+        con_interpretacion: item.con_interpretacion === true
       }))
       const formulas = this.formulas.map((f, idx) => ({ ...f, label: '', unidad: '', orden: idx + 1 }))
       return { rangos, formulas, cerrar }

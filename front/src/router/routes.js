@@ -205,6 +205,12 @@ const routes = [
         component: () => import('pages/analitica/Analitica.vue'),
         meta: {requiresAuth: true, perm: 'Analitica'}
       },
+      // vista del doctor: laboratorios de la semana que pidió
+      {
+        path: '/mis-laboratorios',
+        component: () => import('pages/misLaboratorios/MisLaboratorios.vue'),
+        meta: {requiresAuth: true, perm: 'Mis laboratorios'}
+      },
       {
         path: '/analitica/:id',
         name: 'analitica-detalle',

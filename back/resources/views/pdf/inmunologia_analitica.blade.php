@@ -5,6 +5,19 @@
     <style>
         * { box-sizing: border-box; }
 
+        /* el margen superior reserva el sitio de la cabecera fija, que DOMPDF
+           repite en todas las páginas; los otros márgenes son los de por defecto.
+           La cabecera arranca donde arrancaba antes: el papel viene con membrete
+           preimpreso y ese espacio de arriba tiene que quedar libre. */
+        @page { margin: 225px 1.2cm 1.2cm 1.2cm; }
+
+        #page-header {
+            position: fixed;
+            top: -210px;
+            left: 4px;
+            right: 4px;
+        }
+
         body {
             margin: 0; padding: 0;
             font-family: DejaVu Sans, sans-serif;
@@ -28,26 +41,30 @@
         }
         .tbl th, .tbl td {
             border: 1px solid #111;
-            padding: 1.5px 3px;
+            padding: 0.5px 2px;
             vertical-align: middle;
         }
         .tbl th {
             background: #f7f7f7;
-            font-size: 9px;
+            font-size: 8px;
         }
         .tbl td { font-size: 9px; }
 
+        /* rango de referencia e interpretación: texto de varias líneas, va más
+           chico y más junto para que la tabla no se estire */
+        .tbl td.col-texto { font-size: 7.2px; vertical-align: top; }
+
         /* los anchos de columna se calculan en la tabla según las columnas opcionales */
         .out-range { color: #c10015; font-weight: 700; }
-        .rango-linea { display: block; line-height: 1.25; }
+        .rango-linea { display: block; line-height: 1.02; }
 
         .section-title {
             font-size: 9px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .02em;
-            padding: 2px 3px;
-            margin-top: 6px;
+            padding: 1px 2px;
+            margin-top: 3px;
         }
 
         .subarea-title {
@@ -57,8 +74,8 @@
             letter-spacing: .03em;
             background: #eef2f7;
             border-left: 3px solid #333;
-            padding: 2px 4px;
-            margin-top: 7px;
+            padding: 1px 3px;
+            margin-top: 4px;
         }
 
         .comentario {
@@ -157,19 +174,21 @@
     $equipoAnalitica = trim((string) ($solicitud->inmunologia_equipo ?? ''));
 @endphp
 
+{{-- cabecera fija: tiene que ser hija directa del body para que DOMPDF la
+     repita en todas las páginas --}}
+<div id="page-header">
+    {!! view('components.headerSinCabeceraPequeno', [
+        'solicitud' => $solicitud,
+        'fecha_solicitud' => now()->format('d/m/Y H:i'),
+        'fecha_muestreo' => $fechaRecepcion,
+        'fecha_muestreo_label' => 'FECHA DE RECEPCIÓN DE LA MUESTRA:',
+        'fecha_muestreo_label_span' => 3,
+    ])->render() !!}
+</div>
+
 {{-- el cuerpo va suelto, no dentro de una celda: DOMPDF no parte una celda entre
      páginas y descartaba en silencio todo lo que no entraba en la primera --}}
 <div style="padding: 0 4px;">
-
-            <div style="margin-top:-30px;">
-                {!! view('components.headerSinCabeceraPequeno', [
-                    'solicitud' => $solicitud,
-                    'fecha_solicitud' => now()->format('d/m/Y H:i'),
-                    'fecha_muestreo' => $fechaRecepcion,
-                    'fecha_muestreo_label' => 'FECHA DE RECEPCIÓN DE LA MUESTRA:',
-                    'fecha_muestreo_label_span' => 3,
-                ])->render() !!}
-            </div>
 
             <div class="center bold" style="font-size:12px; margin: 5px 0 2px;">INMUNOLOGÍA</div>
 
@@ -251,7 +270,7 @@
                                 @if($conMuestra)
                                     <td class="center">{{ $rango->muestra ?? '' }}</td>
                                 @endif
-                                <td>
+                                <td class="col-texto">
                                     @forelse(inmuno_rango_lineas($rango) as $linea)
                                         <div class="rango-linea">{{ $linea }}</div>
                                     @empty
@@ -259,7 +278,7 @@
                                     @endforelse
                                 </td>
                                 @if($conInterp)
-                                    <td>
+                                    <td class="col-texto">
                                         @forelse(inmuno_lineas_texto($rango->interpretacion_resultado) as $linea)
                                             <div class="rango-linea">{{ $linea }}</div>
                                         @empty

@@ -56,9 +56,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/{user}/avatar', [App\Http\Controllers\UserController::class, 'updateAvatar']);
     Route::post('/{user}/firma', [App\Http\Controllers\UserController::class, 'updateFirma']);
     Route::post('/{user}/sello', [App\Http\Controllers\UserController::class, 'updateSello']);
+    Route::get('/mis-laboratorios', [App\Http\Controllers\MisLaboratorioController::class, 'index']);
+    Route::post('/mis-laboratorios/{solicitud}/visto', [App\Http\Controllers\MisLaboratorioController::class, 'marcarVisto']);
+    Route::post('/mis-laboratorios/{solicitud}/aceptar', [App\Http\Controllers\MisLaboratorioController::class, 'aceptar']);
     Route::get('/permissions', [App\Http\Controllers\UserController::class, 'permissions']);
     Route::get('/users/{user}/permissions', [App\Http\Controllers\UserController::class, 'userPermissions']);
     Route::put('/users/{user}/permissions', [App\Http\Controllers\UserController::class, 'updateUserPermissions']);
+    Route::get('/users/{user}/doctores', [App\Http\Controllers\UserController::class, 'userDoctores']);
+    Route::put('/users/{user}/doctores', [App\Http\Controllers\UserController::class, 'syncUserDoctores']);
     Route::get('/users/{user}/subpartidas', [App\Http\Controllers\UserController::class, 'userSubpartidas']);
     Route::put('/users/{user}/subpartidas', [App\Http\Controllers\UserController::class, 'syncUserSubpartidas']);
 

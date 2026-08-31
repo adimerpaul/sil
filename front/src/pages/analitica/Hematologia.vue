@@ -2,9 +2,9 @@
   <q-page class="q-pa-sm bg-grey-2">
     <!-- ENCABEZADO -->
     <q-card flat bordered class="q-mb-sm">
-      <q-card-section class="row items-center q-col-gutter-sm">
+      <q-card-section class="row items-center q-col-gutter-sm q-pa-sm">
         <div class="col">
-          <div class="text-h6 text-weight-bold">Hematología</div>
+          <div class="text-subtitle1 text-weight-bold">Hematología</div>
           <div class="text-caption text-grey-7">
             Hemograma, recuento diferencial, coagulograma y grupo sanguíneo
           </div>
@@ -12,7 +12,7 @@
 
         <div class="col-auto">
           <q-btn
-            flat
+            dense flat
             icon="refresh"
             label="Refrescar"
             no-caps
@@ -21,7 +21,7 @@
             @click="load"
           />
           <q-btn
-            flat
+            dense flat
             icon="print"
             label="Imprimir"
             no-caps
@@ -30,7 +30,7 @@
             @click="printHematologia"
           />
           <q-btn
-            flat
+            dense flat
             icon="arrow_back"
             label="Volver"
             no-caps
@@ -38,6 +38,7 @@
             @click="$router.back()"
           />
           <q-btn
+            dense
             color="primary"
             icon="save"
             label="Guardar"
@@ -178,7 +179,7 @@
 <!--            methodo equipo-->
           </div>
 
-          <q-markup-table dense flat bordered square class="bg-white q-mb-md">
+          <q-markup-table dense flat bordered square class="bg-white q-mb-sm">
             <thead>
             <tr>
               <th class="text-left">Analito</th>
@@ -371,7 +372,7 @@
                v-if="canAny(['vcm','hbcm','chcm'])"
           >Indices hematimetricos</div>
 
-          <q-markup-table dense flat bordered square class="bg-white q-mb-md"
+          <q-markup-table dense flat bordered square class="bg-white q-mb-sm"
                           v-if="canAny(['vcm','hbcm','chcm'])"
           >
             <thead>
@@ -560,7 +561,7 @@
           <!-- RECUENTO DIFERENCIAL -->
           <div class="section-title q-mb-xs">Recuento diferencial</div>
 
-          <q-markup-table dense flat bordered square class="bg-white q-mb-md">
+          <q-markup-table dense flat bordered square class="bg-white q-mb-sm">
             <thead>
             <tr>
               <th class="text-left">Célula</th>
@@ -761,7 +762,7 @@
 <!--            dense-->
 <!--            outlined-->
 <!--            autogrow-->
-<!--            class="bg-white q-mb-md"-->
+<!--            class="bg-white q-mb-sm"-->
 <!--            placeholder="Anisocitosis, poiquilocitosis, hipocromía, etc."-->
 <!--          />-->
 
@@ -808,7 +809,7 @@
             <!--            methodo equipo-->
           </div>
 
-          <q-markup-table dense flat bordered square class="bg-white q-mb-md">
+          <q-markup-table dense flat bordered square class="bg-white q-mb-sm">
             <thead>
             <tr>
               <th class="text-left">Prueba</th>
@@ -928,7 +929,7 @@
           </q-markup-table>
           <div class="section-title q-mb-xs">OTROS</div>
 
-          <q-markup-table dense flat bordered square class="bg-white q-mb-md">
+          <q-markup-table dense flat bordered square class="bg-white q-mb-sm">
             <thead>
             <tr>
               <th class="text-left">Prueba</th>
@@ -1051,7 +1052,7 @@
                   dense
                   outlined
                   autogrow
-                  class="bg-white q-mb-md"
+                  class="bg-white q-mb-sm"
                   label="Serie roja"
                 />
               </div>
@@ -1064,7 +1065,7 @@
                   dense
                   outlined
                   autogrow
-                  class="bg-white q-mb-md"
+                  class="bg-white q-mb-sm"
                   label="Serie blanca"
                 />
               </div>
@@ -1077,14 +1078,14 @@
                   dense
                   outlined
                   autogrow
-                  class="bg-white q-mb-md"
+                  class="bg-white q-mb-sm"
                   label="Serie plaquetaria"
                 />
               </div>
             </div>
 
           <!-- GRUPO SANGUÍNEO -->
-          <div class="row q-col-gutter-sm q-mb-md">
+          <div class="row q-col-gutter-sm q-mb-sm">
             <div class="col-12 col-sm-4" v-if="canVariable('grupo_sanguineo')">
               <div class="section-title q-mb-xs">Grupo sanguíneo <span class="var-tag">grupo_sanguineo</span></div>
               <q-select
@@ -1508,6 +1509,8 @@ export default {
 
     // ========= api =========
     async load () {
+      // overlay a pantalla completa: al cambiar de laboratorio se nota la carga
+      this.$q.loading.show({ message: 'Cargando hematología...', boxClass: 'bg-white text-grey-9', spinnerColor: 'primary' })
       try {
         this.loading = true
         this.formLoaded = false
@@ -1530,10 +1533,12 @@ export default {
         else console.error(msg)
       } finally {
         this.loading = false
+        this.$q.loading.hide()
       }
     },
 
     async save () {
+      this.$q.loading.show({ message: 'Guardando hematología...', boxClass: 'bg-white text-grey-9', spinnerColor: 'primary' })
       try {
         this.loading = true
         const res = await this.$axios.post(`/hematologia/solicitud/${this.solicitudId}`, this.form)
@@ -1551,6 +1556,7 @@ export default {
         else console.error(msg)
       } finally {
         this.loading = false
+        this.$q.loading.hide()
       }
     },
 
@@ -1606,7 +1612,7 @@ export default {
 
 <style scoped>
 .section-title {
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -1622,6 +1628,36 @@ export default {
 .q-markup-table td {
   font-size: 0.75rem;
 }
+
+/* vista compacta: mismos datos, menos alto de pantalla */
+.q-markup-table th {
+  padding: 2px 6px;
+}
+.q-markup-table td {
+  padding: 1px 6px;
+}
+:deep(.q-field--dense .q-field__control),
+:deep(.q-field--dense .q-field__marginal) {
+  height: 30px;
+}
+:deep(.q-field--dense.q-field--auto-height .q-field__control) {
+  height: auto;
+  min-height: 30px;
+}
+:deep(.q-field--dense .q-field__native),
+:deep(.q-field--dense .q-field__input) {
+  font-size: 12px;
+  padding: 0;
+}
+:deep(.q-field--dense .q-field__label) {
+  font-size: 12px;
+}
+:deep(.q-toggle__label),
+:deep(.q-radio__label),
+:deep(.q-checkbox__label) {
+  font-size: 12px;
+}
+
 .bg-white {
   background-color: #ffffff;
 }

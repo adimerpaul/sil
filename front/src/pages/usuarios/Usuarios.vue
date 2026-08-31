@@ -68,6 +68,14 @@
                   <q-item-label>Subir sello</q-item-label>
                 </q-item-section>
               </q-item>
+              <q-item clickable @click="doctoresShow(props.row)" v-close-popup>
+                <q-item-section avatar>
+                  <q-icon name="medical_services"/>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Doctores vinculados</q-item-label>
+                </q-item-section>
+              </q-item>
               <q-item clickable @click="subpartidasShow(props.row)" v-close-popup>
                 <q-item-section avatar>
                   <q-icon name="category"/>
@@ -86,6 +94,25 @@
               </q-item>
             </q-list>
           </q-btn-dropdown>
+        </q-td>
+      </template>
+      <template v-slot:body-cell-doctores="props">
+        <q-td :props="props">
+          <div class="row items-center q-col-gutter-xs">
+            <q-chip
+              v-for="doc in (props.row.doctores || []).slice(0, 2)"
+              :key="doc.id"
+              dense color="teal-1" text-color="teal-9" size="12px"
+              icon="medical_services" class="q-mr-xs q-mb-xs"
+            >
+              {{ doc.nombre }}
+            </q-chip>
+            <q-chip v-if="(props.row.doctores || []).length > 2" dense color="grey-4" text-color="black" size="12px">
+              +{{ props.row.doctores.length - 2 }}
+              <q-tooltip>{{ props.row.doctores.map(d => d.nombre).join(', ') }}</q-tooltip>
+            </q-chip>
+            <span v-if="!(props.row.doctores || []).length" class="text-grey-6">—</span>
+          </div>
         </q-td>
       </template>
       <template v-slot:body-cell-role="props">
@@ -554,6 +581,100 @@
       </q-card>
     </q-dialog>
 
+    <!-- Diálogo de doctores vinculados -->
+    <q-dialog v-model="dialogDoctores" persistent :maximized="$q.screen.lt.sm">
+      <q-card class="subpartida-card">
+        <q-card-section class="row items-center q-pb-none">
+          <q-icon name="medical_services" color="primary" size="22px" class="q-mr-sm"/>
+          <div>
+            <div class="text-weight-bold">Doctores vinculados</div>
+            <div class="text-caption text-grey-7">{{ user.username }}</div>
+          </div>
+          <q-space/>
+          <q-badge color="primary" outline class="q-mr-sm">
+            {{ doctoresSeleccionados.length }} seleccionados
+          </q-badge>
+          <q-btn icon="close" flat round dense @click="dialogDoctores = false"/>
+        </q-card-section>
+
+        <q-card-section class="q-pt-sm q-pb-xs">
+          <div class="text-caption text-grey-7 q-mb-xs">
+            El usuario verá en "Mis laboratorios" las solicitudes pedidas por estos doctores.
+          </div>
+
+          <!-- doctores ya vinculados: se quitan tocando la X del chip -->
+          <div class="q-mb-xs" style="max-height: 96px; overflow-y: auto;">
+            <q-chip
+              v-for="doc in doctoresVinculados"
+              :key="doc.id"
+              dense removable size="12px"
+              color="teal-1" text-color="teal-9" icon="medical_services"
+              class="q-mr-xs q-mb-xs"
+              @remove="toggleDoctor(doc.id)"
+            >
+              {{ doc.nombre }}
+            </q-chip>
+            <span v-if="!doctoresVinculados.length" class="text-caption text-grey-6">
+              Sin doctores vinculados
+            </span>
+          </div>
+
+          <q-input v-model="doctorFilter" dense outlined clearable placeholder="Buscar doctor...">
+            <template v-slot:prepend><q-icon name="search"/></template>
+          </q-input>
+        </q-card-section>
+
+        <q-separator/>
+
+        <q-card-section class="q-pa-xs">
+          <div v-if="loading" class="text-center q-pa-md">
+            <q-spinner color="primary" size="30px"/>
+          </div>
+          <template v-else>
+            <div v-if="doctoresFiltrados.length === 0" class="text-grey-6 text-center q-pa-md">
+              Sin resultados
+            </div>
+            <!-- son ~950 doctores: se renderiza con scroll virtual -->
+            <q-virtual-scroll
+              v-else
+              :items="doctoresFiltrados"
+              style="max-height: min(65vh, 520px)"
+              v-slot="{ item: doc }"
+            >
+              <q-item
+                :key="doc.id"
+                dense clickable
+                class="subpartida-row"
+                @click="toggleDoctor(doc.id)"
+              >
+                <q-item-section avatar style="min-width:28px">
+                  <q-icon
+                    :name="doctoresSeleccionados.includes(doc.id) ? 'check_box' : 'check_box_outline_blank'"
+                    :color="doctoresSeleccionados.includes(doc.id) ? 'primary' : 'grey-4'"
+                    size="20px"
+                  />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-caption text-weight-medium">{{ doc.nombre }}</q-item-label>
+                  <q-item-label caption>
+                    {{ doc.especialidad || 'Sin especialidad' }}
+                    <span v-if="doc.ci"> · CI {{ doc.ci }}</span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-virtual-scroll>
+          </template>
+        </q-card-section>
+
+        <q-separator/>
+
+        <q-card-actions align="right" class="q-pa-sm">
+          <q-btn label="Cancelar" flat color="negative" @click="dialogDoctores = false" no-caps/>
+          <q-btn label="Guardar" color="primary" icon="save" @click="doctoresPost" no-caps :loading="loading"/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <!-- Diálogo de firma -->
     <q-dialog v-model="firmaDialogo" persistent @show="firmaInit">
       <q-card style="width: 540px; max-width: 98vw">
@@ -865,16 +986,20 @@ export default {
         { name: 'permissions', label: 'Permisos', align: 'left',
           field: row => (row.permissions || []).map(p => p.name).join(', ')
         },
-        // area
-        {name: 'area', label: 'Area', align: 'left', field: row => row.area?.name || ''},
-        // establecimiento
-        {name: 'establecimiento', label: 'Establecimiento', align: 'left', field: row => row.establecimiento?.nombre || ''},
+        // doctores vinculados (reemplaza a Área y Establecimiento en el listado)
+        {name: 'doctores', label: 'Doctores vinculados', align: 'left',
+          field: row => (row.doctores || []).map(d => d.nombre).join(', ')
+        },
         {name: 'unidad', label: 'Unidad', align: 'left', field: row => row.unidad?.nombre || ''},
       ],
       permissions: [],
       dialogPermisos: false,
       permFilter: '',
       cambioAvatarDialogo: false,
+      dialogDoctores: false,
+      todosDoctores: [],
+      doctoresSeleccionados: [],
+      doctorFilter: '',
       dialogSubpartidas: false,
       todasSubpartidas: [],
       subpartidasSeleccionadas: [],
@@ -916,6 +1041,44 @@ export default {
     })
   },
   methods: {
+    async doctoresShow(user) {
+      this.user = { ...user }
+      this.dialogDoctores = true
+      this.loading = true
+      this.doctorFilter = ''
+      try {
+        const [todos, seleccionados] = await Promise.all([
+          this.$axios.get('doctores').then(r => r.data),
+          this.$axios.get(`users/${user.id}/doctores`).then(r => r.data),
+        ])
+        this.todosDoctores = todos
+        this.doctoresSeleccionados = seleccionados
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'Error cargando doctores')
+      } finally {
+        this.loading = false
+      }
+    },
+    async doctoresPost() {
+      this.loading = true
+      try {
+        await this.$axios.put(`users/${this.user.id}/doctores`, {
+          doctores: this.doctoresSeleccionados,
+        })
+        this.dialogDoctores = false
+        this.$alert.success('Doctores vinculados actualizados')
+        this.usersGet()
+      } catch (e) {
+        this.$alert.error(e.response?.data?.message || 'Error al guardar')
+      } finally {
+        this.loading = false
+      }
+    },
+    toggleDoctor(id) {
+      const idx = this.doctoresSeleccionados.indexOf(id)
+      if (idx === -1) this.doctoresSeleccionados.push(id)
+      else this.doctoresSeleccionados.splice(idx, 1)
+    },
     async subpartidasShow(user) {
       this.user = { ...user }
       this.dialogSubpartidas = true
@@ -1416,6 +1579,20 @@ export default {
       const role = this.$store?.user?.role
       const perms = this.$store?.permissions || []
       return role === 'Administrador' || perms.includes('Tiempo creación de usuario')
+    },
+    doctoresVinculados() {
+      return this.doctoresSeleccionados
+        .map(id => this.todosDoctores.find(d => d.id === id))
+        .filter(Boolean)
+    },
+    doctoresFiltrados() {
+      const q = (this.doctorFilter || '').toLowerCase().trim()
+      if (!q) return this.todosDoctores
+      return this.todosDoctores.filter(d => (
+        (d.nombre || '').toLowerCase().includes(q) ||
+        (d.especialidad || '').toLowerCase().includes(q) ||
+        (d.ci || '').toString().toLowerCase().includes(q)
+      ))
     },
     subpartidasAgrupadas() {
       const q = (this.subpartidaFilter || '').toLowerCase()

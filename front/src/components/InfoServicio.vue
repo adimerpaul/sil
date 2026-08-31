@@ -1,95 +1,86 @@
 <template>
-  <q-card-section v-if="header" class="q-pa-sm bg-blue-1">
-    <div class="row q-col-gutter-sm text-caption">
-      <div class="col-12 col-md-2">
-        <q-icon name="badge" class="q-mr-sm" color="blue" />
-        <span class="text-bold">CÓDIGO:</span>
-        <span class="line clip">{{ header.codigo || header.id }}</span>
-      </div>
+  <!-- Cabecera compacta: los mismos datos, en la menor cantidad de líneas posible -->
+  <q-card-section v-if="header" class="q-pa-xs bg-blue-1 info-servicio">
+    <div class="datos">
+      <span class="dato">
+        <q-icon name="badge" color="blue" size="13px" />
+        <b>CÓDIGO:</b> {{ header.codigo || header.id }}
+      </span>
 
-      <div class="col-12 col-md-2">
-        <q-icon name="local_hospital" class="q-mr-sm" color="blue" />
-        <span class="text-bold">ATENCIÓN:</span> <span class="line clip">{{ (header.tipo_atencion || '') === 'SI' ? 'SUS' : 'EXT' }}</span>
-      </div>
-      <div class="col-12 col-md-3">
-        <q-icon name="assignment_ind" class="q-mr-sm" color="blue" />
-        <span class="text-bold">NRO. REGISTRO:</span>
-        <span class="line clip">{{ header.nro_registro || '-' }}</span>
-      </div>
-      <div class="col-12 col-md-5">
-        <q-icon name="person" class="q-mr-sm" color="blue" />
-        <span class="text-bold">PACIENTE:</span>
-        <span class="line clip">{{ header.paciente_nombre || '-' }}</span>
-      </div>
-      <div class="col-12 col-md-2">
-        <q-icon name="cake" class="q-mr-sm" color="blue" />
-        <span class="text-bold">EDAD:</span>
-        <span class="line clip">{{ header.paciente_edad || '-' }}</span>
-      </div>
-      <div class="col-12 col-md-2">
-        <q-icon name="wc" class="q-mr-sm" color="blue" />
-        <span class="text-bold">SEXO:</span>
-        <span class="line clip">{{ header.paciente_genero || '-' }}</span>
-      </div>
-      <div class="col-12 col-md-4">
-        <q-icon name="medical_services" class="q-mr-sm" color="blue" />
-        <span class="text-bold">MÉDICO SOL.:</span>
-        <span class="line clip">{{ header.doctor_nombre || '-' }}</span>
-      </div>
-      <div class="col-12 col-md-4">
-        <q-icon name="healing" class="q-mr-sm" color="blue" />
-        <span class="text-bold">DX:</span>
-        <span class="line clip">
-          {{ header.diagnostico_select ? header.diagnostico_select : (header.diagnostico_clinico || '-') }}
-<!--          <pre>{{header.diagnostico_clinico}}</pre>-->
-        </span>
-      </div>
-      <div class="col-12 col-md-6">
-        <q-icon name="local_hospital" class="q-mr-sm" color="blue" />
-        <span class="text-bold">EST. DE SALUD:</span>
-        <span class="line clip">{{ header.establecimiento_salud || '-' }}</span>
-      </div>
-      <div class="col-12 col-md-6">
-        <q-icon name="event" class="q-mr-sm" color="blue" />
-        <span class="text-bold">CÓDIGO MUESTRA:    </span>
-        <span class="line clip" >
-              {{ `${header.codigo || '-'}-${header.nro_registro || '-'}` }}
-            </span>
-      </div>
-      <div class="col-12 col-md-6">
-        <q-icon name="schedule" class="q-mr-sm" color="blue" />
-        <span class="text-bold">TIEMPO: </span>
-        <q-chip class="line clip" color="blue" text-color="white" size="xs">
+      <span class="dato">
+        <q-icon name="local_hospital" color="blue" size="13px" />
+        <b>ATENCIÓN:</b> {{ (header.tipo_atencion || '') === 'SI' ? 'SUS' : 'EXT' }}
+      </span>
+
+      <span class="dato">
+        <q-icon name="assignment_ind" color="blue" size="13px" />
+        <b>NRO. REGISTRO:</b> {{ header.nro_registro || '-' }}
+      </span>
+
+      <span class="dato">
+        <q-icon name="person" color="blue" size="13px" />
+        <b>PACIENTE:</b> {{ header.paciente_nombre || '-' }}
+      </span>
+
+      <span class="dato">
+        <q-icon name="cake" color="blue" size="13px" />
+        <b>EDAD:</b> {{ header.paciente_edad || '-' }}
+      </span>
+
+      <span class="dato">
+        <q-icon name="wc" color="blue" size="13px" />
+        <b>SEXO:</b> {{ header.paciente_genero || '-' }}
+      </span>
+
+      <span class="dato">
+        <q-icon name="medical_services" color="blue" size="13px" />
+        <b>MÉDICO SOL.:</b> {{ header.doctor_nombre || '-' }}
+      </span>
+
+      <span class="dato">
+        <q-icon name="healing" color="blue" size="13px" />
+        <b>DX:</b>
+        {{ header.diagnostico_select ? header.diagnostico_select : (header.diagnostico_clinico || '-') }}
+      </span>
+
+      <span class="dato">
+        <q-icon name="local_hospital" color="blue" size="13px" />
+        <b>EST. DE SALUD:</b> {{ header.establecimiento_salud || '-' }}
+      </span>
+
+      <span class="dato">
+        <q-icon name="event" color="blue" size="13px" />
+        <b>CÓD. MUESTRA:</b> {{ `${header.codigo || '-'}-${header.nro_registro || '-'}` }}
+      </span>
+
+      <span class="dato">
+        <q-icon name="schedule" color="blue" size="13px" />
+        <b>TIEMPO:</b>
+        <q-chip color="blue" text-color="white" size="9px" dense class="q-my-none q-mx-xs">
           {{ tiempoTranscurrido }}
         </q-chip>
-        <span class="text-bold">FECHA PRE ANALITICA: </span>
-        <span class="line clip">
-          {{ header.fecha_envio_analitica}}
-        </span>
-<!--        <pre>{{header}}</pre>-->
-<!--        {{fecha_fin}}-->
-      </div>
+      </span>
+
+      <span class="dato">
+        <b>FECHA PRE ANALÍTICA:</b> {{ header.fecha_envio_analitica || '-' }}
+      </span>
     </div>
   </q-card-section>
-  <q-card-section class="q-pa-xs">
-    <div class="text-h6">Servicios solicitados:</div>
-    <div class="q-mt-xs">
-      <q-chip
-        v-for="servicio in header?.servicios"
-        :key="servicio.id"
-        class="q-mr-sm q-mb-sm"
-        color="blue"
-        text-color="white"
-        size="sm"
-        outline
-      >
-        {{ servicio.nombre }}
-        <span>
-          ({{servicio.area?.name}})
-        </span>
-      </q-chip>
-<!--      <pre>{{header?.servicios}}</pre>-->
-    </div>
+
+  <q-card-section class="q-pa-xs servicios">
+    <span class="titulo">SERVICIOS SOLICITADOS ({{ (header?.servicios || []).length }}):</span>
+    <q-chip
+      v-for="servicio in header?.servicios"
+      :key="servicio.id"
+      class="q-mr-xs q-my-none"
+      color="blue"
+      text-color="blue"
+      size="9px"
+      dense
+      outline
+    >
+      {{ servicio.nombre }} ({{ servicio.area?.name }})
+    </q-chip>
   </q-card-section>
 </template>
 <script>
@@ -107,9 +98,6 @@ export default {
       required: false,
       default: null,
     },
-  },
-  mounted() {
-    // console.log('fecha_fin', this.fecha_fin);
   },
   computed: {
     tiempoTranscurrido() {
@@ -140,3 +128,33 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.info-servicio {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+/* los datos fluyen uno tras otro y solo saltan de línea cuando no entran */
+.datos {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 14px;
+}
+
+/* sin recortes: si un valor es largo, parte de línea pero se lee completo */
+.dato {
+  max-width: 100%;
+}
+
+.servicios {
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.servicios .titulo {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-right: 4px;
+}
+</style>

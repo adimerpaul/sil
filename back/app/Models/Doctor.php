@@ -30,4 +30,8 @@ class Doctor extends Model implements AuditableContract
     function establecimiento(){
         return $this->belongsTo(Establecimiento::class);
     }
+    /** Usuarios del sistema vinculados a este doctor */
+    function usuarios(){
+        return $this->belongsToMany(User::class)->withTimestamps();
+    }
 }

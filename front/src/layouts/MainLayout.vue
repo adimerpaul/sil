@@ -268,6 +268,7 @@ const menuSections = [
       { title: 'Preanalítica', icon: 'science', link: '/area-preanalitica', can: ['Area preanalitica', 'Area Preanalitica'] },
       { title: 'Estados preanalítica', icon: 'analytics', link: '/area-preanalitica-procesadas', can: ['Area preanalitica', 'Area Preanalitica'] },
       { title: 'Analítica', icon: 'biotech', link: '/analitica', can: 'Analitica', match: '/analitica' },
+      { title: 'Mis laboratorios', icon: 'medical_information', link: '/mis-laboratorios', can: 'Mis laboratorios' },
       { title: 'Configuración Hematología', icon: 'settings', link: '/configuracion/hematologia', can: 'Configuración hematología' },
       { title: 'Configuración Química Sanguínea', icon: 'settings', link: '/configuracion/quimica-sanguinea', can: 'Configuración química sanguínea' },
       { title: 'Agrupaciones', icon: 'library_add_check', link: '/configuracion/agrupaciones', can: 'Configuración agrupaciones' },

@@ -78,4 +78,8 @@ class User extends Authenticatable implements Auditable
     function subpartidas(){
         return $this->belongsToMany(Subpartida::class);
     }
+    /** Doctores que este usuario representa (ve sus solicitudes en "Mis laboratorios") */
+    function doctores(){
+        return $this->belongsToMany(Doctor::class)->withTimestamps();
+    }
 }

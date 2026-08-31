@@ -117,6 +117,7 @@ class ServicioController extends Controller
             'rangos.*.opciones.*' => 'string|max:255',
             'rangos.*.orden' => 'nullable|integer|min:0',
             'rangos.*.visible' => 'nullable|boolean',
+            'rangos.*.con_interpretacion' => 'nullable|boolean',
         ]);
 
         $sync = [];
@@ -131,6 +132,9 @@ class ServicioController extends Controller
                 'opciones' => $opciones ? json_encode($opciones, JSON_UNESCAPED_UNICODE) : null,
                 'orden' => $item['orden'] ?? $idx + 1,
                 'visible' => array_key_exists('visible', $item) ? (bool) $item['visible'] : true,
+                'con_interpretacion' => array_key_exists('con_interpretacion', $item)
+                    ? (bool) $item['con_interpretacion']
+                    : false,
             ];
         }
 

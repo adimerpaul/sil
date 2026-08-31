@@ -138,6 +138,7 @@
                   <th>Método</th>
                   <th style="min-width:140px">Valor del paciente</th>
                   <th>Unidad</th>
+                  <th v-if="tieneInterpretacion(prest)" style="width:150px">Interpretación</th>
                   <th style="max-width:220px">Rango de referencia</th>
                   <th style="width:80px">Estado</th>
                   <th style="width:44px" class="tc" title="Se muestra en el PDF de resultados">
@@ -188,6 +189,18 @@
                     />
                   </td>
                   <td class="text-grey-6" style="font-size:11px">{{ rango.unidad || '—' }}</td>
+                  <td v-if="tieneInterpretacion(prest)">
+                    <!-- Interpretación: solo en los rangos marcados en "Vincular rangos" -->
+                    <q-select
+                      v-if="rango.con_interpretacion"
+                      v-model="interpretaciones[rango.id]"
+                      :options="opcionesInterpretacion"
+                      dense outlined options-dense clearable
+                      class="imn-select"
+                      @update:model-value="actualizarPrestacion(prest, rango.id)"
+                    />
+                    <span v-else class="text-grey-5" style="font-size:11px">—</span>
+                  </td>
                   <td>
                     <!-- Sub-rangos numéricos -->
                     <template v-if="subRangos(rango).length">
@@ -336,6 +349,16 @@ export default {
       prestaciones: [],
       valores: {},
       visibles: {},               // ids que se imprimen en el PDF de esta solicitud
+      interpretaciones: {},       // interpretación elegida por rango (Reactivo, Positivo, ...)
+      opcionesInterpretacion: [
+        'Reactivo',
+        'No reactivo',
+        'Positivo',
+        'Negativo',
+        'Indeterminado',
+        'Alto positivo',
+        'Débil positivo'
+      ],
       fechaRecepcion: null,       // recepción de la muestra, para toda la analítica (YYYY-MM-DD)
       comentario: '',             // comentario que se imprime en el resultado
       metodo: null,               // método usado, para toda la analítica
@@ -407,6 +430,7 @@ export default {
 
         this.valores = {}
         this.visibles = {}
+        this.interpretaciones = {}
         this.manualOverrides = new Set()
         this.prestacionesModificadas = new Set()
         this.prestaciones.forEach(prest => {
@@ -414,6 +438,7 @@ export default {
             const valorGuardado = rango.resultado?.valor_final ?? ''
             this.valores[rango.id] = valorGuardado
             this.visibles[rango.id] = rango.visible !== false
+            this.interpretaciones[rango.id] = rango.resultado?.interpretacion || null
             // Si es campo de fórmula y tiene valor guardado → fue editado manualmente
             if (valorGuardado !== '' && valorGuardado !== null && this.esFormula(prest, rango)) {
               this.manualOverrides.add(rango.id)
@@ -453,6 +478,11 @@ export default {
 
     marcarPrestacionModificada (prest) {
       this.prestacionesModificadas.add(prest.servicio_id)
+    },
+
+    // La columna de interpretación solo aparece si algún rango la tiene marcada
+    tieneInterpretacion (prest) {
+      return (prest.rangos || []).some(r => r.con_interpretacion)
     },
 
     actualizarPrestacion (prest, rangoId) {
@@ -563,7 +593,10 @@ export default {
           .flatMap(prest => prest.rangos.map(rango => ({
             area_rango_id: rango.id,
             valor_final: String(this.valores[rango.id] ?? ''),
-            visible: this.visibles[rango.id] !== false
+            visible: this.visibles[rango.id] !== false,
+            interpretacion: rango.con_interpretacion
+              ? (this.interpretaciones[rango.id] || null)
+              : null
           })))
 
         await this.$axios.post(

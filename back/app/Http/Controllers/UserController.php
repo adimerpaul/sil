@@ -16,6 +16,21 @@ class UserController extends Controller{
         $user = User::findOrFail($userId);
         return $user->subpartidas()->pluck('subpartida_id');
     }
+    function userDoctores($userId){
+        $user = User::findOrFail($userId);
+
+        return $user->doctores()->pluck('doctors.id');
+    }
+    function syncUserDoctores(Request $request, $userId){
+        $data = $request->validate([
+            'doctores' => 'present|array',
+            'doctores.*' => 'integer|distinct|exists:doctors,id',
+        ]);
+        $user = User::findOrFail($userId);
+        $user->doctores()->sync($data['doctores']);
+
+        return $user->doctores()->get(['doctors.id', 'doctors.nombre']);
+    }
     function syncUserSubpartidas(Request $request, $userId){
         $user = User::findOrFail($userId);
         $user->subpartidas()->sync($request->subpartidas ?? []);
@@ -250,6 +265,7 @@ class UserController extends Controller{
             ->with('establecimiento')
             ->with('area')
             ->with('unidad')
+            ->with('doctores:doctors.id,doctors.nombre')
             ->orderBy('id', 'desc')
             ->get();
     }

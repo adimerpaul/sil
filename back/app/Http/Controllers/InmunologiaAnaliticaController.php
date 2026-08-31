@@ -10,11 +10,23 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class InmunologiaAnaliticaController extends Controller
 {
     private const AREA_ID = 6;
+
+    /** Interpretaciones válidas para un resultado (además de vacío) */
+    public const INTERPRETACIONES = [
+        'Reactivo',
+        'No reactivo',
+        'Positivo',
+        'Negativo',
+        'Indeterminado',
+        'Alto positivo',
+        'Débil positivo',
+    ];
 
     /**
      * Visibilidad efectiva de un rango en el PDF: manda lo decidido en la
@@ -111,10 +123,13 @@ class InmunologiaAnaliticaController extends Controller
                     // visible = lo que se imprimirá para ESTA solicitud (editable en la analítica)
                     'visible' => self::visibleEfectivo($resultado, $rango),
                     'visible_servicio' => (bool) $rango->pivot->visible,
+                    // el rango se captura con interpretación (Reactivo, Positivo, ...)
+                    'con_interpretacion' => (bool) $rango->pivot->con_interpretacion,
                     'resultado' => $resultado ? [
                         'id' => $resultado->id,
                         'valor_final' => $resultado->valor_final,
                         'observacion' => $resultado->observacion,
+                        'interpretacion' => $resultado->interpretacion,
                     ] : null,
                 ];
             });
@@ -171,6 +186,7 @@ class InmunologiaAnaliticaController extends Controller
             'resultados.*.valor_final' => 'nullable|string|max:255',
             'resultados.*.visible' => 'nullable|boolean',
             'resultados.*.observacion' => 'nullable|string',
+            'resultados.*.interpretacion' => ['nullable', 'string', Rule::in(self::INTERPRETACIONES)],
             'servicios_modificados' => 'present|array',
             'servicios_modificados.*' => 'integer|distinct|exists:servicios,id',
             'fecha_recepcion' => 'nullable|date',
@@ -220,6 +236,7 @@ class InmunologiaAnaliticaController extends Controller
                         ? (bool) $item['visible']
                         : null,
                     'observacion' => $item['observacion'] ?? null,
+                    'interpretacion' => ($item['interpretacion'] ?? '') !== '' ? $item['interpretacion'] : null,
                     'updated_at' => $now,
                     'created_at' => $now,
                 ]
@@ -317,7 +334,10 @@ class InmunologiaAnaliticaController extends Controller
                         'rango_5_maximo' => $rango->rango_5_maximo,
                         'metodo' => $rango->metodo,
                         'valor_final' => $resultado->valor_final ?? null,
-                        'interpretacion_resultado' => $rango->interpretacion_resultado,
+                        // la interpretación capturada en la analítica manda sobre
+                        // el texto fijo definido en el rango
+                        'interpretacion_resultado' => $resultado->interpretacion
+                            ?? $rango->interpretacion_resultado,
                     ];
                 });
 
