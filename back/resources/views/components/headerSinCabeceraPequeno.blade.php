@@ -87,9 +87,16 @@
         <td><span class="label">PACIENTE:</span></td>
         <td colspan="3"><div class="clip paciente-nombre">{{ $solicitud->paciente_nombre ?? '-' }}</div></td>
         <td><span class="label">EDAD:</span></td>
-        <td><div class="clip">{{ $solicitud->paciente_edad ?? '-' }}</div></td>
-        <td><span class="label">SEXO:</span></td>
-        <td><div class="clip">{{ $solicitud->paciente_genero ?? '-' }}</div></td>
+        {{-- los reportes que envían "edad" (años, meses y días) necesitan más ancho:
+             la edad toma dos columnas y el sexo va junto a su rótulo --}}
+        @if (! empty($edad))
+            <td colspan="2"><div class="clip">{{ $edad }}</div></td>
+            <td><div class="clip"><span class="label">SEXO:</span> {{ $solicitud->paciente_genero ?? '-' }}</div></td>
+        @else
+            <td><div class="clip">{{ $solicitud->paciente_edad ?? '-' }}</div></td>
+            <td><span class="label">SEXO:</span></td>
+            <td><div class="clip">{{ $solicitud->paciente_genero ?? '-' }}</div></td>
+        @endif
     </tr>
 
     <tr>

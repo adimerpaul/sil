@@ -179,6 +179,7 @@
 <div id="page-header">
     {!! view('components.headerSinCabeceraPequeno', [
         'solicitud' => $solicitud,
+        'edad' => $solicitud->edadDetallada(),
         'fecha_solicitud' => now()->format('d/m/Y H:i'),
         'fecha_muestreo' => $fechaRecepcion,
         'fecha_muestreo_label' => 'FECHA DE RECEPCIÓN DE LA MUESTRA:',

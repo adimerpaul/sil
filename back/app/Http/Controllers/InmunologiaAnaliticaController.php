@@ -65,6 +65,7 @@ class InmunologiaAnaliticaController extends Controller
         $serviciosSolicitud = DB::table('servicio_solicitudes')
             ->where('solicitude_id', $solicitudId)
             ->where('area_id', self::AREA_ID)
+            ->whereNull('deleted_at')
             ->get()
             ->keyBy('servicio_id');
 
@@ -157,7 +158,9 @@ class InmunologiaAnaliticaController extends Controller
                 'inmunologia_analitica_codigo' => $solicitud->inmunologia_analitica_codigo,
                 'paciente_nombre' => $solicitud->paciente_nombre,
                 'paciente_edad' => $solicitud->paciente_edad,
+                'paciente_fecha_nac' => $solicitud->paciente_fecha_nac,
                 'paciente_genero' => $solicitud->paciente_genero,
+                'establecimiento_salud' => $solicitud->establecimiento_salud,
                 'doctor_nombre' => $solicitud->doctor_nombre,
                 'fecha_solicitud' => $solicitud->fecha_solicitud,
                 'estado' => $solicitud->estado,
@@ -282,6 +285,7 @@ class InmunologiaAnaliticaController extends Controller
         $serviciosSolicitud = DB::table('servicio_solicitudes')
             ->where('solicitude_id', $solicitudId)
             ->where('area_id', self::AREA_ID)
+            ->whereNull('deleted_at')
             ->get()
             ->keyBy('servicio_id');
 

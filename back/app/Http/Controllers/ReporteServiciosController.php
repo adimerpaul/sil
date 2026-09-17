@@ -30,8 +30,229 @@ class ReporteServiciosController extends Controller
                 'total_solicitudes' => $rows->count(),
                 'total_monto'       => round($totalMonto, 2),
                 'embarazadas'       => $embarazadas,
+                'hospital_general'  => $rows->where('procedencia', 'HG')->count(),
+                'externos'          => $rows->where('procedencia', 'EXTERNO')->count(),
             ],
         ]);
+    }
+
+    public function exportPdfExternos(Request $request)
+    {
+        ini_set('memory_limit', '512M');
+        set_time_limit(0);
+
+        $data = $this->buildExternosData($request);
+        $pdf  = Pdf::loadView('reportes.pacientes_externos', $data)->setPaper('letter', 'landscape');
+
+        return $pdf->stream("pacientes_externos_{$data['dateFrom']}_{$data['dateTo']}.pdf");
+    }
+
+    public function exportExcelExternos(Request $request)
+    {
+        $data     = $this->buildExternosData($request);
+        $rows     = $data['rows'];
+        $grupos   = $data['grupos'];
+        $dateFrom = $data['dateFrom'];
+        $dateTo   = $data['dateTo'];
+
+        $spreadsheet = new Spreadsheet();
+
+        $estiloTitulo = [
+            'font'      => ['bold' => true, 'size' => 14, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFE65100']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ];
+        $estiloSubtitulo = [
+            'font'      => ['italic' => true, 'size' => 10, 'color' => ['argb' => 'FF333333']],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFFFF3E0']],
+        ];
+        $estiloEncabezado = [
+            'font'      => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFEF6C00']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+            'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FFAAAAAA']]],
+        ];
+        $estiloTotal = [
+            'font'      => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFE65100']],
+        ];
+        $subtitulo = "Rango: {$dateFrom} — {$dateTo}    |    Pacientes externos: {$rows->count()}    |    Establecimientos: {$grupos->count()}    |    Total Bs: " . number_format($data['totalMonto'], 2);
+
+        // ── Hoja 1: Resumen por establecimiento ───────────────────────────
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Resumen');
+
+        $sheet->mergeCells('A1:E1');
+        $sheet->setCellValue('A1', 'PACIENTES EXTERNOS — RESUMEN POR ESTABLECIMIENTO');
+        $sheet->getStyle('A1')->applyFromArray($estiloTitulo);
+        $sheet->getRowDimension(1)->setRowHeight(24);
+
+        $sheet->mergeCells('A2:E2');
+        $sheet->setCellValue('A2', $subtitulo);
+        $sheet->getStyle('A2')->applyFromArray($estiloSubtitulo);
+
+        foreach (['A' => '#', 'B' => 'Establecimiento de salud', 'C' => 'Solicitudes', 'D' => '%', 'E' => 'Total Bs'] as $col => $label) {
+            $sheet->setCellValue("{$col}3", $label);
+        }
+        $sheet->getStyle('A3:E3')->applyFromArray($estiloEncabezado);
+
+        $rowNum = 4;
+        foreach ($grupos->values() as $i => $g) {
+            $sheet->setCellValue("A{$rowNum}", $i + 1);
+            $sheet->setCellValue("B{$rowNum}", $g['establecimiento']);
+            $sheet->setCellValue("C{$rowNum}", $g['cantidad']);
+            $sheet->setCellValue("D{$rowNum}", $g['porcentaje']);
+            $sheet->setCellValue("E{$rowNum}", $g['monto']);
+            $sheet->getStyle("A{$rowNum}:E{$rowNum}")->applyFromArray([
+                'fill'    => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => $i % 2 === 0 ? 'FFFFFFFF' : 'FFF5F5F5']],
+                'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FFDDDDDD']]],
+            ]);
+            $sheet->getStyle("A{$rowNum}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("C{$rowNum}:D{$rowNum}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $rowNum++;
+        }
+
+        $sheet->mergeCells("A{$rowNum}:B{$rowNum}");
+        $sheet->setCellValue("A{$rowNum}", 'TOTAL');
+        $sheet->setCellValue("C{$rowNum}", $rows->count());
+        $sheet->setCellValue("D{$rowNum}", $rows->count() ? 100 : 0);
+        $sheet->setCellValue("E{$rowNum}", $data['totalMonto']);
+        $sheet->getStyle("A{$rowNum}:E{$rowNum}")->applyFromArray($estiloTotal);
+        $sheet->getStyle("A{$rowNum}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $sheet->getStyle("C{$rowNum}:D{$rowNum}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("E4:E{$rowNum}")->getNumberFormat()->setFormatCode('#,##0.00');
+
+        $sheet->getColumnDimension('A')->setWidth(6);
+        $sheet->getColumnDimension('B')->setWidth(55);
+        $sheet->getColumnDimension('C')->setWidth(13);
+        $sheet->getColumnDimension('D')->setWidth(9);
+        $sheet->getColumnDimension('E')->setWidth(14);
+
+        // ── Hoja 2: Detalle de solicitudes ────────────────────────────────
+        $detalle = $spreadsheet->createSheet();
+        $detalle->setTitle('Detalle');
+        $lastCol = 'N';
+
+        $detalle->mergeCells("A1:{$lastCol}1");
+        $detalle->setCellValue('A1', 'PACIENTES EXTERNOS — DETALLE DE SOLICITUDES');
+        $detalle->getStyle('A1')->applyFromArray($estiloTitulo);
+        $detalle->getRowDimension(1)->setRowHeight(24);
+
+        $detalle->mergeCells("A2:{$lastCol}2");
+        $detalle->setCellValue('A2', $subtitulo);
+        $detalle->getStyle('A2')->applyFromArray($estiloSubtitulo);
+
+        $headers = [
+            'A' => '#', 'B' => 'Código', 'C' => 'Fecha', 'D' => 'Establecimiento de salud',
+            'E' => 'Tipo', 'F' => 'Programa / Tipo externo', 'G' => 'Paciente', 'H' => 'CI',
+            'I' => 'Edad', 'J' => 'Género', 'K' => 'Servicios', 'L' => 'Prestaciones (Áreas)',
+            'M' => 'Total Bs', 'N' => 'Estado',
+        ];
+        foreach ($headers as $col => $label) {
+            $detalle->setCellValue("{$col}3", $label);
+        }
+        $detalle->getStyle("A3:{$lastCol}3")->applyFromArray($estiloEncabezado);
+        $detalle->setAutoFilter("A3:{$lastCol}3");
+
+        $rowNum = 4;
+        foreach ($rows as $i => $item) {
+            $detalle->setCellValue("A{$rowNum}", $i + 1);
+            $detalle->setCellValue("B{$rowNum}", $item->codigo_solicitud ?? '');
+            $detalle->setCellValue("C{$rowNum}", $item->fecha_solicitud);
+            $detalle->setCellValue("D{$rowNum}", $item->establecimiento_nombre);
+            $detalle->setCellValue("E{$rowNum}", $item->tipo_atencion === 'SI' ? 'SUS' : 'EXT');
+            $detalle->setCellValue("F{$rowNum}", $item->tipo_paciente_externo ?? '');
+            $detalle->setCellValue("G{$rowNum}", $item->paciente_nombre);
+            $detalle->setCellValue("H{$rowNum}", $item->paciente_ci);
+            $detalle->setCellValue("I{$rowNum}", (int) $item->paciente_edad);
+            $detalle->setCellValue("J{$rowNum}", $item->paciente_genero);
+            $detalle->setCellValue("K{$rowNum}", $item->servicios_nombres);
+            $detalle->setCellValue("L{$rowNum}", $item->areas_nombres);
+            $detalle->setCellValue("M{$rowNum}", (float) $item->total_monto);
+            $detalle->setCellValue("N{$rowNum}", $item->estado);
+
+            $detalle->getStyle("A{$rowNum}:{$lastCol}{$rowNum}")->applyFromArray([
+                'fill'    => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => $i % 2 === 0 ? 'FFFFFFFF' : 'FFF5F5F5']],
+                'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FFDDDDDD']]],
+            ]);
+            $detalle->getStyle("A{$rowNum}:C{$rowNum}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $detalle->getStyle("E{$rowNum}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $detalle->getStyle("H{$rowNum}:J{$rowNum}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $rowNum++;
+        }
+
+        $detalle->mergeCells("A{$rowNum}:L{$rowNum}");
+        $detalle->setCellValue("A{$rowNum}", 'TOTAL');
+        $detalle->setCellValue("M{$rowNum}", $data['totalMonto']);
+        $detalle->getStyle("A{$rowNum}:{$lastCol}{$rowNum}")->applyFromArray($estiloTotal);
+        $detalle->getStyle("A{$rowNum}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $detalle->getStyle("M4:M{$rowNum}")->getNumberFormat()->setFormatCode('#,##0.00');
+
+        foreach (['A' => 6, 'B' => 14, 'C' => 12, 'D' => 40, 'E' => 7, 'F' => 26, 'G' => 30, 'H' => 12,
+                  'I' => 7, 'J' => 8, 'K' => 40, 'L' => 28, 'M' => 12, 'N' => 13] as $col => $width) {
+            $detalle->getColumnDimension($col)->setWidth($width);
+        }
+
+        $spreadsheet->setActiveSheetIndex(0);
+
+        $filename = "pacientes_externos_{$dateFrom}_{$dateTo}.xlsx";
+        $path     = storage_path("app/{$filename}");
+
+        (new Xlsx($spreadsheet))->save($path);
+
+        return response()->download($path, $filename)->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Solicitudes de pacientes externos (establecimiento distinto al Hospital General)
+     * con los filtros actuales, agrupadas por establecimiento de salud.
+     */
+    private function buildExternosData(Request $request): array
+    {
+        $request->merge(['procedencia' => 'EXTERNO']);
+
+        $rows = $this->baseQuery($request)
+            ->reorder()
+            ->orderBy('s.establecimiento_salud')
+            ->orderBy('s.fecha_solicitud')
+            ->orderBy('s.id')
+            ->get()
+            ->each(function ($r) {
+                $nombre = trim((string) $r->establecimiento_salud);
+                $r->establecimiento_nombre = $nombre !== '' ? mb_strtoupper($nombre) : 'SIN ESTABLECIMIENTO';
+            })
+            ->sortBy('establecimiento_nombre')
+            ->values();
+
+        $totalMonto = $rows->sum(fn ($r) => (float) $r->total_monto);
+        $total      = $rows->count();
+
+        $grupos = $rows->groupBy('establecimiento_nombre')
+            ->map(fn ($items, $nombre) => [
+                'establecimiento' => $nombre,
+                'cantidad'        => $items->count(),
+                'porcentaje'      => $total ? round($items->count() * 100 / $total, 1) : 0,
+                'monto'           => round($items->sum(fn ($r) => (float) $r->total_monto), 2),
+            ])
+            ->sortByDesc('cantidad');
+
+        return [
+            'rows'       => $rows,
+            'grupos'     => $grupos,
+            'totalMonto' => $totalMonto,
+            'dateFrom'   => $request->get('date_from'),
+            'dateTo'     => $request->get('date_to'),
+        ];
+    }
+
+    /**
+     * El Hospital General quedó registrado con varios nombres (HGSJDDO, "Hospital General",
+     * "HGSJDD HOSPITAL GENERAL SAN JUAN DE DIOS BLOQUE CENTRAL", ...). Todo lo demás es externo.
+     */
+    private function sqlEsHospitalGeneral(): string
+    {
+        return "(UPPER(TRIM(COALESCE(s.establecimiento_salud, ''))) = 'HGSJDDO'
+                 OR UPPER(COALESCE(s.establecimiento_salud, '')) LIKE '%HOSPITAL GENERAL%')";
     }
 
     public function exportExcel(Request $request)
@@ -638,6 +859,8 @@ class ReporteServiciosController extends Controller
         $embarazada = $request->get('embarazada'); // '1' | '0' | null
         $cama       = $request->get('cama');
         $paciente   = $request->get('paciente');
+        $procedencia = $request->get('procedencia'); // 'HG' | 'EXTERNO' | null
+        $esHg       = $this->sqlEsHospitalGeneral();
 
         return DB::table('solicitudes as s')
             ->leftJoin('users as u', 'u.id', '=', 's.user_id')
@@ -660,6 +883,8 @@ class ReporteServiciosController extends Controller
                 $embarazada !== null && $embarazada !== '',
                 fn ($q) => $q->where('s.paciente_embarazo', (bool) (int) $embarazada)
             )
+            ->when($procedencia === 'HG', fn ($q) => $q->whereRaw($esHg))
+            ->when($procedencia === 'EXTERNO', fn ($q) => $q->whereRaw("NOT {$esHg}"))
             ->when($servicioId, fn ($q) => $q->whereExists(function ($sub) use ($servicioId) {
                 $sub->from('servicio_solicitudes as ss')
                     ->whereColumn('ss.solicitude_id', 's.id')
@@ -687,7 +912,11 @@ class ReporteServiciosController extends Controller
                 's.sala',
                 's.estado',
                 's.doctor_nombre',
-                DB::raw('u.name as usuario_nombre')
+                's.establecimiento_salud',
+                's.tipo_atencion',
+                's.tipo_paciente_externo',
+                DB::raw('u.name as usuario_nombre'),
+                DB::raw("CASE WHEN {$esHg} THEN 'HG' ELSE 'EXTERNO' END as procedencia")
             )
             ->selectRaw("(
                 SELECT GROUP_CONCAT(

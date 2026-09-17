@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Auditable as AuditableTrait;
@@ -116,6 +117,31 @@ class Solicitude extends Model implements AuditableContract
         }
 
         return mb_strtoupper($text, 'UTF-8');
+    }
+
+    /**
+     * Edad del paciente en años, meses y días a la fecha de la solicitud.
+     * Sin fecha de nacimiento devuelve la edad en años registrada.
+     */
+    public function edadDetallada(): string
+    {
+        try {
+            $nacimiento = $this->paciente_fecha_nac ? Carbon::parse($this->paciente_fecha_nac)->startOfDay() : null;
+        } catch (\Throwable) {
+            $nacimiento = null;
+        }
+
+        if (! $nacimiento) {
+            return $this->paciente_edad !== null ? $this->paciente_edad.' años' : '-';
+        }
+
+        $referencia = $this->fecha_solicitud ? Carbon::parse($this->fecha_solicitud)->startOfDay() : now()->startOfDay();
+        $diff = $nacimiento->diff($referencia);
+        $plural = fn (int $n, string $uno, string $varios) => $n.' '.($n === 1 ? $uno : $varios);
+
+        return $plural($diff->y, 'año', 'años').' '
+            .$plural($diff->m, 'mes', 'meses').' '
+            .$plural($diff->d, 'día', 'días');
     }
 
     public function setPacienteNombreAttribute($value): void

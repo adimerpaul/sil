@@ -30,8 +30,9 @@
       <q-card-section class="q-pa-xs bg-grey-1">
         <div class="row q-gutter-sm text-caption q-px-sm">
           <span><span class="text-grey-6">Paciente: </span><strong>{{ solicitud?.paciente_nombre }}</strong></span>
-          <span><span class="text-grey-6">Edad: </span><strong>{{ solicitud?.paciente_edad }}</strong></span>
+          <span><span class="text-grey-6">Edad: </span><strong>{{ edadDetallada }}</strong></span>
           <span><span class="text-grey-6">Género: </span><strong>{{ solicitud?.paciente_genero }}</strong></span>
+          <span><span class="text-grey-6">Establecimiento: </span><strong>{{ solicitud?.establecimiento_salud || '-' }}</strong></span>
           <span><span class="text-grey-6">Médico: </span><strong>{{ solicitud?.doctor_nombre || 'N/A' }}</strong></span>
           <q-chip square color="primary" text-color="white" dense>N° {{ solicitud?.codigo }}</q-chip>
         </div>
@@ -338,6 +339,8 @@
 </template>
 
 <script>
+import moment from 'moment'
+
 export default {
   name: 'InmunologiaSolicitudPage',
 
@@ -379,6 +382,25 @@ export default {
   },
 
   computed: {
+    // Edad en años, meses y días a la fecha de la solicitud; sin fecha de
+    // nacimiento se muestra la edad en años registrada
+    edadDetallada () {
+      const s = this.solicitud
+      if (!s) return ''
+      const nacimiento = moment(s.paciente_fecha_nac, 'YYYY-MM-DD')
+      if (!s.paciente_fecha_nac || !nacimiento.isValid()) {
+        return s.paciente_edad != null ? `${s.paciente_edad} años` : '-'
+      }
+      const referencia = s.fecha_solicitud ? moment(s.fecha_solicitud) : moment()
+      const years = referencia.diff(nacimiento, 'years')
+      nacimiento.add(years, 'years')
+      const months = referencia.diff(nacimiento, 'months')
+      nacimiento.add(months, 'months')
+      const days = referencia.diff(nacimiento, 'days')
+      const plural = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`
+      return `${plural(years, 'año', 'años')} ${plural(months, 'mes', 'meses')} ${plural(days, 'día', 'días')}`
+    },
+
     // El backend ya devuelve las prestaciones ordenadas por subárea; aquí solo
     // se agrupan respetando ese orden para titular cada bloque.
     gruposSubarea () {
