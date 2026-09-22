@@ -37,12 +37,21 @@
       </q-card>
     </q-dialog>
 
+    <!-- LOADING EXTERNOS OVERLAY -->
+    <q-dialog v-model="loadingExternos" persistent>
+      <q-card flat class="q-pa-lg text-center" style="min-width:260px">
+        <q-spinner-dots color="orange-9" size="48px" class="q-mb-md" />
+        <div class="text-subtitle1 text-weight-bold">Generando reporte de pacientes externos...</div>
+        <div class="text-caption text-grey-6 q-mt-xs">Agrupando por establecimiento de salud.</div>
+      </q-card>
+    </q-dialog>
+
     <!-- ENCABEZADO -->
     <div class="row items-center q-mb-md">
       <div class="col">
         <div class="text-h5 text-weight-bold">Reporte de Solicitudes</div>
         <div class="text-caption text-grey-7">
-          Todas las solicitudes en un rango de fechas — filtros por prestación, servicio, género, embarazo y cama.
+          Todas las solicitudes en un rango de fechas — filtros por prestación, servicio, procedencia, género, embarazo y cama.
         </div>
       </div>
     </div>
@@ -84,6 +93,17 @@
               use-input
               input-debounce="200"
               @filter="filterServicios"
+            />
+          </div>
+
+          <!-- Procedencia -->
+          <div class="col-6 col-sm-3 col-md-2">
+            <q-select
+              v-model="filters.procedencia"
+              :options="[{ label: 'Hospital General', value: 'HG' }, { label: 'Externos', value: 'EXTERNO' }]"
+              dense outlined clearable
+              label="Procedencia"
+              emit-value map-options
             />
           </div>
 
@@ -154,7 +174,9 @@
         <q-card flat bordered class="q-pa-md">
           <div class="text-caption text-grey-7">Total solicitudes</div>
           <div class="text-h4 text-weight-bold">{{ summary.total_solicitudes }}</div>
-          <div class="text-caption text-grey-6">en el rango seleccionado</div>
+          <div class="text-caption text-grey-6">
+            H. General: <b>{{ summary.hospital_general || 0 }}</b> · Externos: <b class="text-deep-orange">{{ summary.externos || 0 }}</b>
+          </div>
         </q-card>
       </div>
 
@@ -179,7 +201,7 @@
           <div class="text-caption text-grey-7 q-mb-sm">Exportar</div>
           <q-btn-dropdown
             color="primary" icon="download" label="Exportar" no-caps
-            :loading="loadingExcel || loadingExcelMensual || loadingPdf || loadingEnts"
+            :loading="loadingExcel || loadingExcelMensual || loadingPdf || loadingEnts || loadingExternos"
             :disable="loading || rows.length === 0"
             dropdown-icon="expand_more"
           >
@@ -204,6 +226,15 @@
               <q-item clickable v-close-popup @click="openPdfEnts" :disable="loadingEnts">
                 <q-item-section avatar><q-icon name="assessment" color="deep-orange" /></q-item-section>
                 <q-item-section>PDF — Informe ENTs Química</q-item-section>
+              </q-item>
+              <q-separator />
+              <q-item clickable v-close-popup @click="downloadExcelExternos" :disable="loadingExternos">
+                <q-item-section avatar><q-icon name="local_hospital" color="orange-9" /></q-item-section>
+                <q-item-section>Excel — Pacientes externos</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="openPdfExternos" :disable="loadingExternos">
+                <q-item-section avatar><q-icon name="picture_as_pdf" color="orange-9" /></q-item-section>
+                <q-item-section>PDF — Pacientes externos</q-item-section>
               </q-item>
             </q-list>
           </q-btn-dropdown>
@@ -267,6 +298,20 @@
                 <q-tooltip>Embarazada</q-tooltip>
               </q-icon>
               <span v-else class="text-grey-4 text-caption">—</span>
+            </q-td>
+          </template>
+
+          <!-- Procedencia / establecimiento -->
+          <template v-slot:body-cell-establecimiento_salud="props">
+            <q-td :props="props">
+              <q-chip
+                dense size="sm"
+                :color="props.row.procedencia === 'HG' ? 'green-1' : 'orange-1'"
+                :text-color="props.row.procedencia === 'HG' ? 'green-9' : 'orange-9'"
+              >
+                {{ props.row.procedencia === 'HG' ? 'H. GENERAL' : 'EXTERNO' }}
+              </q-chip>
+              <span v-if="props.row.procedencia !== 'HG'" class="text-caption">{{ props.row.establecimiento_salud || '—' }}</span>
             </q-td>
           </template>
 
@@ -355,6 +400,7 @@ export default {
       loadingExcel: false,
       loadingExcelMensual: false,
       loadingEnts: false,
+      loadingExternos: false,
       tableFilter: '',
 
       filters: {
@@ -362,6 +408,7 @@ export default {
         date_to: '',
         area_id: null,
         servicio_id: null,
+        procedencia: null,
         genero: null,
         embarazada: null,
         cama: '',
@@ -372,7 +419,9 @@ export default {
       summary: {
         total_solicitudes: 0,
         total_monto: 0,
-        embarazadas: 0
+        embarazadas: 0,
+        hospital_general: 0,
+        externos: 0
       },
 
       areas: [],
@@ -388,6 +437,7 @@ export default {
         { name: 'paciente_genero',  label: 'Gén.',   field: 'paciente_genero',  align: 'center', sortable: true },
         { name: 'paciente_embarazo', label: 'Emb.',  field: 'paciente_embarazo', align: 'center', sortable: true },
         { name: 'cama',             label: 'Cama',   field: 'cama',             align: 'center', sortable: true },
+        { name: 'establecimiento_salud', label: 'Procedencia', field: 'establecimiento_salud', align: 'left', sortable: true },
         { name: 'areas_nombres',    label: 'Prestaciones', field: 'areas_nombres', align: 'left', sortable: true },
         { name: 'servicios_nombres', label: 'Servicios', field: 'servicios_nombres', align: 'left', sortable: true },
         { name: 'total_monto',      label: 'Total Bs', field: 'total_monto',    align: 'right', sortable: true },
@@ -475,23 +525,12 @@ export default {
     async fetchData () {
       this.loading = true
       try {
-        const params = {}
-        if (this.filters.date_from)   params.date_from   = this.filters.date_from
-        if (this.filters.date_to)     params.date_to     = this.filters.date_to
-        if (this.filters.area_id)     params.area_id     = this.filters.area_id
-        if (this.filters.servicio_id) params.servicio_id = this.filters.servicio_id
-        if (this.filters.genero)      params.genero      = this.filters.genero
-        if (this.filters.embarazada !== null && this.filters.embarazada !== '') {
-          params.embarazada = this.filters.embarazada
-        }
-        if (this.filters.cama)        params.cama        = this.filters.cama
-        if (this.filters.paciente)    params.paciente    = this.filters.paciente
-
+        const params = this.buildParams()
         const res  = await this.$axios.get('reportes/servicios-resumen', { params })
         const data = res.data || {}
 
         this.rows    = data.rows    || []
-        this.summary = data.summary || { total_solicitudes: 0, total_monto: 0, embarazadas: 0 }
+        this.summary = data.summary || { total_solicitudes: 0, total_monto: 0, embarazadas: 0, hospital_general: 0, externos: 0 }
       } catch (e) {
         this.$q?.notify({ type: 'negative', message: e.response?.data?.message || 'Error cargando el reporte' })
       } finally {
@@ -505,6 +544,7 @@ export default {
         date_to:   moment().format('YYYY-MM-DD'),
         area_id: null,
         servicio_id: null,
+        procedencia: null,
         genero: null,
         embarazada: null,
         cama: '',
@@ -519,6 +559,7 @@ export default {
       if (this.filters.date_to)     p.date_to     = this.filters.date_to
       if (this.filters.area_id)     p.area_id     = this.filters.area_id
       if (this.filters.servicio_id) p.servicio_id = this.filters.servicio_id
+      if (this.filters.procedencia) p.procedencia = this.filters.procedencia
       if (this.filters.genero)      p.genero      = this.filters.genero
       if (this.filters.embarazada !== null && this.filters.embarazada !== '') {
         p.embarazada = this.filters.embarazada
@@ -627,6 +668,46 @@ export default {
         this.$q?.notify({ type: 'negative', message: 'Error generando PDF ENTs' })
       } finally {
         this.loadingEnts = false
+      }
+    },
+
+    async downloadExcelExternos () {
+      this.loadingExternos = true
+      try {
+        const res = await this.$axios.get('reportes/servicios-resumen/excel-externos', {
+          params: this.buildParams(),
+          responseType: 'blob',
+          timeout: 120000
+        })
+        const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        const url  = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href     = url
+        link.download = `pacientes_externos_${this.filters.date_from}_${this.filters.date_to}.xlsx`
+        link.click()
+        window.URL.revokeObjectURL(url)
+      } catch (e) {
+        this.$q?.notify({ type: 'negative', message: 'Error generando Excel de pacientes externos' })
+      } finally {
+        this.loadingExternos = false
+      }
+    },
+
+    async openPdfExternos () {
+      this.loadingExternos = true
+      try {
+        const res = await this.$axios.get('reportes/servicios-resumen/pdf-externos', {
+          params: this.buildParams(),
+          responseType: 'blob',
+          timeout: 180000
+        })
+        const blob = new Blob([res.data], { type: 'application/pdf' })
+        const url  = window.URL.createObjectURL(blob)
+        window.open(url, '_blank')
+      } catch (e) {
+        this.$q?.notify({ type: 'negative', message: 'Error generando PDF de pacientes externos. Intenta con un rango de fechas más corto.' })
+      } finally {
+        this.loadingExternos = false
       }
     }
   }

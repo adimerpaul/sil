@@ -270,6 +270,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('reportes/almacen-unidad/unidades', [ReporteUnidadController::class, 'unidades']);
     Route::get('reportes/almacen-unidad/personas', [ReporteUnidadController::class, 'personas']);
+    Route::get('reportes/almacen-unidad/materiales', [ReporteUnidadController::class, 'materiales']);
     Route::get('reportes/almacen-unidad', [ReporteUnidadController::class, 'index']);
     Route::get('reportes/almacen-unidad/excel', [ReporteUnidadController::class, 'exportExcel']);
     Route::get('reportes/almacen-unidad/pdf', [ReporteUnidadController::class, 'exportPdf']);

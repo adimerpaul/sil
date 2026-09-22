@@ -3,7 +3,7 @@
     <!-- Encabezado -->
     <div class="row items-center q-mb-sm">
       <div>
-        <div class="text-h6 text-weight-bold">Compras</div>
+        <div class="text-subtitle1 text-weight-bold line-tight">Compras</div>
         <div class="text-caption text-grey-7">Listado de entradas registradas en almacén</div>
       </div>
       <q-space />
@@ -24,33 +24,33 @@
     <div class="row q-col-gutter-sm q-mb-sm">
       <div class="col-12 col-sm-4">
         <q-card flat bordered class="summary-card summary-green">
-          <q-card-section class="row items-center no-wrap">
-            <q-avatar size="48px" color="green-6" text-color="white" icon="shopping_cart" />
-            <div class="q-ml-md">
-              <div class="text-caption text-grey-8">Compras totales</div>
-              <div class="text-h6 text-weight-bold text-green-9">{{ money(summary.total_compras) }} Bs</div>
+          <q-card-section class="row items-center no-wrap q-py-xs q-px-sm">
+            <q-avatar size="30px" font-size="18px" color="green-6" text-color="white" icon="shopping_cart" />
+            <div class="q-ml-sm">
+              <div class="text-caption text-grey-8 line-tight">Compras totales</div>
+              <div class="text-subtitle1 text-weight-bold line-tight text-green-9">{{ money(summary.total_compras) }} Bs</div>
             </div>
           </q-card-section>
         </q-card>
       </div>
       <div class="col-12 col-sm-4">
         <q-card flat bordered class="summary-card summary-red">
-          <q-card-section class="row items-center no-wrap">
-            <q-avatar size="48px" color="red-6" text-color="white" icon="block" />
-            <div class="q-ml-md">
-              <div class="text-caption text-grey-8">Compras anuladas</div>
-              <div class="text-h6 text-weight-bold text-red-9">{{ money(summary.total_anuladas) }} Bs</div>
+          <q-card-section class="row items-center no-wrap q-py-xs q-px-sm">
+            <q-avatar size="30px" font-size="18px" color="red-6" text-color="white" icon="block" />
+            <div class="q-ml-sm">
+              <div class="text-caption text-grey-8 line-tight">Compras anuladas</div>
+              <div class="text-subtitle1 text-weight-bold line-tight text-red-9">{{ money(summary.total_anuladas) }} Bs</div>
             </div>
           </q-card-section>
         </q-card>
       </div>
       <div class="col-12 col-sm-4">
         <q-card flat bordered class="summary-card summary-blue">
-          <q-card-section class="row items-center no-wrap">
-            <q-avatar size="48px" color="blue-7" text-color="white" icon="receipt_long" />
-            <div class="q-ml-md">
-              <div class="text-caption text-grey-8">Cantidad de compras</div>
-              <div class="text-h6 text-weight-bold text-blue-9">{{ summary.cantidad }}</div>
+          <q-card-section class="row items-center no-wrap q-py-xs q-px-sm">
+            <q-avatar size="30px" font-size="18px" color="blue-7" text-color="white" icon="receipt_long" />
+            <div class="q-ml-sm">
+              <div class="text-caption text-grey-8 line-tight">Cantidad de compras</div>
+              <div class="text-subtitle1 text-weight-bold line-tight text-blue-9">{{ summary.cantidad }}</div>
             </div>
           </q-card-section>
         </q-card>
@@ -105,96 +105,73 @@
       <q-table
         v-model:pagination="pagination"
         flat
+        dense
+        class="compras-table"
         row-key="id"
         :rows="rows"
         :columns="columns"
         :loading="loading"
-        :rows-per-page-options="[10, 15, 25, 50]"
+        :rows-per-page-options="[15, 25, 50, 100]"
         @request="onRequest"
       >
         <template #body-cell-fecha_hora="props">
-          <q-td :props="props">
-            <div class="text-weight-medium">{{ formatDate(props.row.fecha_hora) }}</div>
-            <div class="text-caption text-grey-7">{{ formatTime(props.row.fecha_hora) }}</div>
+          <q-td :props="props" class="text-no-wrap">
+            {{ formatDate(props.row.fecha_hora) }}
+            <span class="text-grey-7">{{ formatTime(props.row.fecha_hora) }}</span>
           </q-td>
         </template>
 
         <template #body-cell-proveedor="props">
-          <q-td :props="props">
-            <div class="row items-center no-wrap">
-              <q-avatar size="32px" color="primary" text-color="white" icon="local_shipping" class="q-mr-sm" />
-              <div>
-                <div class="text-weight-medium text-capitalize">{{ props.row.proveedor?.nombre || props.row.nombre || 'Sin proveedor' }}</div>
-                <div v-if="props.row.nro_factura" class="text-caption text-grey-7">Factura: {{ props.row.nro_factura }}</div>
-                <div v-if="props.row.comentario" class="text-caption text-grey-7" :title="props.row.comentario">
-                  {{ props.row.comentario }}
-                </div>
-              </div>
+          <q-td :props="props" class="cell-proveedor">
+            <div class="text-weight-medium text-capitalize ellipsis">
+              {{ (props.row.proveedor?.nombre || props.row.nombre || 'Sin proveedor').toLowerCase() }}
             </div>
+            <div v-if="props.row.nro_factura || props.row.comentario" class="text-grey-7 ellipsis cell-sub">
+              <span v-if="props.row.nro_factura">Fact. {{ props.row.nro_factura }}</span>
+              <span v-if="props.row.nro_factura && props.row.comentario"> · </span>
+              <span v-if="props.row.comentario">{{ props.row.comentario }}</span>
+            </div>
+            <q-tooltip v-if="props.row.comentario">{{ props.row.comentario }}</q-tooltip>
           </q-td>
         </template>
 
         <template #body-cell-productos="props">
-          <q-td :props="props">
-            <div class="row q-gutter-xs">
-              <q-chip
-                v-for="det in (props.row.detalles || []).slice(0, 3)"
-                :key="det.id"
-                dense
-                square
-                color="blue-grey-1"
-                text-color="blue-grey-9"
-                class="text-capitalize"
-                style="font-size: 11px; max-width: 160px"
-              >
-                <span class="ellipsis">{{ det.nombre }}</span>
-                <q-tooltip>{{ det.nombre }} × {{ det.cantidad }}</q-tooltip>
-              </q-chip>
-              <q-chip
-                v-if="(props.row.detalles || []).length > 3"
-                dense
-                square
-                color="primary"
-                text-color="white"
-                style="font-size: 11px"
-              >
-                +{{ (props.row.detalles || []).length - 3 }} más
-              </q-chip>
-              <span v-if="!(props.row.detalles || []).length" class="text-grey-6 text-caption">-</span>
+          <q-td :props="props" class="cell-productos">
+            <div v-if="(props.row.detalles || []).length" class="ellipsis text-capitalize">
+              <q-badge color="blue-grey-6" class="q-mr-xs">{{ props.row.detalles.length }}</q-badge>
+              {{ props.row.detalles.map(d => (d.nombre || '').toLowerCase()).join(', ') }}
             </div>
+            <span v-else class="text-grey-6">-</span>
+            <q-tooltip v-if="(props.row.detalles || []).length" max-width="420px">
+              <div v-for="det in props.row.detalles" :key="det.id">{{ det.nombre }} × {{ det.cantidad }}</div>
+            </q-tooltip>
           </q-td>
         </template>
 
         <template #body-cell-motivo_registro="props">
-          <q-td :props="props">
-            <q-chip dense square color="grey-3" text-color="grey-9" class="text-capitalize">
-              {{ (props.row.motivo_registro || '').toLowerCase() }}
-            </q-chip>
+          <q-td :props="props" class="text-capitalize">
+            {{ (props.row.motivo_registro || '-').toLowerCase() }}
           </q-td>
         </template>
 
         <template #body-cell-tipo_pago="props">
-          <q-td :props="props">
-            <q-chip v-if="props.row.tipo_pago" dense square outline color="primary" :icon="pagoIcon(props.row.tipo_pago)">
-              {{ pagoLabel(props.row.tipo_pago) }}
-            </q-chip>
+          <q-td :props="props" class="text-no-wrap">
+            <template v-if="props.row.tipo_pago">
+              <q-icon :name="pagoIcon(props.row.tipo_pago)" color="primary" size="16px" class="q-mr-xs" />{{ pagoLabel(props.row.tipo_pago) }}
+            </template>
             <span v-else class="text-grey-6">-</span>
           </q-td>
         </template>
 
         <template #body-cell-total="props">
-          <q-td :props="props" class="text-right">
-            <span class="text-weight-bold text-primary">{{ money(props.row.total) }} Bs</span>
+          <q-td :props="props" class="text-right text-no-wrap">
+            <span class="text-weight-bold text-primary">{{ money(props.row.total) }}</span>
           </q-td>
         </template>
 
         <template #body-cell-estado="props">
           <q-td :props="props">
-            <q-badge
-              :color="props.row.estado === 'ACTIVO' ? 'green' : 'red'"
-              class="q-pa-xs text-weight-bold"
-            >
-              <q-icon :name="props.row.estado === 'ACTIVO' ? 'check_circle' : 'cancel'" size="14px" class="q-mr-xs" />
+            <q-badge :color="props.row.estado === 'ACTIVO' ? 'green' : 'red'" class="text-weight-bold">
               {{ props.row.estado }}
             </q-badge>
           </q-td>
@@ -204,12 +181,13 @@
           <q-td :props="props">
             <q-btn-dropdown
               unelevated
+              dense
               color="primary"
               text-color="white"
               no-caps
               size="sm"
-              label="Opciones"
               icon="settings"
+              class="q-px-xs"
             >
               <q-list dense>
                 <q-item clickable v-close-popup @click="openDetail(props.row)">
@@ -454,7 +432,7 @@ export default {
         estado: null,
         q: '',
       },
-      pagination: { page: 1, rowsPerPage: 15, rowsNumber: 0 },
+      pagination: { page: 1, rowsPerPage: 25, rowsNumber: 0 },
       estadoOptions: [
         { label: 'Activo', value: 'ACTIVO' },
         { label: 'Anulado', value: 'ANULADO' },
@@ -466,13 +444,13 @@ export default {
         { label: 'QR', value: 'QR', icon: 'qr_code_2' },
       ],
       columns: [
-        { name: 'actions', label: 'Acciones', field: 'id', align: 'left', style: 'width: 130px' },
-        { name: 'id', label: '#', field: 'id', align: 'left', style: 'width: 60px' },
+        { name: 'actions', label: '', field: 'id', align: 'left', style: 'width: 50px' },
+        { name: 'id', label: '#', field: 'id', align: 'left', style: 'width: 50px' },
         { name: 'fecha_hora', label: 'Fecha', field: 'fecha_hora', align: 'left' },
         { name: 'proveedor', label: 'Proveedor', field: row => row.proveedor?.nombre || row.nombre || '-', align: 'left' },
         { name: 'productos', label: 'Productos', field: 'detalles', align: 'left' },
         { name: 'motivo_registro', label: 'Motivo', field: 'motivo_registro', align: 'left' },
-        { name: 'total', label: 'Total', field: 'total', align: 'right' },
+        { name: 'total', label: 'Total (Bs)', field: 'total', align: 'right' },
         { name: 'tipo_pago', label: 'Pago', field: 'tipo_pago', align: 'left' },
         { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
       ],
@@ -697,6 +675,19 @@ export default {
 .summary-green { border-left: 4px solid #43a047; }
 .summary-red { border-left: 4px solid #c90022; }
 .summary-blue { border-left: 4px solid #1976d2; }
+
+.line-tight { line-height: 1.2; }
+
+/* Tabla compacta */
+.compras-table :deep(td),
+.compras-table :deep(th) {
+  font-size: 12px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.cell-proveedor { max-width: 240px; }
+.cell-productos { max-width: 340px; }
+.cell-sub { font-size: 11px; line-height: 1.2; }
 
 /* Diálogo de detalle */
 .detail-dialog {

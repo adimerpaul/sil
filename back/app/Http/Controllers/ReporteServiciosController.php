@@ -38,7 +38,7 @@ class ReporteServiciosController extends Controller
 
     public function exportPdfExternos(Request $request)
     {
-        ini_set('memory_limit', '512M');
+        ini_set('memory_limit', '1024M');
         set_time_limit(0);
 
         $data = $this->buildExternosData($request);
@@ -213,12 +213,11 @@ class ReporteServiciosController extends Controller
 
         $rows = $this->baseQuery($request)
             ->reorder()
-            ->orderBy('s.establecimiento_salud')
             ->orderBy('s.fecha_solicitud')
             ->orderBy('s.id')
             ->get()
             ->each(function ($r) {
-                $nombre = trim((string) $r->establecimiento_salud);
+                $nombre = trim(preg_replace('/\s+/', ' ', (string) $r->establecimiento_salud));
                 $r->establecimiento_nombre = $nombre !== '' ? mb_strtoupper($nombre) : 'SIN ESTABLECIMIENTO';
             })
             ->sortBy('establecimiento_nombre')

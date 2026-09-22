@@ -60,7 +60,13 @@ class CompraController extends Controller
         @set_time_limit(300);
         @ini_set('memory_limit', '512M');
 
-        $query = Compra::with(['proveedor:id,nombre', 'user:id,name'])
+        $query = Compra::with([
+            'proveedor:id,nombre',
+            'user:id,name',
+            'detalles' => fn ($q) => $q->orderBy('id'),
+            'detalles.producto:id,subpartida_id,nombre,unidad_medida',
+            'detalles.producto.subpartida:id,codigo,nombre',
+        ])
             ->withCount('detalles');
         $this->applyFilters($query, $request);
 
@@ -229,6 +235,9 @@ class CompraController extends Controller
             'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => $cGrisFila]],
             'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
         ]);
+
+        $this->buildDetalleSheet($spreadsheet, $compras, $metaInfo);
+        $spreadsheet->setActiveSheetIndex(0);
 
         $filename = 'compras_'.now()->format('Ymd_His').'.xlsx';
         $path = storage_path("app/{$filename}");
@@ -641,6 +650,138 @@ class CompraController extends Controller
         return response()->json(['message' => 'Compra anulada correctamente']);
     }
 
+    /**
+     * Hoja con una fila por item de almacén de cada compra.
+     */
+    private function buildDetalleSheet(Spreadsheet $spreadsheet, $compras, string $metaInfo): void
+    {
+        $cAzul     = 'FF1A237E';
+        $cAzulMed  = 'FF283593';
+        $cAzulCla  = 'FFE8EAF6';
+        $cVerde    = 'FF1B5E20';
+        $cRojo     = 'FFB71C1C';
+        $cBlanco   = 'FFFFFFFF';
+        $cGrisFila = 'FFF5F5F5';
+
+        $sheet = $spreadsheet->createSheet();
+        $sheet->setTitle('Detalle items');
+
+        // A=Compra B=Fecha C=Proveedor D=Factura E=Estado F=Cód. subpartida G=Item H=Unidad
+        // I=Lote J=Vence K=Cantidad L=P.Unit M=Total
+        $widths = ['A' => 9, 'B' => 16, 'C' => 28, 'D' => 14, 'E' => 11, 'F' => 12, 'G' => 42,
+                   'H' => 12, 'I' => 14, 'J' => 12, 'K' => 11, 'L' => 13, 'M' => 15];
+        foreach ($widths as $col => $w) {
+            $sheet->getColumnDimension($col)->setWidth($w);
+        }
+
+        $sheet->mergeCells('A1:M1');
+        $sheet->setCellValue('A1', 'LABORATORIO CLÍNICO SIL — DETALLE DE ITEMS COMPRADOS');
+        $sheet->getStyle('A1')->applyFromArray([
+            'font'      => ['bold' => true, 'size' => 14, 'color' => ['argb' => $cBlanco]],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => $cAzul]],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(24);
+
+        $sheet->mergeCells('A2:M2');
+        $sheet->setCellValue('A2', $metaInfo);
+        $sheet->getStyle('A2')->applyFromArray([
+            'font' => ['italic' => true, 'size' => 9, 'color' => ['argb' => 'FF333333']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => $cAzulCla]],
+        ]);
+
+        $headerRow = 3;
+        $headers = ['A' => 'Compra #', 'B' => 'Fecha', 'C' => 'Proveedor', 'D' => 'N° Factura', 'E' => 'Estado',
+                    'F' => 'Cód. Subpartida', 'G' => 'Item de almacén', 'H' => 'Unidad', 'I' => 'Lote',
+                    'J' => 'Vence', 'K' => 'Cantidad', 'L' => 'P. Unit (Bs)', 'M' => 'Total (Bs)'];
+        foreach ($headers as $col => $label) {
+            $sheet->setCellValue("{$col}{$headerRow}", $label);
+        }
+        $sheet->getStyle("A{$headerRow}:M{$headerRow}")->applyFromArray([
+            'font'      => ['bold' => true, 'size' => 9, 'color' => ['argb' => $cBlanco]],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => $cAzulMed]],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER, 'wrapText' => true],
+            'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FF90A4AE']]],
+        ]);
+        $sheet->getRowDimension($headerRow)->setRowHeight(18);
+        $sheet->setAutoFilter("A{$headerRow}:M{$headerRow}");
+        $sheet->freezePane('A'.($headerRow + 1));
+
+        $row = $headerRow + 1;
+        $firstDataRow = $row;
+        $n = 0;
+
+        foreach ($compras as $compra) {
+            $fecha = $compra->fecha_hora ? \Carbon\Carbon::parse($compra->fecha_hora)->format('d/m/Y H:i') : '';
+            $proveedor = $compra->proveedor->nombre ?? $compra->nombre ?? 'Sin proveedor';
+
+            foreach ($compra->detalles as $det) {
+                $vence = $det->fecha_vencimiento ? \Carbon\Carbon::parse($det->fecha_vencimiento)->format('d/m/Y') : '';
+
+                $sheet->setCellValue("A{$row}", $compra->id);
+                $sheet->setCellValueExplicit("B{$row}", $fecha, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+                $sheet->setCellValue("C{$row}", $proveedor);
+                $sheet->setCellValueExplicit("D{$row}", (string) ($compra->nro_factura ?? ''), \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+                $sheet->setCellValue("E{$row}", $compra->estado);
+                $sheet->setCellValueExplicit("F{$row}", (string) ($det->producto->subpartida->codigo ?? ''), \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+                $sheet->setCellValue("G{$row}", $det->producto->nombre ?? $det->nombre ?? '-');
+                $sheet->setCellValue("H{$row}", $det->producto->unidad_medida ?? '');
+                $sheet->setCellValueExplicit("I{$row}", (string) ($det->lote ?? ''), \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+                $sheet->setCellValueExplicit("J{$row}", $vence, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+                $sheet->setCellValue("K{$row}", (float) $det->cantidad);
+                $sheet->setCellValue("L{$row}", (float) $det->precio);
+                $sheet->setCellValue("M{$row}", "=K{$row}*L{$row}");
+
+                $bg = $n % 2 === 0 ? $cBlanco : $cGrisFila;
+                $sheet->getStyle("A{$row}:M{$row}")->applyFromArray([
+                    'fill'    => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => $bg]],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => 'FFDDDDDD']]],
+                    'font'    => ['size' => 9],
+                ]);
+                $sheet->getStyle("A{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle("E{$row}:F{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle("I{$row}:J{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle("K{$row}:M{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+                $sheet->getStyle("L{$row}:M{$row}")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+                $sheet->getStyle("E{$row}")->getFont()->setBold(true)->getColor()->setARGB($compra->estado === 'ACTIVO' ? $cVerde : $cRojo);
+                $sheet->getRowDimension($row)->setRowHeight(14);
+                $row++;
+                $n++;
+            }
+        }
+
+        $lastDataRow = $row - 1;
+        if ($n === 0) {
+            $firstDataRow = $headerRow + 1;
+            $lastDataRow = $headerRow + 1;
+        }
+
+        $row++;
+        $sheet->mergeCells("A{$row}:J{$row}");
+        $sheet->setCellValue("A{$row}", 'TOTAL GENERAL');
+        $sheet->setCellValue("K{$row}", "=SUM(K{$firstDataRow}:K{$lastDataRow})");
+        $sheet->setCellValue("M{$row}", "=SUM(M{$firstDataRow}:M{$lastDataRow})");
+        $sheet->getStyle("A{$row}:M{$row}")->applyFromArray([
+            'font'      => ['bold' => true, 'size' => 11, 'color' => ['argb' => $cBlanco]],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => $cAzul]],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT, 'vertical' => Alignment::VERTICAL_CENTER],
+            'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['argb' => 'FF90A4AE']]],
+        ]);
+        $sheet->getStyle("K{$row}:M{$row}")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+        $sheet->getRowDimension($row)->setRowHeight(20);
+
+        $row++;
+        $sheet->mergeCells("A{$row}:J{$row}");
+        $sheet->setCellValue("A{$row}", 'Subtotal ACTIVO');
+        $sheet->setCellValue("M{$row}", "=SUMIF(E{$firstDataRow}:E{$lastDataRow},\"ACTIVO\",M{$firstDataRow}:M{$lastDataRow})");
+        $sheet->getStyle("A{$row}:M{$row}")->applyFromArray([
+            'font'      => ['bold' => true, 'size' => 9, 'color' => ['argb' => $cVerde]],
+            'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFE8F5E9']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT],
+        ]);
+        $sheet->getStyle("M{$row}")->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED2);
+    }
+
     private function applyFilters($query, Request $request): void
     {
         if ($request->filled('producto_id')) {
@@ -649,7 +790,7 @@ class CompraController extends Controller
                 $q->where('producto_id', $productoId);
             })->with(['detalles' => function ($q) use ($productoId) {
                 $q->where('producto_id', $productoId)
-                    ->select(['id', 'compra_id', 'nombre', 'cantidad', 'cantidad_venta', 'precio', 'total', 'lote', 'fecha_vencimiento']);
+                    ->select(['id', 'compra_id', 'producto_id', 'nombre', 'cantidad', 'cantidad_venta', 'precio', 'total', 'lote', 'fecha_vencimiento']);
             }]);
         }
 

@@ -15,12 +15,11 @@ class ReporteUnidadController extends Controller
 {
     public function unidades()
     {
-        $unidades = DB::table('despachos')
-            ->whereNull('deleted_at')
-            ->whereNotNull('solicitante')
-            ->where('solicitante', '<>', '')
-            ->distinct()->orderBy('solicitante')
-            ->pluck('solicitante');
+        $unidades = DB::table('despachos as d')
+            ->join('unidades as u', 'u.id', '=', 'd.unidad_id')
+            ->whereNull('d.deleted_at')
+            ->distinct()->orderBy('u.nombre')
+            ->get(['u.id', 'u.nombre']);
 
         return response()->json($unidades);
     }
@@ -36,6 +35,20 @@ class ReporteUnidadController extends Controller
             ->pluck('personal_recepcion');
 
         return response()->json($personas);
+    }
+
+    public function materiales()
+    {
+        $materiales = DB::table('despacho_detalles as dd')
+            ->join('despachos as d', 'd.id', '=', 'dd.despacho_id')
+            ->join('almacen_items as ai', 'ai.id', '=', 'dd.almacen_item_id')
+            ->whereNull('d.deleted_at')
+            ->whereNull('dd.deleted_at')
+            ->where('d.estado', 'DESPACHADO')
+            ->distinct()->orderBy('ai.nombre')
+            ->get(['ai.id', 'ai.nombre']);
+
+        return response()->json($materiales);
     }
 
     public function index(Request $request)
@@ -60,7 +73,7 @@ class ReporteUnidadController extends Controller
         $rows      = $this->baseQuery($request)->get();
         $dateFrom  = $request->get('date_from', 'inicio');
         $dateTo    = $request->get('date_to', 'fin');
-        $unidad    = $request->get('solicitante', 'Todas las unidades');
+        $unidad    = $this->unidadNombre($request);
 
         $totalMonto    = $rows->sum(fn ($r) => (float) $r->total_monto);
         $totalCantidad = $rows->sum(fn ($r) => (int) $r->cantidad_total);
@@ -157,7 +170,7 @@ class ReporteUnidadController extends Controller
         $rows     = $this->baseQuery($request)->get();
         $dateFrom = $request->get('date_from');
         $dateTo   = $request->get('date_to');
-        $unidad   = $request->get('solicitante', 'Todas las unidades');
+        $unidad   = $this->unidadNombre($request);
 
         $totalMonto    = $rows->sum(fn ($r) => (float) $r->total_monto);
         $totalCantidad = $rows->sum(fn ($r) => (int) $r->cantidad_total);
@@ -174,12 +187,23 @@ class ReporteUnidadController extends Controller
         return $pdf->stream("reporte_unidad_{$dateFrom}_{$dateTo}.pdf");
     }
 
+    private function unidadNombre(Request $request)
+    {
+        $unidadId = $request->get('unidad_id');
+        if (! $unidadId) {
+            return 'Todas las unidades';
+        }
+
+        return DB::table('unidades')->where('id', $unidadId)->value('nombre') ?? 'Todas las unidades';
+    }
+
     private function baseQuery(Request $request)
     {
         $dateFrom          = $request->get('date_from');
         $dateTo            = $request->get('date_to');
-        $solicitante       = $request->get('solicitante');
+        $unidadId          = $request->get('unidad_id');
         $personalRecepcion = $request->get('personal_recepcion');
+        $itemIds           = array_filter((array) $request->get('almacen_item_ids', []));
 
         return DB::table('despacho_detalles as dd')
             ->join('despachos as d', 'd.id', '=', 'dd.despacho_id')
@@ -187,9 +211,10 @@ class ReporteUnidadController extends Controller
             ->whereNull('d.deleted_at')
             ->whereNull('dd.deleted_at')
             ->where('d.estado', 'DESPACHADO')
-            ->when($solicitante,       fn ($q) => $q->where('d.solicitante', $solicitante))
+            ->when($unidadId,          fn ($q) => $q->where('d.unidad_id', $unidadId))
             ->when($personalRecepcion, fn ($q) => $q->where('d.personal_recepcion', $personalRecepcion))
-            ->when($dateFrom,          fn ($q) => $q->whereDate('d.fecha_entrega', '>=', $dateFrom))
+            ->when($itemIds,           fn ($q) => $q->whereIn('dd.almacen_item_id', $itemIds))
+            ->when($dateFrom,         fn ($q) => $q->whereDate('d.fecha_entrega', '>=', $dateFrom))
             ->when($dateTo,            fn ($q) => $q->whereDate('d.fecha_entrega', '<=', $dateTo))
             ->groupBy('dd.almacen_item_id', 'ai.nombre', 'dd.descripcion', 'dd.unidad', 'ai.unidad_medida', 'ai.imagen')
             ->select(

@@ -61,37 +61,36 @@ td { padding: 2px 4px; border: 1px solid #ccc; }
 </tfoot>
 </table>
 
-{{-- Detalle agrupado por establecimiento --}}
+{{-- Detalle: una tabla por establecimiento (en bloques) para no agotar la memoria de DOMPDF --}}
 <p style="font-size:10px; font-weight:700; margin-bottom:3px;">Detalle de solicitudes</p>
-<table>
+@php $n = 0; @endphp
+@foreach($rows->groupBy('establecimiento_nombre') as $establecimiento => $items)
+<p style="font-size:9px; font-weight:700; color:#bf360c; background:#fff3e0; border:1px solid #ffcc80; padding:3px 4px; margin-top:6px;">
+    {{ $establecimiento }} &mdash; {{ $items->count() }} solicitud(es) &mdash; Bs {{ number_format($items->sum(fn ($r) => (float) $r->total_monto), 2) }}
+</p>
+@foreach($items->chunk(150) as $bloque)
+<table style="table-layout:fixed;">
 <thead>
 <tr>
-    <th class="c">#</th>
-    <th>Código</th>
-    <th class="c">Fecha</th>
-    <th class="c">Tipo</th>
-    <th>Paciente</th>
-    <th class="c">CI</th>
-    <th class="c">Edad</th>
-    <th class="c">Gén.</th>
-    <th>Programa</th>
-    <th>Prestaciones</th>
-    <th>Servicios</th>
-    <th class="r">Total Bs</th>
-    <th>Estado</th>
+    <th class="c" style="width:3%;">#</th>
+    <th style="width:8%;">Código</th>
+    <th class="c" style="width:7%;">Fecha</th>
+    <th class="c" style="width:4%;">Tipo</th>
+    <th style="width:15%;">Paciente</th>
+    <th class="c" style="width:7%;">CI</th>
+    <th class="c" style="width:4%;">Edad</th>
+    <th class="c" style="width:4%;">Gén.</th>
+    <th style="width:9%;">Programa</th>
+    <th style="width:11%;">Prestaciones</th>
+    <th style="width:16%;">Servicios</th>
+    <th class="r" style="width:6%;">Total Bs</th>
+    <th style="width:6%;">Estado</th>
 </tr>
 </thead>
 <tbody>
-@php $n = 0; @endphp
-@foreach($rows->groupBy('establecimiento_nombre') as $establecimiento => $items)
-<tr class="grupo" style="page-break-inside:avoid;">
-    <td colspan="11">{{ $establecimiento }} ({{ $items->count() }})</td>
-    <td class="r">{{ number_format($items->sum(fn ($r) => (float) $r->total_monto), 2) }}</td>
-    <td></td>
-</tr>
-@foreach($items as $r)
+@foreach($bloque as $r)
 @php $n++; @endphp
-<tr style="background:{{ $n % 2 === 0 ? '#f5f5f5' : '#ffffff' }}; page-break-inside:avoid;">
+<tr style="background:{{ $n % 2 === 0 ? '#f5f5f5' : '#ffffff' }};">
     <td class="c">{{ $n }}</td>
     <td>{{ $r->codigo_solicitud ?? $r->id }}</td>
     <td class="c">{{ $r->fecha_solicitud }}</td>
@@ -104,18 +103,18 @@ td { padding: 2px 4px; border: 1px solid #ccc; }
     <td class="sm">{{ $r->areas_nombres ?: '-' }}</td>
     <td class="sm">{{ $r->servicios_nombres ?: '-' }}</td>
     <td class="r">{{ number_format((float) $r->total_monto, 2) }}</td>
-    <td>{{ $r->estado }}</td>
+    <td class="sm">{{ $r->estado }}</td>
 </tr>
-@endforeach
 @endforeach
 </tbody>
-<tfoot>
+</table>
+@endforeach
+@endforeach
+
+<table style="margin-top:6px;">
 <tr class="total">
-    <td colspan="11" class="r">TOTAL</td>
-    <td class="r">{{ number_format($totalMonto, 2) }}</td>
-    <td></td>
+    <td class="r">TOTAL PACIENTES EXTERNOS: {{ $rows->count() }} &nbsp;&nbsp;|&nbsp;&nbsp; TOTAL Bs: {{ number_format($totalMonto, 2) }}</td>
 </tr>
-</tfoot>
 </table>
 
 </body>
