@@ -12,6 +12,10 @@ class Solicitude extends Model implements AuditableContract
 {
     use AuditableTrait, SoftDeletes;
 
+    protected $casts = [
+        'derivado' => 'boolean',
+    ];
+
     protected $fillable = [
         // relaciones
         'paciente_id',
@@ -20,6 +24,7 @@ class Solicitude extends Model implements AuditableContract
         // cabecera solicitud
         'codigo_solicitud',
         'tipo_atencion',
+        'derivado',                // la solicitud llega derivada de otro establecimiento
         'tipo_otro',
         'fecha_solicitud',
         'hora_solicitud',

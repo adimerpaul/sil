@@ -126,6 +126,11 @@
 
     // Cada sub-rango (y cada línea de la referencia) va en su propia línea
     function inmuno_rango_lineas($rango) {
+        // La referencia editada en la analítica manda sobre la del catálogo
+        if (trim((string) ($rango->referencia ?? '')) !== '') {
+            return inmuno_lineas_texto($rango->referencia);
+        }
+
         $defs = [
             ['rango_descripcion',   'rango_minimo',   'rango_maximo'],
             ['rango_2_descripcion', 'rango_2_minimo', 'rango_2_maximo'],

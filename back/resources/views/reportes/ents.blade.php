@@ -70,9 +70,8 @@
         width: 13%;
     }
 
-    .td-label { width: 33%; }
-    .td-ref   { width: 24%; text-align: center; }
-    .td-cnt   { width: 15%; text-align: center; font-weight: bold; font-size: 8px; }
+    .td-label { width: 39%; }
+    .td-cnt   { width: 12%; text-align: center; font-weight: bold; font-size: 8px; }
 </style>
 </head>
 <body>
@@ -82,7 +81,7 @@
     <div class="inst">Hospital General San Juan de Dios</div>
     <div class="sub">Servicio de Laboratorio de Análisis Clínico Microbiológico</div>
     <div class="titulo">Informe de Producción y Vigilancia de ENTs</div>
-    <div class="area">Área Química Sanguínea</div>
+    <div class="area">{{ $area }}</div>
 </div>
 
 {{-- ══ META DATOS ══ --}}
@@ -109,13 +108,14 @@
 <table class="main">
     <thead>
         <tr>
-            <th colspan="4" class="tbl-title">PRUEBAS PARA ENFERMEDADES NO TRANSMISIBLES</th>
+            <th colspan="6" class="tbl-title">PRUEBAS PARA ENFERMEDADES NO TRANSMISIBLES</th>
         </tr>
         <tr>
             <th colspan="2">PRUEBAS DE DIAGNÓSTICO</th>
-            <th>VALORES DE REFERENCIA<br>UTILIZADOS</th>
-            <th>POR ENCIMA DE LOS<br>VALORES DE REFERENCIA</th>
+            <th>Nº DE<br>PACIENTES</th>
+            <th>PRUEBAS<br>PROCESADAS</th>
             <th>POR DEBAJO DE LOS<br>VALORES DE REFERENCIA</th>
+            <th>POR ENCIMA DE LOS<br>VALORES DE REFERENCIA</th>
         </tr>
     </thead>
     <tbody>
@@ -126,9 +126,10 @@
             <td class="td-grupo" rowspan="{{ count($items) }}">{{ $grupoLabel }}</td>
             @endif
             <td class="td-label">{{ $item['label'] }}</td>
-            <td class="td-ref">{{ $item['ref'] }}</td>
-            <td class="td-cnt">{{ $item['cnt'][0] }}</td>
-            <td class="td-cnt">{{ $item['cnt'][1] }}</td>
+            <td class="td-cnt">{{ $item['pacientes'] }}</td>
+            <td class="td-cnt">{{ $item['procesadas'] }}</td>
+            <td class="td-cnt">{{ $item['debajo'] }}</td>
+            <td class="td-cnt">{{ $item['encima'] }}</td>
         </tr>
         @endforeach
     @endforeach

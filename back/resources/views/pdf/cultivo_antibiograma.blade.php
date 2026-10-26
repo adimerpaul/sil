@@ -158,6 +158,13 @@
                     <td><span class="label">CI:</span></td>
                     <td><div class="line clip">{{ $solicitud->paciente_ci ?? '-' }}</div></td>
                 </tr>
+
+                <tr>
+                    <td><span class="label">DERIVADO:</span></td>
+                    <td><div class="line clip">{{ ($solicitud->derivado ?? false) ? 'SI' : 'NO' }}</div></td>
+                    <td></td>
+                    <td></td>
+                </tr>
             </table>
 
             <!-- TÍTULO -->

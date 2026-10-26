@@ -302,6 +302,11 @@
                 {{ solicitud.tipo_atencion === 'SI' ? 'SUS' : 'EXT' }}
               </q-toggle>
             </div>
+            <div class="col-6 col-sm-3">
+              <q-toggle v-model="solicitud.derivado" :true-value="true" :false-value="false" dense color="orange">
+                Derivado: {{ solicitud.derivado ? 'SI' : 'NO' }}
+              </q-toggle>
+            </div>
 
             <template v-if="solicitud.tipo_atencion === 'NO'">
               <div class="col-12 col-md-4">
@@ -2024,6 +2029,7 @@ export default {
         codigo: '',
         nro_registro: '',
         tipo_atencion: 'SI',
+        derivado: false,
         tipo_otro: '',
         fecha_solicitud: moment().format('YYYY-MM-DD'),
         hora_solicitud: moment().format('HH:mm'),

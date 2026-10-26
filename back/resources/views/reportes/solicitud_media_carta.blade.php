@@ -130,7 +130,7 @@
             <td><strong>Médico:</strong> {{ $solicitud->doctor_nombre ?? optional($solicitud->doctor)->nombre }}</td>
             <td><strong>Fecha de proceso:</strong> {{ ($solicitud->fecha_finalizacion) }}</td>
             <td>
-                <strong>CODIGO:</strong> {{ $solicitud->codigo }}  {{$solicitud->tipo_atencion=='SI' ?'SUS':'EXT'}}<br>
+                <strong>CODIGO:</strong> {{ $solicitud->codigo }}  {{$solicitud->tipo_atencion=='SI' ?'SUS':'EXT'}}@if($solicitud->derivado ?? false) <strong>- DERIVADO</strong>@endif<br>
                 <strong>Registro:</strong> {{ $solicitud->codigo }}-{{ $solicitud->nro_registro }}
             </td>
         </tr>

@@ -78,6 +78,8 @@ class InmunologiaAnaliticaController extends Controller
             ->whereIn('id', $servicioIds)
             ->orderByRaw('subarea IS NULL OR subarea = ""')
             ->orderBy('subarea')
+            // PSA TOTAL siempre arriba de PSA LIBRE (por código, LIBRE quedaba primero)
+            ->orderByRaw("nombre = 'PSA LIBRE'")
             ->orderBy('codigo')
             ->get();
 
@@ -131,6 +133,7 @@ class InmunologiaAnaliticaController extends Controller
                         'valor_final' => $resultado->valor_final,
                         'observacion' => $resultado->observacion,
                         'interpretacion' => $resultado->interpretacion,
+                        'referencia' => $resultado->referencia,
                     ] : null,
                 ];
             });
@@ -190,6 +193,7 @@ class InmunologiaAnaliticaController extends Controller
             'resultados.*.visible' => 'nullable|boolean',
             'resultados.*.observacion' => 'nullable|string',
             'resultados.*.interpretacion' => ['nullable', 'string', Rule::in(self::INTERPRETACIONES)],
+            'resultados.*.referencia' => 'nullable|string|max:2000',
             'servicios_modificados' => 'present|array',
             'servicios_modificados.*' => 'integer|distinct|exists:servicios,id',
             'fecha_recepcion' => 'nullable|date',
@@ -240,6 +244,8 @@ class InmunologiaAnaliticaController extends Controller
                         : null,
                     'observacion' => $item['observacion'] ?? null,
                     'interpretacion' => ($item['interpretacion'] ?? '') !== '' ? $item['interpretacion'] : null,
+                    // null = se imprime la referencia del catálogo (area_rangos)
+                    'referencia' => trim($item['referencia'] ?? '') !== '' ? trim($item['referencia']) : null,
                     'updated_at' => $now,
                     'created_at' => $now,
                 ]
@@ -297,6 +303,8 @@ class InmunologiaAnaliticaController extends Controller
             ->whereIn('id', $servicioIds)
             ->orderByRaw('subarea IS NULL OR subarea = ""')
             ->orderBy('subarea')
+            // PSA TOTAL siempre arriba de PSA LIBRE (por código, LIBRE quedaba primero)
+            ->orderByRaw("nombre = 'PSA LIBRE'")
             ->orderBy('codigo')
             ->get();
 
@@ -338,6 +346,8 @@ class InmunologiaAnaliticaController extends Controller
                         'rango_5_maximo' => $rango->rango_5_maximo,
                         'metodo' => $rango->metodo,
                         'valor_final' => $resultado->valor_final ?? null,
+                        // referencia editada en la analítica; reemplaza a la del catálogo
+                        'referencia' => $resultado->referencia ?? null,
                         // la interpretación capturada en la analítica manda sobre
                         // el texto fijo definido en el rango
                         'interpretacion_resultado' => $resultado->interpretacion

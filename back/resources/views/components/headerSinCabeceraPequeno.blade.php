@@ -113,6 +113,7 @@
         </td>
         <td colspan="2"><span class="label">SERVICIO/SALA/CAMA:</span></td>
         <td><div class="clip">{{ $solicitud->sala ?? '-' }} / {{ $solicitud->cama ?? '-' }}</div></td>
+        <td><div class="clip"><span class="label">DERIVADO:</span> {{ ($solicitud->derivado ?? false) ? 'SI' : 'NO' }}</div></td>
     </tr>
 
     <tr>

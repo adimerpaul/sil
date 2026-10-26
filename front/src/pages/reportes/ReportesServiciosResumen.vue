@@ -219,13 +219,21 @@
                 <q-item-section>PDF — Solicitudes</q-item-section>
               </q-item>
               <q-separator />
-              <q-item clickable v-close-popup @click="downloadExcelEnts" :disable="loadingEnts">
+              <q-item clickable v-close-popup @click="downloadExcelEnts('quimica')" :disable="loadingEnts">
                 <q-item-section avatar><q-icon name="bar_chart" color="deep-orange" /></q-item-section>
                 <q-item-section>Excel — Informe ENTs Química</q-item-section>
               </q-item>
-              <q-item clickable v-close-popup @click="openPdfEnts" :disable="loadingEnts">
+              <q-item clickable v-close-popup @click="openPdfEnts('quimica')" :disable="loadingEnts">
                 <q-item-section avatar><q-icon name="assessment" color="deep-orange" /></q-item-section>
                 <q-item-section>PDF — Informe ENTs Química</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="downloadExcelEnts('inmunologia')" :disable="loadingEnts">
+                <q-item-section avatar><q-icon name="bar_chart" color="purple" /></q-item-section>
+                <q-item-section>Excel — Informe ENTs Inmunología</q-item-section>
+              </q-item>
+              <q-item clickable v-close-popup @click="openPdfEnts('inmunologia')" :disable="loadingEnts">
+                <q-item-section avatar><q-icon name="assessment" color="purple" /></q-item-section>
+                <q-item-section>PDF — Informe ENTs Inmunología</q-item-section>
               </q-item>
               <q-separator />
               <q-item clickable v-close-popup @click="downloadExcelExternos" :disable="loadingExternos">
@@ -631,10 +639,15 @@ export default {
       }
     },
 
-    async downloadExcelEnts () {
+    // area: 'quimica' | 'inmunologia'
+    entsSufijo (area) {
+      return area === 'inmunologia' ? 'ents-inmunologia' : 'ents'
+    },
+
+    async downloadExcelEnts (area) {
       this.loadingEnts = true
       try {
-        const res = await this.$axios.get('reportes/servicios-resumen/excel-ents', {
+        const res = await this.$axios.get(`reportes/servicios-resumen/excel-${this.entsSufijo(area)}`, {
           params: this.buildParams(),
           responseType: 'blob',
           timeout: 120000
@@ -643,7 +656,7 @@ export default {
         const url  = window.URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href     = url
-        link.download = `ents_quimica_${this.filters.date_from}_${this.filters.date_to}.xlsx`
+        link.download = `ents_${area}_${this.filters.date_from}_${this.filters.date_to}.xlsx`
         link.click()
         window.URL.revokeObjectURL(url)
       } catch (e) {
@@ -653,10 +666,10 @@ export default {
       }
     },
 
-    async openPdfEnts () {
+    async openPdfEnts (area) {
       this.loadingEnts = true
       try {
-        const res = await this.$axios.get('reportes/servicios-resumen/pdf-ents', {
+        const res = await this.$axios.get(`reportes/servicios-resumen/pdf-${this.entsSufijo(area)}`, {
           params: this.buildParams(),
           responseType: 'blob',
           timeout: 120000
