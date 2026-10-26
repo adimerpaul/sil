@@ -382,8 +382,8 @@ export default {
   },
 
   computed: {
-    // Edad en años, meses y días a la fecha de la solicitud; sin fecha de
-    // nacimiento se muestra la edad en años registrada
+    // Edad en años, meses y días a la fecha actual (igual que en la solicitud);
+    // sin fecha de nacimiento se muestra la edad en años registrada
     edadDetallada () {
       const s = this.solicitud
       if (!s) return ''
@@ -391,7 +391,7 @@ export default {
       if (!s.paciente_fecha_nac || !nacimiento.isValid()) {
         return s.paciente_edad != null ? `${s.paciente_edad} años` : '-'
       }
-      const referencia = s.fecha_solicitud ? moment(s.fecha_solicitud) : moment()
+      const referencia = moment().startOf('day')
       const years = referencia.diff(nacimiento, 'years')
       nacimiento.add(years, 'years')
       const months = referencia.diff(nacimiento, 'months')

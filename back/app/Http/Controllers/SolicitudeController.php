@@ -870,7 +870,7 @@ class SolicitudeController extends Controller
                     ->select('servicios.id', 'servicios.area_id', 'servicios.nombre', 'servicios.precio')
                     ->with('area:id,name'),
                 'hematologia:id,solicitude_id,code',
-                'quimicaSanguinea:id,solicitude_id,code',
+                'quimicaSanguinea:id,solicitude_id,code,tolerancia_glucosa_1h,tolerancia_glucosa_2h,tolerancia_glucosa_3h,tolerancia_glucosa_4h,tolerancia_glucosa_5h,tipo_de_muestra,citoquimico_cantidad,citoquimico_color,citoquimico_aspecto,citoquimico_glucosa,citoquimico_proteinas_totales',
                 'uroanalisis:id,solicitude_id,code',
                 'parasitologia:id,solicitude_id,code',
                 'papilomaHumano:id,solicitude_id,code',

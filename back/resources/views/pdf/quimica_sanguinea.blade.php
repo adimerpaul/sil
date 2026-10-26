@@ -1078,6 +1078,36 @@
                             </div>
                         @endif
 
+                        {{-- ===================== CURVA DE TOLERANCIA ===================== --}}
+                        @if($canVariable('tolerancia_glucosa') && !empty($toleranciaSeries))
+                            <div class="block">
+                                <div class="title">Curva de tolerancia a la glucosa</div>
+                                <div class="body">
+                                    <table class="tbl">
+                                        <thead>
+                                        <tr>
+                                            <th>Toma</th>
+                                            <th>Valor (mg/dl)</th>
+                                            <th>Hora</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($toleranciaSeries as $row)
+                                            <tr>
+                                                <td style="text-align:center">{{ $row['toma'] }}</td>
+                                                <td style="text-align:center">{{ number_format($row['valor'], 1, '.', '') }}</td>
+                                                <td style="text-align:center">{{ $row['hora'] ?? '' }}</td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                    @if(!empty($toleranciaChartBase64))
+                                        <img src="data:image/png;base64,{{ $toleranciaChartBase64 }}" style="width:100%; margin-top:3px;" alt="Curva de tolerancia">
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
                         {{-- ===================== OBSERVACIONES ===================== --}}
                         @if(false && $showObs)
                             <div class="block">

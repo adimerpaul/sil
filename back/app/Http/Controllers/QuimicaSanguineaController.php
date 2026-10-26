@@ -211,6 +211,8 @@ class QuimicaSanguineaController extends Controller
             ->orderBy('orden')
             ->get();
 
+        $toleranciaSeries = $this->buildToleranciaSeries($quimica);
+
         $url = url("/api/quimica-sanguinea/solicitud/{$code}/pdf");
         $qrSvgBase64 = base64_encode(
             QrCode::format('svg')->size(110)->margin(1)->generate($url)
@@ -221,6 +223,8 @@ class QuimicaSanguineaController extends Controller
             'quimica' => $quimica,
             'rangos' => $rangos,
             'datos' => $datos,
+            'toleranciaSeries' => $toleranciaSeries,
+            'toleranciaChartBase64' => $this->renderToleranciaChartBase64($toleranciaSeries),
             'qrSvgBase64' => $qrSvgBase64,
             'url' => $url,
             //            landscape

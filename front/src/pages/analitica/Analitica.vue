@@ -137,6 +137,15 @@
 <!--                      <pre>{{$store.user}}</pre>-->
 <!--                    </q-item>-->
 
+                    <q-item clickable @click="printQuimicaTolerancia(solicitud)" v-close-popup dense v-if="hasTolerancia(solicitud) && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
+                      <q-item-section avatar><q-icon name="show_chart" /></q-item-section>
+                      <q-item-section>Curva de Tolerancia</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="printCitoQuimico(solicitud)" v-close-popup dense v-if="hasCitoQuimico(solicitud) && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
+                      <q-item-section avatar><q-icon name="biotech" /></q-item-section>
+                      <q-item-section>Cito Químico</q-item-section>
+                    </q-item>
+
                     <!-- WhatsApp Química -->
                     <q-item clickable @click="enviarWhatsApp(solicitud,'QuimicaDoctor')" v-close-popup dense v-if="solicitud.doctor_telefono && solicitud.quimica_sanguinea?.code && ($store.user.role === 'Administrador' || hasPermission('QUÍMICA SANGUÍNEA Y SEROLOGÍA'))">
                       <q-item-section avatar><q-icon name="fa-brands fa-whatsapp" /></q-item-section>
@@ -593,6 +602,17 @@ export default {
     printQuimica (solicitud) {
       const url = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${solicitud.quimica_sanguinea?.code}/pdf`
       window.open(url, '_blank')
+    },
+    hasTolerancia (solicitud) {
+      const q = solicitud.quimica_sanguinea
+      if (!q?.code) return false
+      return [1, 2, 3, 4, 5].some(n => q['tolerancia_glucosa_' + n + 'h'] !== null && q['tolerancia_glucosa_' + n + 'h'] !== undefined && q['tolerancia_glucosa_' + n + 'h'] !== '')
+    },
+    hasCitoQuimico (solicitud) {
+      const q = solicitud.quimica_sanguinea
+      if (!q?.code) return false
+      return ['tipo_de_muestra', 'citoquimico_cantidad', 'citoquimico_color', 'citoquimico_aspecto', 'citoquimico_glucosa', 'citoquimico_proteinas_totales']
+        .some(f => q[f] !== null && q[f] !== undefined && q[f] !== '')
     },
     printQuimicaTolerancia(solicitud) {
       const url = `${this.$axios.defaults.baseURL}/quimica-sanguinea/solicitud/${solicitud.quimica_sanguinea?.code}/pdf-tolerancia`
