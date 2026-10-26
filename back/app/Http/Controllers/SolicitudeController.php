@@ -843,10 +843,6 @@ class SolicitudeController extends Controller
 
     public function solicitudesAnalitica(Request $request)
     {
-        $filter = $request->input('filter', '');
-        $codigo = $request->input('codigo', '');
-        $from = $request->input('from', now()->startOfMonth()->toDateString());
-        $to = $request->input('to', now()->endOfMonth()->toDateString());
         // per_page <= 0 significa "todos": se pagina con el total de filas.
         $perPage = (int) $request->input('per_page', 5);
         $todos = $perPage <= 0;
@@ -854,13 +850,39 @@ class SolicitudeController extends Controller
             $perPage = min($perPage, 100);
         }
 
+        $query = $this->analiticaQuery($request);
+
+        if ($todos) {
+            $perPage = max(1, (clone $query)->count());
+        }
+
+        return $query->orderBy('id', 'desc')->paginate($perPage);
+    }
+
+    // Filtros de servicio (área) y prestaciones que envía la pantalla /analitica.
+    private function analiticaFiltrosServicio(Request $request): array
+    {
+        $areaId = (int) $request->input('area_id', 0);
+        $servicioIds = array_values(array_filter(array_map('intval', (array) $request->input('servicio_ids', []))));
+
+        return [$areaId ?: null, $servicioIds];
+    }
+
+    private function analiticaQuery(Request $request)
+    {
+        $filter = $request->input('filter', '');
+        $codigo = $request->input('codigo', '');
+        $from = $request->input('from', now()->startOfMonth()->toDateString());
+        $to = $request->input('to', now()->endOfMonth()->toDateString());
+        [$areaId, $servicioIds] = $this->analiticaFiltrosServicio($request);
+
         // La lista solo muestra unas pocas columnas de la solicitud y, de cada
         // tabla de laboratorio, únicamente `code` (para saber si hay resultado).
         // Antes se cargaban las 8 tablas completas (química tiene 117 columnas)
         // más paciente/doctor/tiposMuestra/resultados que la vista no usa.
         $query = Solicitude::query()
             ->select([
-                'id', 'codigo', 'estado', 'motivo_rechazo', 'fecha_envio_analitica',
+                'id', 'codigo', 'estado', 'motivo_rechazo', 'fecha_envio_analitica', 'fecha_creacion',
                 'paciente_nombre', 'paciente_ci', 'paciente_telefono',
                 'doctor_nombre', 'doctor_telefono',
                 'establecimiento_salud', 'inmunologia_analitica_codigo',
@@ -898,6 +920,18 @@ class SolicitudeController extends Controller
             });
         }
 
+        if ($areaId) {
+            $query->whereHas('servicios', function ($q) use ($areaId) {
+                $q->where('servicio_solicitudes.area_id', $areaId);
+            });
+        }
+
+        if (! empty($servicioIds)) {
+            $query->whereHas('servicios', function ($q) use ($servicioIds) {
+                $q->whereIn('servicio_solicitudes.servicio_id', $servicioIds);
+            });
+        }
+
         if (! empty($filter)) {
             $query->where(function ($q) use ($filter) {
                 $q->where('paciente_nombre', 'like', "%$filter%")
@@ -922,11 +956,220 @@ class SolicitudeController extends Controller
             $query->whereDate('fecha_creacion', '<=', $to);
         }
 
-        if ($todos) {
-            $perPage = max(1, (clone $query)->count());
+        return $query;
+    }
+
+    // Filas para los reportes: una por prestación (solicitud x servicio),
+    // limitadas al servicio/prestaciones filtrados cuando se indican.
+    private function analiticaReporteFilas(Request $request): array
+    {
+        [$areaId, $servicioIds] = $this->analiticaFiltrosServicio($request);
+        ini_set('memory_limit', '1024M');
+        set_time_limit(300);
+
+        // El reporte solo necesita las prestaciones: se omiten las tablas de
+        // laboratorio y se recorre por lotes para rangos de fechas amplios.
+        $solicitudes = $this->analiticaQuery($request)
+            ->setEagerLoads([])
+            ->addSelect(['nro_registro', 'paciente_edad', 'diagnostico_clinico', 'sala', 'unidad_solicitante_id', 'user_id'])
+            ->with([
+                'servicios' => fn ($q) => $q
+                    ->select('servicios.id', 'servicios.area_id', 'servicios.nombre', 'servicios.precio')
+                    ->with('area:id,name'),
+                'user:id,name',
+                'unidadSolicitante:id,nombre',
+            ])
+            ->lazyByIdDesc(500);
+
+        $filas = collect();
+        $totalSolicitudes = 0;
+        foreach ($solicitudes as $s) {
+            $totalSolicitudes++;
+            foreach ($s->servicios as $srv) {
+                if ($areaId && (int) $srv->pivot->area_id !== $areaId) {
+                    continue;
+                }
+                if (! empty($servicioIds) && ! in_array((int) $srv->id, $servicioIds, true)) {
+                    continue;
+                }
+                $filas->push([
+                    'solicitud_id' => $s->id,
+                    'codigo' => $s->codigo,
+                    'fecha' => $s->fecha_creacion ? substr($s->fecha_creacion, 0, 10) : '',
+                    'nro_registro' => $s->nro_registro,
+                    'paciente' => $s->paciente_nombre,
+                    'edad' => $s->paciente_edad,
+                    'ci' => $s->paciente_ci,
+                    'doctor' => $s->doctor_nombre,
+                    'diagnostico' => $s->diagnostico_clinico,
+                    'unidad' => trim(($s->unidadSolicitante->nombre ?? '').($s->sala ? ' - '.$s->sala : ''), ' -'),
+                    'usuario' => $s->user->name ?? '',
+                    'establecimiento' => $s->establecimiento_salud,
+                    'area' => $srv->area->name ?? '',
+                    'prestacion' => $srv->pivot->nombre ?: $srv->nombre,
+                    'precio' => (float) ($srv->pivot->precio ?? $srv->precio ?? 0),
+                    'realizado' => $srv->pivot->realizado === 'PENDIENTE' ? 'PENDIENTE' : 'REALIZADO',
+                    'realizado_por' => $srv->pivot->realizado_por,
+                    'entregado' => $srv->pivot->fue_recogido ? 'SI' : 'NO',
+                    'estado' => $s->estado,
+                ]);
+            }
         }
 
-        return $query->orderBy('id', 'desc')->paginate($perPage);
+        $resumen = $filas->groupBy('prestacion')->map(fn ($g, $nombre) => [
+            'area' => $g->first()['area'],
+            'prestacion' => $nombre,
+            'cantidad' => $g->count(),
+            'realizados' => $g->where('realizado', 'REALIZADO')->count(),
+            'pendientes' => $g->where('realizado', 'PENDIENTE')->count(),
+            'total' => $g->sum('precio'),
+        ])->sortByDesc('cantidad')->values();
+
+        return [$filas, $resumen, $totalSolicitudes];
+    }
+
+    private function analiticaReporteSubtitulo(Request $request): string
+    {
+        [$areaId, $servicioIds] = $this->analiticaFiltrosServicio($request);
+        $partes = ['Del '.$request->input('from', '').' al '.$request->input('to', '')];
+        if ($areaId) {
+            $partes[] = 'Servicio: '.(\App\Models\Area::find($areaId)->name ?? $areaId);
+        }
+        if (! empty($servicioIds)) {
+            $partes[] = 'Prestaciones: '.\App\Models\Servicio::whereIn('id', $servicioIds)->pluck('nombre')->implode(', ');
+        }
+        $busqueda = trim($request->input('filter', '').' '.$request->input('codigo', ''));
+        if ($busqueda !== '') {
+            $partes[] = 'Búsqueda: '.$busqueda;
+        }
+
+        return implode('  |  ', $partes);
+    }
+
+    public function solicitudesAnaliticaExcel(Request $request)
+    {
+        [$filas, $resumen, $totalSolicitudes] = $this->analiticaReporteFilas($request);
+        $subtitulo = $this->analiticaReporteSubtitulo($request);
+
+        $tituloStyle = [
+            'font' => ['bold' => true, 'size' => 13, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1565C0']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ];
+        $headStyle = [
+            'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FF1976D2']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
+        ];
+        $totalStyle = [
+            'font' => ['bold' => true],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => 'FFE3F0FF']],
+        ];
+
+        // Escribe título, subtítulo, cabecera, filas numeradas y fila de totales.
+        // Devuelve el número de la fila de totales.
+        $escribirHoja = function ($sheet, string $titulo, array $headers, $data, array $totales) use ($subtitulo, $tituloStyle, $headStyle, $totalStyle) {
+            $lastCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(count($headers));
+            $sheet->mergeCells("A1:{$lastCol}1");
+            $sheet->setCellValue('A1', $titulo);
+            $sheet->getStyle('A1')->applyFromArray($tituloStyle);
+            $sheet->getRowDimension(1)->setRowHeight(26);
+            $sheet->mergeCells("A2:{$lastCol}2");
+            $sheet->setCellValue('A2', $subtitulo);
+            $sheet->getStyle('A2')->getFont()->setItalic(true)->setSize(9);
+
+            $sheet->fromArray($headers, null, 'A3');
+            $sheet->getStyle("A3:{$lastCol}3")->applyFromArray($headStyle);
+            $sheet->freezePane('A4');
+
+            $row = 4;
+            foreach ($data as $i => $values) {
+                $sheet->fromArray(array_merge([$i + 1], $values), null, "A{$row}");
+                if ($row % 2 === 0) {
+                    $sheet->getStyle("A{$row}:{$lastCol}{$row}")->getFill()
+                        ->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('FFF0F4FF');
+                }
+                $row++;
+            }
+            if ($row > 4) {
+                $sheet->setAutoFilter("A3:{$lastCol}".($row - 1));
+            }
+            $sheet->fromArray($totales, null, "A{$row}");
+            $sheet->getStyle("A{$row}:{$lastCol}{$row}")->applyFromArray($totalStyle);
+
+            foreach (range(1, count($headers)) as $i) {
+                $sheet->getColumnDimensionByColumn($i)->setAutoSize(true);
+            }
+
+            return $row;
+        };
+
+        $spreadsheet = new Spreadsheet;
+
+        // ── Hoja 1: detalle por prestación ──
+        $detalle = $spreadsheet->getActiveSheet();
+        $detalle->setTitle('Detalle');
+        $data = $filas->map(fn ($f) => [
+            $f['codigo'], $f['fecha'], $f['nro_registro'], $f['paciente'], $f['edad'], $f['ci'],
+            $f['doctor'], $f['diagnostico'], $f['unidad'], $f['establecimiento'], $f['usuario'], $f['area'],
+            $f['prestacion'], $f['precio'], $f['realizado'], $f['realizado_por'], $f['entregado'], $f['estado'],
+        ])->all();
+        $last = $escribirHoja($detalle, 'ANALÍTICA - DETALLE DE PRESTACIONES',
+            ['N°', 'Código', 'Fecha', 'Nro paciente', 'Paciente', 'Edad', 'CI', 'Médico', 'Diagnóstico',
+                'Unidad / Sala', 'Establecimiento', 'Usuario creador', 'Servicio', 'Prestación',
+                'Precio', 'Estado prestación', 'Realizado por', 'Entregado', 'Estado solicitud'],
+            $data,
+            ['TOTAL', "{$totalSolicitudes} solicitudes", '', '', '', '', '', '', '', '', '', '', '', $filas->count().' prestaciones', $filas->sum('precio')]);
+        $detalle->getStyle("O4:O{$last}")->getNumberFormat()->setFormatCode('#,##0.00');
+
+        // ── Hoja 2: resumen por prestación ──
+        $hojaResumen = $spreadsheet->createSheet();
+        $hojaResumen->setTitle('Resumen');
+        $data = $resumen->map(fn ($r) => array_values($r))->all();
+        $last = $escribirHoja($hojaResumen, 'ANALÍTICA - RESUMEN POR PRESTACIÓN',
+            ['N°', 'Servicio', 'Prestación', 'Cantidad', 'Realizados', 'Pendientes', 'Total Bs.'],
+            $data,
+            ['TOTAL', '', '', $resumen->sum('cantidad'), $resumen->sum('realizados'), $resumen->sum('pendientes'), $resumen->sum('total')]);
+        $hojaResumen->getStyle("G4:G{$last}")->getNumberFormat()->setFormatCode('#,##0.00');
+
+        $spreadsheet->setActiveSheetIndex(0);
+        $from = $request->input('from', now()->toDateString());
+        $to = $request->input('to', now()->toDateString());
+        $path = storage_path('app/'.uniqid('analitica_').'.xlsx');
+        (new Xlsx($spreadsheet))->save($path);
+
+        return response()->download($path, "analitica_{$from}_{$to}.xlsx")->deleteFileAfterSend(true);
+    }
+
+    public function solicitudesAnaliticaPdf(Request $request)
+    {
+        [$filas] = $this->analiticaReporteFilas($request);
+        $from = $request->input('from', now()->toDateString());
+        $to = $request->input('to', now()->toDateString());
+
+        // Formato del cuaderno "Registro de pacientes área": una hoja por
+        // servicio (área) y un renglón por paciente con sus prestaciones.
+        $areas = $filas->groupBy('area')->map(fn ($g) => $g->groupBy('solicitud_id')->map(function ($prest) {
+            $f = $prest->first();
+            $f['prestaciones'] = $prest->pluck('prestacion')->implode(', ');
+
+            return $f;
+        })->sortBy('codigo')->values());
+
+        $renglones = $areas->sum(fn ($r) => $r->count());
+        if ($renglones > 3000) {
+            return response()->json([
+                'message' => "El PDF tendría {$renglones} pacientes; reduzca el rango de fechas o filtre por servicio/prestación.",
+            ], 422);
+        }
+
+        $pdf = Pdf::loadView('reportes.analitica_prestaciones', [
+            'areas' => $areas,
+            'subtitulo' => $this->analiticaReporteSubtitulo($request),
+            'generado' => now(),
+        ])->setPaper('letter', 'portrait');
+
+        return $pdf->download("analitica_{$from}_{$to}.pdf");
     }
 
     public function paraPresentacion(Request $request)

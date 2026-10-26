@@ -1,12 +1,10 @@
 <template>
   <q-page class="q-pa-sm bg-grey-2">
     <q-card flat bordered>
-      <!-- HEADER -->
-      <q-card-section class="row items-center q-pa-sm">
-        <div>
-          <div class="text-h6 text-weight-bold">Inmunología · Analítica</div>
-          <div class="text-caption text-grey-7">Ingresa los resultados para cada prestación.</div>
-        </div>
+      <!-- HEADER + DATOS DEL PACIENTE: quedan fijos arriba al hacer scroll -->
+      <div class="imn-sticky">
+      <q-card-section class="row items-center q-py-xs q-px-sm">
+        <div class="text-subtitle1 text-weight-bold">Inmunología · Analítica</div>
         <q-space />
         <q-btn flat icon="arrow_back" label="Volver" no-caps @click="$router.back()" />
         <q-btn
@@ -27,27 +25,29 @@
       <q-separator />
 
       <!-- INFO SOLICITUD -->
-      <q-card-section class="q-pa-xs bg-grey-1">
-        <div class="row q-gutter-sm text-caption q-px-sm">
-          <span><span class="text-grey-6">Paciente: </span><strong>{{ solicitud?.paciente_nombre }}</strong></span>
-          <span><span class="text-grey-6">Edad: </span><strong>{{ edadDetallada }}</strong></span>
-          <span><span class="text-grey-6">Género: </span><strong>{{ solicitud?.paciente_genero }}</strong></span>
-          <span><span class="text-grey-6">Establecimiento: </span><strong>{{ solicitud?.establecimiento_salud || '-' }}</strong></span>
-          <span><span class="text-grey-6">Médico: </span><strong>{{ solicitud?.doctor_nombre || 'N/A' }}</strong></span>
-          <q-chip square color="primary" text-color="white" dense>N° {{ solicitud?.codigo }}</q-chip>
-        </div>
+      <div class="row items-center q-gutter-x-sm text-caption q-px-sm q-py-xs bg-grey-1">
+        <span><span class="text-grey-6">Paciente: </span><strong>{{ solicitud?.paciente_nombre }}</strong></span>
+        <span><span class="text-grey-6">Edad: </span><strong>{{ edadDetallada }}</strong></span>
+        <span><span class="text-grey-6">Género: </span><strong>{{ solicitud?.paciente_genero }}</strong></span>
+        <span><span class="text-grey-6">Establecimiento: </span><strong>{{ solicitud?.establecimiento_salud || '-' }}</strong></span>
+        <span><span class="text-grey-6">Médico: </span><strong>{{ solicitud?.doctor_nombre || 'N/A' }}</strong></span>
+        <q-chip square color="primary" text-color="white" dense>N° {{ solicitud?.codigo }}</q-chip>
+      </div>
+      <q-separator />
+      </div>
 
-        <!-- Fecha de recepción de la muestra y comentario: uno solo para toda la analítica -->
+      <q-card-section class="q-pa-xs">
+        <!-- Fecha de recepción, método, equipo y comentario: uno solo para toda la analítica -->
         <div v-if="prestaciones.length" class="row q-col-gutter-sm q-px-sm q-mt-xs q-mb-xs">
-          <div class="col-12 col-sm-4">
+          <div class="col-12 col-sm-4 col-md-2">
             <q-input
               v-model="fechaRecepcion"
               type="date"
               dense outlined clearable stack-label
-              label="Fecha de recepción de la muestra"
+              label="Fecha de recepción"
             />
           </div>
-          <div class="col-12 col-sm-8">
+          <div class="col-12 col-sm-8 col-md-5 order-md-last">
             <q-input
               v-model="comentario"
               type="textarea"
@@ -57,8 +57,7 @@
             />
           </div>
 
-          <!-- Método y equipo: uno solo para toda la analítica -->
-          <div class="col-12 col-sm-4">
+          <div class="col-12 col-sm-4 col-md-2">
             <q-select
               v-model="metodo"
               :options="metodoOptions"
@@ -66,7 +65,7 @@
               label="Método"
             />
           </div>
-          <div class="col-12 col-sm-8">
+          <div class="col-12 col-sm-8 col-md-3">
             <div class="row items-center no-wrap q-gutter-xs">
               <q-select
                 v-model="equipo"
@@ -103,8 +102,23 @@
           </div>
         </div>
 
-        <!-- Prestaciones agrupadas por sub-área -->
+        <!-- Prestaciones agrupadas por sub-área, separadas en tabs por método (ELISA / CLIA) -->
         <div v-else>
+          <q-tabs
+            v-model="tab"
+            dense no-caps align="left"
+            active-color="primary" indicator-color="primary"
+            class="text-grey-7 q-mb-sm"
+          >
+            <q-tab v-for="t in tabs" :key="t.key" :name="t.key">
+              <div class="row items-center no-wrap">
+                <span class="text-weight-bold">{{ t.label }}</span>
+                <q-badge class="q-ml-xs" color="primary" outline>{{ t.prestaciones }}</q-badge>
+              </div>
+            </q-tab>
+          </q-tabs>
+          <q-separator class="q-mb-sm" />
+
           <div v-for="grupo in gruposSubarea" :key="grupo.clave || 'sin-subarea'" class="q-mb-md">
             <!-- Cabecera sub-área -->
             <div class="imn-subarea q-mb-sm">
@@ -113,7 +127,7 @@
               <q-badge class="q-ml-sm" color="primary" outline>{{ grupo.prestaciones.length }}</q-badge>
             </div>
 
-            <div v-for="prest in grupo.prestaciones" :key="prest.servicio_id" class="q-mb-md">
+            <div v-for="{ prest, rangos } in grupo.prestaciones" :key="prest.servicio_id" class="q-mb-md">
             <!-- Cabecera prestación -->
             <div class="row items-center q-mb-xs">
               <q-icon name="biotech" color="primary" class="q-mr-xs" />
@@ -131,15 +145,15 @@
             </div>
 
             <!-- Tabla dense de rangos -->
-            <table v-if="prest.rangos.length" class="imn-table q-mb-xs">
+            <table v-if="rangos.length" class="imn-table q-mb-xs">
               <thead>
                 <tr>
                   <th>#</th>
                   <th>Analito / Condición</th>
                   <th>Método</th>
-                  <th style="min-width:140px">Valor del paciente</th>
+                  <th style="width:150px">Valor del paciente</th>
                   <th>Unidad</th>
-                  <th v-if="tieneInterpretacion(prest)" style="width:150px">Interpretación</th>
+                  <th v-if="tieneInterpretacion(rangos)" style="width:150px">Interpretación</th>
                   <th style="max-width:220px">Rango de referencia</th>
                   <th style="width:80px">Estado</th>
                   <th style="width:44px" class="tc" title="Se muestra en el PDF de resultados">
@@ -149,7 +163,7 @@
               </thead>
               <tbody>
                 <tr
-                  v-for="(rango, idx) in prest.rangos"
+                  v-for="(rango, idx) in rangos"
                   :key="rango.id"
                   :class="esFormula(prest, rango) ? 'fila-calculada' : ''"
                 >
@@ -190,7 +204,7 @@
                     />
                   </td>
                   <td class="text-grey-6" style="font-size:11px">{{ rango.unidad || '—' }}</td>
-                  <td v-if="tieneInterpretacion(prest)">
+                  <td v-if="tieneInterpretacion(rangos)">
                     <!-- Interpretación: solo en los rangos marcados en "Vincular rangos" -->
                     <q-select
                       v-if="rango.con_interpretacion"
@@ -203,6 +217,15 @@
                     <span v-else class="text-grey-5" style="font-size:11px">—</span>
                   </td>
                   <td>
+                    <div class="row no-wrap items-start">
+                    <div class="col">
+                    <!-- Referencia editada para esta solicitud: reemplaza a la del catálogo en el PDF -->
+                    <div
+                      v-if="referencias[rango.id]"
+                      class="text-orange-9"
+                      style="font-size:11px; white-space:pre-line; max-width:216px"
+                    >{{ referencias[rango.id] }}</div>
+                    <template v-else>
                     <!-- Sub-rangos numéricos -->
                     <template v-if="subRangos(rango).length">
                       <div
@@ -230,6 +253,36 @@
                       {{ rango.interpretacion }}
                     </div>
                     <span v-if="!subRangos(rango).length && !rango.interpretacion" class="text-grey-5" style="font-size:11px">—</span>
+                    </template>
+                    </div>
+                    <q-btn
+                      flat round dense size="xs" icon="edit"
+                      :color="referencias[rango.id] ? 'orange-9' : 'grey-6'"
+                    >
+                      <q-tooltip>
+                        {{ referencias[rango.id] ? 'Referencia editada (se imprime en el PDF)' : 'Editar referencia para esta solicitud' }}
+                      </q-tooltip>
+                      <q-popup-edit
+                        :model-value="referencias[rango.id] || referenciaPorDefecto(rango)"
+                        v-slot="scope"
+                        buttons label-set="Aplicar" label-cancel="Cancelar"
+                        @save="val => editarReferencia(prest, rango, val)"
+                      >
+                        <q-input
+                          v-model="scope.value"
+                          type="textarea" autogrow dense autofocus
+                          label="Rango de referencia"
+                          hint="Una línea por renglón. Vacío = usar la del catálogo"
+                          style="min-width:280px"
+                        />
+                        <q-btn
+                          flat dense no-caps size="sm" color="grey-7" icon="restart_alt"
+                          label="Restaurar catálogo" class="q-mt-sm"
+                          @click="scope.value = ''"
+                        />
+                      </q-popup-edit>
+                    </q-btn>
+                    </div>
                   </td>
                   <td class="tc">
                     <span v-if="esFormula(prest, rango)" class="text-teal-7" style="font-size:10px">calc.</span>
@@ -261,6 +314,14 @@
           </div>
         </div>
       </q-card-section>
+
+      <template v-if="prestaciones.length">
+        <q-separator />
+        <q-card-actions align="right" class="q-pa-sm">
+          <q-btn flat color="deep-purple" icon="print" label="Imprimir" no-caps @click="imprimirPdf" />
+          <q-btn color="primary" icon="save" label="Guardar" no-caps :loading="saving" @click="guardar" />
+        </q-card-actions>
+      </template>
     </q-card>
 
     <!-- ADMINISTRACIÓN DEL CATÁLOGO MÉTODO / EQUIPO -->
@@ -350,9 +411,11 @@ export default {
       saving: false,
       solicitud: null,
       prestaciones: [],
+      tab: 'ELISA',               // método visible: ELISA, CLIA u OTROS
       valores: {},
       visibles: {},               // ids que se imprimen en el PDF de esta solicitud
       interpretaciones: {},       // interpretación elegida por rango (Reactivo, Positivo, ...)
+      referencias: {},            // referencia editada por rango (null = la del catálogo)
       opcionesInterpretacion: [
         'Reactivo',
         'No reactivo',
@@ -401,21 +464,39 @@ export default {
       return `${plural(years, 'año', 'años')} ${plural(months, 'mes', 'meses')} ${plural(days, 'día', 'días')}`
     },
 
+    // Tabs ELISA / CLIA / Otros con la cantidad de prestaciones de cada uno;
+    // solo aparecen los que tienen rangos en esta solicitud.
+    tabs () {
+      const labels = { ELISA: 'ELISA', CLIA: 'CLIA', OTROS: 'Otros' }
+      return Object.keys(labels)
+        .map(key => ({
+          key,
+          label: labels[key],
+          prestaciones: this.prestaciones
+            .filter(prest => prest.rangos.some(r => this.tabRango(prest, r) === key)).length
+        }))
+        .filter(t => t.prestaciones > 0)
+    },
+
     // El backend ya devuelve las prestaciones ordenadas por subárea; aquí solo
-    // se agrupan respetando ese orden para titular cada bloque.
+    // se agrupan respetando ese orden para titular cada bloque. Cada prestación
+    // lleva únicamente los rangos del tab activo.
     gruposSubarea () {
       // en la BD conviven variantes ("HORMONAS" / "Hormonas"), se comparan normalizadas
       const clave = s => (s || '').trim().replace(/\s+/g, ' ').toUpperCase()
       const grupos = []
       this.prestaciones.forEach(prest => {
+        const rangos = prest.rangos.filter(r => this.tabRango(prest, r) === this.tab)
+        if (!rangos.length) return
+        const item = { prest, rangos }
         const ultimo = grupos[grupos.length - 1]
         if (ultimo && ultimo.clave === clave(prest.subarea)) {
-          ultimo.prestaciones.push(prest)
+          ultimo.prestaciones.push(item)
         } else {
           grupos.push({
             clave: clave(prest.subarea),
             subarea: (prest.subarea || '').trim(),
-            prestaciones: [prest]
+            prestaciones: [item]
           })
         }
       })
@@ -444,6 +525,10 @@ export default {
         const { data } = await this.$axios.get(`/inmunologia-analitica/solicitud/${this.$route.params.id}`)
         this.solicitud = data.solicitud
         this.prestaciones = data.prestaciones.filter(p => p.rangos.length > 0)
+        // Conserva el tab tras guardar; si ya no existe, abre el primero disponible
+        if (!this.tabs.some(t => t.key === this.tab)) {
+          this.tab = this.tabs[0]?.key || 'ELISA'
+        }
 
         this.fechaRecepcion = data.solicitud?.inmunologia_fecha_recepcion || null
         this.comentario = data.solicitud?.inmunologia_comentario || ''
@@ -453,6 +538,7 @@ export default {
         this.valores = {}
         this.visibles = {}
         this.interpretaciones = {}
+        this.referencias = {}
         this.manualOverrides = new Set()
         this.prestacionesModificadas = new Set()
         this.prestaciones.forEach(prest => {
@@ -461,6 +547,7 @@ export default {
             this.valores[rango.id] = valorGuardado
             this.visibles[rango.id] = rango.visible !== false
             this.interpretaciones[rango.id] = rango.resultado?.interpretacion || null
+            this.referencias[rango.id] = rango.resultado?.referencia || null
             // Si es campo de fórmula y tiene valor guardado → fue editado manualmente
             if (valorGuardado !== '' && valorGuardado !== null && this.esFormula(prest, rango)) {
               this.manualOverrides.add(rango.id)
@@ -503,8 +590,19 @@ export default {
     },
 
     // La columna de interpretación solo aparece si algún rango la tiene marcada
-    tieneInterpretacion (prest) {
-      return (prest.rangos || []).some(r => r.con_interpretacion)
+    tieneInterpretacion (rangos) {
+      return (rangos || []).some(r => r.con_interpretacion)
+    },
+
+    // Tab al que pertenece un rango según su método. Los rangos que no son
+    // ELISA ni CLIA (HAI, cromatografía...) acompañan a los ELISA de su
+    // prestación; si la prestación no tiene ninguno van a "Otros".
+    tabRango (prest, rango) {
+      const metodo = m => (m || '').trim().toUpperCase()
+      const m = metodo(rango.metodo)
+      if (m.includes('CLIA')) return 'CLIA'
+      if (m.startsWith('ELI')) return 'ELISA'
+      return prest.rangos.some(r => metodo(r.metodo).startsWith('ELI')) ? 'ELISA' : 'OTROS'
     },
 
     actualizarPrestacion (prest, rangoId) {
@@ -578,6 +676,33 @@ export default {
         .filter(sr => sr.descripcion || sr.minimo !== null || sr.maximo !== null)
     },
 
+    // Texto de la referencia del catálogo, igual a como sale en el PDF:
+    // un sub-rango por línea y luego el texto libre
+    referenciaPorDefecto (rango) {
+      const lineas = this.subRangos(rango).map(sr => {
+        let valor = ''
+        if (sr.minimo !== null && sr.maximo !== null) valor = `${sr.minimo} - ${sr.maximo}`
+        else if (sr.minimo !== null) valor = `≥ ${sr.minimo}`
+        else if (sr.maximo !== null) valor = `≤ ${sr.maximo}`
+        if (sr.descripcion && valor) return `${sr.descripcion}: ${valor}`
+        return sr.descripcion || valor
+      })
+      if (rango.interpretacion) {
+        rango.interpretacion.split(/\r\n|\r|\n/)
+          .map(l => l.trim())
+          .filter(Boolean)
+          .forEach(l => lineas.push(l))
+      }
+      return lineas.join('\n')
+    },
+
+    // Vacío o igual al catálogo → null (se imprime la del catálogo)
+    editarReferencia (prest, rango, val) {
+      const texto = (val || '').trim()
+      this.referencias[rango.id] = texto && texto !== this.referenciaPorDefecto(rango) ? texto : null
+      this.marcarPrestacionModificada(prest)
+    },
+
     estadoRango (rango) {
       const val = parseFloat(this.valores[rango.id])
       if (isNaN(val)) return []
@@ -618,7 +743,8 @@ export default {
             visible: this.visibles[rango.id] !== false,
             interpretacion: rango.con_interpretacion
               ? (this.interpretaciones[rango.id] || null)
-              : null
+              : null,
+            referencia: this.referencias[rango.id] || null
           })))
 
         await this.$axios.post(
@@ -726,6 +852,13 @@ export default {
 </script>
 
 <style scoped>
+/* 50px = alto del q-header del MainLayout */
+.imn-sticky {
+  position: sticky;
+  top: 50px;
+  z-index: 5;
+  background: #fff;
+}
 .imn-subarea {
   display: flex;
   align-items: center;
@@ -765,6 +898,7 @@ export default {
 
 .imn-input {
   width: 100%;
+  max-width: 140px;
   border: 1px solid #d1d5db;
   border-radius: 4px;
   padding: 3px 7px;
@@ -776,6 +910,9 @@ export default {
 .imn-input:focus {
   border-color: #7c3aed;
   box-shadow: 0 0 0 2px #ede9fe;
+}
+.imn-select {
+  max-width: 160px;
 }
 .imn-select :deep(.q-field__control) {
   min-height: 26px;

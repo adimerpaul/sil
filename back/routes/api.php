@@ -181,6 +181,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     //    analitica/solicitudes
     Route::get('solicitudesAnalitica', [SolicitudeController::class, 'solicitudesAnalitica']);
+    Route::get('solicitudesAnalitica/excel', [SolicitudeController::class, 'solicitudesAnaliticaExcel']);
+    Route::get('solicitudesAnalitica/pdf', [SolicitudeController::class, 'solicitudesAnaliticaPdf']);
     Route::get('analitica/para-presentacion', [SolicitudeController::class, 'paraPresentacion']);
     Route::post('analitica/registrar-presentacion', [SolicitudeController::class, 'registrarPresentacion']);
 
@@ -281,6 +283,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('reportes/servicios-resumen/pdf', [ReporteServiciosController::class, 'exportPdf']);
     Route::get('reportes/servicios-resumen/excel-ents', [ReporteServiciosController::class, 'exportExcelEnts']);
     Route::get('reportes/servicios-resumen/pdf-ents', [ReporteServiciosController::class, 'exportPdfEnts']);
+    Route::get('reportes/servicios-resumen/excel-ents-inmunologia', [ReporteServiciosController::class, 'exportExcelEntsInmunologia']);
+    Route::get('reportes/servicios-resumen/pdf-ents-inmunologia', [ReporteServiciosController::class, 'exportPdfEntsInmunologia']);
     Route::get('reportes/servicios-resumen/excel-externos', [ReporteServiciosController::class, 'exportExcelExternos']);
     Route::get('reportes/servicios-resumen/pdf-externos', [ReporteServiciosController::class, 'exportPdfExternos']);
     Route::get('reportes/consentimientos', [ConsentimientoController::class, 'reporte']);

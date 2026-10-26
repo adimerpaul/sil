@@ -2,57 +2,119 @@
   <q-page class="q-pa-sm">
     <!-- HEADER / FILTROS -->
     <q-card flat bordered class="q-mb-sm">
-      <q-card-section class="row items-center q-col-gutter-xs">
-        <div class="col-12 col-sm-2">
-          <div class="text-subtitle2">{{$store.user.area?.name}}</div>
-          <!--          <div class="text-caption text-grey-7">-->
-          <!--            Solicitudes recibidas de Preanalítica (estado ENVIADO_ANALITICA)-->
-          <!--          </div>-->
+      <q-card-section class="row items-center q-py-sm bg-primary text-white">
+        <q-icon name="biotech" size="26px" class="q-mr-sm" />
+        <div>
+          <div class="text-subtitle1 text-weight-bold">Analítica</div>
+          <div class="text-caption" style="opacity:.85">{{ $store.user.area?.name || 'Todas las áreas' }}</div>
         </div>
+        <q-space />
+        <div class="row q-gutter-xs">
+          <q-btn unelevated color="green-7" icon="fa-solid fa-file-excel" label="Excel" no-caps
+                 :loading="loadingExcel" @click="exportarExcel">
+            <q-tooltip>Exportar prestaciones filtradas a Excel</q-tooltip>
+          </q-btn>
+          <q-btn unelevated color="red-7" icon="picture_as_pdf" label="Registro PDF" no-caps
+                 :loading="loadingPdf" @click="exportarPdf">
+            <q-tooltip>Imprimir registro de pacientes por área (código, fecha, N° paciente, paciente, edad, médico, diagnóstico, prestaciones, usuario)</q-tooltip>
+          </q-btn>
+          <q-btn unelevated color="teal" icon="print" label="Imprimir result" no-caps
+                 @click="abrirDialogPresentacion" />
+        </div>
+      </q-card-section>
 
-        <div class="col-12 col-sm-2">
-          <q-input v-model="from" type="date" dense outlined label="Desde">
+      <q-card-section class="row items-start q-col-gutter-sm q-pb-none">
+        <div class="col-6 col-sm-3 col-md-2">
+          <q-input v-model="from" type="date" dense outlined label="Desde" @update:model-value="analiticaGet()">
             <template #prepend><q-icon name="event" /></template>
           </q-input>
         </div>
-        <div class="col-12 col-sm-2">
-          <q-input v-model="to" type="date" dense outlined label="Hasta">
+        <div class="col-6 col-sm-3 col-md-2">
+          <q-input v-model="to" type="date" dense outlined label="Hasta" @update:model-value="analiticaGet()">
             <template #prepend><q-icon name="event" /></template>
           </q-input>
         </div>
 
-        <div class="col-12 col-sm-3">
+        <div class="col-12 col-sm-6 col-md-2">
+          <q-select
+            v-model="areaId"
+            :options="areasOptions"
+            option-value="id"
+            option-label="name"
+            emit-value map-options
+            dense outlined clearable options-dense
+            label="Servicio"
+            :loading="loadingAreas"
+            @update:model-value="onChangeArea"
+          >
+            <template #prepend><q-icon name="category" /></template>
+          </q-select>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-select
+            v-model="servicioIds"
+            :options="prestacionesFiltradas"
+            option-value="id"
+            option-label="nombre"
+            emit-value map-options
+            multiple use-chips use-input
+            dense outlined clearable options-dense
+            input-debounce="0"
+            label="Prestaciones"
+            @filter="filtrarPrestaciones"
+            @update:model-value="analiticaGet()"
+          >
+            <template #prepend><q-icon name="science" /></template>
+            <template #option="scope">
+              <q-item v-bind="scope.itemProps" dense>
+                <q-item-section side>
+                  <q-checkbox dense :model-value="scope.selected" @update:model-value="scope.toggleOption(scope.opt)" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ scope.opt.nombre }}</q-item-label>
+                  <q-item-label caption v-if="!areaId">{{ scope.opt.area_nombre }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
+            <template #no-option>
+              <q-item><q-item-section class="text-grey">Sin prestaciones</q-item-section></q-item>
+            </template>
+          </q-select>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-3">
           <q-input
             v-model="filter"
             dense
             outlined
             clearable
-            label="Buscar por código, paciente o CI"
+            label="Código, paciente o CI"
             @keyup.enter="analiticaGet()"
+            @clear="analiticaGet()"
           >
             <template #prepend><q-icon name="search" /></template>
+            <template #append>
+              <q-btn round dense flat icon="arrow_forward" color="primary" :loading="loading" @click="analiticaGet()" />
+            </template>
           </q-input>
         </div>
 
-        <div class="col-12 col-sm-2 text-right row q-gutter-xs justify-end">
-          <q-btn
-            color="primary"
-            icon="search"
-            label="Buscar"
-            no-caps
-            :loading="loading"
-            @click="analiticaGet()"
-          />
+        <div class="col-12 row items-center q-gutter-xs" v-if="hayFiltrosServicio">
+          <span class="text-caption text-grey-7">Filtrando por:</span>
+          <q-chip v-if="areaId" dense removable color="indigo-1" text-color="indigo-9" icon="category"
+                  @remove="quitarArea">
+            {{ areaNombre(areaId) }}
+          </q-chip>
+          <q-chip v-for="id in servicioIds" :key="id" dense removable color="teal-1" text-color="teal-9" icon="science"
+                  @remove="quitarPrestacion(id)">
+            {{ prestacionNombre(id) }}
+          </q-chip>
+          <q-btn flat dense no-caps size="sm" color="grey-7" icon="filter_alt_off" label="Limpiar filtros" @click="limpiarFiltros" />
         </div>
-        <div class="col-12 col-sm-2 text-right row q-gutter-xs justify-end">
-          <q-btn
-            color="teal"
-            icon="print"
-            label="Imprimir result"
-            no-caps
-            @click="abrirDialogPresentacion"
-          />
-        </div>
+      </q-card-section>
+
+      <q-card-section class="row q-col-gutter-sm">
         <div class="col-12">
           <q-markup-table dense wrap-cells flat bordered>
             <thead>
@@ -384,7 +446,8 @@
               <td >
                 <div style="border: 1px solid rgba(34,103,182,0.62); border-radius: 4px; padding: 2px;">
                   <ul style="padding-left: 1em; margin: 0;list-style: none">
-                    <li v-for="servicio in solicitud.servicios" :key="servicio.id" style="text-decoration: none">
+                    <li v-for="servicio in solicitud.servicios" :key="servicio.id" style="text-decoration: none"
+                        :class="{ 'prestacion-match': esPrestacionFiltrada(servicio) }">
                       <!--                    icono verde de epntinte pque;o-->
                       <!--                    <q-icon name="check_circle" color="green" size="12px" class="q-mr-xs" />-->
                       <!--                    rojo-->
@@ -551,9 +614,32 @@ export default {
       loadingPresentacion: false,
       gruposPresentacion: [],
       seleccionados: [],
+      areas: [],
+      loadingAreas: false,
+      areaId: null,
+      servicioIds: [],
+      prestacionesFiltro: '',
+      loadingExcel: false,
+      loadingPdf: false,
     }
   },
   computed: {
+    areasOptions () {
+      return this.areas.map(a => ({ id: a.id, name: a.name }))
+    },
+    // Prestaciones del servicio elegido (o de todos si no hay servicio).
+    prestacionesOptions () {
+      const areas = this.areaId ? this.areas.filter(a => a.id === this.areaId) : this.areas
+      return areas.flatMap(a => (a.servicios || []).map(s => ({ id: s.id, nombre: s.nombre, area_nombre: a.name })))
+    },
+    prestacionesFiltradas () {
+      const needle = this.prestacionesFiltro.toLowerCase()
+      if (!needle) return this.prestacionesOptions
+      return this.prestacionesOptions.filter(p => p.nombre.toLowerCase().includes(needle))
+    },
+    hayFiltrosServicio () {
+      return !!this.areaId || (this.servicioIds || []).length > 0
+    },
     seleccionadosSolicitudes () {
       return [...new Set(this.seleccionados)]
     },
@@ -577,6 +663,7 @@ export default {
     }
   },
   mounted () {
+    this.areasGet()
     this.analiticaGet()
     // if (!this.$store.socketAnalitica) {
     //   this.$store.socketAnalitica = true
@@ -757,18 +844,113 @@ export default {
       this.page = 1
       this.analiticaGet(false)
     },
+    async areasGet () {
+      this.loadingAreas = true
+      try {
+        const res = await this.$axios.get('areas')
+        this.areas = res.data || []
+      } catch {
+        this.$alert.error('Error al cargar los servicios.')
+      } finally {
+        this.loadingAreas = false
+      }
+    },
+    areaNombre (id) {
+      return this.areas.find(a => a.id === id)?.name || ''
+    },
+    prestacionNombre (id) {
+      for (const a of this.areas) {
+        const s = (a.servicios || []).find(s => s.id === id)
+        if (s) return s.nombre
+      }
+      return ''
+    },
+    filtrarPrestaciones (val, update) {
+      update(() => { this.prestacionesFiltro = val || '' })
+    },
+    onChangeArea () {
+      // Al cambiar de servicio, conservar solo las prestaciones que le pertenecen.
+      const validas = new Set(this.prestacionesOptions.map(p => p.id))
+      this.servicioIds = (this.servicioIds || []).filter(id => validas.has(id))
+      this.analiticaGet()
+    },
+    quitarArea () {
+      this.areaId = null
+      this.onChangeArea()
+    },
+    quitarPrestacion (id) {
+      this.servicioIds = (this.servicioIds || []).filter(s => s !== id)
+      this.analiticaGet()
+    },
+    limpiarFiltros () {
+      this.areaId = null
+      this.servicioIds = []
+      this.analiticaGet()
+    },
+    esPrestacionFiltrada (servicio) {
+      const ids = this.servicioIds || []
+      if (ids.length) return ids.includes(servicio.id)
+      return !!this.areaId && servicio.area_id === this.areaId
+    },
+    filtrosParams () {
+      const isNumeric = /^\d+$/.test((this.filter || '').trim())
+      return {
+        filter: isNumeric ? '' : (this.filter || ''),
+        codigo: isNumeric ? this.filter.trim() : '',
+        from: this.from,
+        to: this.to,
+        area_id: this.areaId || '',
+        servicio_ids: this.servicioIds || [],
+      }
+    },
+    async descargarReporte (tipo) {
+      const loadingKey = tipo === 'excel' ? 'loadingExcel' : 'loadingPdf'
+      this[loadingKey] = true
+      try {
+        const res = await this.$axios.get(`solicitudesAnalitica/${tipo}`, {
+          params: this.filtrosParams(),
+          responseType: 'blob',
+          timeout: 120000
+        })
+        const mime = tipo === 'excel'
+          ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          : 'application/pdf'
+        const url = URL.createObjectURL(new Blob([res.data], { type: mime }))
+        if (tipo === 'excel') {
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `analitica_${this.from}_${this.to}.xlsx`
+          a.click()
+          URL.revokeObjectURL(url)
+        } else {
+          window.open(url, '_blank')
+          setTimeout(() => URL.revokeObjectURL(url), 10000)
+        }
+      } catch (e) {
+        let mensaje = `Error al generar el ${tipo === 'excel' ? 'Excel' : 'PDF'}.`
+        try {
+          const json = JSON.parse(await e.response.data.text())
+          if (json.message) mensaje = json.message
+        } catch { /* respuesta no JSON */ }
+        this.$alert.error(mensaje)
+      } finally {
+        this[loadingKey] = false
+      }
+    },
+    exportarExcel () {
+      this.descargarReporte('excel')
+    },
+    exportarPdf () {
+      this.descargarReporte('pdf')
+    },
     async analiticaGet (resetPage = true) {
       this.loading = true
       try {
         if (resetPage) {
           this.page = 1
         }
-        const isNumeric = /^\d+$/.test((this.filter || '').trim())
         const params = {
-          filter: isNumeric ? '' : this.filter,
-          from: this.from,
-          to: this.to,
-          codigo: isNumeric ? this.filter : '',
+          ...this.filtrosParams(),
           page: this.page,
           per_page: this.rowsPerPage,
         }
@@ -841,3 +1023,11 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.prestacion-match {
+  background: #e0f2f1;
+  border-radius: 3px;
+  font-weight: 600;
+}
+</style>

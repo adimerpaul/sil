@@ -128,6 +128,13 @@
         </q-td>
       </template>
 
+      <template #body-cell-derivado="props">
+        <q-td :props="props">
+          <q-chip v-if="props.row.derivado" color="orange" text-color="white" dense>SI</q-chip>
+          <span v-else class="text-grey-6">NO</span>
+        </q-td>
+      </template>
+
       <template #body-cell-consentimiento="props">
         <q-td :props="props">
           <q-chip
@@ -322,6 +329,7 @@ export default {
         { name: 'paciente', label: 'Paciente', field: row => row?.paciente_nombre || '', align: 'left' },
         { name: 'doctor', label: 'Doctor', field: row => row.doctor?.nombre || row.doctor_nombre || '', align: 'left' },
         { name: 'tipo_atencion', label: 'Tipo atención', field: 'tipo_atencion', align: 'left' },
+        { name: 'derivado', label: 'Derivado', field: 'derivado', align: 'center' },
         { name: 'estado', label: 'Estado', field: 'estado', align: 'left' },
         { name: 'consentimiento', label: 'Consentimiento', field: row => row?.consentimiento?.tipo || '', align: 'left' }
       ],
